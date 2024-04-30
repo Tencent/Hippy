@@ -102,12 +102,23 @@ export  class VirtualizedList {
   handleScroll(e) {
     const {onScroll} = this.options;
     const offset = this.container.scrollTop;
-
+    if (offset < 0 || offset > (this._sizeAndPositionManager.getTotalSize()
+      - this.container.clientHeight)) {
+      if (offset < 0) {
+        this.stopScroll();
+      }
+      return;
+    }
     this.setState({offset});
 
     if (typeof onScroll === 'function') {
       onScroll(offset, e);
     }
+  }
+
+  stopScroll() {
+    this.container.style['overflowY'] = 'hidden';
+    requestAnimationFrame(()=>{this.container.style['overflowY'] = 'scroll'});
   }
 
   getRowHeight = ({index}) => {
@@ -125,7 +136,7 @@ export  class VirtualizedList {
 
     return offset;
   }
-  getOffset(){
+  getOffset() {
     return this.state.offset??0;
   }
 
@@ -173,7 +184,7 @@ export  class VirtualizedList {
     });
     const fragment = document.createDocumentFragment();
 
-    for (let index = start; index <= stop&&stop>0; index++) {
+    for (let index = start; index <= stop && stop >= 0; index++) {
       fragment.appendChild(renderRow(index));
     }
 

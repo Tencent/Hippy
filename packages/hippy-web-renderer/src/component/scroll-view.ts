@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { NodeProps, HippyBaseView, InnerNodeTag, UIProps, DefaultPropsProcess } from '../types';
+import {NodeProps, HippyBaseView, InnerNodeTag, UIProps, DefaultPropsProcess} from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 import {
@@ -69,6 +69,10 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     if (data.style && data.style.flexShrink === 1 && data.style.flexGrow === 1 && !data.style.flexBasis) {
       delete newData.style.flexShrink;
       delete newData.style.flexGrow;
+    }
+    if (data.style && data.style.flex === 1) {
+      delete newData.style.flex;
+      newData.style.flex = '1 1 0px';
     }
     defaultProcess(this, newData);
   }

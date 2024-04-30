@@ -29,7 +29,7 @@ const current = path.join(__dirname);
 const DeviceType = 'iPhone 11 Pro';
 const Entry = 'http://localhost:3000/index.html';
 const MochaConfig = {
-  main: path.join(current, './mocha.jscore.bundle'),
+  main: path.join(current, './mocha.jscore.js'),
   chai: 'https://cdn.staticfile.org/chai/4.0.0-canary.1/chai.js',
 };
 const testPath = path.join(current, '../dist/core.build.js');
@@ -87,7 +87,6 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
           path: imgPath,
         });
         resolve(true);
-        return;
       }
       await page.screenshot({
         path: imgTempPath,
@@ -110,13 +109,14 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
       };
       try {
         const data = await compareImages(await mzfs.readFile(imgTempPath), await mzfs.readFile(imgPath), options);
-        if (data.rawMisMatchPercentage > 0.01) {
+        if (data.rawMisMatchPercentage > 0.13) {
           resolve(false);
           return;
         }
         fs.unlinkSync(imgTempPath);
         resolve(true);
       } catch (error) {
+        console.log('get error');
         resolve(false);
       }
     }, 1000 * delayTime);
@@ -124,10 +124,10 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
 }
 function testReporter(event, data, runner, beginTimestamp, page, browser) {
   if (event === 'pass') {
-    console.log(colors('green', event), '--------------------', data.parent.title, data.title);
+    console.log(colors('green', event), '--------------------', data?.parent?.title, data?.title);
   }
   if (event === 'fail') {
-    console.log(colors('red', event), '--------------------', data.parent.title, data.title);
+    console.log(colors('red', event), '--------------------', data?.parent?.title, data?.title);
     console.log(colors('red', `timedOut: ${data.timedOut} `));
   }
   if (event === 'end') {

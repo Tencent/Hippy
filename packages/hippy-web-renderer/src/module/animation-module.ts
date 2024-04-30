@@ -20,7 +20,7 @@
 
 import { Property } from 'csstype';
 import { ComponentContext, HippyBaseView } from '../types';
-import { convertHexToRgba, setElementStyle, warn } from '../common';
+import {convertHexToRgba, setElementStyle, warn} from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
@@ -81,7 +81,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public resumeAnimation(animationId: number) {
-    if (!this.isValidAnimationId(animationId)) {
+    if (!!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation resume failed, animationId not find animation object', animationId);
       return;
     }
@@ -340,7 +340,7 @@ class SimpleAnimation {
   }
 
   public start() {
-    if (this.cleared) {
+    if (this.cleared || this.refNodeIds.size === 0) {
       return;
     }
     const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
@@ -512,6 +512,9 @@ class SimpleAnimation {
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
+    if (this.animationInfo.repeatCount === undefined  || this.animationInfo.repeatCount < 0) {
+      return;
+    }
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }

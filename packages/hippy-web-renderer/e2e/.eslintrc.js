@@ -27,6 +27,6 @@ module.exports = {
     beforeEach: true,
     globalThis: true,
     snapshot: true,
-    e2e: true,
+    __e2e__: true,
   },
 };

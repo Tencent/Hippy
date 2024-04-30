@@ -27,7 +27,7 @@ import {
   STYLE_PADDING_V,
 } from '../types';
 import { HippyWebView } from '../component';
-
+export type TransmitDataCheck = (key: string,value: any) => {[key: string]: any};
 export function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return obj && Object.prototype.hasOwnProperty.call(obj, name);
 }
@@ -62,7 +62,6 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
     if (isFontSize(key) && element.tagName === 'span') {
       const newValue = transformForSize(object[key]);
       styleUpdateWithCheck(element, key, newValue);
-      styleUpdateWithCheck(element, 'line-height', newValue);
       continue;
     }
     if (isLayout(key, object[key])) {
@@ -93,29 +92,104 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
 
 export function positionAssociate(
   newStyle: {[prop: string]: any},
-  component: HippyBaseView, parent: HippyWebView<any>,
+  component: HippyBaseView, parent: HippyWebView<any>|null,
 ) {
+  if (!parent) {
+    return;
+  }
+  const updateStyle: any = {};
   if (newStyle.position === 'absolute' && !parent?.props?.style?.position
     && !parent?.defaultStyle().position) {
-    setElementStyle(parent!.dom!, { position: 'relative' });
+    updateStyle.position = 'relative';
+    const pzIndex = parent?.props?.style?.zIndex;
+    if (pzIndex === undefined) {
+      updateStyle.zIndex = 0;
+    }
   }
   if (newStyle.position === 'absolute' && !newStyle.width && !newStyle.height && !newStyle.overflow) {
-    setElementStyle(component.dom!, { overflow: 'visible' });
+    updateStyle.overflow = 'visible';
   }
+  setElementStyle(parent!.dom!, updateStyle);
 }
 
 export function zIndexAssociate(
   diffStyle: {[prop: string]: any},
-  component: HippyBaseView, parent: HippyWebView<any>,
+  component: HippyBaseView, parent: HippyWebView<any>|null,
 ) {
+  if (!parent) {
+    return;
+  }
   if ((diffStyle.position === 'absolute' || diffStyle.position === 'relative')) {
     parent?.changeStackContext(true);
     (component as HippyWebView<any>).updateSelfStackContext(true);
   } else if (diffStyle.position === null) {
     parent?.changeStackContext(false);
     (component as HippyWebView<any>).updateSelfStackContext(false);
-  } else if (parent?.exitChildrenStackContext && diffStyle.zIndex === null) {
+  } else if (parent?.exitChildrenStackContext && !diffStyle.zIndex) {
     (component as HippyWebView<any>).updateSelfStackContext(true);
+  }
+}
+
+export function customDataAssociate(
+  props: {[prop: string]: any},
+  component: HippyBaseView, config: Array<string|RegExp|TransmitDataCheck>,
+) {
+  for (const itemKey in props) {
+    let find: any = false;
+    for (let i = 0;i < config.length;i++) {
+      if (typeof config[i] === 'string') {
+        find = config[i] === itemKey;
+      } else if (isRegExp(config[i])) {
+        find = !!(config[i] as RegExp).exec(itemKey);
+      } else if (typeof config[i] === 'function') {
+        find = (config[i] as TransmitDataCheck)(itemKey, props[itemKey]);
+      }
+      if (find) {
+        break;
+      }
+    }
+    if (!find) {
+      return;
+    }
+    if (typeof find === 'object') {
+      Object.keys(find).forEach((value) => {
+        const itemValue = find[value];
+        const attrValue = obj2QueryString(itemValue);
+        component.dom?.setAttribute(value, attrValue);
+      });
+      continue;
+    }
+    const itemValue = props[itemKey];
+    const attrValue = obj2QueryString(itemValue);
+    component.dom?.setAttribute(itemKey, attrValue);
+  }
+}
+
+function isRegExp(v) {
+  return Object.prototype.toString.call(v) === '[object RegExp]';
+}
+
+function obj2QueryString(obj) {
+  const str: Array<any> = [];
+  if (typeof obj === 'string') {
+    return obj;
+  }
+  Object.keys(obj).forEach((itemKey) => {
+    str.push(`${encodeURIComponent(itemKey)}=${encodeURIComponent(obj[itemKey])}`);
+  });
+  return str.join('&');
+}
+
+export function fontSizeAssociate(newStyle: {[prop: string]: any}) {
+  if (newStyle.fontSize && newStyle.fontSize < 12) {
+    let { transform } = newStyle;
+    if (!transform) {
+      transform = [];
+    }
+    if (Array.isArray(transform) && transform.filter(value => !!value.scale).length === 0) {
+      transform.push({ scale: (4 - Math.min(12 - newStyle.fontSize, 4)) / 4 * 0.15 + 0.85 });
+    }
+    return transform;
   }
 }
 
@@ -202,6 +276,7 @@ function isLayout(key: string, value: number) {
     || key.startsWith('-webkit')
     || key.startsWith('z-index')
     || key.startsWith('opacity')
+    || key.startsWith('zoom')
   );
 }
 function isZIndex(key: string) {

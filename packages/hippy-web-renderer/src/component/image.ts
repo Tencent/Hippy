@@ -26,12 +26,14 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { convertHexToRgba, hasOwnProperty, setElementStyle } from '../common';
+import { iOSVersion, isIos } from '../get-global';
 import { HippyWebView } from './hippy-web-view';
 
 export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private isLoadSuccess = false;
   private tintModeContainerDom: HTMLElement | null = null;
   private readonly renderImgDom: HTMLImageElement | null = null;
+  private visibleChangeListener: Function | null = null;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.IMAGE;
@@ -60,7 +62,26 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { boxSizing: 'border-box', zIndex: 0 };
+    return { boxSizing: 'border-box', zIndex: 0, objectFit: 'fill' };
+  }
+
+  public updateSelfStackContext(value = true) {
+    if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
+      let zIndex = 0;
+      if (isIos() && iOSVersion()! <= 12) {
+        zIndex = -1;
+      }
+      this.props.style.zIndex = zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex });
+      this.updatedZIndex = true;
+      return;
+    }
+
+    if (!value) {
+      delete this.props.style.zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+      this.updatedZIndex = false;
+    }
   }
 
   public set tintColor(value) {
@@ -176,10 +197,26 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   }
 
   public mounted() {
+    const { style } = this.props;
+    if (!style.width && !style.height && style.position === 'absolute') {
+      this.props.style.width = '100%';
+      this.props.style.height = '100%';
+      setElementStyle(this.dom!, { width: '100%', height: '100%' });
+    }
     if (this.tintModeContainerDom && this.dom !== this.tintModeContainerDom) {
       const oldParentNode = this.dom!.parentNode!;
       this.imgDomChangeContainer(oldParentNode as HTMLElement, this.tintModeContainerDom);
       this.updateTintColor();
+    }
+  }
+
+  async beforeRemove(): Promise<void> {
+    await super.beforeRemove();
+    if (this.tintModeContainerDom) {
+      document.removeEventListener(
+        'visibilitychange',
+        this.visibleChangeListener as EventListenerOrEventListenerObject,
+      );
     }
   }
 
@@ -195,13 +232,20 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
         this.renderImgDom!.src = this.src;
       }
     }
-    this.onLoadEnd(null);
+    this.onLoadEnd({ image: { width: this.renderImgDom?.width, height: this.renderImgDom?.height } });
   }
 
   private buildTintDomContainer() {
     this.tintModeContainerDom = document.createElement('div');
     this.tintModeContainerDom.style.overflow = 'hidden';
-    this.tintModeContainerDom.style.lineHeight = '100%';
+    this.tintModeContainerDom.style.fontSize = '0px';
+    if (isIos()) {
+      this.visibleChangeListener = this.pageVisibleHandle.bind(this);
+      document.addEventListener(
+        'visibilitychange',
+        this.visibleChangeListener as EventListenerOrEventListenerObject,
+      );
+    }
   }
 
   private imgDomChangeContainer(oldParent: HTMLElement, newParent: HTMLElement) {
@@ -210,7 +254,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     this.dom = this.tintModeContainerDom!;
     newParent.appendChild(this.renderImgDom!);
     oldParent.insertBefore(this.dom, oldParent.childNodes[realIndex] ?? null);
-    this.context.getModuleByName('UIManagerModule').defaultUpdateViewProps(this, this.props);
+    this.context.getModuleByName('UIManagerModule').defaultUpdateViewProps(this, this.props, true);
     this.imgDomFilterNoUseStyle();
   }
 
@@ -230,22 +274,13 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
       this.clearBorder();
     }
   }
+
   private clearBorder() {
     this.renderImgDom!.style.borderStyle = '';
     this.renderImgDom!.style.borderTopStyle = '';
     this.renderImgDom!.style.borderLeftStyle = '';
     this.renderImgDom!.style.borderRightStyle = '';
     this.renderImgDom!.style.borderBottomStyle = '';
-  }
-
-  private findDomIndex() {
-    let realIndex = 0;
-    this.dom?.parentNode!.childNodes.forEach((item, index) => {
-      if (item === this.dom) {
-        realIndex = index;
-      }
-    });
-    return realIndex;
   }
 
   private updateTintColor() {
@@ -255,13 +290,27 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
       filter: `drop-shadow(${this.props.style.width}px 0 ${colorValue})`,
     });
   }
+
+  private imgRefreshForIOS(isShow: boolean) {
+    if (!isShow) {
+      setElementStyle(this.renderImgDom!, {
+        transform: 'translateX(0%) translateZ(0)',
+      });
+      return;
+    }
+    this.updateTintColor();
+  }
+
+  private pageVisibleHandle() {
+    this.imgRefreshForIOS(!document.hidden);
+  }
 }
 export const ImageResizeModeToObjectFit = (function () {
   const map = {};
-  map[ImageResizeMode.CENTER] = 'none';
+  map[ImageResizeMode.CENTER] = 'contain';
   map[ImageResizeMode.CONTAIN] = 'contain';
   map[ImageResizeMode.STRETCH] = 'fill';
-  map[ImageResizeMode.REPEAT] = 'none';
+  map[ImageResizeMode.REPEAT] = 'initial';
   map[ImageResizeMode.COVER] = 'cover';
   return map;
 }());

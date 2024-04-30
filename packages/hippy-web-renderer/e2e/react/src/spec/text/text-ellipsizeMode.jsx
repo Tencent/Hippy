@@ -24,7 +24,7 @@ import {
   Text,
 } from '@hippy/react';
 
-export default function TextEllipsizeModeCase() {
+export function TextEllipsizeMode() {
   return (<View style={{ width: 150 }}>
     <View  style={{ height: 20 }}>
       <Text style={[{ color: '#de4040', fontSize: 16 }]} ellipsizeMode={'ellipsis'}>

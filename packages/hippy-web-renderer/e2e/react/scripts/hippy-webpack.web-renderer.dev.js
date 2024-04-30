@@ -36,7 +36,7 @@ function firstCase(str) {
   return str.slice(0, 1).toUpperCase() + str.slice(1);
 }
 function camelCase(name) {
-  const SPECIAL_CHARS_REGEXP = /([:\-_]+(.))/g;
+  const SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
   const MOZ_HACK_REGEXP = /^moz([A-Z])/;
   return name.replace(SPECIAL_CHARS_REGEXP, (_, separator, letter, offset) => (offset ? letter.toUpperCase() : letter)).replace(MOZ_HACK_REGEXP, 'Moz$1');
 }
@@ -59,10 +59,10 @@ specDirList.forEach((item) => {
   specDirItemList = specDirItemList.filter(childItem => fs.lstatSync(path.join(item, `./${childItem}`)).isFile() && childItem !== 'index.js');
   const data = specDirItemList.map(childItem => ({ name: firstCase(camelCase(getFileName(childItem))),
     path: path.basename(childItem) }));
-  const outputPath = path.join(item, './index.js');
-  ejs.renderFile(path.join(current, './template-export.ejs'), { fileList: data }, {}, (aa, bb) => {
-    fs.writeFileSync(outputPath, bb);
-  });
+  // const outputPath = path.join(item, './index.js');
+  // ejs.renderFile(path.join(current, './template-export.ejs'), { fileList: data }, {}, (aa, bb) => {
+  //   fs.writeFileSync(outputPath, bb);
+  // });
 });
 const totalExportData = specDirList.map(item => ({ path: path.basename(item) }));
 const totalOutputPath = path.join(specPath, './index.js');

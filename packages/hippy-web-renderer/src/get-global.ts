@@ -32,4 +32,23 @@ export const getGlobal = (): typeof globalThis => {
   return win;
 };
 
+export function isIos() {
+  return /.*?(iPad|iPhone|iPod).*/.test(getGlobal().navigator.userAgent);
+}
+export function iOSVersion() {
+  const versions = getGlobal().navigator.userAgent.toLowerCase().
+    match(/cpu iphone os (.*?) like mac os/);
+  if (versions && versions.length > 1) {
+    try {
+      const iOSV = versions[1].split('_');
+      if (!isNaN(Number(iOSV[0]))) {
+        return parseInt(iOSV[0], 10);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return null;
+}
+
 export default getGlobal();

@@ -17,8 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EllipsizeMode, InnerNodeTag, NodeProps } from '../types';
+import { DefaultPropsProcess, EllipsizeMode, InnerNodeTag, NodeProps, UIProps } from '../types';
 import { setElementStyle } from '../common';
+import {iOSVersion, isIos} from '../get-global';
 import { HippyWebView } from './hippy-web-view';
 const HippyEllipsizeModeMap = {
   head: { 'text-overflow': 'ellipsis', direction: 'rtl' },
@@ -27,23 +28,51 @@ const HippyEllipsizeModeMap = {
   tail: { 'text-overflow': 'ellipsis' },
 };
 export class TextView extends HippyWebView<HTMLSpanElement> {
+  public static SCALE_SIZE = 4;
+  public static SALE_RANGE = 0.2;
+
+  private innerTextDom: HTMLSpanElement|null = null;
+
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT;
     this.dom = document.createElement('span');
     this.props[NodeProps.ELLIPSIZE_MODE] = EllipsizeMode.TAIL;
   }
+
   public defaultStyle(): { [p: string]: any } {
-    return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode] };
+    return { boxSizing: 'border-box', zIndex: 0, whiteSpace: 'pre-line',
+      ...HippyEllipsizeModeMap[this.ellipsizeMode],
+      overflow: 'hidden' };
+  }
+
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
+    if (this.firstUpdateStyle) {
+      defaultProcess(this, { style: this.defaultStyle() });
+      this.firstUpdateStyle = false;
+    }
+    const { style } = data;
+    if (style.height && !style.lineHeight) {
+      style.lineHeight = style.height;
+      delete style.height;
+    }
+    !this.innerTextDom && this.buildInnerText();
+    if (style.fontSize && style.fontSize < 12 && !isIos()) {
+      setElementStyle(this.innerTextDom!, { zoom: (TextView.SCALE_SIZE
+            - Math.min(12 - style.fontSize, TextView.SCALE_SIZE))
+          / TextView.SCALE_SIZE * TextView.SALE_RANGE + (1 - TextView.SALE_RANGE) });
+    }
+    defaultProcess(this, data);
   }
 
   public set numberOfLines(value: number|undefined) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
     if (value === 1) {
       this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all', display: 'initial',
-        '-webkit-box-orient': '', '-webkit-line-clamp': '', overflow: '' });
+        '-webkit-box-orient': '', '-webkit-line-clamp': '' });
     } else {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all', display: '-webkit-box',
+      const whiteSpace = this.props.style.whiteSpace ?? 'pre-line';
+      this.dom && setElementStyle(this.dom, { 'white-space': whiteSpace, 'word-break': 'break-all', display: '-webkit-box',
         '-webkit-box-orient': 'vertical', '-webkit-line-clamp': `${value}`, overflow: 'hidden' });
     }
   }
@@ -64,26 +93,55 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public set text(value) {
     this.props[NodeProps.VALUE] = value;
-    if (this.dom!.childNodes.length > 0) {
-      let textNode: Text | null = null;
-      this.dom!.childNodes.forEach((item) => {
-        if (item instanceof Text) {
-          textNode = item;
-        }
-      });
-      if (textNode && (textNode as Text).textContent !== value) {
-        (textNode as Text).textContent = value;
-      }
+
+    if (this.textContentNode) {
+      this.textContentNode.textContent = value;
       return;
     }
+
     const textNode = document.createTextNode(value);
+    this.appendTextNode(textNode);
+  }
+
+  public get text() {
+    return this.props[NodeProps.VALUE];
+  }
+
+  public buildInnerText() {
+    this.innerTextDom = document.createElement('span');
+    if ((isIos() && iOSVersion() === 12) || !isIos()) {
+      setElementStyle(this.innerTextDom, { 'vertical-align': 'middle' });
+    }
+    this.dom?.appendChild(this.innerTextDom);
+    const textNode: Text | null = this.textContentNode;
+    if (textNode) {
+      textNode.parentNode?.removeChild(textNode);
+      this.innerTextDom.appendChild(textNode);
+      return;
+    }
+  }
+
+  public appendTextNode(textNode: Text) {
+    if (this.innerTextDom) {
+      this.innerTextDom.appendChild(textNode);
+      return;
+    }
     if (this.dom!.childNodes.length > 0) {
       this.dom!.removeChild(this.dom!.childNodes[0]);
     }
     this.dom!.appendChild(textNode);
   }
 
-  public get text() {
-    return this.props[NodeProps.VALUE];
+  private get textContentNode() {
+    if (this.innerTextDom && this.innerTextDom.childNodes.length > 0) {
+      return this.innerTextDom.childNodes[0] as Text;
+    }
+    let textNode: Text | null = null;
+    this.dom!.childNodes.forEach((item) => {
+      if (item instanceof Text) {
+        textNode = item;
+      }
+    });
+    return textNode;
   }
 }

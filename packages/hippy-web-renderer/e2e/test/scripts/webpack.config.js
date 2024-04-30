@@ -68,6 +68,13 @@ module.exports = {
                   useBuiltIns: 'usage',
                   corejs: 3,
                 }],
+              [
+                '@babel/preset-typescript',
+                {
+                  isTSX: true,
+                  allExtensions: true,
+                },
+              ],
             ],
           },
         }],

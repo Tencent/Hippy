@@ -32,6 +32,7 @@ import { nativeBridge } from './native2js';
 import { device } from './device';
 import { getTurboModule, turboPromise } from './turbo';
 import { dynamicLoad } from './dynamic-load';
+import './global';
 
 const global = getGlobal();
 
@@ -46,13 +47,6 @@ global.__GLOBAL__.jsModuleList = {
 };
 global.__HIPPYNATIVEGLOBAL__ = nativeGlobal;
 global.HippyDealloc = dealloc;
-global.__Headers = global.Headers;
-global.Headers = Headers as any;
-global.__Response = global.Response;
-global.Response = Response as any;
-global.__fetch = global.fetch;
-global.fetch = fetch as any;
-global.__WebSocket = global.WebSocket;
 global.getTurboModule = getTurboModule;
 global.dynamicLoad = dynamicLoad;
 
@@ -90,18 +84,18 @@ Hippy.device.platform = platform();
 
 
 global.__localStorage = global.localStorage;
-Object.defineProperty(global, 'localStorage', {
-  value: Hippy.asyncStorage as any,
-});
+
 global.turboPromise = Hippy.turboPromise;
 
-Object.defineProperty(global.console, 'reportUncaughtException', {
-  value: (error) => {
-    if (error && error instanceof Error) {
-      throw error;
-    }
-  },
-});
+if (!global.console['reportUncaughtException']) {
+  Object.defineProperty(global.console, 'reportUncaughtException', {
+    value: (error) => {
+      if (error && error instanceof Error) {
+        throw error;
+      }
+    },
+  });
+}
 
 global.addEventListener('unhandledrejection', (event) => {
   global.Hippy.emit('unhandledRejection', event?.reason, event?.promise);

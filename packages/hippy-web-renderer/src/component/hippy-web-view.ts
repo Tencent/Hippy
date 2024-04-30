@@ -32,6 +32,7 @@ import {
   DefaultPropsProcess,
 } from '../types';
 import { setElementStyle } from '../common';
+import {iOSVersion, isIos} from "../get-global";
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -40,6 +41,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public index!: number;
   public dom!: T|null;
   public props: any = {};
+  public updatedZIndex = false;
   public firstUpdateStyle = true;
   public context!: ComponentContext;
   public resizeObserver: ResizeObserver|undefined;
@@ -47,7 +49,6 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public hammer;
   public exitChildrenStackContext = false;
   private mountedLayoutDispatch = false;
-  private updatedZIndex = false;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
@@ -199,8 +200,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public updateChildzIndex() {
     this.dom?.childNodes.forEach((item) => {
       const childDom = this.context.getModuleByName('UIManagerModule').findViewById((item as HTMLElement).id);
-      if (this.exitChildrenStackContext
-        && !childDom.props.style.zIndex !== undefined) {
+      if (this.exitChildrenStackContext && !childDom.props.style.zIndex !== undefined) {
         childDom.updateSelfStackContext();
       }
       if (!this.exitChildrenStackContext && childDom.updatedZIndex) {
@@ -210,15 +210,21 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public updateSelfStackContext(value = true) {
-    if (value) {
-      this.props.style.zIndex = 0;
-      setElementStyle(this.dom as HTMLElement, { zIndex: 0 });
+    if (value && (this.props.style.zIndex === null || this.props.style.zIndex === undefined)) {
+      let zIndex: string|number = 0;
+      if (isIos() && iOSVersion()! <= 12) {
+        zIndex = 'auto';
+      }
+      setElementStyle(this.dom as HTMLElement, { zIndex });
       this.updatedZIndex = true;
       return;
     }
-    delete this.props.style.zIndex;
-    setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
-    this.updatedZIndex = false;
+
+    if (!value) {
+      delete this.props.style.zIndex;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+      this.updatedZIndex = false;
+    }
   }
 
   public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
@@ -230,7 +236,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box' };
+    return { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box' };
   }
 
   public onAttachedToWindow() {
@@ -240,7 +246,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.context.sendUiEvent(this.id, 'onAttachedToWindow', null);
   }
 
-  public async beforeMount(parent: HippyBaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView|null, position: number) {
     this.index = position;
   }
 
@@ -305,6 +311,16 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
     this.context.sendUiEvent(this.id, 'onLayout', { layout: this.layoutCache,
       target: this.id });
+  }
+
+  public findDomIndex() {
+    let realIndex = 0;
+    this.dom?.parentNode!.childNodes.forEach((item, index) => {
+      if (item === this.dom) {
+        realIndex = index;
+      }
+    });
+    return realIndex;
   }
 
   private handleOnLongClick(event) {

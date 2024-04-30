@@ -24,7 +24,7 @@ import {
   HippyBaseView,
   InnerNodeTag,
   UIProps,
-  DefaultPropsProcess,
+  DefaultPropsProcess
 } from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
@@ -44,6 +44,7 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
   private children: ViewPagerItem[] = [];
   private swipeRecognize: any = null;
   private touchListenerRelease;
+  private container = document.createElement('div');
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -95,6 +96,9 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
   }
 
   public setPage(index: number) {
+    if (index === this.pageIndex) {
+      return;
+    }
     this.scrollPage(index, true);
   }
 
@@ -147,6 +151,18 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
       scrollEnable: this.checkScrollEnable.bind(this),
       needSimulatedScrolling: true,
     });
+    this.container.style.overflow = 'hidden';
+    this.container.style.display = 'flex';
+    this.container.style.flexDirection = 'column';
+    this.container.style.flex = '1';
+  }
+
+  public mounted() {
+    const oldParentNode = this.dom!.parentNode!;
+    const realIndex = this.findDomIndex();
+    oldParentNode.removeChild(this.dom!);
+    this.container.appendChild(this.dom!);
+    oldParentNode.insertBefore(this.container, oldParentNode.childNodes[realIndex] ?? null);
   }
 
   private checkScrollEnable(lastTouchEvent: TouchEvent, newTouchEvent?: TouchEvent) {

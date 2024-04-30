@@ -1,0 +1,140 @@
+import React from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ViewPager,
+} from '@hippy/react';
+import { CirclePagerView, SquarePagerView, TrianglePagerView } from './item-view';
+
+const DEFAULT_DOT_RADIUS = 6;
+const PAGE_COUNT = 3;
+
+const styles = StyleSheet.create({
+  dotContainer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dot: {
+    width: DEFAULT_DOT_RADIUS,
+    height: DEFAULT_DOT_RADIUS,
+    borderRadius: DEFAULT_DOT_RADIUS >> 1,
+    margin: DEFAULT_DOT_RADIUS >> 1,
+    backgroundColor: '#BBBBBB',
+    // bottom: 16
+  },
+  selectDot: {
+    backgroundColor: '#000000',
+  },
+  container: {
+    height: 500,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+  },
+  button: {
+    width: 120,
+    height: 36,
+    backgroundColor: '#4c9afa',
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#fff',
+  },
+});
+
+export class ViewPagerSpec extends React.Component {
+  state = {
+    selectedIndex: 0,
+  };
+
+  constructor(props) {
+    super(props);
+    this.onPageSelected = this.onPageSelected.bind(this);
+    this.onPageScrollStateChanged = this.onPageScrollStateChanged.bind(this);
+  }
+  componentDidMount() {
+    globalThis.currentRef = {
+      changePage: () => {
+        this.viewpager.setPageWithoutAnimation(2);
+      },
+    };
+  }
+
+  onPageSelected(pageData) {
+    console.log('onPageSelected', pageData.position);
+    this.setState({
+      selectedIndex: pageData.position,
+    });
+  }
+
+  onPageScrollStateChanged(pageScrollState) {
+    console.log('onPageScrollStateChanged', pageScrollState);
+  }
+
+  onPageScroll({ offset, position }) {
+    console.log('onPageScroll', offset, position);
+  }
+  render() {
+    const { selectedIndex } = this.state;
+    return (
+      <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+        <View style={styles.buttonContainer}>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.viewpager.setPage(2);
+            }}
+          >
+            <Text style={styles.buttonText}>动效滑到第3页</Text>
+          </View>
+          <View style={styles.button} onClick={() => this.viewpager.setPageWithoutAnimation(0)}>
+            <Text style={styles.buttonText}>直接滑到第1页</Text>
+          </View>
+        </View>
+        <ViewPager
+          ref={(ref) => {
+            this.viewpager = ref;
+          }}
+          style={styles.container}
+          initialPage={0}
+          keyboardDismissMode="none"
+          scrollEnabled
+          onPageSelected={this.onPageSelected}
+          onPageScrollStateChanged={this.onPageScrollStateChanged}
+          onPageScroll={this.onPageScroll}
+        >
+          {
+            [
+              SquarePagerView('squarePager'),
+              TrianglePagerView('TrianglePager'),
+              CirclePagerView('CirclePager'),
+            ]
+          }
+        </ViewPager>
+        <View style={styles.dotContainer}>
+          {
+            new Array(PAGE_COUNT).fill(0)
+              .map((n, i) => {
+                const isSelect = i === selectedIndex;
+                return (
+                  <View style={[styles.dot, isSelect ? styles.selectDot : null]} key={`dot_${i}`}/>
+                );
+              })
+          }
+        </View>
+      </View>
+    );
+  }
+}

@@ -18,9 +18,17 @@
  * limitations under the License.
  */
 
-import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
-import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
-import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
+import {HippyWebEngineContext, HippyWebModule, HippyWebView} from '../base';
+import {HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps} from '../types';
+import {
+  customDataAssociate,
+  error,
+  positionAssociate,
+  setElementStyle,
+  warn,
+  zIndexAssociate,
+} from '../common';
+import { Modal } from '../component';
 import { AnimationModule } from './animation-module';
 
 let ENV_STYLE_INIT_FLAG = false;
@@ -31,6 +39,7 @@ export class UIManagerModule extends HippyWebModule {
   private rootDom: HTMLElement | undefined;
   private contentDom: HTMLElement | undefined;
   private afterCreateAction: Array<() => void> = [];
+  private modalDom: HTMLElement | undefined;
   constructor(context) {
     super(context);
     this.mode = 'sequential';
@@ -119,6 +128,24 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
+  public getBoundingClientRect(nodeId, params, callBack: HippyCallBack) {
+    if (!nodeId || !this.findViewById(nodeId)?.dom) {
+      return;
+    }
+    const view = this.findViewById(nodeId);
+    if (view!.dom) {
+      const res: any = view!.dom.getBoundingClientRect();
+      res.statusBarHeight = 0;
+      if (params.relToContainer) {
+        res.y = view!.dom.offsetTop;
+        res.x = view!.dom.offsetLeft;
+      }
+      callBack.resolve(res);
+      return;
+    }
+    callBack.resolve({});
+  }
+
   public findViewById(id: number): HippyBaseView | null {
     if (this.viewDictionary[id]) {
       return this.viewDictionary[id];
@@ -130,7 +157,6 @@ export class UIManagerModule extends HippyWebModule {
     if (parent.dom && child.dom) {
       parent.dom.insertBefore(child.dom, parent.dom.childNodes[index] ?? null);
     }
-    this.viewDictionary[child.id] = child;
   }
 
   public async removeChild(parent: HippyBaseView, childId: number) {
@@ -169,23 +195,24 @@ export class UIManagerModule extends HippyWebModule {
     delete this.viewDictionary[childId];
   }
 
-  public defaultUpdateViewProps(view: HippyBaseView, props: any) {
+  public defaultUpdateViewProps(view: HippyBaseView, props: any, jumpDiff = false) {
     if (!view.dom) {
       error(`component update props process failed ,component's dom must be exited ${view.tagName ?? ''}`);
     }
     const keys = Object.keys(props);
-    const [diffStyle, diffSize] = diffObject(props.style, view.props?.style ?? {});
+    const [diffStyle, diffSize] = diffObject(props.style, jumpDiff ? {} : (view.props?.style ?? {}));
     if (props.style && diffSize > 0) {
       setElementStyle(view.dom!, diffStyle, (key: string, value: any) => {
         this.animationProcess(key, value, view);
       });
       const parent = this.findViewById(view.pId) as HippyWebView<any>;
-      positionAssociate(diffStyle, view, parent);
-      const styleCopy = {};
+      const styleCopy: any = {};
       Object.assign(styleCopy, props.style);
       view.updateProperty?.('style', styleCopy);
+      positionAssociate(diffStyle, view, parent);
       zIndexAssociate(diffStyle, view, parent);
     }
+    customDataAssociate(props, view, this.context.transmitData);
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
         continue;
@@ -200,42 +227,70 @@ export class UIManagerModule extends HippyWebModule {
 
   public async viewInit(view: HippyBaseView, props: any, index: number) {
     if (!view.dom) {
-      throw Error(`component init process failed ,component's dom must be exit after component create ${view.tagName ?? ''}`);
+      throw Error(`component init process failed ,component's dom must be exit after component
+       create ${view.tagName ?? ''}`);
     }
     const { dom } = view;
     dom.id = String(view.id);
     this.updateViewProps(view, props);
+    const isModal = view instanceof Modal;
+
+    if (isModal) {
+      const tempView: HippyBaseView = {
+        id: -1,
+        pId: -1,
+        tagName: 'View',
+        index: 0,
+        props: {},
+        dom: this.modalDom!,
+      };
+      await view.beforeMount?.(tempView, this.modalDom?.childNodes.length ?? 0);
+      this.modalDom?.appendChild(view.dom);
+      this.viewDictionary[view.id] = view;
+      view.mounted?.();
+      return;
+    }
+
     const parent = this.findViewById(view.pId);
     if (!parent || !parent.dom) {
-      warn(`component init process failed ,component's parent not exist or dom not exist, pid: ${view.pId}`);
+      warn(`component init process failed ,component's parent not exist or dom not exist,
+      pid: ${view.pId}`);
       return;
     }
     let realIndex = index;
-    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
+    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined
+      && index > parent.dom?.childNodes?.length) {
       realIndex = parent.dom?.childNodes?.length ?? index;
     }
+
     await view.beforeMount?.(parent, realIndex);
     await parent.beforeChildMount?.(view, realIndex);
     if (parent.insertChild) {
       parent.insertChild(view, index);
-      this.viewDictionary[view.id] = view;
     } else {
       this.appendChild(parent, view, realIndex);
     }
+    this.viewDictionary[view.id] = view;
     view.mounted?.();
   }
 
   public async viewDelete(view: HippyBaseView | undefined | null) {
-    const parentView = view ? this.findViewById(view.pId) : null;
-    if (!parentView) {
+    if (!view) {
       return;
     }
-    await view!.beforeRemove?.();
-    await parentView.beforeChildRemove?.(view!);
-    if (parentView.removeChild) {
-      await parentView.removeChild(view!);
-    } else {
-      await this.removeChild(parentView, view!.id);
+    await view.beforeRemove?.();
+    const parentView = this.findViewById(view.pId);
+    const isModal = view instanceof Modal;
+    if (isModal) {
+      this.modalDom?.removeChild(view.dom!);
+    }
+    if (parentView && !isModal) {
+      await parentView?.beforeChildRemove?.(view!);
+      if (parentView?.removeChild) {
+        await parentView.removeChild(view!);
+      } else if (parentView) {
+        await this.removeChild(parentView, view!.id);
+      }
     }
     view!.destroy?.();
     delete this.viewDictionary[view!.id];
@@ -267,6 +322,8 @@ export class UIManagerModule extends HippyWebModule {
       } else {
         this.contentDom = window.document.getElementById(rootViewId)!;
       }
+      this.modalDom = createModalContainer();
+      this.rootDom.appendChild(this.modalDom);
       this.contentDom.parentNode!.childNodes.forEach((item, index) => {
         if (item === this.contentDom) {
           position = index;
@@ -297,12 +354,17 @@ export class UIManagerModule extends HippyWebModule {
     let valueString = '';
     for (const item of value) {
       for (const itemKey of Object.keys(item)) {
-        if (item[itemKey].animationId) {
+        if (item[itemKey].animationId !== undefined) {
           animationModule.linkInitAnimation2Element(item[itemKey].animationId, view, itemKey);
           continue;
         }
-        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey])
-        || itemKey.startsWith('scale') ? '' : 'px'}) `;
+        let transformValue = item[itemKey];
+        if (itemKey.startsWith('rotate')) {
+          transformValue +=  (!transformValue.endsWith('deg') ? 'deg' : '');
+        } else if (!itemKey.startsWith('scale')) {
+          transformValue += (!transformValue.endsWith('px') ? 'px' : '');
+        }
+        valueString += `${itemKey}(${transformValue}) `;
       }
     }
     if (!valueString) {
@@ -359,6 +421,16 @@ function createRoot(id: string) {
   root.setAttribute('id', id);
   root.id = id;
   return root;
+}
+
+function  createModalContainer() {
+  const dom = window.document.createElement('div');
+  dom.style.width = '0%';
+  dom.style.height = '0%';
+  dom.style.position = 'absolute';
+  dom.style.top = '0px';
+  dom.id = 'web-renderer-id';
+  return dom;
 }
 
 function setRootDefaultStyle(element: HTMLElement) {

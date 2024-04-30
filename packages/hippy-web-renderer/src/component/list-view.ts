@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { VirtualizedList } from '../third-lib/virtual-list.js';
-import { NodeProps, InnerNodeTag } from '../types';
+import { NodeProps, InnerNodeTag, UIProps, DefaultPropsProcess, HippyBaseView } from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 import {
@@ -69,8 +69,19 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     return this.rootElement;
   }
 
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
+    if (this.firstUpdateStyle) {
+      defaultProcess(this, { style: this.defaultStyle() });
+    }
+    const newData = { ...data };
+    if (data.style.overflow) {
+      delete newData.style.overflow;
+    }
+    defaultProcess(this, newData);
+  }
+
   public defaultStyle() {
-    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflow: 'scroll' };
+    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflowY: 'scroll' };
   }
 
   public get overScrollEnabled() {
@@ -126,7 +137,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
 
   public set scrollEnabled(value: boolean) {
     this.props[NodeProps.SCROLL_ENABLED] = value;
-    setElementStyle(this.dom!, { overflow: !this.scrollEnabled ? 'hidden' : 'scroll' });
+    setElementStyle(this.dom!, { overflowX: !this.scrollEnabled ? 'hidden' : 'scroll' });
   }
 
   public get showScrollIndicator() {
@@ -227,15 +238,23 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     super.destroy();
   }
 
-  public insertChild(component: ListViewItem) {
-    if (component?.props.sticky) {
-      this.stickyListViewItem = component;
+  public insertChild(component: HippyBaseView, position: number) {
+    if (!(component instanceof ListViewItem)) {
+      return;
     }
-    this.childData.push(component);
-    component.addDirtyListener(this.handleListItemDirty.bind(this));
+    const listViewItem =  component as ListViewItem;
+    if (listViewItem?.props.sticky) {
+      this.stickyListViewItem = listViewItem;
+    }
+    if (position >= this.childData.length) {
+      this.childData.push(listViewItem);
+    } else {
+      this.childData.splice(position, 0, listViewItem);
+    }
+    listViewItem.addDirtyListener(this.handleListItemDirty.bind(this));
   }
 
-  public async removeChild(component: ListViewItem) {
+  public async removeChild(component: HippyBaseView) {
     const deleteIndex = this.childData.findIndex(item => item === component);
     const uiManagerModule = this.context.getModuleByName('UIManagerModule');
     await uiManagerModule.removeChild(this, component.id);
@@ -557,6 +576,11 @@ export class ListViewItem extends HippyWebView<HTMLDivElement> {
 
   public addDirtyListener(callBack: ((component: ListViewItem) => void) | null) {
     this.dirtyListener = callBack;
+  }
+
+  public defaultStyle(): {[key: string]: any} {
+    return { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box',
+      overflow: 'hidden' };
   }
 
   mounted(): void {

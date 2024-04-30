@@ -29,12 +29,12 @@ function getKebabCase2(str) {
   return temp;
 }
 (function () {
-  Object.keys(components).forEach((key) => {
+  for (const key in components) {
     routes.push({
       path: `/${getKebabCase2(key)}`,
       name: `/${getKebabCase2(key)}`,
       component: components[key],
     });
-  });
+  }
 }());
 export default routes;
