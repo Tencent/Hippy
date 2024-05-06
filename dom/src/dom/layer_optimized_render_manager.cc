@@ -78,6 +78,7 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
         std::vector<int32_t> moved_ids;
         moved_ids.reserve(moved_children.size());
         for (const auto& moved_node : moved_children) {
+          UpdateRenderInfo(moved_node);
           moved_ids.push_back(footstone::check::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
         }
         MoveRenderNode(root_node, std::move(moved_ids),
@@ -112,7 +113,7 @@ void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_no
   }
   FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] move node size before optimize = " << nodes.size()
                        << ", move node size after optimize  = " << nodes_to_move.size();
-  render_manager_->MoveRenderNode(root_node, std::move(nodes));
+  render_manager_->MoveRenderNode(root_node, std::move(nodes_to_move));
 }
 
 void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
