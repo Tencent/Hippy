@@ -32,6 +32,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.WindowInsetsControllerCompat
 import com.tencent.mtt.hippy.HippyEngine
 import com.tencent.mtt.hippy.utils.LogUtils
@@ -175,16 +176,16 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         }
         val debugButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_setting_image)
-        val debugServerHost =
+        val debugServerHostParent =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_server_host)
         debugButton.setOnClickListener {
             if (debugMode) {
                 (debugButton as ImageView).setImageResource(R.drawable.page_config_debug_off_2x)
-                debugServerHost.visibility = View.GONE
+                debugServerHostParent.visibility = View.GONE
                 debugMode = false
             } else {
                 (debugButton as ImageView).setImageResource(R.drawable.page_config_debug_on_2x)
-                debugServerHost.visibility = View.VISIBLE
+                debugServerHostParent.visibility = View.VISIBLE
                 debugMode = true
             }
         }
@@ -202,6 +203,11 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         val createButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_create_image)
         createButton.setOnClickListener { v ->
+            val debugServerHostInput =
+                pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_server_host_input)
+            (debugServerHostInput as AppCompatEditText)?.let {
+                debugServerHost = it.text.toString()
+            }
             onCreateClick()
         }
     }
