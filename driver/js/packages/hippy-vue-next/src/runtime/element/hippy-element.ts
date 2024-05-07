@@ -786,7 +786,7 @@ export class HippyElement extends HippyNode {
     });
     // update native node
     if (isNeedUpdate) {
-      this.updateNativeNode();
+      this.updateNativeEvent();
     }
   }
 
@@ -828,7 +828,7 @@ export class HippyElement extends HippyNode {
       delete this.attributes[ssrEventName];
     }
     // update native node
-    this.updateNativeNode();
+    this.updateNativeEvent();
   }
 
   /**
