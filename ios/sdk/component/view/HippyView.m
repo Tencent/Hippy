@@ -640,59 +640,69 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     if (!self.backgroundImageUrl && !self.gradientObject) {
         contentBlock(image);
         return YES;
-    }
-    else if (self.backgroundImageUrl) {
+    } else if (self.backgroundImageUrl) {
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
-        HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
-        [weakBackgroundCacheManager imageWithUrl:self.backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
-            if (error) {
-                HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
+        
+        __weak __typeof(self)weakSelf = self;
+        __weak HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
+        NSString *backgroundImageUrl = self.backgroundImageUrl;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (!strongSelf) {
                 return;
             }
-            if (!decodedImage) {
-                contentBlock(nil);
-            }
-
-            UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-            //draw background image
-            CGSize imageSize = decodedImage.size;
-            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
-
-            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-
-            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.f, (targetSize.height - drawSize.height) / 2.f);
-            
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
-                                                borderInsets.top + backgroundPositionY + originOffset.y,
-                                                drawSize.width,
-                                                drawSize.height)];
-            //draw border
-            CGSize size = theFrame.size;
-            [image drawInRect:(CGRect) { CGPointZero, size }];
-            
-            //output image
-            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            contentBlock(resultingImage);
-        }];
+            [weakBackgroundCacheManager imageWithUrl:backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
+                if (error) {
+                    HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
+                    return;
+                }
+                if (!decodedImage) {
+                    contentBlock(nil);
+                }
+                
+                UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
+                //draw background image
+                CGSize imageSize = decodedImage.size;
+                CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
+                CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
+                CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0,
+                                                   (targetSize.height - drawSize.height) / 2.0);
+                
+                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                    borderInsets.top + backgroundPositionY + originOffset.y,
+                                                    drawSize.width,
+                                                    drawSize.height)];
+                //draw border
+                CGSize size = theFrame.size;
+                [image drawInRect:(CGRect) { CGPointZero, size }];
+                
+                //output image
+                UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                contentBlock(resultingImage);
+            }];
+        });
         return NO;
-    }
-    else if (self.gradientObject) {
+    } else if (self.gradientObject) {
         CGSize size = theFrame.size;
         if (0 >= size.width || 0 >= size.height) {
             contentBlock(nil);
-            return NO;
+            return YES;
         }
-        CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
-        info.size = size;
-        info.cornerRadii = cornerRadii;
-        UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
-        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
-        [image drawInRect:(CGRect) { CGPointZero, size }];
-        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        contentBlock(resultingImage);
+        HippyGradientObject *gradientObject = self.gradientObject;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
+            info.size = size;
+            info.cornerRadii = cornerRadii;
+            UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
+            [gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
+            [image drawInRect:(CGRect) { CGPointZero, size }];
+            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            contentBlock(resultingImage);
+        });
+        return NO;
     }
     return YES;
 }
