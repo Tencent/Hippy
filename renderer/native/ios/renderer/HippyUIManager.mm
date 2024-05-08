@@ -221,9 +221,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return self;
 }
 
-- (void)dealloc {
-}
-
 - (void)initContext {
     _shadowViewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeStrong];
     _viewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeWeak];
@@ -957,7 +954,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         return;
     }
     int32_t rootTag = strongRootNode->GetId();
-    
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     HippyShadowView *fromShadowView = [_shadowViewRegistry componentForTag:@(fromContainer) onRootTag:@(rootTag)];
     HippyShadowView *toShadowView = [_shadowViewRegistry componentForTag:@(toContainer) onRootTag:@(rootTag)];
     for (int32_t hippyTag : ids) {
