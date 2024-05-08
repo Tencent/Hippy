@@ -27,6 +27,7 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
 #import "HippyShadowView+Internal.h"
+#import "HippyAssert.h"
 
 
 static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
@@ -178,10 +179,14 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 }
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSUInteger)atIndex {
+    if (!subview) {
+        HippyAssert(subview != nil, @"subview should not be nil!");
+        HippyFatal(HippyErrorWithMessage(@"Illegal nil shadow subview in insertHippySubview!"));
+        return;
+    }
     if (atIndex <= [_objectSubviews count]) {
         [_objectSubviews insertObject:subview atIndex:atIndex];
-    }
-    else {
+    } else {
         [_objectSubviews addObject:subview];
     }
     subview->_superview = self;
