@@ -180,7 +180,7 @@ public class DevtoolsUtil {
     }
 
     public static void getScreenShot(@NonNull List params, @NonNull final View view, @NonNull final Promise promise) {
-        if (params.isEmpty()) {
+        if (params.isEmpty() || view.getWidth() <= 0 || view.getHeight() <= 0) {
             return;
         }
         NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
