@@ -548,7 +548,16 @@ dispatch_queue_t HippyBridgeQueue() {
         }
         return;
     }
-    HippyLogInfo(@"[HP PERF] Begin loading bundle(%s) at %s", 
+    
+    // bundleURL checking
+    NSURLComponents *components = [NSURLComponents componentsWithURL:bundleURL resolvingAgainstBaseURL:NO];
+    if (components.scheme == nil) {
+        // If a given url has no scheme, it is considered a file url by default.
+        components.scheme = @"file";
+        bundleURL = components.URL;
+    }
+    
+    HippyLogInfo(@"[HP PERF] Begin loading bundle(%s) at %s",
                  HP_CSTR_NOT_NULL(bundleURL.absoluteString.lastPathComponent.UTF8String),
                  HP_CSTR_NOT_NULL(bundleURL.absoluteString.UTF8String));
     [_bundleURLs addObject:bundleURL];
