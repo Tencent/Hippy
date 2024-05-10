@@ -642,6 +642,11 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return YES;
     }
     else if (self.backgroundImageUrl) {
+        CGSize size = theFrame.size;
+        if (0 >= size.width || 0 >= size.height) {
+            contentBlock(nil);
+            return YES;
+        }
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
         HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
