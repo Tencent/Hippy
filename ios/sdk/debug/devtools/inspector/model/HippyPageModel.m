@@ -110,6 +110,7 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
         if (!rootView) {
             HippyLogWarn(@"PageModel, screen cast, root view is nil");
             completion(@{});
+            return;
         }
         CGFloat viewWidth = rootView.frame.size.width;
         CGFloat viewHeight = rootView.frame.size.height;
@@ -118,6 +119,10 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
             CGFloat scaleX = self.maxSize.width / viewWidth;
             CGFloat scaleY = self.maxSize.height / viewHeight;
             scale = MIN(scaleX, scaleY);
+        } else {
+            HippyLogWarn(@"PageModel, screen cast, root view size is 0");
+            completion(@{});
+            return;
         }
         // root view snapshot
         UIGraphicsBeginImageContextWithOptions(rootView.frame.size, NO, scale);
@@ -141,8 +146,7 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
             resultJSON[HippyPageKeySessionId] = @(timestamp);
             self.lastTimestamp = timestamp;
             completion(resultJSON);
-        }
-        else {
+        } else {
             completion(@{});
         }
     });
