@@ -71,7 +71,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     BOOL _bLongClick;
 
     __weak UIView *_rootView;
-    __weak UIView *_touchBeganView;
+    NSMutableArray<UIView *> *_touchBeganViews;
 
     CGPoint _startPoint;
     HippyBridge *_bridge;
@@ -86,6 +86,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         _moveViews = [NSMutableArray new];
         _startPoint = CGPointZero;
         _rootView = view;
+        _touchBeganViews = [NSMutableArray new];
         self.delegate = self;
         self.cancelsTouchesInView = NO;
         _onInterceptTouchEventView = [NSHashTable weakObjectsHashTable];
@@ -116,7 +117,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         UIView *touchView = [touch view];
         CGPoint locationPoint = [touch locationInView:touchView];
         touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
-        _touchBeganView = touchView;
+        [_touchBeganViews addObject:touchView];
         NSDictionary *result = [self responseViewForAction:@[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView:touchView
                                                    atPoint:locationPoint];
 
@@ -174,8 +175,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     }
 
     UITouch *touch = [touches anyObject];
-    {
-        UIView *touchView = [touch view]?:_touchBeganView;
+    for (UIView *beganView in _touchBeganViews) {
+        // The touch processing logic here does not apply to multi-fingered scenarios,
+        // and needs to be further improved in the future.
+        UIView *touchView = beganView;
         CGPoint locationPoint = [touch locationInView:touchView];
         touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
         NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView:touchView
@@ -241,6 +244,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     self.state = UIGestureRecognizerStateEnded;
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
+    [_touchBeganViews removeAllObjects];
     [_onInterceptTouchEventView removeAllObjects];
     [_onInterceptPullUpEventView removeAllObjects];
 }
@@ -258,8 +262,10 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     [_moveTouches removeAllObjects];
     
     UITouch *touch = [touches anyObject];
-    {
-        UIView *touchView = [touch view]?:_touchBeganView;
+    for (UIView *beganView in _touchBeganViews) {
+        // The touch processing logic here does not apply to multi-fingered scenarios,
+        // and needs to be further improved in the future.
+        UIView *touchView = beganView;
         CGPoint locationPoint = [touch locationInView:touchView];
         touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
         NSDictionary *result = [self responseViewForAction:@[@"onTouchCancel", @"onPressOut", @"onClick"] inView:touchView
@@ -296,6 +302,7 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     self.state = UIGestureRecognizerStateCancelled;
     self.enabled = NO;
     self.enabled = YES;
+    [_touchBeganViews removeAllObjects];
     [_onInterceptTouchEventView removeAllObjects];
     [_onInterceptPullUpEventView removeAllObjects];
 }
@@ -325,7 +332,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         if (index != NSNotFound) {
             result = _moveViews[index];
         } else {
-            UIView *touchView = [touch view]?:_touchBeganView;
+            // The touch processing logic here does not apply to multi-fingered scenarios,
+            // and needs to be further improved in the future.
+            // To keep things simple and to be compatible with the historical logic,
+            // we only use the first view clicked as a touchView
+            UIView *touchView = [touch view] ?: _touchBeganViews.firstObject;
             CGPoint locationPoint = [touch locationInView:touchView];
             touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
             NSDictionary *result = [self responseViewForAction:@[@"onTouchMove", @"onPressOut", @"onClick"] inView:touchView
@@ -400,8 +411,6 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         }
         _bPressIn = YES;
     }
-
-    //    self.state = UIGestureRecognizerStateEnded;
 }
 
 - (void)longClickTimer:(__unused NSTimer *)timer {
@@ -590,6 +599,14 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             }
         }
     }
+    
+    // Final cleanup to prevent abnormal situations where the touch began/end/cancel mismatch
+    if (_touchBeganViews.count != 0) {
+        [_touchBeganViews removeAllObjects];
+        [_moveViews removeAllObjects];
+        [_moveTouches removeAllObjects];
+    }
+    
     [self clearTimer];
     _bLongClick = NO;
     [self clearLongClickTimer];
