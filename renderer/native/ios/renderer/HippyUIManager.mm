@@ -522,6 +522,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             // 2. then, set necessary properties for this view.
             view.viewName = viewName;
             view.rootTag = rootTag;
+            view.hippyShadowView = shadowView;
             view.renderManager = [self renderManager];
             [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
         }
@@ -602,9 +603,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             index++;
         }
         
-        // set necessary properties and update frame
-        view.hippyShadowView = shadowView;
-        view.renderManager = [self renderManager];
+        // finally, update frame
         [view hippySetFrame:shadowView.frame];
         
         [view clearSortedSubviews];
@@ -806,9 +805,14 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         NSNumber *componentTag = @(node->GetId());
         HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootNodeTag];
         if (HippyCreationTypeInstantly == [shadowView creationType] && !_uiCreationLazilyEnabled) {
+            __weak __typeof(self)weakSelf = self;
             [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+                __strong __typeof(weakSelf)strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
+                std::lock_guard<std::mutex> lock([strongSelf renderQueueLock]);
                 UIView *view = [uiManager createViewFromShadowView:shadowView];
-                view.hippyShadowView = shadowView;
                 [view hippySetFrame:shadowView.frame];
                 
                 if (uiManager && view) {
@@ -921,8 +925,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         if (!strongSelf) {
             return;
         }
-        NSMutableArray<UIView *> *parentViews = [NSMutableArray arrayWithCapacity:8];
-        NSMutableArray<UIView *> *views = [NSMutableArray arrayWithCapacity:8];
+        NSMutableArray<UIView *> *parentViews = [NSMutableArray arrayWithCapacity:strongNodes.size()];
+        NSMutableArray<UIView *> *views = [NSMutableArray arrayWithCapacity:strongNodes.size()];
         for (auto domNode : strongNodes) {
             UIView *view = [viewRegistry objectForKey:@(domNode->GetId())];
             if (!view) {
