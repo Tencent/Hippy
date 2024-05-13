@@ -30,7 +30,7 @@ public interface NativeRenderDelegate extends RenderExceptionHandler, RenderLogH
 
     void moveNode(int rootId, int[] ids, int newPid, int oldPid, int insertIndex) throws NativeRenderException;
 
-    void moveNode(int rootId, int pid, @NonNull List<Object> list) throws NativeRenderException;
+    void moveNode(int rootId, @NonNull List<Object> list) throws NativeRenderException;
 
     void updateLayout(int rootId, @NonNull List<Object> list) throws NativeRenderException;
 
