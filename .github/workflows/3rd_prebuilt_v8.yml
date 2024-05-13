@@ -169,8 +169,13 @@ jobs:
         - cpu: x64
           arch: x86_64
     steps:
+    - name: Setup GN
+      run: |
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/local/opt/depot_tools
+        export PATH=/usr/local/opt/depot_tools:$PATH
     - name: Fetch v8
       run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
         fetch v8
         cd v8
         git checkout ${{ github.event.inputs.v8_revision }}
