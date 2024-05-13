@@ -259,7 +259,6 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
   auto len = nodes.size();
   footstone::value::HippyValue::HippyValueArrayType dom_node_array;
   dom_node_array.resize(len);
-  uint32_t pid;
   for (uint32_t i = 0; i < len; i++) {
     const auto& render_info = nodes[i]->GetRenderInfo();
     footstone::value::HippyValue::HippyValueObjectType dom_node;
@@ -267,7 +266,6 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kPid] = footstone::value::HippyValue(render_info.pid);
     dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
     dom_node_array[i] = dom_node;
-    pid = render_info.pid;
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
@@ -286,12 +284,12 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(II[B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(I[B)V");
   if (!j_method_id) {
     FOOTSTONE_LOG(ERROR) << "moveNode" << " j_method_id error";
     return;
   }
-  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), pid, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), j_buffer);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_class);

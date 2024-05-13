@@ -213,17 +213,16 @@ public class NativeRenderProvider {
      * Adjust the order of child nodes under the same parent node </>
      *
      * @param rootId the root node id
-     * @param pid the parent node id
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    public void moveNode(int rootId, int pid, byte[] buffer) {
+    public void moveNode(int rootId, byte[] buffer) {
         NativeRenderDelegate renderDelegate = mRenderDelegateRef.get();
         if (renderDelegate != null) {
             try {
                 final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-                renderDelegate.moveNode(rootId, pid, list);
+                renderDelegate.moveNode(rootId, list);
             } catch (NativeRenderException e) {
                 renderDelegate.handleRenderException(e);
             }
