@@ -656,16 +656,39 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void moveNode(final int rootId, final int pid, @NonNull final List<Object> list) {
+    public void moveNode(final int rootId, @NonNull final List<Object> list) {
         if (LogUtils.isDebugMode()) {
-            LogUtils.d(TAG, "moveNode: pid " + pid + ", node list " + list + "\n ");
+            LogUtils.d(TAG, "moveNode: node list " + list + "\n ");
         }
-        VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
-        if (parent == null) {
-            addUITask(() -> mRenderManager.moveNode(rootId, pid, list));
-        } else {
-            mVirtualNodeManager.moveNode(rootId, parent, list);
-            addUITask(() -> mRenderManager.onMoveVirtualNode(rootId, pid, list));
+        final Map<Integer, List<Object>> nodeMap = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            final Map<String, Object> moveNodeInfo = ArrayUtils.getMapValue(list, i);
+            if (moveNodeInfo == null) {
+                continue;
+            }
+            final Integer pid = MapUtils.getIntValue(moveNodeInfo, NODE_PID, INVALID_NODE_ID);
+            if (pid == INVALID_NODE_ID) {
+                continue;
+            }
+            List<Object> nodeList = nodeMap.get(pid);
+            if (nodeList == null) {
+                nodeList = new ArrayList<>();
+                nodeList.add(moveNodeInfo);
+                nodeMap.put(pid, nodeList);
+            } else {
+                nodeList.add(moveNodeInfo);
+            }
+        }
+        for (Entry<Integer, List<Object>> entry : nodeMap.entrySet()) {
+            final Integer pid = entry.getKey();
+            final List<Object> value = entry.getValue();
+            VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
+            if (parent == null) {
+                addUITask(() -> mRenderManager.moveNode(rootId, pid, value));
+            } else {
+                mVirtualNodeManager.moveNode(rootId, parent, value);
+                addUITask(() -> mRenderManager.onMoveVirtualNode(rootId, pid, value));
+            }
         }
     }
 
@@ -738,8 +761,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                         TAG + ": updateEventListener: invalid negative id=" + nodeId);
             }
             if (LogUtils.isDebugMode()) {
-                LogUtils.d(TAG,
-                        "updateEventListener: id " + nodeId + ", eventProps " + eventProps + "\n ");
+//                LogUtils.d(TAG,
+//                        "updateEventListener: id " + nodeId + ", eventProps " + eventProps + "\n ");
             }
             mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
             taskList.add(() -> mRenderManager.updateEventListener(rootId, nodeId, eventProps));
