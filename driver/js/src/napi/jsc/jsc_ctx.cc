@@ -1149,6 +1149,7 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const string_view& data,
 
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
     return nullptr;
   }
 

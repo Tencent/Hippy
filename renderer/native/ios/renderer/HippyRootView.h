@@ -49,8 +49,7 @@ extern NSString *const HippyContentDidAppearNotification;
 
 /// Business bundle loading completion notification
 /// This notification is for compatibility with hippy2 and is not recommended for further use
-extern NSString *const HippySecondaryBundleDidLoadNotification;
-
+extern NSString *const HippySecondaryBundleDidLoadNotification DEPRECATED_MSG_ATTRIBUTE("use HippyJavaScriptDidLoadNotification");
 
 
 /// Native view used to host Hippy-managed views within the app.

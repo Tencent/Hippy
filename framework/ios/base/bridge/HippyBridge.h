@@ -42,20 +42,88 @@ NS_ASSUME_NONNULL_BEGIN
  * 注意：为兼容2.0版本，保持的相同的下划线前缀命名，不可修改
  */
 HIPPY_EXTERN NSString *const _HippySDKVersion;
+
 /**
  * This notification triggers a reload of all bridges currently running.
  * Deprecated, use HippyBridge::requestReload instead.
  */
 HIPPY_EXTERN NSString *const HippyReloadNotification;
 
+
+// Keys of userInfo for the following notifications
+HIPPY_EXTERN NSString *const kHippyNotiBridgeKey;
+HIPPY_EXTERN NSString *const kHippyNotiBundleUrlKey;
+HIPPY_EXTERN NSString *const kHippyNotiBundleTypeKey;
+HIPPY_EXTERN NSString *const kHippyNotiErrorKey;
+
+/// Bundle Type of Vendor (or Common Bundle),
+/// used in kHippyNotiBundleTypeKey
+HIPPY_EXTERN const NSUInteger HippyBridgeBundleTypeVendor;
+/// Bundle Type Business,
+/// used in kHippyNotiBundleTypeKey
+HIPPY_EXTERN const NSUInteger HippyBridgeBundleTypeBusiness;
+
+/**
+ * This notification fires when the bridge starts loading and executing the JS bundle.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *  }
+ *
+ * 备注：bundle包开始加载的通知, 注意与Hippy2不同的是，不仅指代`Common包`，`Business包`同样会发送该通知，
+ * 可通过userInfo中bundleType参数进行区分，see: HippyBridgeBundleTypeVendor
+  */
+HIPPY_EXTERN NSString *const HippyJavaScriptWillStartLoadingNotification;
+
+/**
+ * This notification fires when bridge has fetched JS bundle's source code.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *     kHippyNotiErrorKey : $(error), // NSError object
+ *  }
+ *
+ * 备注：获取到Bundle包的source code data时的通知
+ */
+HIPPY_EXTERN NSString *const HippyJavaScripDidLoadSourceCodeNotification;
+
 /**
  * This notification fires when the bridge has finished loading the JS bundle.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *  }
+ *
+ * 备注：Bundle包`加载和执行`结束的通知
  */
 HIPPY_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
 
 /**
  * This notification fires when the bridge failed to load the JS bundle. The
  * `error` key can be used to determine the error that occured.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *     kHippyNotiErrorKey : $(error), // NSError object
+ *  }
+ *
+ * 备注：Bundle包`加载和执行`失败的通知
  */
 HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
 
@@ -73,6 +141,8 @@ HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
 HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 
+
+#pragma mark -
 
 /// Async bridge used to communicate with the JavaScript application.
 @interface HippyBridge : NSObject <HippyInvalidating>
@@ -94,7 +164,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 ///
 /// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
 /// 传空时默认不共享，SDK内部默认分配一随机key。
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+- (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(nullable NSDictionary *)launchOptions
                      executorKey:(nullable NSString *)executorKey;
@@ -112,7 +182,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 ///
 /// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
 /// 传空时默认不共享，SDK内部默认分配一随机key。
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+- (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                        bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(nullable NSDictionary *)launchOptions
@@ -143,14 +213,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, strong, readonly) NSURL *debugURL;
 
-/**
- *  Load js bundles from urls
- *
- *  @param bundleURL bundles url
- *  @discussion HippyBridge makes sure bundles will be loaded in order.
- */
-- (void)loadBundleURL:(NSURL *)bundleURL
-           completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
 
 
 #pragma mark - Image Related
@@ -170,12 +232,12 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// - Parameter imageLoader: id
 - (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader;
 
-/**
- * Image provider method
- * Users adds or obtains image providers in the following methods
- */
+/// Get all classes that confirms to HippyImageProviderProtocol
+@property (nonatomic, strong, nonnull, readonly) NSArray<Class<HippyImageProviderProtocol>> *imageProviders;
+
+/// Add a custom ImageProvider class.
+/// - Parameter cls: class confirms to HippyImageProviderProtocol
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
-- (NSArray<Class<HippyImageProviderProtocol>> *)imageProviderClasses;
 
 
 #pragma mark -
@@ -336,6 +398,29 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// - Parameter isOSNightMode: bool
 /// - Parameter rootViewTag: rootView's hippyTag
 - (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
+
+
+
+#pragma mark - Advanced Usages
+
+/* 说明：
+ * 以下方法一般情况下无需调用，仅供高级定制化使用。
+ * Following methods are only used for advanced customization, no need to be invoked in general.
+ */
+
+typedef NSUInteger HippyBridgeBundleType;
+typedef void (^HippyBridgeBundleLoadCompletionBlock)(NSURL * _Nullable bundleURL, NSError * _Nullable error);
+
+/// Load and Execute bundle from the given bundle URL
+/// - Parameters:
+///   - bundleURL: bundle url
+///   - bundleType: type of bundle, e.g.: whether is `Vendor Bundle`(Common Bundle) or `Business Bundle`
+///   - completion: Completion block
+///
+/// - Disscusion: HippyBridge makes sure bundles will be loaded and execute in order.
+- (void)loadBundleURL:(NSURL *)bundleURL
+           bundleType:(HippyBridgeBundleType)bundleType
+           completion:(HippyBridgeBundleLoadCompletionBlock)completion;
 
 
 @end

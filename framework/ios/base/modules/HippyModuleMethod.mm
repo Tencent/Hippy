@@ -293,14 +293,26 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                 }
             }
         } else if ([typeName isEqualToString:@"HippyResponseSenderBlock"]) {
-            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
-                HippyLogArgumentError(weakSelf, index, json, "should be a function");
-                return NO;
-            }
-            __weak HippyBridge *weakBridge = bridge;
-            Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
-                enqueueBlockCallback(weakBridge, weakSelf, json, args);
-            });)
+            HIPPY_ARG_BLOCK(
+                if (!json) {
+                    HippyLogArgumentError(weakSelf, index, json, "should be a response sender function");
+                    return NO;
+                }
+                id blockArg = nil;
+                if (![json isKindOfClass:[NSNumber class]]) {
+                    // In Hippy3.0, Dom Nodes call function by method name directly,
+                    // so it is not a Number anymore.
+                    // See NativeRenderManager::CallFunction() for more.
+                    // TODO: add more type check for safe
+                    blockArg = json;
+                } else {
+                    __weak HippyBridge *weakBridge = bridge;
+                    blockArg = ^(NSArray *args){
+                        enqueueBlockCallback(weakBridge, weakSelf, json, args);
+                    };
+                }
+                Hippy_BLOCK_ARGUMENT(blockArg);
+            )
         } else if ([typeName isEqualToString:@"HippyResponseErrorBlock"]) {
             HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
                 HippyLogArgumentError(weakSelf, index, json, "should be a function");
@@ -325,6 +337,7 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                     // In Hippy3.0, Dom Nodes call function by method name directly,
                     // so it is not a Number anymore.
                     // See NativeRenderManager::CallFunction() for more.
+                    // TODO: add more type check for safe
                     blockArg = json;
                 } else {
                     __weak HippyBridge *weakBridge = bridge;
@@ -464,31 +477,35 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                   %@ on a module of class %@", [self methodName], [module class]);
 
         // Safety check
-        if (arguments.count != _argumentBlocks.count) {
-            NSInteger actualCount = arguments.count;
-            NSInteger expectedCount = _argumentBlocks.count;
-
-            // Subtract the implicit Promise resolver and rejecter functions for implementations of async functions
-            if (self.functionType == HippyFunctionTypePromise) {
-                actualCount -= 2;
-                expectedCount -= 2;
+        NSInteger actualCount = arguments.count;
+        NSInteger expectedCount = _argumentBlocks.count;
+        BOOL isArgumentsMismatch = NO;
+        if (actualCount > expectedCount) {
+            isArgumentsMismatch = YES;
+        } else if (self.functionType == HippyFunctionTypePromise && actualCount < expectedCount - 2) {
+            for (NSInteger index = actualCount; index < expectedCount - 2; index++) {
+                id<HippyBridgeArgument> arg = self.arguments[index];
+                if (arg.nullability != HippyNullable) {
+                    isArgumentsMismatch = YES;
+                }
             }
-
-            HippyLogError(@"%@.%@ was called with %ld arguments, but expects %ld. \
-                        If you haven\'t changed this method "
-                          @"yourself, this usually means that \
-                        your versions of the native code and JavaScript code are out "
-                          @"of sync. \
-                        Updating both should make this error go away.",
-                HippyBridgeModuleNameForClass(_moduleClass), self.JSMethodName, (long)actualCount, (long)expectedCount);
+        }
+        if (isArgumentsMismatch) {
+            HippyLogError(@"%@.%@ was called with %lld arguments but expects %lld arguments. "
+                          @"If you haven\'t changed this method yourself, this usually means that "
+                          @"your versions of the native code and JavaScript code are out of sync. "
+                          @"Updating both should make this error go away.",
+                          HippyBridgeModuleNameForClass(_moduleClass),
+                          self.JSMethodName,
+                          (long long)actualCount,
+                          (long long)expectedCount);
         }
     }
 
     // Set arguments
     NSUInteger index = 0;
     for (id json in arguments) {
-        // release模式下，如果前端给的参数多于终端所需参数，那会造成数组越界，引起整个逻辑return。
-        //这里做个修改，如果前端给的参数过多，那忽略多余的参数。
+        // 如果前端给的参数过多，忽略多余的参数
         if ([_argumentBlocks count] <= index) {
             break;
         }
