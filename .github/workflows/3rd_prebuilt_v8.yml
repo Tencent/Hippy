@@ -221,13 +221,12 @@ jobs:
       working-directory: ./v8
       run: |
         export PATH=/usr/local/opt/depot_tools:$PATH
-        sudo apt-get install lsb-release
-        ./build/install-build-deps.sh
         gn gen out --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" is_component_build=false v8_monolithic=true android32_ndk_api_level=21 android64_ndk_api_level=21 clang_use_chrome_plugins=false use_thin_lto=false use_custom_libcxx=false ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true' || 'is_debug=true' }} ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
         export PATH=/usr/local/opt/depot_tools:$PATH
+        apt-get install -y ninja-build
         ninja -C out v8_monolith
     - name: Prepare package
       working-directory: ./v8/out
