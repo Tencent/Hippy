@@ -157,7 +157,7 @@ TAITANK_GET_STYLE_DECL(Direction, TaitankDirection, TaitankDirection::DIRECTION_
   }
 
 static void CheckValueType(footstone::value::HippyValue::Type type) {
-  if (type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject)
+  if (type == footstone::value::HippyValue::Type::kString || type == footstone::value::HippyValue::Type::kObject)
     FOOTSTONE_DLOG(WARNING) << "Taitank Layout Node Value Type Error";
 }
 

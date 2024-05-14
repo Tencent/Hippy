@@ -449,13 +449,11 @@ dispatch_queue_t HippyBridgeQueue() {
 #pragma mark - Debug Reload
 
 - (void)reload {
-    if ([self.delegate respondsToSelector:@selector(reload:)]) {
+    dispatch_async(dispatch_get_main_queue(), ^{
         self.invalidateReason = HippyInvalidateReasonReload;
         [self invalidate];
         [self setUp];
-        [self.delegate reload:self];
-        self.invalidateReason = HippyInvalidateReasonDealloc;
-    }
+    });
 }
 
 - (void)requestReload {

@@ -55,14 +55,6 @@
  */
 - (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
 
-//invalidate methods
-/**
- * Invoke when HippyBridge requests reloading
- *
- * @param bridge HippyBridge that requests reloading
- */
-- (void)reload:(HippyBridge *)bridge;
-
 /**
  * Tell delegate to remove root node
  *
