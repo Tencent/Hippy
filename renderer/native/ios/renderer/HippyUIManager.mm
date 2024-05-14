@@ -221,9 +221,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return self;
 }
 
-- (void)dealloc {
-}
-
 - (void)initContext {
     _shadowViewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeStrong];
     _viewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeWeak];
@@ -957,11 +954,15 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         return;
     }
     int32_t rootTag = strongRootNode->GetId();
-    
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     HippyShadowView *fromShadowView = [_shadowViewRegistry componentForTag:@(fromContainer) onRootTag:@(rootTag)];
     HippyShadowView *toShadowView = [_shadowViewRegistry componentForTag:@(toContainer) onRootTag:@(rootTag)];
     for (int32_t hippyTag : ids) {
         HippyShadowView *view = [_shadowViewRegistry componentForTag:@(hippyTag) onRootTag:@(rootTag)];
+        if (!view) {
+            HippyLogWarn(@"Invalid Move, No ShadowView! (%d of %d)", hippyTag, rootTag);
+            continue;
+        }
         HippyAssert(fromShadowView == [view parent], @"ShadowView(%d)'s parent should be %d", hippyTag, fromContainer);
         [view removeFromHippySuperview];
         [toShadowView insertHippySubview:view atIndex:index];

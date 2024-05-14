@@ -450,8 +450,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     if (!_textAlignSet) {
         if ([self isLayoutSubviewsRTL]) {
             self.textAlign = NSTextAlignmentRight;
-        }
-        else {
+        } else {
             self.textAlign = NSTextAlignmentLeft;
         }
     }
@@ -488,18 +487,18 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     UIFont *font = [HippyFont updateFont:f
-                                     withFamily:styleInfo.fontFamily
-                                           size:styleInfo.fontSize
-                                         weight:styleInfo.fontWeight
-                                          style:styleInfo.fontStyle
-                                        variant:_fontVariant
-                                scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
+                              withFamily:styleInfo.fontFamily
+                                    size:styleInfo.fontSize
+                                  weight:styleInfo.fontWeight
+                                   style:styleInfo.fontStyle
+                                 variant:_fontVariant
+                         scaleMultiplier:_allowFontScaling ? _fontSizeMultiplier : 1.0];
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
     for (HippyShadowView *child in [self subcomponents]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
-            HippyShadowText *shadowText = (HippyShadowText *)child;
+            HippyShadowText *childShadowText = (HippyShadowText *)child;
             HippyAttributedStringStyleInfo *childInfo = [HippyAttributedStringStyleInfo new];
             childInfo.fontFamily = styleInfo.fontFamily;
             childInfo.fontSize = styleInfo.fontSize;
@@ -507,11 +506,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             childInfo.fontStyle = styleInfo.fontStyle;
             childInfo.letterSpacing = styleInfo.letterSpacing;
             childInfo.useBackgroundColor = YES;
-            childInfo.foregroundColor = [shadowText color] ?: styleInfo.foregroundColor;
-            childInfo.backgroundColor = shadowText.backgroundColor ?: styleInfo.backgroundColor;
-            childInfo.opacity = styleInfo.opacity * shadowText.opacity;
+            childInfo.foregroundColor = [childShadowText color] ?: styleInfo.foregroundColor;
+            childInfo.backgroundColor = childShadowText.backgroundColor ?: styleInfo.backgroundColor;
+            childInfo.opacity = styleInfo.opacity * childShadowText.opacity;
             childInfo.isNestedText = styleInfo.isNestedText;
-            NSAttributedString *subStr = [shadowText _attributedStringWithStyleInfo:childInfo];
+            NSAttributedString *subStr = [childShadowText _attributedStringWithStyleInfo:childInfo];
             [attributedString appendAttributedString:subStr];
             [child setTextComputed];
         } else {
@@ -630,10 +629,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                       heightOfTallestSubview:(CGFloat)heightOfTallestSubview
                                 isNestedText:(BOOL)isNestedText {
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:attributedString];
+    CGFloat adjustedLineHeight = self.lineHeight;
     BOOL hasSetLineHeight = NO;
-    if (fabs(self.lineHeight - 0) < DBL_EPSILON) {
+    if (DirtyTextEqual(adjustedLineHeight, 0.0)) {
         // If no fixed lineHeight is set, fontLineHeight is used.
-        self.lineHeight = fontLineHeight;
+        adjustedLineHeight = fontLineHeight;
     } else if (!self.adjustsFontSizeToFit) {
         // Only when adjustsFontSizeToFit is not set, the fixed lineHeight can be used.
         hasSetLineHeight = YES;
@@ -645,10 +645,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         hasParagraphStyle = YES;
     }
 
-    __block float newLineHeight = _lineHeight ?: 0.0;
+    __block CGFloat newLineHeight = adjustedLineHeight ?: 0.0;
     CGFloat fontSizeMultiplier = _allowFontScaling ? _fontSizeMultiplier : 1.0;
 
-    // check for lineHeight on each of our children, update the max as we go (in self.lineHeight)
+    // check for lineHeight on each of our children, update the max as we go
     [attributedString enumerateAttribute:NSParagraphStyleAttributeName
                                  inRange:NSMakeRange(0, attributedString.length)
                                  options:kNilOptions
@@ -662,9 +662,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                       hasParagraphStyle = YES;
                                   }
                               }];
-
-    if (self.lineHeight != newLineHeight) {
-        self.lineHeight = newLineHeight;
+    if (!DirtyTextEqual(adjustedLineHeight, newLineHeight)) {
+        adjustedLineHeight = newLineHeight;
     }
 
     __block CGFloat maximumFontLineHeight = 0.0;
@@ -685,7 +684,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     if (hasParagraphStyle) {
         NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.alignment = _textAlign;
-        CGFloat lineHeight = round(_lineHeight * fontSizeMultiplier);
+        CGFloat lineHeight = round(adjustedLineHeight * fontSizeMultiplier);
         CGFloat maxHeight = lineHeight;
         if (heightOfTallestSubview > lineHeight) {
             maxHeight = ceilf(heightOfTallestSubview);
