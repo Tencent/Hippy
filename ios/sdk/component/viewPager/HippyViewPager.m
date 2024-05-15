@@ -44,6 +44,10 @@
 @property (nonatomic, assign) CGFloat previousStopOffset;
 @property (nonatomic, assign) NSUInteger lastPageSelectedCallbackIndex;
 
+/// A weak property used to record the currently displayed item,
+/// which is used for updating the page index when the data changes.
+@property (nonatomic, weak) UIView *lastSelectedPageItem;
+
 @end
 
 @implementation HippyViewPager
@@ -60,6 +64,7 @@
         self.previousFrame = CGRectZero;
         self.scrollViewListener = [NSHashTable weakObjectsHashTable];
         self.lastPageIndex = NSUIntegerMax;
+        self.lastPageSelectedCallbackIndex = NSUIntegerMax;
         self.targetContentOffsetX = CGFLOAT_MAX;
         if (@available(iOS 11.0, *)) {
             self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -153,6 +158,7 @@
 
     _lastPageIndex = pageNumber;
     UIView *theItem = self.viewPagerItems[pageNumber];
+    self.lastSelectedPageItem = theItem;
     self.targetContentOffsetX = CGRectGetMinX(theItem.frame);
     [self setContentOffset:theItem.frame.origin animated:animated];
     [self invokePageSelected:pageNumber];
@@ -335,6 +341,7 @@
     }
     if (_lastPageIndex != thePage) {
         _lastPageIndex = thePage;
+        _lastSelectedPageItem = self.viewPagerItems[thePage];
         return thePage;
     } else {
         return _lastPageIndex;
@@ -362,6 +369,23 @@
     BOOL isFrameEqual = CGRectEqualToRect(self.frame, self.previousFrame);
     BOOL isContentSizeEqual = CGSizeEqualToSize(self.contentSize, self.previousSize);
 
+    if (!isContentSizeEqual) {
+        // Update the latest page index based on the currently displayed item (aka lastSelectedPageItem).
+        // Keep the same logic as android:
+        // 1. If the previous item only changes its location,
+        //    update the current location and keep the current item displayed.
+        // 2. If the previous item does not exist, do not adjust the position,
+        //    but keep the current position in the valid range (that is, 0 ~ count-1).
+        UIView *previousSelectedItem = self.lastSelectedPageItem;
+        NSUInteger updatedPageIndex;
+        if (previousSelectedItem) {
+            updatedPageIndex = [self.viewPagerItems indexOfObject:previousSelectedItem];
+        } else {
+            updatedPageIndex = MAX(0, MIN(self.lastPageIndex, self.viewPagerItems.count - 1));
+        }
+        self.lastPageIndex = updatedPageIndex;
+        self.needsResetPageIndex = YES;
+    }
     if (!isContentSizeEqual || !isFrameEqual) {
         self.previousFrame = self.frame;
         self.previousSize = self.contentSize;
