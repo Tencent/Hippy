@@ -77,6 +77,8 @@ public class EventUtils {
     public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
     // On modal view show.
     public static final String EVENT_MODAL_SHOW = "show";
+    // On modal orientation changed.
+    public static final String EVENT_ORIENTATION_CHANGED = "orientationChange";
 
     // On refresh wrapper view refresh.
     public static final String EVENT_REFRESH_WRAPPER_REFRESH = "refresh";
