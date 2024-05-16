@@ -1,0 +1,22 @@
+{
+  "configurations" : [
+    {
+      "id" : "C642C4E4-3340-4058-BCDB-F8D3BE31926A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:HippyDemo.xcodeproj",
+      "identifier" : "F7DF50CA19E5E79F64D3D4E6",
+      "name" : "HippyDemo"
+    }
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}
