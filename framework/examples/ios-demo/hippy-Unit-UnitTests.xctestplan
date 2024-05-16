@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "EA4E4CF7-9024-4B4A-B911-A0056EF7BAD7",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:Pods.xcodeproj",
+          "identifier" : "927329EF8F33B34F7F9A0655F6ABA7C3",
+          "name" : "hippy"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Pods.xcodeproj",
+        "identifier" : "C1E172B01D45B4ADDB866126B685CA58",
+        "name" : "hippy-Unit-UnitTests"
+      }
+    }
+  ],
+  "version" : 1
+}
