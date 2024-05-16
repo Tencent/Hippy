@@ -182,13 +182,7 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     if (nil == subview) {
         return;
     }
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
-    if (!subviews) {
-        return;
-    }
-    if ([subviews containsObject:subview]) {
-        [subviews removeObject:subview];
-    }
+    [self removeHippySubview:subview];
     [self insertHippySubview:subview atIndex:atIndex];
 }
 
