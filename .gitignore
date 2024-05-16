@@ -40,7 +40,6 @@ framework/examples/android-demo/src/main/assets/
 framework/examples/android-demo/libs/*
 framework/examples/android-demo/maven-auth.properties
 framework/examples/android-demo/.cxx/
-framework/examples/ios-demo/HippyDemo.xcodeproj
 framework/examples/ios-demo/HippyDemo.xcworkspace
 framework/examples/ios-demo/Pods/*
 framework/examples/ios-demo/Podfile.lock
