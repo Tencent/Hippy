@@ -196,9 +196,11 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 }
 
 - (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex {
-    if ([_objectSubviews containsObject:subview]) {
-        [_objectSubviews removeObject:subview];
+    if (!subview) {
+        HippyAssert(subview != nil, @"subview should not be nil!");
+        return;
     }
+    [self removeHippySubview:subview];
     [self insertHippySubview:subview atIndex:atIndex];
 }
 
