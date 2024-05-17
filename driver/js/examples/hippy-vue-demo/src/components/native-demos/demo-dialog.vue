@@ -51,6 +51,7 @@
       :autoHideNavigationBar="autoHideNavigationBar"
       @show="onShow"
       @requestClose="onClose"
+      @orientationChange="onOrientationChange"
     >
       <!-- iOS 平台上 dialog 必须只有一个子节点 -->
       <div class="dialog-demo-wrapper">
@@ -80,6 +81,7 @@
             :autoHideStatusBar="autoHideStatusBar"
             :autoHideNavigationBar="autoHideNavigationBar"
             @requestClose="onClose"
+            @orientationChange="onOrientationChange"
           >
             <div
               class="dialog-2-demo-wrapper center column row"
@@ -153,6 +155,9 @@ export default {
     },
     onShow() {
       console.log('Dialog is opening');
+    },
+    onOrientationChange(evt) {
+      console.log('orientation changed', evt.nativeParams);
     },
     onClose(evt) {
       evt.stopPropagation();
