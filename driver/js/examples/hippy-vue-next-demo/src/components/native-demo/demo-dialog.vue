@@ -52,6 +52,7 @@
       :autoHideNavigationBar="autoHideNavigationBar"
       @show="onShow"
       @requestClose="onClose"
+      @orientationChange="onOrientationChange"
     >
       <!-- dialog on iOS platform can only have one child node -->
       <div class="dialog-demo-wrapper">
@@ -78,6 +79,7 @@
             :animationType="dialogAnimationType"
             :transparent="true"
             @requestClose="onClose"
+            @orientationChange="onOrientationChange"
           >
             <div
               class="dialog-2-demo-wrapper center column row"
@@ -151,7 +153,9 @@ export default defineComponent({
     const onShow = () => {
       console.log('Dialog is opening');
     };
-
+    const onOrientationChange = (evt) => {
+      console.log('orientation changed', evt.nativeParams);
+    };
     const onClose = (evt) => {
       evt.stopPropagation();
       /**
