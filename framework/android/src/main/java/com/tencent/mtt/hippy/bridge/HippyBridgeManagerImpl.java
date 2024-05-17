@@ -51,6 +51,7 @@ import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
@@ -86,6 +87,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     public static final int DESTROY_CLOSE = 0;
     public static final int DESTROY_RELOAD = 1;
+
+    public static final int CREATE_NORMAL = 0;
+    public static final int CREATE_RELOAD = 1;
 
     final HippyEngineContext mContext;
     final HippyBundleLoader mCoreBundleLoader;
@@ -229,6 +233,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             switch (msg.what) {
                 case MSG_CODE_INIT_BRIDGE: {
                     @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> callback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
+                    final int code = msg.arg1;
                     try {
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
@@ -280,7 +285,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                     callback.callback(true, null);
                                 }
                             }
-                        }, mGroupId);
+                        }, mGroupId, code == CREATE_RELOAD);
                     } catch (Throwable e) {
                         mBridgeState = BridgeState.UNINITIALIZED;
                         callback.callback(false, e);
@@ -361,9 +366,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
-    public void initBridge(Callback<Boolean> callback) {
+    public void initBridge(Callback<Boolean> callback, boolean isReload) {
         mHandler = new Handler(mContext.getThreadExecutor().getBridgeThread().getLooper(), this);
-        Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE, callback);
+        Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE);
+        message.arg1 = isReload ? CREATE_RELOAD : CREATE_NORMAL;
+        message.obj = callback;
         mHandler.sendMessage(message);
     }
 

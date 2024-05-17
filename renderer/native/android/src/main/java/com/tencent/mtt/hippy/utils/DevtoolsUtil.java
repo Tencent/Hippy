@@ -213,9 +213,10 @@ public class DevtoolsUtil {
                 Window window = ((Activity) ((ContextWrapper) context).getBaseContext()).getWindow();
                 final Bitmap finalBitmap = bitmap;
                 final float finalScale = scale;
-                PixelCopy.request(window,
+                try {
+                    PixelCopy.request(window,
                         new Rect(location[0], location[1], location[0] + view.getWidth(),
-                                location[1] + view.getHeight()),
+                            location[1] + view.getHeight()),
                         finalBitmap, new OnPixelCopyFinishedListener() {
 
                             @Override
@@ -227,6 +228,9 @@ public class DevtoolsUtil {
                                 }
                             }
                         }, new Handler(Looper.getMainLooper()));
+                } catch (IllegalArgumentException e) {
+                    LogUtils.e(TAG, " PixelCopy.request error", e);
+                }
             } else {
                 LogUtils.e(TAG, "getScreenShot context.getBaseContext() is not activity");
             }
