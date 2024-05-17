@@ -22,7 +22,7 @@ Demo的Native工程代码位于framework/examples目录，前端工程代码位�
 首先，通过Homebrew包管理工具安装git, git-lfs, node(v16) and npm(v7)
 
 ```shell
-brew install git git-lfs node@16 xcodegen cmake
+brew install git git-lfs node@16 cmake
 ```
 
 #### 编译iOS Demo环境准备
@@ -82,9 +82,9 @@ git clone  https://github.com/Tencent/Hippy.git
 ```shell
 # 进入Hippy源码目录
 cd ./framework/examples/ios-demo
-# 执行xcodegen生成工程
-xcodegen
-# 打开workspace，编译运行即可
+# 使用 Cocoapods 生成工程
+pod install
+# 打开 workspace，编译运行即可
 open HippyDemo.xcworkspace
 ```
 
