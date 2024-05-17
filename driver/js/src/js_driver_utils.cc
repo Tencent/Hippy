@@ -141,8 +141,8 @@ std::shared_ptr<Engine> JsDriverUtils::CreateEngineAndAsyncInitialize(const std:
   if (param->is_debug) {
     group = VM::kDebuggerGroupId;
   }
-  // 1. 调试模式新起实例不复用 ctx, 调试模式 reload 场景复用 ctx
-  // 2. Demo 场景， group_id 为 -1，不复用 ctx
+  // 1. 调试模式启动新实例不复用V8 context, 调试模式 reload 场景复用 V8 context
+  // 2. Demo 场景， group_id 为 -1，不复用 V8 context
   if ((group == VM::kDebuggerGroupId && is_reload) || (group != VM::kDebuggerGroupId && group != VM::kDefaultGroupId))
   {
     std::lock_guard<std::mutex> lock(engine_mutex);
