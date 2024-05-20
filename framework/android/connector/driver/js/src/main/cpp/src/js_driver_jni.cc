@@ -71,7 +71,7 @@ inline namespace driver {
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onCreate",
              "([BZZZLcom/openhippy/connector/NativeCallback;"
-             "JILcom/openhippy/connector/JsDriver$V8InitParams;II)I",
+             "JILcom/openhippy/connector/JsDriver$V8InitParams;IIZ)I",
              CreateJsDriver)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
@@ -266,7 +266,8 @@ jint CreateJsDriver(JNIEnv* j_env,
                     jint j_dom_manager_id,
                     jobject j_vm_init_param,
                     jint j_vfs_id,
-                    jint j_devtools_id) {
+                    jint j_devtools_id,
+                    jboolean j_is_reload) {
   FOOTSTONE_LOG(INFO) << "CreateJsDriver begin, j_single_thread_mode = "
                       << static_cast<uint32_t>(j_single_thread_mode)
                       << ", j_bridge_param_json = "
@@ -343,7 +344,7 @@ jint CreateJsDriver(JNIEnv* j_env,
     }
   };
   auto engine = JsDriverUtils::CreateEngineAndAsyncInitialize(
-      dom_task_runner, param, static_cast<int64_t>(j_group_id));
+      dom_task_runner, param, static_cast<int64_t>(j_group_id), static_cast<bool>(j_is_reload));
   {
     std::lock_guard<std::mutex> lock(holder_mutex);
     engine_holder[engine.get()] = engine;
