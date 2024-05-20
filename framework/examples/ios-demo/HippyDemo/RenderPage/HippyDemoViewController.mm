@@ -198,7 +198,9 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     } else {
         NSURL *vendorBundleURL = [self vendorBundleURL];
         NSURL *indexBundleURL = [self indexBundleURL];
-        [hippyBridge loadBundleURL:vendorBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
+        [hippyBridge loadBundleURL:vendorBundleURL
+                        bundleType:HippyBridgeBundleTypeVendor
+                        completion:^(NSURL * _Nullable, NSError * _Nullable) {
             NSLog(@"url %@ load finish", vendorBundleURL);
         }];
         hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
@@ -259,10 +261,6 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
 
 - (BOOL)isDebugMode {
     return _isDebugMode;
-}
-
-- (void)reload:(HippyBridge *)bridge {
-    [self mountConnector:_hippyBridge];
 }
 
 - (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {

@@ -27,6 +27,7 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
 #import "HippyShadowView+Internal.h"
+#import "HippyAssert.h"
 
 
 static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
@@ -177,11 +178,15 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     return container;
 }
 
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSUInteger)atIndex {
+    if (!subview) {
+        HippyAssert(subview != nil, @"subview should not be nil!");
+        HippyFatal(HippyErrorWithMessage(@"Illegal nil shadow subview in insertHippySubview!"));
+        return;
+    }
     if (atIndex <= [_objectSubviews count]) {
         [_objectSubviews insertObject:subview atIndex:atIndex];
-    }
-    else {
+    } else {
         [_objectSubviews addObject:subview];
     }
     subview->_superview = self;
@@ -190,7 +195,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     [self dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
 }
 
-- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSInteger)atIndex {
+- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex {
     if ([_objectSubviews containsObject:subview]) {
         [_objectSubviews removeObject:subview];
     }

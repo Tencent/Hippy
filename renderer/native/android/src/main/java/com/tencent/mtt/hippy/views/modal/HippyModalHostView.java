@@ -70,7 +70,7 @@ public class HippyModalHostView extends HippyViewGroup implements
     @NonNull
     private final DialogRootView mDialogRootView;
     @Nullable
-    private Dialog mDialog;
+    private HippyModalDialogView mDialog;
     @Nullable
     private View mContentView;
     @Nullable
@@ -356,9 +356,9 @@ public class HippyModalHostView extends HippyViewGroup implements
     }
 
     @NonNull
-    protected Dialog createDialog(@NonNull Context context) {
+    protected HippyModalDialogView createDialog(@NonNull Context context) {
         int themeResId = android.R.style.Theme_Translucent_NoTitleBar;
-        return new Dialog(context, themeResId);
+        return new HippyModalDialogView(context, themeResId, this);
     }
 
     @NonNull

@@ -221,9 +221,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return self;
 }
 
-- (void)dealloc {
-}
-
 - (void)initContext {
     _shadowViewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeStrong];
     _viewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeWeak];
@@ -957,21 +954,23 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         return;
     }
     int32_t rootTag = strongRootNode->GetId();
-    
-    HippyShadowView *fromObjectView = [_shadowViewRegistry componentForTag:@(fromContainer)
-                                                                          onRootTag:@(rootTag)];
-    HippyShadowView *toObjectView = [_shadowViewRegistry componentForTag:@(toContainer)
-                                                                        onRootTag:@(rootTag)];
-    for (int32_t componentTag : ids) {
-        HippyShadowView *view = [_shadowViewRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
-        HippyAssert(fromObjectView == [view parent], @"parent of object view with tag %d is not object view with tag %d", componentTag, fromContainer);
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
+    HippyShadowView *fromShadowView = [_shadowViewRegistry componentForTag:@(fromContainer) onRootTag:@(rootTag)];
+    HippyShadowView *toShadowView = [_shadowViewRegistry componentForTag:@(toContainer) onRootTag:@(rootTag)];
+    for (int32_t hippyTag : ids) {
+        HippyShadowView *view = [_shadowViewRegistry componentForTag:@(hippyTag) onRootTag:@(rootTag)];
+        if (!view) {
+            HippyLogWarn(@"Invalid Move, No ShadowView! (%d of %d)", hippyTag, rootTag);
+            continue;
+        }
+        HippyAssert(fromShadowView == [view parent], @"ShadowView(%d)'s parent should be %d", hippyTag, fromContainer);
         [view removeFromHippySuperview];
-        [toObjectView insertHippySubview:view atIndex:index];
+        [toShadowView insertHippySubview:view atIndex:index];
     }
-    [fromObjectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-    [toObjectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-    [fromObjectView didUpdateHippySubviews];
-    [toObjectView didUpdateHippySubviews];
+    [fromShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+    [toShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+    [fromShadowView didUpdateHippySubviews];
+    [toShadowView didUpdateHippySubviews];
     auto strongTags = std::move(ids);
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *fromView = [viewRegistry objectForKey:@(fromContainer)];
@@ -1006,7 +1005,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         int32_t componentTag = node->GetId();
         HippyShadowView *objectView = [_shadowViewRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
         [objectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-        HippyAssert(!parentObjectView || parentObjectView == [objectView parent], @"try to move object view on different parent object view");
+        HippyAssert(!parentObjectView || parentObjectView == [objectView parent], @"parent not same!");
         if (!parentObjectView) {
             parentObjectView = (HippyShadowView *)[objectView parent];
         }
@@ -1017,7 +1016,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *superView = nil;
         for (auto node : strongNodes) {
-            int32_t index = node->GetIndex();
+            int32_t index = node->GetRenderInfo().index;
             int32_t componentTag = node->GetId();
             UIView *view = [viewRegistry objectForKey:@(componentTag)];
             if (!view) {

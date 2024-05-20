@@ -70,11 +70,6 @@
 - (void)reload;
 
 /**
- * Deprecated. Use the `-addItem:` method instead.
- */
-- (void)addItem:(NSString *)title handler:(void (^)(void))handler DEPRECATED_ATTRIBUTE;
-
-/**
  * Add custom item to the development menu. The handler will be called
  * when user selects the item.
  */

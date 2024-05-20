@@ -184,7 +184,7 @@ void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineN
         
         // Call log function
         if (logFunction) {
-            logFunction(level, HippyLogSourceNative, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message);
+            logFunction(level, HippyLogSourceNative, fileName ? @(fileName) : nil, @(lineNumber), message);
         }
         
 #if HIPPY_DEBUG

@@ -87,6 +87,18 @@ void HippySwapInstanceMethods(Class cls, SEL original, SEL replacement) {
     }
 }
 
+void HippySwapInstanceMethodWithBlock(Class cls, SEL original, id replacementBlock, SEL replacementSelector) {
+    Method originalMethod = class_getInstanceMethod(cls, original);
+    if (!originalMethod) {
+        return;
+    }
+    
+    IMP implementation = imp_implementationWithBlock(replacementBlock);
+    class_addMethod(cls, replacementSelector, implementation, method_getTypeEncoding(originalMethod));
+    Method newMethod = class_getInstanceMethod(cls, replacementSelector);
+    method_exchangeImplementations(originalMethod, newMethod);
+}
+
 BOOL HippyClassOverridesClassMethod(Class cls, SEL selector) {
     return HippyClassOverridesInstanceMethod(object_getClass(cls), selector);
 }
@@ -438,15 +450,7 @@ NSURL *__nullable HippyURLWithString(NSString *URLString, NSString *baseURLStrin
         if (nil == uriData) {
             return nil;
         }
-        CFURLRef urlRef = NULL;
-        if ([URLString hasPrefix:@"http"] ||
-            [URLString hasPrefix:@"data:"] ||
-            [URLString hasPrefix:@"file:"]) {
-            urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, (__bridge CFURLRef)baseURL);
-        }
-        else {
-            urlRef = CFURLCreateWithFileSystemPath(NULL, (__bridge CFStringRef)URLString, kCFURLPOSIXPathStyle, NO);
-        }
+        CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, (__bridge CFURLRef)baseURL);
         NSURL *source_url = CFBridgingRelease(urlRef);
         return source_url;
     }
