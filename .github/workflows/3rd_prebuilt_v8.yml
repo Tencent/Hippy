@@ -156,6 +156,7 @@ jobs:
     runs-on: [self-hosted, linux, shared]
     container:
       image: ghcr.io/${{ needs.context_in_lowercase.outputs.repository_owner }}/android-release:latest
+      options: --user root
     strategy:
       matrix:
         cpu: [arm, arm64, x86, x64]
@@ -225,6 +226,7 @@ jobs:
       working-directory: ./v8
       run: |
         export PATH=/usr/local/opt/depot_tools:$PATH
+        apt-get install -y ninja-build
         ninja -C out v8_monolith
     - name: Prepare package
       working-directory: ./v8/out
