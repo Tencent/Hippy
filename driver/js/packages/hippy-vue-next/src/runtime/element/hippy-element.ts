@@ -878,8 +878,8 @@ export class HippyElement extends HippyNode {
     let style: NativeNodeProps = this.getNativeStyles();
 
     if (this.parentNode && this.parentNode instanceof HippyElement) {
-      // 属性继承逻辑实现
-      // 只继承 color 和 font属性
+      // Implement attribute inheritance logic
+      // Only inherit color and font properties
       const parentNodeStyle = this.parentNode.processedStyle;
       const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
 
