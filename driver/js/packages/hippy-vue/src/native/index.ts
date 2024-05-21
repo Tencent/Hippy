@@ -40,6 +40,7 @@ import {
   deepCopy,
   isTraceEnabled,
   getBeforeRenderToNative,
+  isStyleNotEmpty,
 } from '../util';
 import {
   EventHandlerType,
@@ -52,7 +53,6 @@ import {
 } from '../util/i18n';
 import {
   setCacheNodeStyle,
-  deleteCacheNodeStyle,
   getCacheNodeStyle,
 } from '../util/node-style';
 import { isStyleMatched, preCacheNode } from '../util/node';
@@ -443,24 +443,24 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
 
   let style;
   if (notUpdateStyle) {
-    // 不用更新 CSS，直接使用缓存
+    // No need to update CSS, use cache directly
     style = getCacheNodeStyle(targetNode.nodeId);
   } else {
-    // 重新计算 CSS 样式
+    // Recalculate CSS styles style
     style = getElemCss(targetNode);
-    // 样式合并
+    // Merge styles style
     style = { ...style, ...targetNode.style };
-    // CSS 预处理，该函数目前没被使用
+    // CSS preprocessing
     getBeforeRenderToNative()();
 
     if (targetNode.parentNode) {
-      // 属性继承逻辑实现
-      // 只继承 color 和 font属性
+      // Implement attribute inheritance logic
+      // Only inherit color and font properties
       const parentNodeStyle = getCacheNodeStyle(targetNode.parentNode.nodeId);
       const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
 
       styleAttributes.forEach((attribute) => {
-        if (!style[attribute] && parentNodeStyle[attribute]) {
+        if (!isStyleNotEmpty(style[attribute]) && isStyleNotEmpty(parentNodeStyle[attribute])) {
           style[attribute] = parentNodeStyle[attribute];
         }
       });
@@ -471,7 +471,7 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
       style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
     }
 
-    // 缓存 CSS 结果
+    // Cache css result
     setCacheNodeStyle(targetNode.nodeId, style);
   }
   // Translate to native node
