@@ -38,12 +38,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           lfs: true
-      - name: Xcodegen
-        uses: xavierLowmiller/xcodegen-action@1.1.2
-        with:
-          spec: framework/examples/ios-demo/project.yml
-          version: '2.32.0'
       - name: Demo
         working-directory: framework/examples/ios-demo
         run: |
+          pod install
           xcodebuild build -destination "generic/platform=iOS" -workspace "HippyDemo.xcworkspace" -scheme "HippyDemo" -configuration ${{matrix.type}} CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 

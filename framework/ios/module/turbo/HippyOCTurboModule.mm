@@ -315,7 +315,7 @@ static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<hippy:
         }
         std::u16string u16Key = StringViewUtils::ConvertEncoding(string_view, string_view::Encoding::Utf16).utf16_value();
         NSString *stringKey = [NSString stringWithCharacters:(const unichar*)u16Key.c_str() length:(u16Key.length())];
-        id objValue = convertCtxValueToObjcObject(context, value, module);
+        id objValue = convertCtxValueToObjcObject(context, value, module) ?: [NSNull null];
         [result setObject:objValue forKey:stringKey];
     }
     return [result copy];

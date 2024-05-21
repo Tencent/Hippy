@@ -36,6 +36,11 @@
  */
 + (BOOL)isAnimatedImage:(NSData *)data;
 
+/**
+ * Image scale
+ */
+@property (nonatomic, assign) CGFloat scale;
+
 @property(nonatomic, copy)NSString *imageDataPath;
 
 /**

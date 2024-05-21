@@ -78,8 +78,6 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 @property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
 
-@property (nonatomic, copy) NSString *contextName;
-
 @property(nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
 
 - (instancetype)initWithEngineKey:(NSString *)engineKey bridge:(HippyBridge *)bridge;

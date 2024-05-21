@@ -225,6 +225,9 @@ export class HippyElement extends HippyNode {
   // style
   public style: NativeNodeProps;
 
+  // processed style, to refactor on dom
+  public processedStyle: NativeNodeProps = {};
+
   // events map
   public events: NativeNodeProps;
 
@@ -783,7 +786,7 @@ export class HippyElement extends HippyNode {
     });
     // update native node
     if (isNeedUpdate) {
-      this.updateNativeNode();
+      this.updateNativeEvent();
     }
   }
 
@@ -825,7 +828,7 @@ export class HippyElement extends HippyNode {
       delete this.attributes[ssrEventName];
     }
     // update native node
-    this.updateNativeNode();
+    this.updateNativeEvent();
   }
 
   /**
@@ -874,6 +877,19 @@ export class HippyElement extends HippyNode {
     // get styles
     let style: NativeNodeProps = this.getNativeStyles();
 
+    if (this.parentNode && this.parentNode instanceof HippyElement) {
+      // 属性继承逻辑实现
+      // 只继承 color 和 font属性
+      const parentNodeStyle = this.parentNode.processedStyle;
+      const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
+      styleAttributes.forEach((attribute) => {
+        if (!style[attribute] && parentNodeStyle[attribute]) {
+          style[attribute] = parentNodeStyle[attribute];
+        }
+      });
+    }
+
     getBeforeRenderToNative()(this, style);
 
     /*
@@ -891,6 +907,8 @@ export class HippyElement extends HippyNode {
       });
       style = { ...updateStyle, ...style };
     }
+
+    this.processedStyle = style;
 
     const elementExtraAttributes: Partial<NativeNode> = {
       name: this.component.name,

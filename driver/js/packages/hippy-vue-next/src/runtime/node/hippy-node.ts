@@ -29,6 +29,7 @@ import {
   renderRemoveChildNativeNode,
   renderUpdateChildNativeNode,
   renderMoveChildNativeNode,
+  renderUpdateChildNativeEvent,
 } from '../render';
 import { EventHandlerType } from '../../util/event';
 
@@ -372,6 +373,7 @@ export class HippyNode extends HippyEventTarget {
     // In the case of keep-alive, the node still exists and will be moved to the virtual container
     if (child.parentNode && child.parentNode !== this) {
       child.parentNode.removeChild(child);
+      return;
     }
 
     // If the node is already mounted, remove it first, but do not remove when is hydrate.
@@ -581,6 +583,20 @@ export class HippyNode extends HippyEventTarget {
     // get native nodes
     const updateNodes: convertToNativeNodesReturnedVal = this.convertToNativeNodes(isIncludeChildren, {});
     renderUpdateChildNativeNode(updateNodes);
+  }
+
+  /**
+   * update native event
+   */
+  public updateNativeEvent(): void {
+    // nodes that are not inserted into Native do not need to be processed
+    if (!this.isMounted) {
+      return;
+    }
+
+    // get event nodes
+    const eventNode = getEventNode(this);
+    renderUpdateChildNativeEvent(eventNode);
   }
 
   /**

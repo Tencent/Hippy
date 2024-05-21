@@ -144,7 +144,7 @@ public class ImageVirtualNode extends VirtualNode {
             }
         }
         if (drawable == null) {
-            drawable = new ColorDrawable(Color.WHITE);
+            drawable = new ColorDrawable(Color.TRANSPARENT);
         }
         drawable.setBounds(0, 0, mWidth, mHeight);
         return new TextImageSpan(drawable, mUrl, this, mNativeRenderer);

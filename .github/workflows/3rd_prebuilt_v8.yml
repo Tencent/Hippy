@@ -156,6 +156,7 @@ jobs:
     runs-on: [self-hosted, linux, shared]
     container:
       image: ghcr.io/${{ needs.context_in_lowercase.outputs.repository_owner }}/android-release:latest
+      options: --user root
     strategy:
       matrix:
         cpu: [arm, arm64, x86, x64]
@@ -169,8 +170,13 @@ jobs:
         - cpu: x64
           arch: x86_64
     steps:
+    - name: Setup GN
+      run: |
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/local/opt/depot_tools
+        export PATH=/usr/local/opt/depot_tools:$PATH
     - name: Fetch v8
       run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
         fetch v8
         cd v8
         git checkout ${{ github.event.inputs.v8_revision }}
@@ -187,6 +193,7 @@ jobs:
     - name: Sync third_party
       working-directory: ./v8
       run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
         echo "target_os = ['android']" >> ../.gclient
         gclient sync -D
     - name: Prepare android_ndk
@@ -213,10 +220,13 @@ jobs:
     - name: Generate ${{ matrix.arch }}
       working-directory: ./v8
       run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
         gn gen out --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" is_component_build=false v8_monolithic=true android32_ndk_api_level=21 android64_ndk_api_level=21 clang_use_chrome_plugins=false use_thin_lto=false use_custom_libcxx=false ${{ github.event.inputs.build_type == 'release' && 'is_debug=false is_official_build=true' || 'is_debug=true' }} ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
+        apt-get install -y ninja-build
         ninja -C out v8_monolith
     - name: Prepare package
       working-directory: ./v8/out

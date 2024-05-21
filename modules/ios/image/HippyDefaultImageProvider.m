@@ -35,7 +35,8 @@
 
 @implementation HippyDefaultImageProvider
 
-@synthesize imageDataPath;
+@synthesize scale = _scale;
+@synthesize imageDataPath = _imageDataPath;
 
 + (BOOL)canHandleData:(NSData *)data {
     return YES;
@@ -44,6 +45,14 @@
 + (BOOL)isAnimatedImage:(NSData *)data {
     BOOL ret = [data datatype_isAnimatedImage];
     return ret;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _scale = 1.0;
+    }
+    return self;
 }
 
 - (void)setImageData:(NSData *)imageData {
@@ -121,13 +130,13 @@
 }
 
 - (UIImage *)image {
-    CGFloat scale = [UIScreen mainScreen].scale;
     if (!_image) {
         UIImage *tmp;
         if (_data) {
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
             if (_downSample && view_width > 0 && view_height > 0) {
+                CGFloat scale = self.scale;
                 NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
                 if (ref) {
@@ -161,7 +170,7 @@
             tmp = [self imageAtFrame:0];
         }
         if(!tmp){
-            tmp = [UIImage imageWithData:_data scale:scale];
+            tmp = [UIImage imageWithData:_data scale:self.scale];
         }
         @synchronized (self) {
             if(_image == nil){

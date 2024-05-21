@@ -109,6 +109,7 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) { HippyDevMenuTypeButton, HippyDevM
 
 @interface HippyDevMenu () <HippyBridgeModule, HippyInvalidating> {
     __weak UIAlertController *_actionSheet;
+    NSMutableArray<HippyDevMenuItem *> *_extraMenuItems;
     NSUserDefaults *_defaults;
 }
 
@@ -142,38 +143,19 @@ HIPPY_EXPORT_MODULE()
 - (void)setBridge:(HippyBridge *)bridge {
     _bridge = bridge;
 
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
     if (bridge.debugMode) {
-        __weak HippyDevMenu *weakSelf = self;
-
         HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-
+        __weak __typeof(self) weakSelf = self;
+        
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"d" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"e" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"b" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"u" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"g" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"d"
+                                modifierFlags:UIKeyModifierCommand
+                                       action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
     }
-#endif
+#endif /* TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST */
 }
 
 - (dispatch_queue_t)methodQueue {
@@ -181,8 +163,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)invalidate {
-    [_actionSheet dismissViewControllerAnimated:YES completion:^(void) {
-    }];
+    [_actionSheet dismissViewControllerAnimated:YES completion:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -204,24 +185,20 @@ HIPPY_EXPORT_MODULE()
     }
 }
 
-- (void)addItem:(NSString *)title handler:(void (^)(void))handler {
-    [self addItem:[HippyDevMenuItem buttonItemWithTitle:title handler:handler]];
-}
-
-- (void)addItem:(__unused HippyDevMenuItem *)item {
-    HippyAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
+- (void)addItem:(HippyDevMenuItem *)item {
+    [_extraMenuItems addObject:item];
 }
 
 - (NSArray<HippyDevMenuItem *> *)menuItems {
     NSMutableArray<HippyDevMenuItem *> *items = [NSMutableArray new];
 
     // Add built-in items
-
     __weak HippyDevMenu *weakSelf = self;
-
     [items addObject:[HippyDevMenuItem buttonItemWithTitle:@"Reload" handler:^{
         [weakSelf reload];
     }]];
+    // Add extra items
+    [items addObjectsFromArray:_extraMenuItems];
     return items;
 }
 
@@ -236,11 +213,11 @@ HIPPY_EXPORT_METHOD(show) {
     
     NSString *title = [NSString stringWithFormat:@"Hippy: Development (%@)", [_bridge moduleName]];
     // On larger devices we don't have an anchor point for the action sheet
-    UIAlertControllerStyle style = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone ? UIAlertControllerStyleActionSheet : UIAlertControllerStyleAlert;
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:title
-                                                                         message:@""
-                                                                  preferredStyle:style];
-    _actionSheet = actionSheet;
+    UIAlertControllerStyle style = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone ?
+    UIAlertControllerStyleActionSheet : UIAlertControllerStyleAlert;
+    _actionSheet = [UIAlertController alertControllerWithTitle:title
+                                                       message:nil
+                                                preferredStyle:style];
     
     NSArray<HippyDevMenuItem *> *items = [self menuItems];
     for (HippyDevMenuItem *item in items) {
@@ -264,7 +241,7 @@ HIPPY_EXPORT_METHOD(show) {
                                                    handler:^(__unused UIAlertAction *action) {
     }]];
     
-    [HippyPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
+    [HippyPresentedViewController() presentViewController:_actionSheet animated:YES completion:nil];
 }
 
 @end

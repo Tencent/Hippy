@@ -107,7 +107,26 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
         HippyAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ renderMoveNodes:std::move(nodes) onRootNode:root_node];
+        // Check whether all nodes have the same pid
+        uint32_t firstPid = nodes[0]->GetPid();
+        bool allSamePid = std::all_of(nodes.begin(), nodes.end(),
+                                      [firstPid](const std::shared_ptr<DomNode>& node) {
+            return node->GetPid() == firstPid;
+        });
+        
+        if (allSamePid) {
+            // If all nodes have the same pid, call directly
+            [renderImpl_ renderMoveNodes:std::move(nodes) onRootNode:root_node];
+        } else {
+            // If not, group them by pid and then call for each group
+            std::map<int, std::vector<std::shared_ptr<DomNode>>> pidNodeMap;
+            for (auto& node : nodes) {
+                pidNodeMap[node->GetPid()].push_back(node);
+            }
+            for (auto& pair : pidNodeMap) {
+                [renderImpl_ renderMoveNodes:std::move(pair.second) onRootNode:root_node];
+            }
+        }
     }
 }
 

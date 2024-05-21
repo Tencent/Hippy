@@ -26,7 +26,7 @@ import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
 @SuppressWarnings({"deprecation", "unused"})
 public interface HippyBridgeManager {
 
-  void initBridge(Callback<Boolean> callback);
+  void initBridge(Callback<Boolean> callback, boolean isReload);
 
   void runBundle(int id, HippyBundleLoader loader);
 

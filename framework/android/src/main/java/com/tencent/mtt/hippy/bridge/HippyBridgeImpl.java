@@ -91,12 +91,12 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
     }
 
     @Override
-    public void initJSBridge(String globalConfig, NativeCallback callback, final int groupId) {
+    public void initJSBridge(String globalConfig, NativeCallback callback, final int groupId, boolean isReload) {
         mDebugGlobalConfig = globalConfig;
-        initJSEngine(groupId, callback);
+        initJSEngine(groupId, callback, isReload);
     }
 
-    private void initJSEngine(int groupId, NativeCallback callback) {
+    private void initJSEngine(int groupId, NativeCallback callback, boolean isReload) {
         synchronized (HippyBridgeImpl.class) {
             try {
                 String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir()
@@ -112,7 +112,8 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
                         mContext.getDomManagerId(),
                         mV8InitParams,
                         mContext.getVfsId(),
-                        mContext.getDevtoolsId()
+                        mContext.getDevtoolsId(),
+                        isReload
                 );
                 mInit = true;
             } catch (Throwable e) {

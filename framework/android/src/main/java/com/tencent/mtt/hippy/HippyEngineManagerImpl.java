@@ -646,7 +646,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, e);
                 }
             }
-        });
+        }, onReLoad);
     }
 
     /**

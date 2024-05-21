@@ -133,13 +133,17 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
 
 std::shared_ptr<Engine> JsDriverUtils::CreateEngineAndAsyncInitialize(const std::shared_ptr<TaskRunner>& task_runner,
                                                                       const std::shared_ptr<VMInitParam>& param,
-                                                                      int64_t group_id) {
+                                                                      int64_t group_id,
+                                                                      bool is_reload) {
   FOOTSTONE_DCHECK(group_id >= -1) << "group_id must be greater than or equal to -1";
   std::shared_ptr<Engine> engine = nullptr;
   auto group = group_id;
   if (param->is_debug) {
     group = VM::kDebuggerGroupId;
   }
+  // 1. 调试模式启动新实例不复用V8 context, 调试模式 reload 场景复用 V8 context
+  // 2. Demo 场景， group_id 为 -1，不复用 V8 context
+  if ((group == VM::kDebuggerGroupId && is_reload) || (group != VM::kDebuggerGroupId && group != VM::kDefaultGroupId))
   {
     std::lock_guard<std::mutex> lock(engine_mutex);
     auto it = reuse_engine_map.find(group);

@@ -46,7 +46,8 @@ class JsDriverUtils {
 
   static std::shared_ptr<Engine> CreateEngineAndAsyncInitialize(const std::shared_ptr<TaskRunner>& task_runner,
                                                                 const std::shared_ptr<VMInitParam>& param,
-                                                                int64_t group_id);
+                                                                int64_t group_id,
+                                                                bool is_reload);
 
   static void InitInstance(const std::shared_ptr<Engine>& engine,
                            const std::shared_ptr<VMInitParam>& param,
