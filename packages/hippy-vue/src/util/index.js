@@ -195,6 +195,13 @@ function convertImageLocalPath(originalUrl) {
   return url;
 }
 
+function isStyleNotEmpty(style) {
+  if (typeof style === 'string') {
+    return style.trim() !== '';
+  }
+  return style !== null && style !== undefined;
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
@@ -214,4 +221,5 @@ export {
   setsAreEqual,
   endsWith,
   convertImageLocalPath,
+  isStyleNotEmpty,
 };

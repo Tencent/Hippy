@@ -34,11 +34,16 @@ import {
   isFunction,
   capitalizeFirstLetter,
   convertImageLocalPath,
+  isStyleNotEmpty,
 } from '../../util';
 import {
   isRTL,
 } from '../../util/i18n';
 import { preCacheNode } from '../../util/node';
+import {
+  setCacheNodeStyle,
+  getCacheNodeStyle,
+} from '../../util/node-style';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -337,10 +342,6 @@ function renderToNative(rootViewId, targetNode) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
   let style = {};
-  // Apply styles when the targetNode attach to document at first time.
-  if (targetNode.meta.component.defaultNativeStyle) {
-    style = { ...targetNode.meta.component.defaultNativeStyle };
-  }
   // Apply styles from CSS
   const matchedSelectors = getCssMap().query(targetNode);
   matchedSelectors.selectors.forEach((matchedSelector) => {
@@ -350,6 +351,25 @@ function renderToNative(rootViewId, targetNode) {
   });
   // Apply style from style attribute.
   style = { ...style, ...targetNode.style };
+
+  if (targetNode.parentNode) {
+    const parentNodeStyle = getCacheNodeStyle(targetNode.parentNode.nodeId);
+    const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
+    styleAttributes.forEach((attribute) => {
+      if (!isStyleNotEmpty(style[attribute]) && isStyleNotEmpty(parentNodeStyle[attribute])) {
+        style[attribute] = parentNodeStyle[attribute];
+      }
+    });
+  }
+
+  // Apply styles when the targetNode attach to document at first time.
+  if (targetNode.meta.component.defaultNativeStyle) {
+    style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
+  }
+
+  setCacheNodeStyle(targetNode.nodeId, style);
+
   // Convert to real native event
   const events = {};
   // FIXME: Bad accessing the private property.
