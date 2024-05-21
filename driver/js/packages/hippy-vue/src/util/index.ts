@@ -237,6 +237,13 @@ function isNullOrUndefined(value: NeedToTyped) {
   return typeof value === 'undefined' || value === null;
 }
 
+function isStyleNotEmpty(style: string | number | null | undefined) {
+  if (typeof style === 'string') {
+    return style.trim() !== '';
+  }
+  return style !== null && style !== undefined;
+}
+
 function whitespaceFilter(str: string) {
   if (typeof str !== 'string') return str;
   // Adjusts template whitespace handling behavior.
@@ -274,4 +281,5 @@ export {
   convertImageLocalPath,
   deepCopy,
   whitespaceFilter,
+  isStyleNotEmpty,
 };
