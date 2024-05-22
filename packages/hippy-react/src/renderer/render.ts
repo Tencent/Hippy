@@ -25,7 +25,8 @@ import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
 import { Device } from '../global';
 import { getRootViewId, getRootContainer } from '../utils/node';
-import { trace, warn } from '../utils';
+import { isStyleNotEmpty, trace, warn } from '../utils';
+
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -176,6 +177,21 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
+
+  if (targetNode.parentNode instanceof Element) {
+    // Implement attribute inheritance logic
+    // Only inherit color and font properties
+    const parentNodeStyle = targetNode.parentNode.style;
+    const { style } = targetNode;
+    const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
+    styleAttributes.forEach((attribute) => {
+      if (!isStyleNotEmpty(style[attribute]) && isStyleNotEmpty(parentNodeStyle[attribute])) {
+        style[attribute] = parentNodeStyle[attribute];
+      }
+    });
+  }
+
   // Translate to native node
   const nativeNode: HippyTypes.NativeNode = {
     id: targetNode.nodeId,

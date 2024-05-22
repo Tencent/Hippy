@@ -151,6 +151,13 @@ function isHostComponent(tag: number) {
   return tag === 5;
 }
 
+function isStyleNotEmpty(style: string | number | null | undefined) {
+  if (typeof style === 'string') {
+    return style.trim() !== '';
+  }
+  return style !== null && style !== undefined;
+}
+
 export {
   trace,
   warn,
@@ -164,4 +171,5 @@ export {
   isGlobalBubble,
   convertImgUrl,
   isHostComponent,
+  isStyleNotEmpty,
 };
