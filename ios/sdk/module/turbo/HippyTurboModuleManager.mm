@@ -26,6 +26,7 @@
 #import "HippyModuleData.h"
 #import "HippyBridge+Private.h"
 #import "HippyAssert.h"
+#import "HippyLog.h"
 
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 
@@ -116,26 +117,27 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
 }
 
 - (__kindof HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
-    
     if (!name || name.length == 0) {
         return nil;
     }
     
-    __kindof HippyOCTurboModule __block * module;
+    __kindof __block HippyOCTurboModule *turboModule;
     dispatch_sync(_cacheQueue, ^{
         if ([self.turboModuleCache.allKeys containsObject:name]) {
-            module = [self.turboModuleCache objectForKey:name];
+            turboModule = [self.turboModuleCache objectForKey:name];
         } else {
-            Class moduleCls = [HippyTurboModuleMap objectForKey:name] ? : [HippyOCTurboModule class];
+            Class moduleCls = [HippyTurboModuleMap objectForKey:name];
             if ([moduleCls conformsToProtocol:@protocol(HippyTurboModuleImpProtocol)]) {
-                module = [[moduleCls alloc] initWithName:name bridge:_bridge];
-                [self.turboModuleCache setObject:module forKey:name];
-            } else {
+                turboModule = [[moduleCls alloc] initWithName:name bridge:_bridge];
+                [self.turboModuleCache setObject:turboModule forKey:name];
+            } else if (moduleCls) {
                 HippyAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
+            } else {
+                HippyLogWarn(@"TurboModule (%@) is not exist!", name);
             }
         }
     });
-    return module;
+    return turboModule;
 }
 
 - (void)bindJSObject:(JSValue *)jsObj toModuleName:(NSString *)moduleName {
