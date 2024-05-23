@@ -198,6 +198,13 @@ HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
     }];
 }
 
+HIPPY_EXPORT_METHOD(addFrameCallback:(nonnull NSNumber *)hippyTag 
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyPromiseResolveBlock)callback) {
+    // For devtools
+    // Leave the implementation empty for now.
+}
+
 #pragma mark - View properties
 
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
