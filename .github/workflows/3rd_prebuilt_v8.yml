@@ -10,7 +10,7 @@ on:
       build_args:
         description: 'Build args'
         type: string
-        default: 'v8_use_external_startup_data=false v8_enable_i18n_support=false treat_warnings_as_errors=false symbol_level=1 v8_enable_webassembly=false'
+        default: 'v8_use_external_startup_data=false v8_enable_i18n_support=false treat_warnings_as_errors=false symbol_level=1 v8_enable_webassembly=false chrome_pgo_phase=0'
         required: true
       build_type:
         description: 'Build type'
