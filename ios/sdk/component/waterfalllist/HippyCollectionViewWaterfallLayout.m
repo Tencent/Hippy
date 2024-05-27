@@ -22,6 +22,7 @@
 
 #import "HippyCollectionViewWaterfallLayout.h"
 #import "tgmath.h"
+#import "HippyUtils.h"
 
 NSString *const HippyCollectionElementKindSectionHeader = @"HippyCollectionElementKindSectionHeader";
 NSString *const HippyCollectionElementKindSectionFooter = @"HippyCollectionElementKindSectionFooter";
@@ -49,7 +50,7 @@ NSString *const HippyCollectionElementKindSectionFooter = @"HippyCollectionEleme
 static const NSInteger unionSize = 20;
 
 static CGFloat HippyFloorCGFloat(CGFloat value) {
-    CGFloat scale = [UIScreen mainScreen].scale;
+    CGFloat scale = HippyScreenScale();
     return floor(value * scale) / scale;
 }
 
