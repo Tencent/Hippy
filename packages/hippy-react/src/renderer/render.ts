@@ -177,19 +177,20 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
-
+  let resultStyle = targetNode.style;
   if (targetNode.parentNode instanceof Element) {
     // Implement attribute inheritance logic
     // Only inherit color and font properties
-    const parentNodeStyle = targetNode.parentNode.style;
-    const { style } = targetNode;
+    const parentNodeStyle = Object.assign({}, targetNode.parentNode.inheritStyle, targetNode.parentNode.style);
+    const { style, inheritStyle } = targetNode;
     const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
 
     styleAttributes.forEach((attribute) => {
       if (!isStyleNotEmpty(style[attribute]) && isStyleNotEmpty(parentNodeStyle[attribute])) {
-        style[attribute] = parentNodeStyle[attribute];
+        inheritStyle[attribute] = parentNodeStyle[attribute];
       }
     });
+    resultStyle = Object.assign({}, inheritStyle, style);
   }
 
   // Translate to native node
@@ -200,7 +201,7 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
     name: targetNode.nativeName,
     props: {
       ...getNativeProps(targetNode),
-      style: targetNode.style,
+      style: resultStyle,
     },
   };
   // Add nativeNode attributes info for debugging

@@ -76,6 +76,7 @@ export default class TextExpo extends React.Component {
         x: 1,
         y: 1,
       },
+      scrollColor: 'red',
       numberOfLines: 2,
       ellipsizeMode: undefined,
     };
@@ -125,7 +126,7 @@ export default class TextExpo extends React.Component {
   }
 
   changeMode(mode) {
-    this.setState({ ellipsizeMode: mode });
+    this.setState({ ellipsizeMode: mode, scrollColor: 'grey' });
   }
 
   changeBreakStrategy(breakStrategy) {
@@ -133,14 +134,15 @@ export default class TextExpo extends React.Component {
   }
 
   render() {
-    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy } = this.state;
+    const { fontSize, textShadowColor,
+      textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy, scrollColor } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
       </View>
     );
     return (
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ padding: 10, color: scrollColor, fontFamily: 'TTTGB' }}>
         {renderTitle('shadow')}
         <View style={[styles.itemContent, { height: 60 }]} onClick={() => {
           let textShadowColor = 'red';
@@ -184,7 +186,7 @@ export default class TextExpo extends React.Component {
           </View>
         </View>
         {renderTitle('fontStyle')}
-        <View style={[styles.itemContent, { height: 100 }]}>
+        <View style={[styles.itemContent, { height: 100, color: 'blue', fontFamily: 'sss' }]}>
           <Text style={[styles.normalText, { fontStyle: 'normal' }]}>Text fontStyle is normal</Text>
           <Text style={[styles.normalText, { fontStyle: 'italic' }]}>Text fontStyle is italic</Text>
         </View>
