@@ -368,7 +368,7 @@ DEFINE_PROCESS_META_PROPS(Border);
 
         _hippySubviews = [NSMutableArray array];
 
-        _nodeRef = MTTNodeNewWithScaleFactor([UIScreen mainScreen].scale);
+        _nodeRef = MTTNodeNewWithScaleFactor(HippyScreenScale());
     }
     return self;
 }

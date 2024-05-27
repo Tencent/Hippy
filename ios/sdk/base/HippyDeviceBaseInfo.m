@@ -49,11 +49,7 @@ NSDictionary *hippyExportedDimensions(HippyBridge *bridge) {
             statusBarHeight = bridge.delegate.defaultStatusBarHeightNoMatterHiddenOrNot ?: 0.0;
         }
     }
-    static NSNumber *screenScale = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        screenScale = @([UIScreen mainScreen].scale);
-    });
+    NSNumber *screenScale = @(HippyScreenScale());
     NSDictionary *dimensions = @{
         @"window" : @{
             @"width": @(windowSize.width),
