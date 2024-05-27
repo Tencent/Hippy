@@ -189,6 +189,8 @@ function parseTextShadowOffset(property, value = 0, style) {
   return ['textShadowOffset', style.textShadowOffset];
 }
 
+const inheritProperties = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
 class ElementNode extends ViewNode {
   constructor(tagName) {
     super();
@@ -378,7 +380,11 @@ class ElementNode extends ViewNode {
     }
     this.style[p] = v;
     if (!isBatchUpdate) {
-      updateChild(this);
+      if (inheritProperties.indexOf(p) >= 0) {
+        updateWithChildren(this);
+      } else {
+        updateChild(this);
+      }
     }
   }
 
@@ -392,7 +398,12 @@ class ElementNode extends ViewNode {
         Object.keys(style).forEach((key) => {
           this.setStyle(key, style[key], true);
         });
-        updateChild(this);
+        const needInherit = inheritProperties.some(prop => Object.prototype.hasOwnProperty.call(style, prop));
+        if (needInherit) {
+          updateWithChildren(this);
+        } else {
+          updateChild(this);
+        }
       }
     }
   }

@@ -1,5 +1,8 @@
 <template>
-  <div class="p-demo">
+  <div
+    class="p-demo"
+    :style="{color: topColor}"
+  >
     <label>不带样式：</label>
     <p
       class="p-demo-content"
@@ -48,6 +51,7 @@
 export default {
   data() {
     return {
+      topColor: 'grey',
       textShadowIndex: 0,
       isClicked: false,
       isPressing: false,
@@ -73,6 +77,7 @@ export default {
         textShadowRadius: 3,
         textShadowColor: this.textShadowIndex % 2 === 1 ? 'red' : 'grey',
       };
+      this.topColor = this.textShadowIndex % 2 === 1 ? 'red' : 'grey',
       this.textShadowIndex += 1;
     },
     // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
