@@ -24,6 +24,7 @@
 #import "HippyDefaultImageProvider.h"
 #import "NSData+DataType.h"
 #import <CoreServices/CoreServices.h>
+#import "HippyUtils.h"
 
 @interface HippyDefaultImageProvider () {
     NSData *_data;
@@ -72,7 +73,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
             if (_downSample && view_width > 0 && view_height > 0) {
-                CGFloat scale = [UIScreen mainScreen].scale;
+                CGFloat scale = HippyScreenScale();
                 NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
                 if (ref) {

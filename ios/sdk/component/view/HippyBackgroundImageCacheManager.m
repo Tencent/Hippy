@@ -69,7 +69,7 @@
         BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
         if (fileExist && !isDirectory) {
             NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-            UIImage *image = [UIImage imageWithData:imageData scale:[UIScreen mainScreen].scale];
+            UIImage *image = [UIImage imageWithData:imageData scale:HippyScreenScale()];
             completionHandler(image, nil);
         }
         else {
@@ -81,7 +81,7 @@
     id<HippyImageViewCustomLoader> imageLoader = self.bridge.imageLoader;
     if (imageLoader) {
         [imageLoader loadImage:imageURL completed:^(NSData *imgData, NSURL *url, NSError *error, BOOL cached) {
-            UIImage *image = [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
+            UIImage *image = [UIImage imageWithData:imgData scale:HippyScreenScale()];
             completionHandler(image, error);
         }];
     } else {
@@ -103,7 +103,7 @@
         [session dataTaskWithRequest:request
                    completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
                        if (data) {
-                           CGFloat scale = [UIScreen mainScreen].scale;
+                           CGFloat scale = HippyScreenScale();
                            UIImage *originImage = [UIImage imageWithData:data scale:scale];
                            if (originImage) {
                                completionHandler(originImage, nil);
@@ -122,7 +122,7 @@
 - (void)loadBase64URL:(NSURL *)base64URL completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler {
     NSData *imgData = [NSData dataWithContentsOfURL:base64URL];
     if (imgData) {
-        UIImage *image = [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
+        UIImage *image = [UIImage imageWithData:imgData scale:HippyScreenScale()];
         if (image) {
             completionHandler(image, nil);
         } else {
