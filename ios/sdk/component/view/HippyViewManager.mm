@@ -189,7 +189,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(overflow, OverflowType, HippyView) {
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, HippyView) {
     view.layer.shouldRasterize = json ? [HippyConvert BOOL:json] : defaultView.layer.shouldRasterize;
-    view.layer.rasterizationScale = view.layer.shouldRasterize ? [UIScreen mainScreen].scale : defaultView.layer.rasterizationScale;
+    view.layer.rasterizationScale = view.layer.shouldRasterize ? HippyScreenScale() : defaultView.layer.rasterizationScale;
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
