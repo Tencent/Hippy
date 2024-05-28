@@ -199,21 +199,13 @@
 
     CGFloat currentContentOffset = self.contentOffset.x;
     CGFloat offset = currentContentOffset - self.previousStopOffset;
-    CGFloat offsetRatio = offset / CGRectGetWidth(self.bounds);
-    
-    if (offsetRatio > 1) {
-        offsetRatio -= floor(offsetRatio);
-    }
-    if (offsetRatio < -1) {
-        offsetRatio -= ceil(offsetRatio);
-    }
+    CGFloat offsetRatio = fmod((offset / CGRectGetWidth(self.bounds)), 1.0 + DBL_EPSILON);
     
     NSUInteger currentPageIndex = [self currentPageIndex];
     NSInteger nextPageIndex = ceil(offsetRatio) == offsetRatio ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
     if (nextPageIndex < 0) {
         nextPageIndex = 0;
-    }
-    if (nextPageIndex >= [self.viewPagerItems count]) {
+    } else if (nextPageIndex >= [self.viewPagerItems count]) {
         nextPageIndex = [self.viewPagerItems count] - 1;
     }
     
@@ -246,6 +238,36 @@
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    // Note: In rare exception scenarios, targetContentOffset may deviate from expectations,
+    //   adding protection for this extreme scenario.
+    // Trigger condition: 
+    //   The expected scrolling range is more than 1 page item,
+    //   and targetOffsetX is in the opposite direction of the drag.
+    CGFloat currentOffsetX = self.contentOffset.x;
+    CGFloat targetOffsetX = targetContentOffset->x;
+    CGFloat pageWidth = CGRectGetWidth(self.bounds);
+    if (pageWidth > DBL_EPSILON && fabs(targetOffsetX - currentOffsetX) > pageWidth &&
+        (velocity.x) * (targetOffsetX - currentOffsetX) < DBL_EPSILON) {
+        // Corrected value is calculated in the same way as in the scrollViewDidScroll method,
+        // taking the next nearest item.
+        CGFloat offsetDelta = currentOffsetX - self.previousStopOffset;
+        CGFloat offsetRatio = fmod((offsetDelta / CGRectGetWidth(self.bounds)), 1.0 + DBL_EPSILON);
+        NSUInteger currentPageIndex = [self currentPageIndex];
+        NSInteger nextPageIndex = ceil(offsetRatio) == offsetRatio ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
+        if (nextPageIndex < 0) {
+            nextPageIndex = 0;
+        } else if (nextPageIndex >= [self.viewPagerItems count]) {
+            nextPageIndex = [self.viewPagerItems count] - 1;
+        }
+        
+        UIView *theItem = self.viewPagerItems[nextPageIndex];
+        CGFloat correctedOffsetX = CGRectGetMinX(theItem.frame);
+        targetContentOffset->x = correctedOffsetX;
+        HippyLogWarn(@"Unexpected targetContentOffsetX(%f) received in HippyViewPager!\n"
+                     "ScrollView:%@, current offset:%f, velocity:%f\n"
+                     "Auto corrected to %f", targetOffsetX, scrollView, currentOffsetX, velocity.x, correctedOffsetX);
+    }
+    
     self.targetContentOffsetX = targetContentOffset->x;
     NSUInteger page = [self targetPageIndexFromTargetContentOffsetX:self.targetContentOffsetX];
     [self invokePageSelected:page];
