@@ -50,7 +50,7 @@ export function patchProp(
       patchStyle(el, prevValue, nextValue);
       break;
     default:
-      if (isOn(key)) {
+      if (isOn(key) && !isNativeEvent(key)) {
         // event prop
         patchEvent(el, key, prevValue, nextValue, parentComponent);
       } else {
@@ -59,4 +59,8 @@ export function patchProp(
       }
       break;
   }
+}
+
+export function isNativeEvent(key: string) {
+  return ['onInterceptTouchEvent', 'onInterceptPullUpEvent'].indexOf(key) >= 0;
 }
