@@ -69,7 +69,9 @@ void AnimationManager::EmplaceNodeProp(const std::shared_ptr<DomNode>& node, con
     animation_nodes_map_.insert({animation_id, nodeIds});
   }
   auto animation = GetAnimation(animation_id);
-  node->EmplaceStyleMap(prop, HippyValue(animation->GetStartValue()));
+  if (animation) {
+    node->EmplaceStyleMap(prop, HippyValue(animation->GetStartValue()));
+  }
 }
 
 void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
