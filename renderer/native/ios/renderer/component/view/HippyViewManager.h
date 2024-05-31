@@ -57,7 +57,7 @@ typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager,
  * most view types. As with the -view method, the -renderObject method should return
  * a fresh instance each time it is called.
  */
-- (HippyShadowView *)hippyShadowView;
+- (HippyShadowView *)shadowView;
 
 /**
  * Called to notify manager that layout has finished, in case any calculated
