@@ -32,7 +32,7 @@ HIPPY_EXPORT_MODULE(WaterfallItem)
     return [HippyWaterfallItemView new];
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [[HippyShadowWaterfallItem alloc] init];
 }
 
