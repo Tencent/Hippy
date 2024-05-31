@@ -49,7 +49,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
     return [[HippyWaterfallView alloc] init];
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [[HippyShadowListView alloc] init];
 }
 

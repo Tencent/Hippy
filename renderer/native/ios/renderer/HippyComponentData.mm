@@ -118,7 +118,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (HippyShadowView *)createShadowViewWithTag:(NSNumber *)tag {
-    HippyShadowView *renderObject = [self.manager hippyShadowView];
+    HippyShadowView *renderObject = [self.manager shadowView];
     renderObject.hippyTag = tag;
     renderObject.viewName = _name;
     return renderObject;
