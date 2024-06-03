@@ -166,7 +166,7 @@ using RootNode = hippy::RootNode;
         id map = [_componentsMap objectForKey:tag];
         return [map objectForKey:componentTag];
     } else {
-        HippyLogError(@"componentTag && tag must not be null");
+        HippyLogWarn(@"componentTag && tag must not be null");
     }
     return nil;
 }
