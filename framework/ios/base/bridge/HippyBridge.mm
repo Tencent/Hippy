@@ -677,8 +677,9 @@ dispatch_queue_t HippyBridgeQueue() {
         NSDictionary *param = @{@"id": rootTag};
         footstone::value::HippyValue value = [param toHippyValue];
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
-        self.javaScriptExecutor.pScope->UnloadInstance(domValue);
-        
+        if (self.javaScriptExecutor) {
+            self.javaScriptExecutor.pScope->UnloadInstance(domValue);
+        }
         _renderManager->UnregisterRootView([rootTag intValue]);
         if (_rootNode) {
             _rootNode->ReleaseResources();
@@ -1115,7 +1116,6 @@ dispatch_queue_t HippyBridgeQueue() {
     id jsExecutor = _javaScriptExecutor;
     id moduleSetup = _moduleSetup;
     _displayLink = nil;
-    _javaScriptExecutor = nil;
     _moduleSetup = nil;
     _startTime = footstone::TimePoint::SystemNow();
     self.moduleSemaphore = nil;
