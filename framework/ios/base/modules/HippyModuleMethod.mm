@@ -31,6 +31,11 @@
 #import "HippyUtils.h"
 #include <objc/message.h>
 
+static NSString *const kHippyPromise = @"HippyPromise";
+static NSString *const kHippyResponseSenderBlock = @"HippyResponseSenderBlock";
+static NSString *const kHippyResponseErrorBlock = @"HippyResponseErrorBlock";
+static NSString *const kHippyPromiseResolveBlock = @"HippyPromiseResolveBlock";
+static NSString *const kHippyPromiseRejectBlock = @"HippyPromiseRejectBlock";
 
 
 typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
@@ -293,7 +298,7 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                     }
                 }
             }
-        } else if ([typeName isEqualToString:@"HippyResponseSenderBlock"]) {
+        } else if ([typeName isEqualToString:kHippyResponseSenderBlock]) {
             isNullableType = YES;
             HIPPY_ARG_BLOCK(
                 id blockArg = nil;
@@ -311,7 +316,7 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                 }
                 Hippy_BLOCK_ARGUMENT(blockArg);
             )
-        } else if ([typeName isEqualToString:@"HippyResponseErrorBlock"]) {
+        } else if ([typeName isEqualToString:kHippyResponseErrorBlock]) {
             isNullableType = YES;
             HIPPY_ARG_BLOCK(
                 id blockArg = nil;
@@ -330,16 +335,12 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                 }
                 Hippy_BLOCK_ARGUMENT(blockArg);
             )
-        } else if ([typeName isEqualToString:@"HippyPromiseResolveBlock"]) {
+        } else if ([typeName isEqualToString:kHippyPromiseResolveBlock]) {
             isNullableType = YES;
             if (i != numberOfArguments - 2) {
                 HippyLogWarn(@"HippyPromiseResolveBlock should be the second to last parameter in -[%@ %@]", _moduleClass, _methodSignature);
             }
             HIPPY_ARG_BLOCK(
-                if (!json) {
-                    HippyLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
-                    return NO;
-                }
                 id blockArg = nil;
                 if (![json isKindOfClass:[NSNumber class]]) {
                     // In Hippy3.0, Dom Nodes call function by method name directly,
@@ -356,7 +357,7 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                 }
                 Hippy_BLOCK_ARGUMENT(blockArg);
             )
-        } else if ([typeName isEqualToString:@"HippyPromiseRejectBlock"]) {
+        } else if ([typeName isEqualToString:kHippyPromiseRejectBlock]) {
             isNullableType = YES;
             HippyAssert(i == numberOfArguments - 1,
                         @"HippyPromiseRejectBlock must be the last parameter in -[%@ %@]", _moduleClass, _methodSignature);
@@ -473,13 +474,11 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
 }
 
 - (HippyFunctionType)functionType {
-    if ([_methodSignature rangeOfString:@"HippyPromise"].length) {
+    if ([_methodSignature rangeOfString:kHippyPromise].length) {
         return HippyFunctionTypePromise;
-    }
-    else if ([_methodSignature rangeOfString:@"HippyResponseSenderBlock"].length) {
+    } else if ([_methodSignature rangeOfString:kHippyResponseSenderBlock].length) {
         return HippyFunctionTypeCallback;
-    }
-    else {
+    } else {
         return HippyFunctionTypeNormal;
     }
 }
