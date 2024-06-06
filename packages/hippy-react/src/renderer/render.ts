@@ -24,7 +24,7 @@ import ViewNode from '../dom/view-node';
 import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
 import { Device } from '../global';
-import { getRootViewId, getRootContainer } from '../utils/node';
+import { getRootViewId, getRootContainer, isTextNode } from '../utils/node';
 import { isStyleNotEmpty, trace, warn } from '../utils';
 
 
@@ -190,7 +190,9 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
         inheritStyle[attribute] = parentNodeStyle[attribute];
       }
     });
-    resultStyle = Object.assign({}, inheritStyle, style);
+    if (isTextNode(targetNode)) {
+      resultStyle = Object.assign({}, inheritStyle, style);
+    }
   }
 
   // Translate to native node

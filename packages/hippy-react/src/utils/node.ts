@@ -28,6 +28,11 @@ let rootContainer: RootContainer;
 let rootViewId: number;
 const fiberNodeCache = new Map();
 
+
+function isTextNode(targetNode: ElementNode) {
+  return (targetNode && targetNode.nativeName === 'Text') || ['p', 'span'].indexOf(targetNode.tagName) !== -1;
+}
+
 function setRootContainer(rootId: number, root: RootContainer) {
   rootViewId = rootId;
   rootContainer = root;
@@ -199,4 +204,5 @@ export {
   getElementFromFiber,
   unCacheFiberNodeOnIdle,
   recursivelyUnCacheFiberNode,
+  isTextNode,
 };
