@@ -611,7 +611,7 @@ public class RenderNode {
             mControllerManager.updateLayout(mClassName, mRootId, mId, mX, mY, mWidth, mHeight);
             resetNodeFlag(FLAG_UPDATE_LAYOUT);
         }
-        if (checkNodeFlag(FLAG_UPDATE_EXTRA)) {
+        if (checkNodeFlag(FLAG_UPDATE_EXTRA) && getHostView() != null) {
             mControllerManager.updateExtra(mRootId, mId, mClassName, mExtra);
             resetNodeFlag(FLAG_UPDATE_EXTRA);
         }
