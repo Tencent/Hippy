@@ -16,8 +16,11 @@
 
 package com.tencent.mtt.hippy.utils;
 
+import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Display;
+import android.view.WindowManager;
 
 public class PixelUtil {
 
@@ -25,7 +28,11 @@ public class PixelUtil {
 
     public static DisplayMetrics getMetrics() {
         if (sDisplayMetrics == null) {
-            sDisplayMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
+            sDisplayMetrics = new DisplayMetrics();
+            WindowManager windowManager = (WindowManager) ContextHolder.getAppContext()
+                    .getSystemService(Context.WINDOW_SERVICE);
+            Display defaultDisplay = windowManager.getDefaultDisplay();
+            defaultDisplay.getRealMetrics(sDisplayMetrics);
         }
         return sDisplayMetrics;
     }
