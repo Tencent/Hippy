@@ -117,7 +117,9 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
         UIView *touchView = [touch view];
         CGPoint locationPoint = [touch locationInView:touchView];
         touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
-        [_touchBeganViews addObject:touchView];
+        if (touchView) {
+            [_touchBeganViews addObject:touchView];
+        }
         NSDictionary *result = [self responseViewForAction:@[@"onPressIn", @"onTouchDown", @"onClick", @"onLongClick"] inView:touchView
                                                    atPoint:locationPoint];
 
