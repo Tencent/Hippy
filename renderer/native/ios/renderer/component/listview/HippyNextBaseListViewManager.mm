@@ -51,7 +51,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
     return [[HippyNextBaseListView alloc] init];
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [[HippyShadowListView alloc] init];
 }
 

@@ -62,7 +62,7 @@ HIPPY_EXPORT_MODULE(TextInput)
     return theView;
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [HippyShadowTextView new];
 }
 
