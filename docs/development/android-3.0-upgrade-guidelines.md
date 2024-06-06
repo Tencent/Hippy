@@ -72,6 +72,39 @@
    2.0中基于系统ContextWrapper封了Hippy自己的HippyInstanceContext，并将其作为所有Hippy view的初始化参数，随着3.0 framework和renderer两个子模块的解耦，我们发现HippyInstanceContext设计过于臃肿，已经不再适用于最新的3.0架构，所以我们在最新的3.0版本中废弃了HippyInstanceContext，改用更加轻量化的NativeRenderContext取代，所以开发者需要将自定义组件中使用到HippyInstanceContext的相关实现变更为NativeRenderContext。
    </br>
 
+8. 废弃support ui下面RecyclerView及其派生类HippyListView相关实现
+   随着瀑布流组件重构完成，HippyWaterfallView已经与HippyRecyclerView共同派生于系统androidX的RecyclerView
+   老版本的support ui组件已经可以彻底废弃，因此以下2个目录下所有实现文件已经从sdk中移除
+   - com/tencent/mtt/supportui/views/recyclerview/
+   - com/tencent/mtt/hippy/views/list/
+   </br>
+   之前开发者如果基于HippyListView派生了自己定义的list view组件，需要修改并适配为继承于HippyRecyclerView
+   
+9. HippyRootView下面getLaunchParams方法已被废弃，可以使用HippyEngineContext下面getJsParams接口来替代。
+
+10. 简化HippyHttpRequest类实现，移除了以下接口定义:
+    - public void setMethod(String method)
+    - public void setInstanceFollowRedirects(boolean instanceFollowRedirects)
+    - public void setBody(String body)
+    - public void setNativeParams(Map<String, Object> nativeParams)
+    - public void setInitParams(HippyMap initParams) 
+    - public void setInstanceFollowRedirects(boolean instanceFollowRedirects)
+    </br>
+    由于mInitParams参数在HippyHttpRequest创建的时候就作为初始化参数传入，后续一些依赖mInitParams获取参数的逻辑封装在HippyHttpRequest内部更合理，所以我们移除了相关的set接口，只保留get接口.
+    </br>
+    该项调整对于之前2.x中开发者定义了继承于DefaultHttpAdapter的自定义HippyHttpAdapter，并且使用到HippyHttpRequest相关接口的需要做一定适配，适配过程中也可以参考我们github工程main分支DefaultHttpAdapter与HippyHttpRequest具体实现。
+
+11. HippyEngineContext下部分接口调整:
+    - 新增findViewById(int nodeId)，可以通过node id查找对应的view
+    - 移除getDomManager()与getRenderManager()两个接口，之前通过RenderManager查找view的方法通过上述新增接口替代
+    - getEngineId()接口转移至HippyEngine类下
+    - 废弃getInstance(int id)接口，由新增getRootView()和getRootView(int rootId)两个接口替代，目前多root view支持还未完善，所以两个getRootView接口调用效果一致
+    </br>
+    如果开发者在之前的2.x版本上使用到以上接口，可以根据自己的需要做相应适配调整
+
+12. HippyViewController下面移除getInnerPath(HippyInstanceContext context, String path)接口实现，暂时不支持开发者Override该接口自定义路径，3.0 image uri local path的转换在ImageComponent中通过convertToLocalPathIfNeeded(String uri)接口实现，暂不支持定制。
+
+
 # 新增特性适配项（optional）
 
 1. 引擎初始化参数增加资源请求自定义processor的设置
@@ -120,3 +153,6 @@
     ```
 
    为了减低3.0升级的成本原来使用HippyArray类型的接口还是保留，只是标记为@Deprecated，所以升级3.0对于原来定义的dispatchFunction接口不需要做任何修改，但建议后续升级到3.0版本定义新UI组件的时候，直接Override使用List参数类型的新接口。
+
+5. HippyEngine中新增Screenshot截屏特性接口
+   过去在一些业务的使用场景中需要针对指定的Hippy view进行截图并做分享，之前截图逻辑都是由开发者自己实现，为了进一步降低开发者的适配成本，我们把截图能力下沉到了SDK，为开发者提供更为便捷的使用方式，关于Screenshot截屏特性与接口使用的介绍可以详见 [Screenshot for specific views](feature/feature3.0/screenshot.md)。
