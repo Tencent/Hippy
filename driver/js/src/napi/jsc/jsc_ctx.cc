@@ -725,10 +725,7 @@ bool JSCCtx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateObject() {
-  JSClassDefinition fn_def = kJSClassDefinitionEmpty;
-  JSClassRef cls_ref = JSClassCreate(&fn_def);
-  JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, nullptr);
-  JSClassRelease(cls_ref);
+  JSObjectRef fn_obj = JSObjectMake(context_, nullptr, nullptr);
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
 }
 
@@ -776,10 +773,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> &object) {
-  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
-  JSClassRef cls_ref = JSClassCreate(&cls_def);
-  JSObjectRef obj = JSObjectMake(context_, cls_ref, nullptr);
-  JSClassRelease(cls_ref);
+  JSObjectRef obj = JSObjectMake(context_, nullptr, nullptr);
   JSValueRef exception = nullptr;
   for (const auto& it : object) {
     string_view key;
