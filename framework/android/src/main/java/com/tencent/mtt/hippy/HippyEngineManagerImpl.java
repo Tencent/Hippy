@@ -15,10 +15,23 @@
 
 package com.tencent.mtt.hippy;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.view.PixelCopy;
+import android.view.PixelCopy.OnPixelCopyFinishedListener;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,14 +64,19 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostView;
 import com.tencent.renderer.FrameworkProxy;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.vfs.Processor;
 import com.tencent.vfs.VfsManager;
@@ -360,6 +378,96 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public void removeSnapshotView() {
         if (mEngineContext != null) {
             mEngineContext.getRenderer().removeSnapshotView();
+        }
+    }
+
+    public void getScreenshotBitmapForView(@Nullable Context context, int id,
+            @NonNull final ScreenshotBuildCallback callback) {
+        if (mEngineContext == null) {
+            throw new IllegalArgumentException("engine context is null");
+        }
+        View view = mEngineContext.findViewById(id);
+        if (view == null) {
+            throw new IllegalArgumentException("can not find view by id");
+        }
+        getScreenshotBitmapForView(context, view, callback);
+    }
+
+    private Window getDialogWindow(@NonNull RenderNode node) {
+        View hostView = mEngineContext.findViewById(node.getId());
+        if (hostView instanceof HippyModalHostView) {
+            Dialog dialog = ((HippyModalHostView) hostView).getDialog();
+            if (dialog != null) {
+                return dialog.getWindow();
+            }
+        }
+        return null;
+    }
+
+    private Window getViewWindow(@NonNull Activity activity, @NonNull View view) {
+        Window window = null;
+        RenderNode node = RenderManager.getRenderNode(view);
+        if (node == null) {
+            return activity.getWindow();
+        }
+        if (node.getClassName().equals(HippyModalHostManager.CLASS_NAME)) {
+            window = getDialogWindow(node);
+        }
+        if (window == null) {
+            RenderNode parent = node.getParent();
+            while (parent != null) {
+                if (parent.getClassName().equals(HippyModalHostManager.CLASS_NAME)) {
+                    window = getDialogWindow(parent);
+                    break;
+                }
+                parent = parent.getParent();
+            }
+        }
+        return window == null ? activity.getWindow() : window;
+    }
+
+    public void getScreenshotBitmapForView(@Nullable Context context, @NonNull View view,
+            @NonNull final ScreenshotBuildCallback callback) {
+        final int width = view.getWidth();
+        final int height = view.getHeight();
+        if (width <= 0 || height <= 0) {
+            String error = "error view size: width " + width + ", height " + height;
+            throw new IllegalArgumentException(error);
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!(context instanceof Activity)) {
+                    context = view.getContext();
+                    if (context instanceof ContextWrapper) {
+                        context = ((ContextWrapper) context).getBaseContext();
+                    }
+                    if (!(context instanceof Activity)) {
+                        throw new IllegalArgumentException("context is not activity");
+                    }
+                }
+                // Above Android O, use PixelCopy, because another way view.draw will cause Software rendering doesn't support hardware bitmaps
+                int[] location = new int[2];
+                view.getLocationInWindow(location);
+                Window window = getViewWindow((Activity) context, view);
+                final Bitmap finalBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                PixelCopy.request(window,
+                        new Rect(location[0], location[1], location[0] + view.getWidth(),
+                                location[1] + view.getHeight()),
+                        finalBitmap, new OnPixelCopyFinishedListener() {
+                            @Override
+                            public void onPixelCopyFinished(int copyResult) {
+                                callback.onScreenshotBuildCompleted(finalBitmap, copyResult);
+                            }
+                        }, new Handler(Looper.getMainLooper()));
+            } else {
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                canvas.drawColor(Color.WHITE);
+                view.draw(canvas);
+                callback.onScreenshotBuildCompleted(bitmap, PixelCopy.SUCCESS);
+            }
+        } catch (OutOfMemoryError e) {
+            callback.onScreenshotBuildCompleted(null, PixelCopy.ERROR_DESTINATION_INVALID);
         }
     }
 
@@ -962,14 +1070,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDevSupportManager.handleException(throwable);
             } else {
                 if (throwable instanceof HippyJsException) {
-                    if (mGlobalConfigs != null) {
-                        mGlobalConfigs.getExceptionHandler()
-                                .handleJsException((HippyJsException) throwable);
-                    }
+                    mGlobalConfigs.getExceptionHandler()
+                            .handleJsException((HippyJsException) throwable);
                     if (mModuleListener != null) {
                         mModuleListener.onJsException((HippyJsException) throwable);
                     }
-                } else if (mGlobalConfigs != null) {
+                } else {
                     mGlobalConfigs.getExceptionHandler()
                             .handleNativeException(new RuntimeException(throwable), true);
                 }
