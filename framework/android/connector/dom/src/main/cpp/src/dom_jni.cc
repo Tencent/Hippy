@@ -109,8 +109,10 @@ void ReleaseRootResources(JNIEnv* j_env,
   auto& persistent_map = RootNode::PersistentMap();
   std::shared_ptr<RootNode> root_node;
   auto flag = persistent_map.Find(root_id, root_node);
-  FOOTSTONE_CHECK(flag);
-  root_node->ReleaseResources();
+  FOOTSTONE_DCHECK(flag);
+  if (flag) {
+    root_node->ReleaseResources();
+  }
 }
 
 void SetDomManager(JNIEnv* j_env,
