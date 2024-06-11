@@ -147,14 +147,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// Async bridge used to communicate with the JavaScript application.
 @interface HippyBridge : NSObject <HippyInvalidating>
 
-/// The bridge delegate
-@property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
-
-/// SDK launch config
-/// TODO: 优化 launchOptions 参数
-@property (nonatomic, copy, readonly) NSDictionary *launchOptions;
-
-
 /// Create A HippyBridge instance, without load/execute any js bundle.
 ///
 /// @param delegate bridge delegate
@@ -188,32 +180,51 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
                    launchOptions:(nullable NSDictionary *)launchOptions
                      executorKey:(nullable NSString *)executorKey;
 
-/**
- * Context name for HippyBridge
- *
- * @discussion Context name will be shown on safari development menu.
- * only for JSC engine
- */
-@property (nonatomic, copy) NSString *contextName;
+/// The delegate of bridge
+@property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
-/**
- * Set module name
- *
- *@discussion module name will show in error infomation
- */
+/// SDK launch config
+/// TODO: optimizes the launchOptions parameter
+@property (nonatomic, copy, readonly) NSDictionary *launchOptions;
+
+/// Module name
+///
+/// @discussion
+/// Module name is the only Key used to identify the bridge instance,
+/// It must be set and cannot be nil.
 @property (nonatomic, strong) NSString *moduleName;
 
-/**
- * URLs of the script that was loaded into the bridge.
- */
+/// Context name for HippyBridge
+///
+/// @discussion 
+/// Context name will be shown on safari development menu. Only for JSC engine.
+/// By default, moduleName is the contextName.
+@property (nonatomic, copy) NSString *contextName;
+
+/// Use this to check if the bridge has been invalidated.
+@property (nonatomic, readonly, getter=isValid) BOOL valid;
+
+/// Reason for bridge invalidate state
+@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
+
+/// Whether the bridge is loading bundle
+@property (nonatomic, readonly, getter=isLoading) BOOL loading;
+
+/// All loaded bundle urls
 @property (nonatomic, copy, readonly) NSArray<NSURL *> *bundleURLs;
 
-/**
- * Set debug url for devtools
- */
-@property (nonatomic, strong, readonly) NSURL *debugURL;
+/// Path of sandbox directory
+@property (nonatomic, strong) NSURL *sandboxDirectory;
 
+/// Shared data between different rootViews on same bridge.
+/// Set by HippyRootView when runHippyApplication.
+/// Reserved for compatible with hippy2.
+///
+/// Note: Deprecated property.
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSDictionary *> *shareOptions;
 
+/// Get Device Info
+- (NSDictionary *)deviceInfo;
 
 #pragma mark - Image Related
 
@@ -240,26 +251,38 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
 
 
-#pragma mark -
+#pragma mark - Lifecycle Related API
 
-/**
- *  Load instance for root view and show views
- *  @param rootTag RootTag for specific root view
- *  @param props Initial parameters for instance.
- */
-- (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
+/// Register RootView
+///
+/// Internally, will create a dom root node and bind to the root view,
+/// and connect all parts together, prepare for `loadInstance`.
+/// - Parameter rootView: A view instance
+- (void)setRootView:(UIView *)rootView;
 
+/// Load instance for hippy root view and show views
+/// This is the Entry of Hippy Application
+/// - Parameters:
+///   - rootTag: tag of rootView
+///   - props: props(appProperties) for hippy frontend application
+- (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(nullable NSDictionary *)props;
+
+/// Unload the instance
+/// - Parameter rootTag: tag of rootView
 - (void)unloadInstanceForRootView:(NSNumber *)rootTag;
 
-- (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params;
+/// Reload the bundle and reset executor & modules.
+/// Safe to call from any thread.
+/// Internally sends `HippyReloadNotification` Notification.
+- (void)requestReload;
 
-/**
- * Access the underlying JavaScript executor. You can use this in unit tests to detect
- * when the executor has been invalidated, or when you want to schedule calls on the
- * JS VM outside of Hippy Native. Use with care!
- */
+
+#pragma mark -
+
+/// Access the underlying JavaScript executor.
+/// You can use this in unit tests to detect when the executor has been invalidated,
+/// or when you want to schedule calls on the JS VM outside of Hippy Native. Use with care!
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
-
 
 /**
  * JS invocation methods
@@ -273,19 +296,24 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;
 
+/// Handle msg(buffer) from JS side
+/// - Parameters:
+///   - buffer: id
+///   - batchEnded: whether is batch end
 - (void)handleBuffer:(id _Nullable)buffer batchEnded:(BOOL)batchEnded;
 
-
-#pragma mark - Inspector Related Functions
-
-/// Sets whether the context is inspectable in Web Inspector.
-/// Default value is NO.
-///
-/// - Parameter isInspectable: BOOL
-- (void)setInspectable:(BOOL)isInspectable;
+/// Send native event to JS side
+/// - Parameters:
+///   - eventName: event name
+///   - params: event info
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
 
 
-#pragma mark -
+#pragma mark - Module Management
+
+/// Whether is turboModule enabled
+/// default is YES
+@property (nonatomic, assign) BOOL enableTurbo;
 
 /// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
@@ -322,70 +350,17 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (BOOL)moduleIsInitialized:(Class)moduleClass;
 
-/** A red box will show when error occurs by default
- *  only work on HIPPY_DEBUG mode
- */
-- (void)setRedBoxShowEnabled:(BOOL)enabled;
-
-/**
- * Use this to check if the bridge has been invalidated.
- */
-@property (nonatomic, readonly, getter=isValid) BOOL valid;
-
-@property (nonatomic, readonly, getter=isLoading) BOOL loading;
-
-/**
- * Reload the bundle and reset executor & modules. Safe to call from any thread.
- */
-- (void)reload;
-
-/**
- * Inform the bridge, and anything subscribing to it, that it should reload.
- */
-- (void)requestReload;
-
-@property (nonatomic, assign) BOOL debugMode;
-
-@property (nonatomic, strong) NSString *appVerson;
-
-@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
-
-@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
-
-@property (nonatomic, assign) BOOL enableTurbo;
-
-/// Shared data between different rootViews on same bridge.
-/// Set by HippyRootView when runHippyApplication.
-/// Reserved for compatible with hippy2.
-///
-/// Note: Deprecated property.
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSDictionary *> *shareOptions;
-
 /**
  * Get  the turbo module for a given name.
  */
 - (id)turboModuleWithName:(NSString *)name;
 
-- (NSDictionary *)deviceInfo;
 
-/**
- * property to path of sandbox directory
- */
-@property (nonatomic, strong) NSURL *sandboxDirectory;
+#pragma mark - Snapshot
 
-#pragma mark event dispatcher
-- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
-
-#pragma mark snapshot
 - (NSData *)snapShotData;
 
 - (void)setSnapShotData:(NSData *)data;
-
-
-
-- (void)setRootView:(UIView *)rootView;
-
-- (void)resetRootSize:(CGSize)size;
 
 
 #pragma mark - App UI State Related
@@ -399,6 +374,32 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// - Parameter rootViewTag: rootView's hippyTag
 - (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
 
+/// Update the size of RootView
+/// - Parameter size: CGSize
+- (void)resetRootSize:(CGSize)size;
+
+
+#pragma mark - Debug Related
+
+/// Whether is in debug mode
+/// debug mode will open DevMenu and make JSC inspectable
+@property (nonatomic, assign) BOOL debugMode;
+
+/// Debug URL for devtools
+/// TODO: debugURL not working ?
+@property (nonatomic, strong, readonly) NSURL *debugURL;
+
+/// Sets whether the context is inspectable in Web Inspector.
+/// Default value is NO.
+///
+/// - Parameter isInspectable: BOOL
+- (void)setInspectable:(BOOL)isInspectable;
+
+/// A red box will show when error occurs by default
+/// only work on HIPPY_DEBUG mode
+///
+/// - Parameter enabled: BOOL
+- (void)setRedBoxShowEnabled:(BOOL)enabled;
 
 
 #pragma mark - Advanced Usages
@@ -407,6 +408,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * 以下方法一般情况下无需调用，仅供高级定制化使用。
  * Following methods are only used for advanced customization, no need to be invoked in general.
  */
+
+/// Interceptor for methods
+@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
+
 
 typedef NSUInteger HippyBridgeBundleType;
 typedef void (^HippyBridgeBundleLoadCompletionBlock)(NSURL * _Nullable bundleURL, NSError * _Nullable error);

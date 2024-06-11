@@ -446,23 +446,16 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
-#pragma mark - Debug Reload
+#pragma mark - Reload
 
-- (void)reload {
+- (void)requestReload {
+    [[NSNotificationCenter defaultCenter] postNotificationName:HippyReloadNotification object:nil];
     dispatch_async(dispatch_get_main_queue(), ^{
         self.invalidateReason = HippyInvalidateReasonReload;
         [self invalidate];
         [self setUp];
     });
 }
-
-- (void)requestReload {
-    if (_debugMode) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyReloadNotification object:nil];
-        [self reload];
-    }
-}
-
 
 #pragma mark - Bridge SetUp
 
@@ -680,8 +673,8 @@ dispatch_queue_t HippyBridgeQueue() {
         NSDictionary *param = @{@"id": rootTag};
         footstone::value::HippyValue value = [param toHippyValue];
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
-        if (self.javaScriptExecutor) {
-            self.javaScriptExecutor.pScope->UnloadInstance(domValue);
+        if (auto scope = self.javaScriptExecutor.pScope) {
+            scope->UnloadInstance(domValue);
         }
         _renderManager->UnregisterRootView([rootTag intValue]);
         if (_rootNode) {
@@ -709,7 +702,7 @@ dispatch_queue_t HippyBridgeQueue() {
     HippyLogInfo(@"[HP PERF] End loading instance for HippyBridge(%p)", self);
 }
 
-- (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
+- (void)sendRootSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:params];
     [dic setObject:tag forKey:@"rootViewId"];
     [self sendEvent:@"onSizeChanged" params:dic];
@@ -1351,7 +1344,7 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     auto cb = [weakBridge](int32_t tag, NSDictionary *params){
         HippyBridge *strongBridge = weakBridge;
         if (strongBridge) {
-            [strongBridge rootViewSizeChangedEvent:@(tag) params:params];
+            [strongBridge sendRootSizeChangedEvent:@(tag) params:params];
         }
     };
     _renderManager->SetRootViewSizeChangedEvent(cb);
