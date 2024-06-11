@@ -30,7 +30,7 @@ public abstract void getScreenshotBitmapForView(@Nullable Context context,
 
    针对指定的View进行截图，context非空情况下需要是HippyRootView挂载容器所属的Activity
 
-   > 注意：以上2个接口中的context参数如果传入null，会默认使用view的context，view设置的context是loadModule时候在ModuleLoadParams中传入的context，针对一些预加载场景，开发者有可能设置的是app的context，当context不是Activiy的时候会抛出IllegalArgumentException异常导致截图失败。除了context不满足条件，还有其它view不存在或者执行PixelCopy.request都有可能抛出IllegalArgumentException类型异常，需要开发者自行补货处理。
+   > 注意：以上2个接口中的context参数如果传入null，会默认使用view的context，view设置的context是loadModule时候在ModuleLoadParams中传入的context，针对一些预加载场景，开发者有可能设置的是app的context，当context不是Activiy的时候会抛出IllegalArgumentException异常导致截图失败。除了context不满足条件，还有其它view不存在或者执行PixelCopy.request都有可能抛出IllegalArgumentException类型异常，需要开发者自行捕获处理。
 
 ```java
 public interface ScreenshotBuildCallback {

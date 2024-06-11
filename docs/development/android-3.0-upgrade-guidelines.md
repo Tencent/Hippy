@@ -70,14 +70,10 @@
 
 7. 废弃HippyInstanceContext定义及其相关实现
    2.0中基于系统ContextWrapper封了Hippy自己的HippyInstanceContext，并将其作为所有Hippy view的初始化参数，随着3.0 framework和renderer两个子模块的解耦，我们发现HippyInstanceContext设计过于臃肿，已经不再适用于最新的3.0架构，所以我们在最新的3.0版本中废弃了HippyInstanceContext，改用更加轻量化的NativeRenderContext取代，所以开发者需要将自定义组件中使用到HippyInstanceContext的相关实现变更为NativeRenderContext。
-   </br>
 
-8. 废弃support ui下面RecyclerView及其派生类HippyListView相关实现
-   随着瀑布流组件重构完成，HippyWaterfallView已经与HippyRecyclerView共同派生于系统androidX的RecyclerView
-   老版本的support ui组件已经可以彻底废弃，因此以下2个目录下所有实现文件已经从sdk中移除
+8. 废弃support ui下面RecyclerView及其派生类HippyListView相关实现，随着瀑布流组件重构完成，HippyWaterfallView已经与HippyRecyclerView共同派生于系统androidX的RecyclerView，老版本的support ui组件已经可以彻底废弃，因此以下2个目录下所有实现文件已经从sdk中移除
    - com/tencent/mtt/supportui/views/recyclerview/
-   - com/tencent/mtt/hippy/views/list/
-   </br>
+   - com/tencent/mtt/hippy/views/list/ </br>
    之前开发者如果基于HippyListView派生了自己定义的list view组件，需要修改并适配为继承于HippyRecyclerView
    
 9. HippyRootView下面getLaunchParams方法已被废弃，可以使用HippyEngineContext下面getJsParams接口来替代。
@@ -102,8 +98,41 @@
     </br>
     如果开发者在之前的2.x版本上使用到以上接口，可以根据自己的需要做相应适配调整
 
-12. HippyViewController下面移除getInnerPath(HippyInstanceContext context, String path)接口实现，暂时不支持开发者Override该接口自定义路径，3.0 image uri local path的转换在ImageComponent中通过convertToLocalPathIfNeeded(String uri)接口实现，暂不支持定制。
+12. HippyViewController下面移除getInnerPath(HippyInstanceContext context, String path)接口实现，之前开发者自定义组件Controller中有Override该接口需要重新适配，3.0 image uri local path的转换在ImageComponent中通过convertToLocalPathIfNeeded(String uri)接口实现，目前暂时还不支持开发者自定义。
 
+13. HippyViewController中onManageChildComplete接口已经被废弃，统一使用onBatchComplete接口替代，之前2.x列表滚动过程中，view复用后默认都会调用onManageChildComplete，但3.x中为了减少一些无效的调用逻辑进一步提升列表滚动流畅性，列表滚动view复用的时候默认不会调用onBatchComplete，如果想接收onBatchComplete调用做一些定制逻辑需要做以下适配：
+    - 定义自定义组件对应的RenderNode(类名自定义)，并Override shouldNotifyNonBatchingChange接口
+
+    ```java
+    public class CustomRenderNode extends RenderNode {
+
+        public CustomRenderNode(int rootId, int id, 
+                @Nullable Map<String, Object> props,
+                String className, 
+                ControllerManager componentManager, 
+                boolean isLazyLoad) {
+            super(rootId, id, props, className, componentManager, isLazyLoad);
+        }
+
+        @Override
+        protected boolean shouldNotifyNonBatchingChange() {
+            return !isBatching();
+        }
+    }
+    ```
+    
+    - 在自定义组件Controller中Override createRenderNode接口并增加自定义RenderNode的创建逻辑
+
+    ```java
+    @Override
+    public RenderNode createRenderNode(int rootId, int id, 
+            @Nullable Map<String, Object> props,
+            @NonNull String className, 
+            @NonNull ControllerManagercontrollerManager, 
+            boolean isLazy) {
+        return new CustomRenderNode(rootId, id, props, className, controllerManager, isLazy);
+    }
+    ```
 
 # 新增特性适配项（optional）
 
