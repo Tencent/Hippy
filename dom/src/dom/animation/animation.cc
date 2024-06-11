@@ -255,6 +255,7 @@ void Animation::Run(uint64_t now, const AnimationOnRun& on_run) {
     default: {
       FOOTSTONE_LOG(ERROR) << "animation status = " << static_cast<uint32_t>(status_);
       FOOTSTONE_DCHECK(false);
+      return;
     }
   }
 
