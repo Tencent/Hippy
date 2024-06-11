@@ -39,7 +39,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
     return [[HippyNextBaseListItemView alloc] init];
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [[HippyShadowWaterfallItem alloc] init];
 }
 

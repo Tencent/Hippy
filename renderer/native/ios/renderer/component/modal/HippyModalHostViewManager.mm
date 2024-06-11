@@ -83,7 +83,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return _transitioningDelegate;
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [HippyModalHostShadowView new];
 }
 

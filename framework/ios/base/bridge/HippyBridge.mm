@@ -565,6 +565,9 @@ dispatch_queue_t HippyBridgeQueue() {
     __weak __typeof(self)weakSelf = self;
     dispatch_async(HippyBridgeQueue(), ^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
         NSDictionary *userInfo = BUNDLE_LOAD_NOTI_SUCCESS_USER_INFO;
         [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptWillStartLoadingNotification
                                                             object:strongSelf

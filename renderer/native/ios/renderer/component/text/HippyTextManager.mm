@@ -50,7 +50,7 @@ HIPPY_EXPORT_MODULE(Text)
     return [HippyText new];
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [HippyShadowText new];
 }
 

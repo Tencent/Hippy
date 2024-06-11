@@ -50,7 +50,7 @@ HIPPY_EXPORT_MODULE(View);
     return [[HippyView alloc] init];
 }
 
-- (HippyShadowView *)hippyShadowView {
+- (HippyShadowView *)shadowView {
     return [[HippyShadowView alloc] init];
 }
 
