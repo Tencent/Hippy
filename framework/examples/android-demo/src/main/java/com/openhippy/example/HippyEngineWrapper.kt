@@ -47,7 +47,7 @@ class HippyEngineWrapper//TODO: Coming soon
     var hippyRootView: ViewGroup? = null
     var hippySnapshotView: ViewGroup? = null
     var devButton: View? = null
-    var snapshot: Bitmap? = null
+    var screenshot: Bitmap? = null
     var pageItem: View? = null
     var isDebugMode: Boolean = isDebug
     var isSnapshotMode: Boolean = useNodeSnapshot
@@ -177,7 +177,7 @@ class HippyEngineWrapper//TODO: Coming soon
                     )
                     var snapshotView: View? = null
                     if (!isDebugMode && isSnapshotMode) {
-                        var buffer = renderNodeSnapshot[driverMode]
+                        val buffer = renderNodeSnapshot[driverMode]
                         buffer?.let {
                             snapshotView = hippyEngine.replaySnapshot(context, it)
                         }
@@ -204,7 +204,7 @@ class HippyEngineWrapper//TODO: Coming soon
                         }
                     })
 
-                    var loadCallbackTask = Runnable {
+                    val loadCallbackTask = Runnable {
                         callback.onCreateRootView(hippyRootView)
                         snapshotView?.let {
                             callback.onReplaySnapshotViewCompleted(snapshotView as ViewGroup)
@@ -220,6 +220,29 @@ class HippyEngineWrapper//TODO: Coming soon
                 }
             }
         })
+    }
+
+    fun buildRootViewScreenshot(context: Context, callback: PageConfiguration.GenerateScreenshotCallback) {
+        hippyRootView?:let {
+            callback.onScreenshotBuildFinished()
+            return
+        }
+        try {
+            hippyEngine.getScreenshotBitmapForView(context, hippyRootView as View
+            ) { bitmap, result ->
+                run {
+                    if (result == 0) {
+                        screenshot = bitmap
+                    } else {
+                        LogUtils.e("Demo", "buildRootViewScreenshot error code: $result")
+                    }
+                    callback.onScreenshotBuildFinished()
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            LogUtils.e("Demo", "buildRootViewScreenshot exception message: ${e.message}")
+            callback.onScreenshotBuildFinished()
+        }
     }
 
     interface HippyEngineLoadCallback {

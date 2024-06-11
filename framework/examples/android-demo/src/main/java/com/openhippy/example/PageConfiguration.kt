@@ -16,18 +16,14 @@
 package com.openhippy.example
 
 import android.app.Dialog
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -91,9 +87,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onStop() {
-        hippyEngineWrapper?.let {
-            it.onStop()
-        }
+        hippyEngineWrapper?.onStop()
         super.onStop()
     }
 
@@ -146,15 +140,14 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 if (!it.isDebugMode) {
                     hippyEngineWrapper?.recordRenderNodeSnapshot()
                 }
+                it.buildRootViewScreenshot(this, object : GenerateScreenshotCallback {
+                    override fun onScreenshotBuildFinished() {
+                        (pageConfigurationContainer as ViewGroup).removeAllViews()
+                        runnable.run()
+                        hippyEngineWrapper = null
+                    }
+                })
             }
-            generateBitmapFromView(rootView, object : SnapshotBuildCallback {
-                override fun onSnapshotReady(bitmap: Bitmap?) {
-                    hippyEngineWrapper?.snapshot = bitmap
-                    (pageConfigurationContainer as ViewGroup).removeAllViews()
-                    runnable.run()
-                    hippyEngineWrapper = null
-                }
-            })
         }
     }
 
@@ -205,53 +198,10 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         createButton.setOnClickListener { v ->
             val debugServerHostInput =
                 pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_server_host_input)
-            (debugServerHostInput as AppCompatEditText)?.let {
+            (debugServerHostInput as AppCompatEditText).let {
                 debugServerHost = it.text.toString()
             }
             onCreateClick()
-        }
-    }
-
-    private fun generateBitmapFromView(view: View, callback: SnapshotBuildCallback) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val temporalBitmap =
-                    Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                val location = IntArray(2)
-                view.getLocationInWindow(location)
-                val viewRectangle = Rect(
-                    location[0],
-                    location[1],
-                    location[0] + view.width,
-                    location[1] + view.height
-                )
-                val onPixelCopyListener: PixelCopy.OnPixelCopyFinishedListener =
-                    PixelCopy.OnPixelCopyFinishedListener { copyResult ->
-                        if (copyResult == PixelCopy.SUCCESS) {
-                            callback.onSnapshotReady(temporalBitmap)
-                        } else {
-                            callback.onSnapshotReady(null)
-                        }
-                    }
-                PixelCopy.request(
-                    window,
-                    viewRectangle,
-                    temporalBitmap,
-                    onPixelCopyListener,
-                    Handler(Looper.getMainLooper())
-                )
-            } else {
-                val bitmap = Bitmap.createBitmap(
-                    view.width, view.height, Bitmap.Config.ARGB_8888
-                )
-                val canvas = Canvas(bitmap)
-                view.draw(canvas)
-                canvas.setBitmap(null)
-                callback.onSnapshotReady(bitmap)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            callback.onSnapshotReady(null)
         }
     }
 
@@ -384,7 +334,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    interface SnapshotBuildCallback {
-        fun onSnapshotReady(bitmap: Bitmap?)
+    interface GenerateScreenshotCallback {
+        fun onScreenshotBuildFinished()
     }
 }

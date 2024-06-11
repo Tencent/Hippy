@@ -720,6 +720,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final int height = Math.round(MapUtils.getFloatValue(layoutInfo, LAYOUT_HEIGHT));
             final TextRenderSupplier supplier = mVirtualNodeManager
                     .updateLayout(rootId, nodeId, width, layoutInfo);
+            if (LogUtils.isDebugMode()) {
+//                LogUtils.d(TAG, "updateLayout: id " + nodeId + ", left " + left
+//                        + ", top " + top + ", width " + width + ", height " + height + "\n ");
+            }
             // If restoring snapshots, update layout is called directly on the UI thread,
             // and do not need to use the UI task
             if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
@@ -795,9 +799,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     TAG + ": callUIFunction: invalid negative id=" + nodeId);
         }
         if (LogUtils.isDebugMode()) {
-            LogUtils.d(TAG,
-                    "callUIFunction: id " + nodeId + ", functionName " + functionName + ", params"
-                            + params + "\n ");
+//            LogUtils.d(TAG,
+//                    "callUIFunction: id " + nodeId + ", functionName " + functionName + ", params"
+//                            + params + "\n ");
         }
         // If callbackId equal to 0 mean this call does not need to callback.
         final UIPromise promise =
