@@ -170,7 +170,11 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
 
 void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong startTime, jlong endTime) {
   auto scope = GetScope(j_scope_id);
-  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  auto engine = scope->GetEngine().lock();
+  if (!engine) {
+    return;
+  }
+  auto runner = engine->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
     auto task = [weak_scope, startTime, endTime]() {
@@ -187,7 +191,11 @@ void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong sta
 
 void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
   auto scope = GetScope(j_scope_id);
-  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  auto engine = scope->GetEngine().lock();
+  if (!engine) {
+    return;
+  }
+  auto runner = engine->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
     auto task = [weak_scope, time]() {
@@ -211,7 +219,11 @@ void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
 
 void OnFirstContentfulPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
   auto scope = GetScope(j_scope_id);
-  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  auto engine = scope->GetEngine().lock();
+  if (!engine) {
+    return;
+  }
+  auto runner = engine->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
     auto task = [weak_scope, time]() {
@@ -235,7 +247,11 @@ void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring
   auto ret_code = static_cast<int32_t>(j_ret_code);
   auto error_msg = j_error_msg ? JniUtils::ToStrView(j_env, j_error_msg) : string_view("");
   auto scope = GetScope(j_scope_id);
-  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  auto engine = scope->GetEngine().lock();
+  if (!engine) {
+    return;
+  }
+  auto runner = engine->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
     auto task = [weak_scope, uri, j_start_time, j_end_time, ret_code, error_msg]() {
