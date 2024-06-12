@@ -36,7 +36,6 @@ Pod::Spec.new do |s|
                        'core/src/**/*.{h,cc}']
     ss.public_header_files = 'core/include/**/*.h'
     ss.project_header_files = 'core/include/**/*.h'
-    # ss.header_mappings_dir = 'core/include/'
     ss.exclude_files = ['core/include/core/napi/v8',
                         'core/include/core/vm/v8',
                         'core/include/core/inspector',
@@ -54,7 +53,6 @@ Pod::Spec.new do |s|
     ss.framework = 'JavaScriptCore'
     ss.public_header_files = 'core/third_party/**/*.h'
     ss.project_header_files = 'core/third_party/**/*.h'
-    # ss.header_mappings_dir = 'core/third_party/base/include/'
     ss.source_files = 'core/third_party/**/*.{h,cc}'
     ss.exclude_files = ['core/third_party/base/src/platform/adr']
     ss.pod_target_xcconfig = {
