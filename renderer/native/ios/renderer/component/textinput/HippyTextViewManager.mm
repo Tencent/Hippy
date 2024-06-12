@@ -185,23 +185,30 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(fontStyle, NSString, HippyShadowTextView) {
 }
 
 HIPPY_CUSTOM_SHADOW_PROPERTY(fontFamily, NSString, HippyShadowTextView) {
-    view.font = [HippyFont updateFont:view.font withFamily:json];
+    // Convert fontName to fontFamily if needed
+    NSString *familyName = [self familyNameWithCSSNameMatching:json];
+    view.font = [HippyFont updateFont:view.font withFamily:familyName];
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(fontSize, NSNumber, HippyBaseTextInput) {
     UIFont *theFont = [HippyFont updateFont:view.font withSize:json ?: @(defaultView.font.pointSize)];
     view.font = theFont;
 }
+
 HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, __unused HippyBaseTextInput) {
     UIFont *theFont = [HippyFont updateFont:view.font withWeight:json];  // defaults to normal
     view.font = theFont;
 }
+
 HIPPY_CUSTOM_VIEW_PROPERTY(fontStyle, NSString, __unused HippyBaseTextInput) {
     UIFont *theFont = [HippyFont updateFont:view.font withStyle:json];
     view.font = theFont;  // defaults to normal
 }
+
 HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput) {
-    view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
+    // Convert fontName to fontFamily if needed
+    NSString *familyName = [self familyNameWithCSSNameMatching:json];
+    view.font = [HippyFont updateFont:view.font withFamily:familyName ?: defaultView.font.familyName];
 }
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)hippyShadowView {
@@ -211,4 +218,24 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput) {
         viewRegistry[componentTag].contentInset = padding;
     };
 }
+
+
+#pragma mark - Private
+
+/// Get the
+/// JS side usually pass a `fontName` instead of `fontFamily`
+/// - Parameter json: id
+- (NSString *)familyNameWithCSSNameMatching:(id)json {
+    NSString *familyName = json;
+    if (json && ![[UIFont familyNames] containsObject:json]) {
+        // Not a real FamilyName
+        // Using CSS name matching semantics.
+        // fontSize here is just a placeholder for getting font.
+        UIFont *cssFont = [UIFont fontWithName:json size:14.0];
+        familyName = cssFont.familyName;
+    }
+    return familyName;
+}
+
+
 @end
