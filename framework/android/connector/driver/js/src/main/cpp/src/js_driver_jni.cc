@@ -170,6 +170,9 @@ std::shared_ptr<Scope> GetScope(jint j_scope_id) {
 
 void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong startTime, jlong endTime) {
   auto scope = GetScope(j_scope_id);
+  if (!scope) {
+    return;
+  }
   auto engine = scope->GetEngine().lock();
   if (!engine) {
     return;
@@ -191,6 +194,9 @@ void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong sta
 
 void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
   auto scope = GetScope(j_scope_id);
+  if (!scope) {
+    return;
+  }
   auto engine = scope->GetEngine().lock();
   if (!engine) {
     return;
@@ -219,6 +225,9 @@ void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
 
 void OnFirstContentfulPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
   auto scope = GetScope(j_scope_id);
+  if (!scope) {
+    return;
+  }
   auto engine = scope->GetEngine().lock();
   if (!engine) {
     return;
@@ -247,6 +256,9 @@ void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring
   auto ret_code = static_cast<int32_t>(j_ret_code);
   auto error_msg = j_error_msg ? JniUtils::ToStrView(j_env, j_error_msg) : string_view("");
   auto scope = GetScope(j_scope_id);
+  if (!scope) {
+    return;
+  }
   auto engine = scope->GetEngine().lock();
   if (!engine) {
     return;
