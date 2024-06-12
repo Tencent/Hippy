@@ -369,7 +369,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(const std::sha
     JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_obj);
   }
-  rauto tuple = std::make_tuple(true, "", obj);
+  auto tuple = std::make_tuple(true, "", obj);
   j_env->DeleteLocalRef(obj);
   return tuple;
 }
@@ -412,7 +412,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(const std::shared
   }
   auto tuple = std::make_tuple(true, "", result);
   if (result) {
-    j_env->DeleteLocalRef(result);
+    env->DeleteLocalRef(result);
   }
   return tuple;
 }
