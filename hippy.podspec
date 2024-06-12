@@ -68,17 +68,41 @@ Pod::Spec.new do |s|
     ss.source_files = 'ios/sdk/layout/**/*.{h,m,c,mm,s,cpp,cc}'
     ss.public_header_files = 'ios/sdk/layout/**/MTTFlex.h'
   end
+  
+  s.subspec 'HPOP' do |ss|
+    ss.libraries = 'c++'
+    ss.frameworks = 'UIKit', 'Foundation', 'QuartzCore', 'CoreGraphics'
+    ss.source_files = 'ios/sdk/module/animation2/pop/**/*.{h,m,c,mm,s,cpp,cc}'
+    ss.public_header_files = [
+    'ios/sdk/module/animation2/pop/HPOP.h',
+    'ios/sdk/module/animation2/pop/HPOPDefines.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimatableProperty.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimatablePropertyTypes.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimation.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimationEvent.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimationExtras.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimationTracer.h',
+    'ios/sdk/module/animation2/pop/HPOPAnimator.h',
+    'ios/sdk/module/animation2/pop/HPOPBasicAnimation.h',
+    'ios/sdk/module/animation2/pop/HPOPCustomAnimation.h',
+    'ios/sdk/module/animation2/pop/HPOPDecayAnimation.h',
+    'ios/sdk/module/animation2/pop/HPOPGeometry.h',
+    'ios/sdk/module/animation2/pop/HPOPLayerExtras.h',
+    'ios/sdk/module/animation2/pop/HPOPPropertyAnimation.h',
+    'ios/sdk/module/animation2/pop/HPOPSpringAnimation.h']
+  end
 
   s.subspec 'iOSSDK' do |ss|
     ss.dependency 'hippy/core'
     ss.dependency 'hippy/coreThirdParty'
     ss.dependency 'hippy/MTTLayout'
+    ss.dependency 'hippy/HPOP'
     ss.frameworks = 'UIKit', 'Foundation', 'QuartzCore', 'CFNetwork', 'CoreGraphics', 'CoreTelephony',
     'ImageIO', 'WebKit', 'SystemConfiguration', 'Security', 'CoreServices', 'Accelerate'
     ss.public_header_files = 'ios/sdk/**/*.h'
     ss.project_header_files = ['ios/sdk/**/HippyJSEnginesMapper.h', ]
     ss.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
-    ss.exclude_files = 'ios/sdk/layout/**/*.{h,m,c,mm,s,cpp,cc}'
+    ss.exclude_files = ['ios/sdk/layout/**/*.{h,m,c,mm,s,cpp,cc}', 'ios/sdk/module/animation2/pop/**/*.{h,m,c,mm,s,cpp,cc}']
   end
 
 end
