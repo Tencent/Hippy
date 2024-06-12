@@ -338,6 +338,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(const std::share
     std::shared_ptr<CtxValue> item = v8_ctx->CopyArrayElement(array, i + 1);
     auto to_jobject_tuple = ToJObject(ctx, item);
     if (!std::get<0>(to_jobject_tuple)) {
+      j_env->DeleteLocalRef(key_j_obj);
       return std::make_tuple(false, std::get<1>(to_jobject_tuple), static_cast<jobject>(nullptr));
     }
     jobject value_j_obj = std::get<2>(to_jobject_tuple);
@@ -346,7 +347,9 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(const std::share
     j_env->DeleteLocalRef(key_j_obj);
     j_env->DeleteLocalRef(value_j_obj);
   }
-  return std::make_tuple(true, "", obj);
+  auto tuple = std::make_tuple(true, "", obj);
+  j_env->DeleteLocalRef(obj);
+  return tuple;
 }
 
 std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(const std::shared_ptr<Ctx>& ctx,
@@ -366,7 +369,9 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(const std::sha
     JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_obj);
   }
-  return std::make_tuple(true, "", obj);
+  rauto tuple = std::make_tuple(true, "", obj);
+  j_env->DeleteLocalRef(obj);
+  return tuple;
 }
 
 std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(const std::shared_ptr<Ctx>& ctx,
@@ -405,7 +410,11 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(const std::shared
     return std::make_tuple(false, "unsupported type in HippyArray or HippyMap",
                            static_cast<jobject>(nullptr));
   }
-  return std::make_tuple(true, "", result);
+  auto tuple = std::make_tuple(true, "", result);
+  if (result) {
+    j_env->DeleteLocalRef(result);
+  }
+  return tuple;
 }
 
 std::unordered_map<std::string, MethodInfo> ConvertUtils::GetMethodMap(
@@ -638,6 +647,7 @@ std::tuple<bool,
   } else if (!obj) {
     result = ctx->CreateNull();
   } else {
+    j_env->DeleteLocalRef(obj);
     return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap",
                            static_cast<std::shared_ptr<CtxValue>>(nullptr));
   }
