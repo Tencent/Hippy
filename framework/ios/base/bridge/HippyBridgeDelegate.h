@@ -21,10 +21,29 @@
  */
 
 @class HippyBridge;
-
 #import "HippyInvalidating.h"
 
-@protocol HippyBridgeDelegate <NSObject>
+
+/// An Interceptor protocol for gesture events.
+@protocol HippyTouchEventInterceptorProtocol <NSObject>
+
+@optional
+
+/// A centralized handler for event sending,
+/// which hippy calls before sending events to the JS side.
+///
+/// This method is convenient for external data reporting of hippy gesture events
+/// - Parameters:
+///   - eventName: name of event
+///   - point: point in hippyRootView
+///   - view: target view
+- (void)willSendGestureEvent:(NSString *)eventName withPagePoint:(CGPoint)point toView:(UIView *)view;
+
+@end
+
+
+/// Delegate of HippyBridge
+@protocol HippyBridgeDelegate <NSObject, HippyTouchEventInterceptorProtocol>
 
 @optional
 
