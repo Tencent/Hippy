@@ -1261,8 +1261,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         };
         [view setOnClick:eventListener];
     }
-    else {
-    }
 }
 
 - (void)addLongClickEventListenerForView:(UIView *)view onRootNode:(std::weak_ptr<RootNode>)rootNode {
@@ -1294,8 +1292,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             }
         };
         [view setOnLongClick:eventListener];
-    }
-    else {
     }
 }
 
@@ -1459,8 +1455,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                 }
             }];
         }
-    }
-    else {
     }
 }
 

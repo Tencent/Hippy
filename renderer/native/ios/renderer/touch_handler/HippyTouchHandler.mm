@@ -200,8 +200,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchDown) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-//                        view.onTouchDown(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                         const char *name = hippy::kTouchStartEvent;
+                        [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchDown(point,
                                          [self canCapture:name],
                                          [self canBubble:name],
@@ -269,8 +269,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchEnd) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-//                        view.onTouchEnd(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                         const char *name = hippy::kTouchEndEvent;
+                        [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchEnd(point,
                                         [self canCapture:name],
                                         [self canBubble:name],
@@ -288,8 +288,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                     point = [theView convertPoint:point toView:_rootView];
                     if (theView.onTouchEnd) {
                         if ([self checkViewBelongToTouchHandler:theView]) {
-//                            theView.onTouchEnd(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                             const char *name = hippy::kTouchEndEvent;
+                            [self willSendGestureEvent:@(name) withPagePoint:point toView:theView];
                             theView.onTouchEnd(point,
                                                [self canCapture:name],
                                                [self canBubble:name],
@@ -306,6 +306,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
             if (pressOutView == _onPressInView && pressOutView.onPressOut) {
                 if ([self checkViewBelongToTouchHandler:pressOutView]) {
                     const char *name = hippy::kPressOut;
+                    [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:pressOutView];
                     pressOutView.onPressOut(CGPointZero,
                                             [self canCapture:name],
                                             [self canBubble:name],
@@ -321,6 +322,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
             if (!_bLongClick && clickView.onClick) {
                 if ([self checkViewBelongToTouchHandler:clickView]) {
                     const char *name = hippy::kClickEvent;
+                    [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:clickView];
                     clickView.onClick(CGPointZero,
                                       [self canCapture:name],
                                       [self canBubble:name],
@@ -377,8 +379,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchCancel) {
                     if ([self checkViewBelongToTouchHandler:view]) {
-//                        view.onTouchCancel(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                         const char *name = hippy::kTouchCancelEvent;
+                        [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchCancel(point,
                                            [self canCapture:name],
                                            [self canBubble:name],
@@ -394,6 +396,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
             if (pressOutView == _onPressInView && pressOutView.onPressOut) {
                 if ([self checkViewBelongToTouchHandler:pressOutView]) {
                     const char *name = hippy::kPressOut;
+                    [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:pressOutView];
                     pressOutView.onPressOut(CGPointZero,
                                             [self canCapture:name],
                                             [self canBubble:name],
@@ -470,8 +473,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                     CGPoint point = [touch locationInView:view];
                     point = [view convertPoint:point toView:_rootView];
                     if ([self checkViewBelongToTouchHandler:view]) {
-//                        view.onTouchMove(@{ @"page_x": @(point.x), @"page_y": @(point.y) });
                         const char *name = hippy::kTouchMoveEvent;
+                        [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchMove(point,
                                          [self canCapture:name],
                                          [self canBubble:name],
@@ -517,6 +520,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         if (_onPressInView && _onPressInView.onPressIn) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
                 const char *name = hippy::kPressIn;
+                [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:_onPressInView];
                 _onPressInView.onPressIn(CGPointZero,
                                          [self canCapture:name],
                                          [self canBubble:name],
@@ -533,8 +537,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         _bLongClick = YES;
         if (_onLongClickView && _onLongClickView.onLongClick) {
             if ([self checkViewBelongToTouchHandler:_onLongClickView]) {
-//                _onLongClickView.onLongClick(@{});
                 const char *name = hippy::kLongClickEvent;
+                [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:_onLongClickView];
                 _onLongClickView.onLongClick(CGPointZero,
                                              [self canCapture:name],
                                              [self canBubble:name],
@@ -692,6 +696,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         if (_onPressInView.onPressOut) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
                 const char *name = hippy::kPressOut;
+                [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:_onPressInView];
                 _onPressInView.onPressOut(CGPointZero,
                                           [self canCapture:name],
                                           [self canBubble:name],
@@ -720,6 +725,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         if (_onPressInView.onPressOut) {
             if ([self checkViewBelongToTouchHandler:_onPressInView]) {
                 const char *name = hippy::kPressOut;
+                [self willSendGestureEvent:@(name) withPagePoint:CGPointZero toView:_onPressInView];
                 _onPressInView.onPressOut(CGPointZero,
                                           [self canCapture:name],
                                           [self canBubble:name],
@@ -826,6 +832,15 @@ static BOOL IsGestureEvent(const char *name) {
 
 - (BOOL)canBePreventInBubbling:(const char *)name {
     return NO;
+}
+
+
+#pragma mark - HippyTouchEventInterceptorProtocol
+
+- (void)willSendGestureEvent:(NSString *)eventName withPagePoint:(CGPoint)point toView:(UIView *)view {
+    if ([_bridge.delegate respondsToSelector:@selector(willSendGestureEvent:withPagePoint:toView:)]) {
+        [_bridge.delegate willSendGestureEvent:eventName withPagePoint:point toView:view];
+    }
 }
 
 

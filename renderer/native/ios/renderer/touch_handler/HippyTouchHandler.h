@@ -24,7 +24,7 @@
 #import "HippyBridge.h"
 
 /// Handles all gestures in Hippy
-@interface HippyTouchHandler : UIGestureRecognizer <UIGestureRecognizerDelegate>
+@interface HippyTouchHandler : UIGestureRecognizer <UIGestureRecognizerDelegate, HippyTouchEventInterceptorProtocol>
 
 /// Init method
 /// - Parameters:
