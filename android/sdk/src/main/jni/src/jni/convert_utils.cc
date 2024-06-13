@@ -347,9 +347,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(const std::share
     j_env->DeleteLocalRef(key_j_obj);
     j_env->DeleteLocalRef(value_j_obj);
   }
-  auto tuple = std::make_tuple(true, "", obj);
-  j_env->DeleteLocalRef(obj);
-  return tuple;
+  return std::make_tuple(true, "", obj);
 }
 
 std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(const std::shared_ptr<Ctx>& ctx,
@@ -369,9 +367,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(const std::sha
     JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_obj);
   }
-  auto tuple = std::make_tuple(true, "", obj);
-  j_env->DeleteLocalRef(obj);
-  return tuple;
+  return std::make_tuple(true, "", obj);
 }
 
 std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(const std::shared_ptr<Ctx>& ctx,
@@ -410,11 +406,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(const std::shared
     return std::make_tuple(false, "unsupported type in HippyArray or HippyMap",
                            static_cast<jobject>(nullptr));
   }
-  auto tuple = std::make_tuple(true, "", result);
-  if (result) {
-    env->DeleteLocalRef(result);
-  }
-  return tuple;
+  return std::make_tuple(true, "", result);
 }
 
 std::unordered_map<std::string, MethodInfo> ConvertUtils::GetMethodMap(
