@@ -136,11 +136,13 @@ Scope::~Scope() {
  */
 #else
   auto engine = engine_.lock();
-  FOOTSTONE_CHECK(engine);
-  auto key = wrapper_.get();
-  engine->ClearWeakCallbackWrapper(key);
-  engine->ClearFunctionWrapper(key);
-  engine->ClearClassTemplate(key);
+  FOOTSTONE_DCHECK(engine);
+  if (engine) {
+    auto key = wrapper_.get();
+    engine->ClearWeakCallbackWrapper(key);
+    engine->ClearFunctionWrapper(key);
+    engine->ClearClassTemplate(key);
+  }
 #endif
 }
 
