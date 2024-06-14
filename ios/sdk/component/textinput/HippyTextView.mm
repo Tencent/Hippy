@@ -723,14 +723,6 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     [self setText:value];
 }
 
-- (void)setFontSize:(NSNumber *)fontSize {
-    _fontSize = fontSize;
-
-    if ([fontSize floatValue] > 0) {
-        [self setFont:[UIFont systemFontOfSize:[fontSize floatValue]]];
-    }
-}
-
 - (void)setDefaultValue:(NSString *)defaultValue {
     if (defaultValue) {
         [self setText:defaultValue];
