@@ -1,8 +1,8 @@
 <!-- docs/_sidebar.md -->
 - [Demo体验](development/demo.md)
 - 前端接入
-  - [Hippy React&Vue接入指引](development/react-vue-integration-guidelines.md)
-  - [Hippy React&Vue 3.x升级指引](development/react-vue-3.0-upgrade-guidelines.md)
+  - [Hippy-React&Vue 3.x SDK集成指引](development/react-vue-3.0-integration-guidelines.md)
+  - [Hippy-React&Vue 3.x SDK升级指引](development/react-vue-3.0-upgrade-guidelines.md)
   - [Web同构接入指引](development/web-integration-guidelines.md)
 - 终端接入
   - [Android 3.x SDK集成指引](development/android-3.0-integration-guidelines.md)

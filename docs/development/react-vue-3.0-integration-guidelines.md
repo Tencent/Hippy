@@ -133,7 +133,7 @@ export default function app() {
 
 # hippy-vue
 
->注意：因vue2.x版本将于年底停止更新，建议用户升级至使用vue3.x版本的@hippy/vue-next
+>注意：因vue2.x版本将停止更新，建议用户升级至使用vue3.x版本的@hippy/vue-next
 
 [[hippy-vue 介绍]](api/hippy-vue/introduction.md) [[范例工程]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)
 
