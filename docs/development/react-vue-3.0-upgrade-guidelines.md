@@ -1,10 +1,10 @@
 # Hippy React&Vue 3.x SDK升级指引
 
-> 这篇教程，主要介绍Hippy React&Vue 如何升级3.0版本以及升级后的相关验证关注点。
+> 这篇教程，主要介绍 Hippy React&Vue&Vue-next 如何升级3.0版本以及升级后的相关验证关注点。
 
 ---
 
-# 依赖升级
+# 升级依赖项变更
 
 ## hippy-react
 
@@ -29,7 +29,7 @@
 （3）如果使用了 @hippy/react-web 包做h5同构，则需要升级 @hippy/react-web 到 3.2.0-beta 及以上
 ```
 
-Hippy-React 在升级3.0可以完全兼容之前的版本，除了升级如上依赖，业务代码不需要做修改。
+需要业务使用新的 hippy-react 重编 js common包
 
 ## hippy-vue
 
@@ -47,9 +47,7 @@ Hippy-React 在升级3.0可以完全兼容之前的版本，除了升级如上�
 （6）vue 和 vue-router 等vue相关依赖无需升级
 ```
 
-Hippy-Vue 在升级3.0可以完全兼容之前的版本，除了升级如上依赖，业务代码不需要做修改。
-
-
+需要业务使用新的 hippy-vue 重编 js common包
 
 ## hippy-vue-next
 
@@ -65,10 +63,37 @@ Hippy-Vue 在升级3.0可以完全兼容之前的版本，除了升级如上依�
 （4）vue 和 vue-router 等vue相关依赖无需升级
 ```
 
-Hippy-Vue-Next 在升级3.0可以完全兼容之前的版本，除了升级如上依赖，业务代码不需要做修改。
+需要业务使用新的 hippy-vue-next 重编 js common包
 
 </br>
 </br>
+
+# 接入与使用方式变更
+
+接入 Hippy-React、Hippy-Vue、Hippy-Vue-Next SDK 代码无变化，可参考 [前端集成指引](development/react-vue-3.0-integration-guidelines.md)
+
+具体变化点如下：
+
+1. iOS 新增节点层级优化算法，Android 优化了现有的层级优化算法：
+该算法会将仅参与布局的View节点优化去除，从而提升渲染效率。请注意 ！！！由于该算法的存在，可能导致依赖特定UI层级结构的native组件发生找不到特定View的异常。
+此时，可以通过前端代码中给特定 View 增加 collapsable: 'false' 属性来禁止该节点被优化算法去除。
+
+
+# 组件变更
+
+1. dialog 组件的第一个子元素不能设置  { position: absolute } 样式，如果想将 dialog 内容铺满全屏，可以给第一个子元素设置 { flex: 1 } 样式或者显式设置 width 和 height 数值
+
+2. Image 组件废弃了 source、 sources、srcs 字段，建议使用 src 字段代表图片 url
+
+3. iOS Image 组件默认没有实现图片缓存 （由于实现机制的变化），需要业务 iOS端自行实现缓存管理，详细可参考 [iOS 升级指引](development/ios-3.0-upgrade-guidelines.md)
+
+# 接口定义变更
+
+1. hippy-react 不再导出RNfqb、RNfqbRegister、RNfqbEventEmitter、RNfqbEventListener 方法
+
+2. hippy-react animation 模块不再有 destory() 方法的错误写法兼容，统一用 destroy()
+
+3. hippy-react animation 事件监听不再支持 onRNfqbAnimationXX  兼容写法，统一用 onHippyAnimationXX 或者 onAnimationXX
 
 # 验证关注点
 
