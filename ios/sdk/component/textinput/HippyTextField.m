@@ -363,13 +363,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     _text = text;
 }
 
-- (void)setFontSize:(NSNumber *)fontSize {
-    _fontSize = fontSize;
-    if ([fontSize floatValue] > 0) {
-        [_textView setFont:[UIFont systemFontOfSize:[fontSize floatValue]]];
-    }
-}
-
 - (void)setValue:(NSString *)value {
     [_textView setText:value];
 }
