@@ -48,7 +48,6 @@
 @property (nonatomic, assign) BOOL blurOnSubmit;
 @property (nonatomic, assign) BOOL clearTextOnFocus;
 @property (nonatomic, assign) BOOL selectTextOnFocus;
-//@property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, assign) BOOL automaticallyAdjustContentInsets;
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, strong) UIColor *placeholderTextColor;
@@ -64,7 +63,6 @@
 - (void)performTextUpdate;
 
 @property (nonatomic, copy) NSString *value;
-@property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, strong) UIColor *textColor;
 

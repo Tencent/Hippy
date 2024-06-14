@@ -46,7 +46,6 @@
 @interface HippyTextField : HippyBaseTextInput <UITextFieldDelegate>
 @property (nonatomic, copy) HippyDirectEventBlock onKeyPress;
 @property (nonatomic, assign) BOOL autoCorrect;
-//@property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, strong) UIColor *placeholderTextColor;
 @property (nonatomic, strong) NSString *placeholder;
 @property (nonatomic, strong) NSNumber *maxLength;
@@ -66,7 +65,6 @@
 @property (nonatomic, copy) HippyDirectEventBlock onKeyboardHeightChanged;
 
 @property (nonatomic, copy) NSString *value;
-@property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, strong) UIColor *textColor;
