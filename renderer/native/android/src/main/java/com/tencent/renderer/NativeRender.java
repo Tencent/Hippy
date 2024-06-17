@@ -103,8 +103,7 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
 
     void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync);
 
-    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged);
+    void updateDimension(int width, int height);
 
     void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
             @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType);

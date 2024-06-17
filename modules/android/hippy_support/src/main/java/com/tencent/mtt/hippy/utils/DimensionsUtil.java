@@ -169,8 +169,7 @@ public class DimensionsUtil {
         return STATUS_BAR_HEIGHT;
     }
 
-    public static HippyMap getDimensions(int ww, int wh, Context context,
-            boolean shouldUseScreenDisplay) {
+    public static HippyMap getDimensions(int ww, int wh, Context context) {
         if (context == null) {
             return null;
         }
@@ -191,19 +190,11 @@ public class DimensionsUtil {
         int navigationBarHeight = getNavigationBarHeight(context);
 
         HippyMap windowDisplayMetricsMap = new HippyMap();
-        if (shouldUseScreenDisplay) {
-            windowDisplayMetricsMap.pushDouble("width", ww >= 0 ? ww : screenDisplayMetrics.widthPixels);
-            windowDisplayMetricsMap.pushDouble("height", wh >= 0 ? wh : screenDisplayMetrics.heightPixels);
-            windowDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
-            windowDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
-            windowDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
-        } else {
-            windowDisplayMetricsMap.pushDouble("width", ww >= 0 ? ww : windowDisplayMetrics.widthPixels);
-            windowDisplayMetricsMap.pushDouble("height", wh >= 0 ? wh : windowDisplayMetrics.heightPixels);
-            windowDisplayMetricsMap.pushDouble("scale", windowDisplayMetrics.density);
-            windowDisplayMetricsMap.pushDouble("fontScale", windowDisplayMetrics.scaledDensity);
-            windowDisplayMetricsMap.pushDouble("densityDpi", windowDisplayMetrics.densityDpi);
-        }
+        windowDisplayMetricsMap.pushDouble("width", ww >= 0 ? ww : windowDisplayMetrics.widthPixels);
+        windowDisplayMetricsMap.pushDouble("height", wh >= 0 ? wh : windowDisplayMetrics.heightPixels);
+        windowDisplayMetricsMap.pushDouble("scale", windowDisplayMetrics.density);
+        windowDisplayMetricsMap.pushDouble("fontScale", windowDisplayMetrics.scaledDensity);
+        windowDisplayMetricsMap.pushDouble("densityDpi", windowDisplayMetrics.densityDpi);
         windowDisplayMetricsMap.pushDouble("statusBarHeight", statusBarHeight);
         windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
         dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);

@@ -403,11 +403,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged) {
+    public void updateDimension(int width, int height) {
         if (mFrameworkProxy != null) {
-            mFrameworkProxy.updateDimension(width, height, shouldUseScreenDisplay,
-                    systemUiVisibilityChanged);
+            mFrameworkProxy.updateDimension(width, height);
         }
     }
 

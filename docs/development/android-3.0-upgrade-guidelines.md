@@ -123,6 +123,9 @@
     }
     ```
 
+7. HippyDeviceAdapter中reviseDimensionIfNeed接口参数调整 <br>
+   由于HippyRootView不再监听onSystemUiVisibilityChange消息，移除shouldUseScreenDisplay和systemUiVisibilityChanged两个无效参数。
+
 </br>
 
 # 新增特性

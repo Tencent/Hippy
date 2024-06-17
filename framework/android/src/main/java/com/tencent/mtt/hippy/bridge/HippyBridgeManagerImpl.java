@@ -506,13 +506,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         assert (context != null);
 
         HippyMap globalParams = new HippyMap();
-        HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
+        HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context);
 
         if (mContext.getGlobalConfigs() != null
                 && mContext.getGlobalConfigs().getDeviceAdapter() != null) {
             mContext.getGlobalConfigs().getDeviceAdapter()
-                    .reviseDimensionIfNeed(context, dimensionMap, false,
-                            false);
+                    .reviseDimensionIfNeed(context, dimensionMap);
         }
         DimensionsUtil.convertDimensionsToDp(dimensionMap);
         globalParams.pushMap("Dimensions", dimensionMap);
