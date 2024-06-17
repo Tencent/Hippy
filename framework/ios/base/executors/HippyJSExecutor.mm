@@ -78,14 +78,16 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 @interface HippyJSExecutor () {
     // Set at setUp time:
     id<HippyContextWrapper> _contextWrapper;
-    NSMutableArray<dispatch_block_t> *_pendingCalls;
     __weak HippyBridge *_bridge;
 #ifdef JS_JSC
     BOOL _isInspectable;
 #endif //JS_JSC
 }
 
-@property(readwrite, assign) BOOL ready;
+/// Whether JSExecutor has done setup.
+@property (nonatomic, assign) BOOL ready;
+/// Pending blocks to be executed on JS queue.
+@property (nonatomic, strong) NSMutableArray<dispatch_block_t> *pendingCalls;;
 
 @end
 
@@ -211,12 +213,19 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 strongSelf.contextCreatedBlock(strongSelf->_contextWrapper);
             }
             scope->SyncInitialize();
-            strongSelf.ready = YES;
-            NSArray<dispatch_block_t> *pendingCalls = [strongSelf->_pendingCalls copy];
+            
+            // execute pending blocks
+            NSArray<dispatch_block_t> *pendingCalls;
+            @synchronized (strongSelf) {
+                strongSelf.ready = YES;
+                pendingCalls = [strongSelf.pendingCalls copy];
+                [strongSelf.pendingCalls removeAllObjects];
+            }
             [pendingCalls enumerateObjectsUsingBlock:^(dispatch_block_t  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 [strongSelf executeBlockOnJavaScriptQueue:obj];
             }];
-            [strongSelf->_pendingCalls removeAllObjects];
+            
+            // performance record
             auto entry = scope->GetPerformance()->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
             entry->SetHippyJsEngineInitStart(startPoint);
             entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
@@ -245,7 +254,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         self.bridge = bridge;
 
         self.ready = NO;
-        _pendingCalls = [NSMutableArray arrayWithCapacity:4];
+        self.pendingCalls = [NSMutableArray array];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
     }
 
@@ -595,9 +604,11 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    if (!self.ready) {
-        [_pendingCalls addObject:block];
-        return;
+    @synchronized (self) {
+        if (!self.ready) {
+            [self.pendingCalls addObject:block];
+            return;
+        }
     }
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey]->GetEngine();
     if (engine) {
@@ -611,9 +622,11 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    if (!self.ready) {
-        [_pendingCalls addObject:block];
-        return;
+    @synchronized (self) {
+        if (!self.ready) {
+            [self.pendingCalls addObject:block];
+            return;
+        }
     }
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey]->GetEngine();
     if (engine) {
