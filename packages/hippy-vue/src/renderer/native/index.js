@@ -39,7 +39,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
-import { preCacheNode } from '../../util/node';
+import { isHippyTextNode, preCacheNode } from '../../util/node';
 import {
   setCacheNodeStyle,
   getCacheNodeStyle,
@@ -351,6 +351,8 @@ function renderToNative(rootViewId, targetNode) {
   });
   // Apply style from style attribute.
   style = { ...style, ...targetNode.style };
+  // style before merge inherit style
+  const originStyle = Object.assign({}, style);
 
   if (targetNode.parentNode) {
     const parentNodeStyle = getCacheNodeStyle(targetNode.parentNode.nodeId);
@@ -363,12 +365,15 @@ function renderToNative(rootViewId, targetNode) {
     });
   }
 
+  setCacheNodeStyle(targetNode.nodeId, style);
+
+  // style after merge inherit style
+  let resultStyle = isHippyTextNode(targetNode) ? style : originStyle;
+
   // Apply styles when the targetNode attach to document at first time.
   if (targetNode.meta.component.defaultNativeStyle) {
-    style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
+    resultStyle = { ...targetNode.meta.component.defaultNativeStyle, ...resultStyle };
   }
-
-  setCacheNodeStyle(targetNode.nodeId, style);
 
   // Convert to real native event
   const events = {};
@@ -405,7 +410,7 @@ function renderToNative(rootViewId, targetNode) {
     props: {
       ...getNativeProps(targetNode),
       ...events,
-      style,
+      style: resultStyle,
     },
   };
   // Add nativeNode attributes info for Element debugging
@@ -413,8 +418,8 @@ function renderToNative(rootViewId, targetNode) {
     nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
-  parseViewComponent(targetNode, nativeNode, style);
-  parseTextInputComponent(targetNode, style);
+  parseViewComponent(targetNode, nativeNode, resultStyle);
+  parseTextInputComponent(targetNode, resultStyle);
   return nativeNode;
 }
 

@@ -20,6 +20,10 @@
 
 const nodeCache = new Map();
 
+function isHippyTextNode(targetNode) {
+  return targetNode.meta && targetNode.meta.component && targetNode.meta.component.name === 'Text';
+}
+
 /**
  * preCacheNode - cache ViewNode
  * @param {ViewNode} targetNode
@@ -104,6 +108,7 @@ function cancelIdleCallback(id) {
 }
 
 export {
+  isHippyTextNode,
   recursivelyUnCacheNode,
   requestIdleCallback,
   cancelIdleCallback,
