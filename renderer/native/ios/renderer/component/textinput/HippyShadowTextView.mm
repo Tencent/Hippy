@@ -23,13 +23,18 @@
 #import "HippyUtils.h"
 #import "HippyShadowTextView.h"
 #import "HippyShadowView+Internal.h"
-
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
 
+/// Default font size of TextView
+/// Note that in `HippyFont` it is defined as 14,
+/// For the sake of compatibility, keep it the way it is.
+static const CGFloat defaultFontSize = 16.0;
+
 @interface HippyShadowTextView ()
 
+/// Cached text attributes
 @property (nonatomic, strong) NSDictionary *dicAttributes;
 
 @end
@@ -40,15 +45,35 @@ static hippy::LayoutSize x5MeasureFunc(
                             hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
     hippy::LayoutSize result;
     if (weakShadowText) {
-        HippyShadowTextView *strongShadowText = weakShadowText;
-        NSString *text = strongShadowText.text ?: strongShadowText.placeholder;
-        if (nil == strongShadowText.dicAttributes) {
-            if (strongShadowText.font == nil) {
-                strongShadowText.font = [UIFont systemFontOfSize:16];
+        HippyShadowTextView *shadowText = weakShadowText;
+        NSString *text = shadowText.text ?: shadowText.placeholder;
+        if (nil == shadowText.dicAttributes) {
+            if (shadowText.font == nil) {
+                
+                shadowText.font = [UIFont systemFontOfSize:defaultFontSize];
             }
-            strongShadowText.dicAttributes = @ { NSFontAttributeName: strongShadowText.font };
+            NSDictionary *attrs = nil;
+            if ((id)shadowText.lineHeight != nil ||
+                (id)shadowText.lineSpacing != nil ||
+                (id)shadowText.lineHeightMultiple != nil) {
+                // Add paragraphStyle
+                NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+                if ((id)shadowText.lineHeight != nil) {
+                    paragraphStyle.minimumLineHeight = [shadowText.lineHeight doubleValue];
+                    paragraphStyle.maximumLineHeight = [shadowText.lineHeight doubleValue];
+                } else if ((id)shadowText.lineSpacing != nil) {
+                    paragraphStyle.lineSpacing = [shadowText.lineSpacing doubleValue];
+                } else if ((id)shadowText.lineHeightMultiple != nil) {
+                    paragraphStyle.lineHeightMultiple = [shadowText.lineHeightMultiple doubleValue];
+                }
+                attrs = @{ NSFontAttributeName: shadowText.font,
+                           NSParagraphStyleAttributeName : paragraphStyle };
+            } else {
+                attrs = @{ NSFontAttributeName: shadowText.font };
+            }
+            shadowText.dicAttributes = attrs;
         }
-        CGSize computedSize = [text sizeWithAttributes:strongShadowText.dicAttributes];
+        CGSize computedSize = [text sizeWithAttributes:shadowText.dicAttributes];
         result.width = ceil(computedSize.width);
         result.height = ceil(computedSize.height);
     }

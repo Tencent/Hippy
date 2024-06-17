@@ -67,4 +67,11 @@
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, strong) UIColor *textColor;
 
+/// ParagraphStyles - lineHeight
+@property (nonatomic, strong) NSNumber *lineHeight;
+/// ParagraphStyles - lineSpacing
+@property (nonatomic, strong) NSNumber *lineSpacing;
+/// ParagraphStyles - lineHeightMultiple
+@property (nonatomic, strong) NSNumber *lineHeightMultiple;
+
 @end
