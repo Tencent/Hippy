@@ -28,4 +28,12 @@
 @property (nonatomic, copy) NSString *placeholder;
 
 @property (nonatomic, strong) UIFont *font;
+
+/// ParagraphStyles - lineHeight
+@property (nonatomic, strong) NSNumber *lineHeight;
+/// ParagraphStyles - lineSpacing
+@property (nonatomic, strong) NSNumber *lineSpacing;
+/// ParagraphStyles - lineHeightMultiple
+@property (nonatomic, strong) NSNumber *lineHeightMultiple;
+
 @end

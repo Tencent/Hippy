@@ -146,7 +146,13 @@ HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
 
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(placeholder, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineHeight, NSNumber)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineSpacing, NSNumber)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineHeightMultiple, NSNumber)
 
+HIPPY_EXPORT_VIEW_PROPERTY(lineHeight, NSNumber)
+HIPPY_EXPORT_VIEW_PROPERTY(lineSpacing, NSNumber)
+HIPPY_EXPORT_VIEW_PROPERTY(lineHeightMultiple, NSNumber)
 HIPPY_REMAP_VIEW_PROPERTY(autoCapitalize, textView.autocapitalizationType, UITextAutocapitalizationType)
 HIPPY_EXPORT_VIEW_PROPERTY(autoCorrect, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(blurOnSubmit, BOOL)
