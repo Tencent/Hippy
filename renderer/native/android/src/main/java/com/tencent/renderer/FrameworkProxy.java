@@ -59,8 +59,7 @@ public interface FrameworkProxy {
 
     void handleNativeException(Exception exception);
 
-    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged);
+    void updateDimension(int width, int height);
 
     void onSizeChanged(int rootId, int w, int h, int ow, int oh);
 }

@@ -269,26 +269,25 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged) {
+    public void updateDimension(int width, int height) {
         if (mEngineContext == null) {
             return;
         }
         Context context = mEngineContext.getGlobalConfigs().getContext();
         HippyMap dimensionMap = DimensionsUtil
-                .getDimensions(width, height, context, shouldUseScreenDisplay);
+                .getDimensions(width, height, context);
         int dimensionW = 0;
         int dimensionH = 0;
         if (dimensionMap != null) {
             HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
             dimensionW = windowMap.getInt("width");
             dimensionH = windowMap.getInt("height");
+            LogUtils.i(TAG, "updateDimension: " + dimensionMap);
         }
         if (height < 0 || dimensionW == dimensionH) {
             HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
             if (deviceAdapter != null) {
-                deviceAdapter.reviseDimensionIfNeed(context, dimensionMap, shouldUseScreenDisplay,
-                        systemUiVisibilityChanged);
+                deviceAdapter.reviseDimensionIfNeed(context, dimensionMap);
             }
         }
         DimensionsUtil.convertDimensionsToDp(dimensionMap);

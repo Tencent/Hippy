@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.device;
 
 import android.content.Context;
@@ -24,8 +25,7 @@ public class DefaultDeviceAdapter implements HippyDeviceAdapter {
 
   @SuppressWarnings("unused")
   @Override
-  public void reviseDimensionIfNeed(Context context, HippyMap dimensionMap,
-      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
+  public void reviseDimensionIfNeed(Context context, HippyMap dimensionMap) {
     // Default do nothing here
   }
 }
