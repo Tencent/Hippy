@@ -37,7 +37,26 @@ static MTTSize x5MeasureFunc(
         if (shadowText.font == nil) {
             shadowText.font = [UIFont systemFontOfSize:16];
         }
-        shadowText.dicAttributes = @ { NSFontAttributeName: shadowText.font };
+        NSDictionary *attrs = nil;
+        if ((id)shadowText.lineHeight != nil ||
+            (id)shadowText.lineSpacing != nil ||
+            (id)shadowText.lineHeightMultiple != nil) {
+            // Add paragraphStyle
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            if ((id)shadowText.lineHeight != nil) {
+                paragraphStyle.minimumLineHeight = [shadowText.lineHeight doubleValue];
+                paragraphStyle.maximumLineHeight = [shadowText.lineHeight doubleValue];
+            } else if ((id)shadowText.lineSpacing != nil) {
+                paragraphStyle.lineSpacing = [shadowText.lineSpacing doubleValue];
+            } else if ((id)shadowText.lineHeightMultiple != nil) {
+                paragraphStyle.lineHeightMultiple = [shadowText.lineHeightMultiple doubleValue];
+            }
+            attrs = @{ NSFontAttributeName: shadowText.font,
+                       NSParagraphStyleAttributeName : paragraphStyle };
+        } else {
+            attrs = @{ NSFontAttributeName: shadowText.font };
+        }
+        shadowText.dicAttributes = attrs;
     }
     CGSize computedSize = [text sizeWithAttributes:shadowText.dicAttributes];
     MTTSize result;

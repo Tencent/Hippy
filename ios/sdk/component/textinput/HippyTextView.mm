@@ -76,6 +76,11 @@
 @end
 
 @interface HippyTextView () <HippyUITextViewResponseDelegate>
+
+/// ParagraphStyle for TextView and PlaceholderView,
+/// used for lineHeight config and etc.
+@property (nonatomic, strong) NSMutableParagraphStyle *paragraphStyle;
+
 @end
 
 @implementation HippyTextView {
@@ -97,6 +102,10 @@
     CGSize _previousContentSize;
     BOOL _viewDidCompleteInitialLayout;
 }
+
+@dynamic lineHeight;
+@dynamic lineSpacing;
+@dynamic lineHeightMultiple;
 
 #pragma mark - Keyboard Events
 
@@ -322,11 +331,19 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         _placeholderView.scrollEnabled = NO;
         _placeholderView.editable = NO;
         _placeholderView.scrollsToTop = NO;
-        _placeholderView.attributedText = [[NSAttributedString alloc] initWithString:_placeholder attributes:@{
+        NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:_placeholder
+                                                                                    attributes:@{
             NSFontAttributeName: (_textView.font ? _textView.font : [self defaultPlaceholderFont]),
-            NSForegroundColorAttributeName: _placeholderTextColor
+            NSForegroundColorAttributeName: _placeholderTextColor 
         }];
+        if (self.paragraphStyle) {
+            // Apply paragraph style to the entire string
+            [attrStr addAttribute:NSParagraphStyleAttributeName
+                            value:self.paragraphStyle
+                            range:NSMakeRange(0, attrStr.length)];
+        }
         _placeholderView.textAlignment = _textView.textAlignment;
+        _placeholderView.attributedText = attrStr;
 
         [self insertSubview:_placeholderView belowSubview:_textView];
         [self updatePlaceholderVisibility];
@@ -339,6 +356,40 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
 
 - (void)setFont:(UIFont *)font {
     _textView.font = font;
+    [self updatePlaceholder];
+}
+
+- (void)setLineHeight:(NSNumber *)lineHeight {
+    // create paragraphStyle, update placeholder and textView
+    if (!self.paragraphStyle) {
+        self.paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    }
+    self.paragraphStyle.minimumLineHeight = [lineHeight doubleValue];
+    self.paragraphStyle.maximumLineHeight = [lineHeight doubleValue];
+    
+    [self updateParagraphAndFontStyleForTextView:_textView];
+    [self updatePlaceholder];
+}
+
+- (void)setLineSpacing:(NSNumber *)lineSpacing {
+    // create paragraphStyle, update placeholder and textView
+    if (!self.paragraphStyle) {
+        self.paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    }
+    self.paragraphStyle.lineSpacing = [lineSpacing doubleValue];
+    
+    [self updateParagraphAndFontStyleForTextView:_textView];
+    [self updatePlaceholder];
+}
+
+- (void)setLineHeightMultiple:(NSNumber *)lineHeightMultiple {
+    // create paragraphStyle, update placeholder and textView
+    if (!self.paragraphStyle) {
+        self.paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    }
+    self.paragraphStyle.lineHeightMultiple = [lineHeightMultiple doubleValue];
+    
+    [self updateParagraphAndFontStyleForTextView:_textView];
     [self updatePlaceholder];
 }
 
@@ -437,7 +488,8 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         NSInteger oldTextLength = _textView.text.length;
 
         _predictedText = text;
-        _textView.text = text;
+        // Use `attribuedText` instead of `text` to show paragraphStyle
+        _textView.attributedText = [self attributedTextAfterApplyingParagraphStyle:text];
         [self textViewDidChange:_textView];
         if (selection.empty) {
             // maintain cursor position relative to the end of the old text
@@ -497,6 +549,8 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         _textView.text = @"";
         [self updatePlaceholderVisibility];
     }
+    // update typingAttributes
+    [self updateTypingAttributes];
 }
 
 static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange, NSRange *secondRange) {
@@ -769,6 +823,45 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     if (_textView) {
         _textView.keyboardAppearance = UIKeyboardAppearanceDefault;
     }
+}
+
+#pragma mark - ParagraphStyle Related
+
+- (void)updateTypingAttributes {
+    if (self.paragraphStyle) {
+        // Set typingAttributes if needed
+        NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
+        attrs[NSParagraphStyleAttributeName] = self.paragraphStyle;
+        if (_textView.font) {
+            attrs[NSFontAttributeName] = _textView.font;
+        }
+        _textView.typingAttributes = attrs;
+    }
+}
+
+- (NSAttributedString *)attributedTextAfterApplyingParagraphStyle:(NSString *)text {
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:text];
+    
+    if (self.paragraphStyle) {
+        // add paragraph style to the entire string
+        [attributedString addAttribute:NSParagraphStyleAttributeName
+                                 value:self.paragraphStyle
+                                 range:NSMakeRange(0, attributedString.length)];
+    }
+    if (_textView.font) {
+        // add font style to the entire string
+        [attributedString addAttribute:NSFontAttributeName
+                                 value:_textView.font
+                                 range:NSMakeRange(0, attributedString.length)];
+    }
+    return attributedString;
+}
+
+- (void)updateParagraphAndFontStyleForTextView:(UITextView *)textView {
+    if (textView.text.length == 0) {
+        return;
+    }
+    textView.attributedText = [self attributedTextAfterApplyingParagraphStyle:textView.text];
 }
 
 @end
