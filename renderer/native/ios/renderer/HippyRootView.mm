@@ -26,6 +26,7 @@
 #import "UIView+Hippy.h"
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
+#import "Hippybridge+PerformanceAPI.h"
 #import "HippyUIManager.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyTouchHandler.h"
@@ -52,22 +53,34 @@ NSNumber *AllocRootViewTag(void) {
 
 @interface HippyRootContentView : HippyView <HippyInvalidating>
 
+/// Whether content has appeared
 @property (nonatomic, readonly) BOOL contentHasAppeared;
+/// The Touch handler of RootView
 @property (nonatomic, strong) HippyTouchHandler *touchHandler;
+/// timestamp of start
 @property (nonatomic, assign) int64_t startTimpStamp;
 
+/// Init Method
+/// - Parameters:
+///   - frame: frame
+///   - bridge: hippy bridge
+///   - hippyTag: root tag
+///   - sizeFlexibility: size flexibility for auto resize
 - (instancetype)initWithFrame:(CGRect)frame
                        bridge:(HippyBridge *)bridge
                      hippyTag:(NSNumber *)hippyTag
                sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility NS_DESIGNATED_INITIALIZER;
 
-@end
+/// Unvaliable, use designated initializer.
+- (instancetype)init NS_UNAVAILABLE;
+/// Unvaliable, use designated initializer.
++ (instancetype)new NS_UNAVAILABLE;
 
+@end
 
 #pragma mark - HippyRootView
 
 @interface HippyRootView () {
-    BOOL _contentHasAppeared;
     BOOL _hasBusinessBundleToLoad;
 }
 
@@ -409,17 +422,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     [super insertHippySubview:subview atIndex:atIndex];
-    // [_bridge.performanceLogger markStopForTag:HippyPLTTI];
     
     __weak __typeof(self)weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
         if (strongSelf && !strongSelf->_contentHasAppeared) {
             strongSelf->_contentHasAppeared = YES;
-            // int64_t cost = [strongSelf.bridge.performanceLogger durationForTag:HippyPLTTI];
+            static NSString *const kHippyContentAppearCostKey = @"cost";
+            [[(HippyRootView *)strongSelf.superview bridge] updatePerfRecordsOnRootContentDidAppear];
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
                                                                 object:self.superview userInfo:@{
-                // @"cost": @(cost)
+                kHippyContentAppearCostKey : @(CACurrentMediaTime() * 1000 - strongSelf.startTimpStamp)
             }];
         }
     });

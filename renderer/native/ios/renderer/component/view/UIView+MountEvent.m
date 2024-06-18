@@ -24,6 +24,7 @@
 #import "objc/runtime.h"
 #import "UIView+Hippy.h"
 #import "HippyRootView.h"
+#import "HippyBridge+PerformanceAPI.h"
 
 /// The FCP Notification Imp
 const NSNotificationName HippyFirstContentfulPaintEndNotification = @"HippyFirstContentfulPaintEndNotification";
@@ -127,6 +128,7 @@ MountEvent(setOnDetachedFromWindow, onDetachedFromWindow)
 - (void)sendFCPNotiIfNeeded:(UIView *)fcpView {
     if (nil == objc_getAssociatedObject(self, @selector(sendFCPNotiIfNeeded:))) {
         objc_setAssociatedObject(self, @selector(sendFCPNotiIfNeeded:), @(YES), OBJC_ASSOCIATION_RETAIN);
+        [self.bridge updatePerfRecordOnFirstContentfulPaintEnd];
         [NSNotificationCenter.defaultCenter postNotificationName:HippyFirstContentfulPaintEndNotification object:fcpView];
     }
 }

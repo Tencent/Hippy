@@ -241,10 +241,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _startTime = footstone::TimePoint::SystemNow();
         HippyLogInfo(@"HippyBridge init begin, self:%p", self);
         registerLogDelegateToHippyCore();
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewContentDidAppear:)
-                                                     name:HippyContentDidAppearNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onFirstContentfulPaintEnd:)
-                                                     name:HippyFirstContentfulPaintEndNotification object:nil];
+
         HippyExecuteOnMainThread(^{
             self->_isOSNightMode = [HippyDeviceBaseInfo isUIScreenInOSDarkMode];
             self.cachedDimensionsInfo = hippyExportedDimensions(self);
@@ -265,53 +262,6 @@ dispatch_queue_t HippyBridgeQueue() {
         HippyLogInfo(@"HippyBridge init end, self:%p", self);
     }
     return self;
-}
-
-- (void)rootViewContentDidAppear:(NSNotification *)noti {
-    UIView *rootView = [noti object];
-    if (rootView) {
-        auto viewRenderManager = [rootView renderManager];
-        if (_renderManager && _renderManager == viewRenderManager.lock()) {
-            std::shared_ptr<hippy::Scope> scope = _javaScriptExecutor.pScope;
-            if (!scope) {
-                return;
-            }
-            auto domManager = scope->GetDomManager().lock();
-            auto performance = scope->GetPerformance();
-            if (domManager && performance) {
-                auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
-                if (!entry) {
-                    return;
-                }
-                entry->SetHippyDomStart(domManager->GetDomStartTimePoint());
-                entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
-                entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint());
-                entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
-            }
-        }
-    }
-}
-
-- (void)onFirstContentfulPaintEnd:(NSNotification *)noti {
-    UIView *fcpView = [noti object];
-    if (fcpView) {
-        auto viewRenderManager = [fcpView renderManager];
-        if (_renderManager && _renderManager == viewRenderManager.lock()) {
-            std::shared_ptr<hippy::Scope> scope = _javaScriptExecutor.pScope;
-            if (!scope) {
-                return;
-            }
-            auto domManager = scope->GetDomManager().lock();
-            auto performance = scope->GetPerformance();
-            if (domManager && performance) {
-                auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
-                if (!entry) {
-                    return;
-                }
-                entry->SetHippyFirstContentfulPaintEnd(footstone::TimePoint::SystemNow());
-            }
-        }
-    }
 }
 
 - (void)dealloc {
