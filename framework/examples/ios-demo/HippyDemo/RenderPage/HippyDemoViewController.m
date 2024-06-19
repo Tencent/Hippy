@@ -36,10 +36,11 @@
 static NSString *const engineKey = @"Demo";
 
 static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-    static NSArray *logLevelMap = @[@"TRACE", @"INFO", @"WARN", @"ERROR", @"FATAL"];
+    static NSArray *logLevelMap;
     static NSDateFormatter *formatter;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        logLevelMap = @[@"TRACE", @"INFO", @"WARN", @"ERROR", @"FATAL"];
         formatter = [NSDateFormatter new];
         formatter.dateFormat = formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
     });
