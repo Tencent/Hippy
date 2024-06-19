@@ -17,14 +17,13 @@
 		5A60628334CE16EA4F8B1329 /* DemoNavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */; };
 		72328C3389BA8DD5E54D7D5F /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 46034630F6D4A25199673157 /* TurboConfig.m */; };
 		74C51526435B1AB788CBF991 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8AEAE8BF116954FB41BDF9 /* TurboBaseModule.mm */; };
+		7C8A07982ADCEE2D7C9EAED8 /* Pods_HippyDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */; };
 		8C009766BC90CAF781042636 /* PageCreationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E734E5A93F5B92EA4149B8D /* PageCreationViewController.m */; };
 		8D5E861571620B4DA80254C2 /* TTTGB-Medium.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2FA2A97C78628634C6AFC9A /* TTTGB-Medium.otf */; };
 		994E84462AD481034728A29D /* HippyPageCacheView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82BFD15025A6217FEE93CC45 /* HippyPageCacheView.m */; };
 		9C99A05896359E49AE9A8352 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F34E176169143334EDFC28 /* MyView.m */; };
 		9CF888F990C83ECD4F6C78AA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */; };
-		A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.mm */; };
-		B4CB9EEA2C501CCD508731F6 /* Pods_HippyDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25D66C0C95F43BF303761823 /* Pods_HippyDemo.framework */; };
-		B5E0049F9941EA38E80EC858 /* HippyDemoLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9D15F65FD369654F00146AD7 /* HippyDemoLoader.mm */; };
+		A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */; };
 		B8AA2B793BE43710EFC9D4DC /* TestModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = D2241406CEF00D2FF5938BB2 /* TestModule.mm */; };
 		BD5196B65EE0B712FDA2EB9B /* UIViewController+Title.m in Sources */ = {isa = PBXBuildFile; fileRef = C412B5D210F1E3359523628C /* UIViewController+Title.m */; };
 		C1A78F8868963E6C790472AA /* PageCreationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 25B65684EC9C9AF27BB04D21 /* PageCreationCell.xib */; };
@@ -63,16 +62,15 @@
 		1E1EECB72C2ACDCB192E6628 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = SOURCE_ROOT; };
 		1E734E5A93F5B92EA4149B8D /* PageCreationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageCreationViewController.m; sourceTree = "<group>"; };
 		25B65684EC9C9AF27BB04D21 /* PageCreationCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PageCreationCell.xib; sourceTree = "<group>"; };
-		25D66C0C95F43BF303761823 /* Pods_HippyDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HippyDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		263EFA7461EF8C6CCDF67C66 /* PageCreationCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageCreationCell.m; sourceTree = "<group>"; };
 		27E7AA75BF1236A4328285E7 /* HippyPageCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPageCache.m; sourceTree = "<group>"; };
 		28C2DA6A96B596294158B364 /* HippyDemoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDemoViewController.h; sourceTree = "<group>"; };
 		331F0D867F0DF450A84E4587 /* Pods-HippyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.debug.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HippyDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A2AA203AF38A01360BEFB2A /* HippyDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HippyDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		427F60D1B98DA953328F4E71 /* DemoBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoBaseViewController.h; sourceTree = "<group>"; };
 		46034630F6D4A25199673157 /* TurboConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
 		4708C41E8571123282E2B806 /* DemoBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoBaseViewController.m; sourceTree = "<group>"; };
-		4BCCCB3005CE328BD310C417 /* HippyDemoLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDemoLoader.h; sourceTree = "<group>"; };
 		53A0957F7CC6967C8F70403A /* PageManagerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageManagerViewController.h; sourceTree = "<group>"; };
 		5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6045C301C6CFDC6C2E87AA66 /* IconUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IconUtils.h; sourceTree = "<group>"; };
@@ -89,8 +87,7 @@
 		90F34E176169143334EDFC28 /* MyView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
 		91861A8DD9D692FEDF657D34 /* HomePageViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HomePageViewController.h; sourceTree = "<group>"; };
 		9ABAD8FCDB669A1A6F327CDB /* DebugCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DebugCell.h; sourceTree = "<group>"; };
-		9D15F65FD369654F00146AD7 /* HippyDemoLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyDemoLoader.mm; sourceTree = "<group>"; };
-		9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyDemoViewController.mm; sourceTree = "<group>"; };
+		9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDemoViewController.m; sourceTree = "<group>"; };
 		A066953E3614D26125F617EF /* HippyPageCacheContainerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPageCacheContainerView.m; sourceTree = "<group>"; };
 		B2FA2A97C78628634C6AFC9A /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B5A22F93EAA399DE400CED88 /* TestModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestModule.h; sourceTree = "<group>"; };
@@ -117,7 +114,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4CB9EEA2C501CCD508731F6 /* Pods_HippyDemo.framework in Frameworks */,
+				7C8A07982ADCEE2D7C9EAED8 /* Pods_HippyDemo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,7 +145,6 @@
 				57D9249C5EA211061816F73B /* RenderPage */,
 				09FA8898DDD429EC19584446 /* SettingsPage */,
 				529ECDFF8342B9C9D950B1FA /* turbomodule */,
-				260EEB3518979BB11CBFC5C8 /* vfsloader */,
 			);
 			path = HippyDemo;
 			sourceTree = "<group>";
@@ -162,15 +158,6 @@
 				EEE0C5F943248577555BFB26 /* SettingsViewController.m */,
 			);
 			path = SettingsPage;
-			sourceTree = "<group>";
-		};
-		260EEB3518979BB11CBFC5C8 /* vfsloader */ = {
-			isa = PBXGroup;
-			children = (
-				4BCCCB3005CE328BD310C417 /* HippyDemoLoader.h */,
-				9D15F65FD369654F00146AD7 /* HippyDemoLoader.mm */,
-			);
-			path = vfsloader;
 			sourceTree = "<group>";
 		};
 		37AC1BAC994661BA846D4236 /* Products */ = {
@@ -219,7 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				28C2DA6A96B596294158B364 /* HippyDemoViewController.h */,
-				9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.mm */,
+				9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */,
 			);
 			path = RenderPage;
 			sourceTree = "<group>";
@@ -259,7 +246,7 @@
 		C24B18F307439A018EC32537 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				25D66C0C95F43BF303761823 /* Pods_HippyDemo.framework */,
+				344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -381,8 +368,7 @@
 				369577C613161936EE28F52E /* DebugCell.m in Sources */,
 				5A5A9B087B27BD97E132C49E /* DemoBaseViewController.m in Sources */,
 				5A60628334CE16EA4F8B1329 /* DemoNavigationViewController.m in Sources */,
-				B5E0049F9941EA38E80EC858 /* HippyDemoLoader.mm in Sources */,
-				A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.mm in Sources */,
+				A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.m in Sources */,
 				D026B185E903AE8F958F8588 /* HippyPageCache.m in Sources */,
 				DF04004944D28CE1569D68EC /* HippyPageCacheContainerView.m in Sources */,
 				994E84462AD481034728A29D /* HippyPageCacheView.m in Sources */,
