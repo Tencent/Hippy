@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0-beta](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0-beta) (2024-06-19)
+
+
+### Features
+
+* **vue:** fix attribute inheritance style not empty ([#3868](https://github.com/Tencent/Hippy/issues/3868)) ([413e401](https://github.com/Tencent/Hippy/commit/413e40184262772029dbad02106c9e01fb486304))
+* **vue:** fix vue replace &nbsp ([b858402](https://github.com/Tencent/Hippy/commit/b858402a8cb2672005d96d15334dd8b9a32803cf))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 

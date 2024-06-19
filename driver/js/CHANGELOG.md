@@ -3,6 +3,77 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0-beta](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0-beta) (2024-06-19)
+
+
+### Bug Fixes
+
+* **action:** change project_artifact_snapshot name ([#3818](https://github.com/Tencent/Hippy/issues/3818)) ([48a64d9](https://github.com/Tencent/Hippy/commit/48a64d92c9c6a9f88e32f4c0f6ad2e373911235c))
+* **android:** correct move node impl with different pid ([e501e93](https://github.com/Tencent/Hippy/commit/e501e9334e5cecacd289ff0ab068c51887c24a07))
+* **android:** debugServerHost invalid setting ([#3841](https://github.com/Tencent/Hippy/issues/3841)) ([5ef587e](https://github.com/Tencent/Hippy/commit/5ef587eff9f72a6ee224f6ab9d30594a08f9653d))
+* **android:** getScreenShot bitmap width or height < 0 ([#3842](https://github.com/Tencent/Hippy/issues/3842)) ([e01ab9c](https://github.com/Tencent/Hippy/commit/e01ab9c48ed3783c582deb0b414e3a0a4a73a0ad))
+* **android:** image span draw transparent color when no src set ([2805d03](https://github.com/Tencent/Hippy/commit/2805d03737bd3c954147f77a32f24eedb919e55b))
+* **android:** remove onSystemUiVisibilityChange listener ([#3913](https://github.com/Tencent/Hippy/issues/3913)) ([fc6d506](https://github.com/Tencent/Hippy/commit/fc6d5064088b21b78d99906a13e5497b84c5409c))
+* **android:** resolve local ref overflow ([8ef9882](https://github.com/Tencent/Hippy/commit/8ef98824ad4e7fe02353c530901f309779d82464))
+* **android:** should updateExtra after create host view ([#3879](https://github.com/Tencent/Hippy/issues/3879)) ([dadf81a](https://github.com/Tencent/Hippy/commit/dadf81a8ed64ffafe9df629e2dff3d86d055db8c))
+* **android:** support use custom DisplayMetrics ([c6d9593](https://github.com/Tencent/Hippy/commit/c6d9593c9349fe8d91d8bd7f7842a275bc434880))
+* **android:** update react demo bundle ([#3825](https://github.com/Tencent/Hippy/issues/3825)) ([14dc634](https://github.com/Tencent/Hippy/commit/14dc63446179ff5f703ba9df71e7f32af1a5a853))
+* **core:** fix android scope crash ([#3906](https://github.com/Tencent/Hippy/issues/3906)) ([06806d9](https://github.com/Tencent/Hippy/commit/06806d98bf1ef00271c410ad2b563bb767066303))
+* **devtool:** fix muli devtool instance crash on android ([#3862](https://github.com/Tencent/Hippy/issues/3862)) ([60fd4eb](https://github.com/Tencent/Hippy/commit/60fd4eb13ec85e6de25fe8786737ebc5bc211ae4))
+* **dom:** missing render_info update before move operation ([07a533f](https://github.com/Tencent/Hippy/commit/07a533f7f0bffaa30c7a4cf3c7f082b0cb94cd58))
+* **dom:** optimized results not used in move operation ([fd05c64](https://github.com/Tencent/Hippy/commit/fd05c64949965d60b80261e0f9b6a46ad0d8ac31))
+* **ios:** add CSS name matching semantics to fontFamily of TextInput ([b6697c5](https://github.com/Tencent/Hippy/commit/b6697c53d99a7e91304371ee13203e1ff2969e2b))
+* **ios:** add null protection before invalid move operation ([fdce688](https://github.com/Tencent/Hippy/commit/fdce688d468a2f69eccbf787c645be41e7a701e9))
+* **ios:** add protection against null value exceptions ([a0ea9a0](https://github.com/Tencent/Hippy/commit/a0ea9a041cd46b9343ee6790c7e5e3f6c3f1c49c))
+* **ios:** add protection for targetContentOffset outliers in ViewPager ([5562c00](https://github.com/Tencent/Hippy/commit/5562c0058d483b9bf3bd199e507295d819471e84))
+* **ios:** add ResponseSenderBlock type support for component parameter ([672fb57](https://github.com/Tencent/Hippy/commit/672fb57ef61c539e7e8e9247a34d0ee3ba93cde3))
+* **ios:** animation nullptr crash ([64294cd](https://github.com/Tencent/Hippy/commit/64294cd2d2301637dcc01114bf6c60ed3759f8ad))
+* **ios:** dangling pointer in HippyBridge when unload after invalidate ([76ca98f](https://github.com/Tencent/Hippy/commit/76ca98f3dc1de00b4adf68b93acc76bef74194e1))
+* **ios:** debug reload module not working ([7910930](https://github.com/Tencent/Hippy/commit/7910930318933dd08a4efb86e9f5054a3ee3278e))
+* **ios:** eliminate Devtools connection warning ([6a7abc8](https://github.com/Tencent/Hippy/commit/6a7abc8731196b6389002c810c23872534c40c3a))
+* **ios:** error in move node operation of ViewPager ([dad8fb0](https://github.com/Tencent/Hippy/commit/dad8fb0fa4936cc44f452c5f97b60112b71edeb9))
+* **ios:** fix move node index bug ([c63f221](https://github.com/Tencent/Hippy/commit/c63f221eb806d0823a160494575b5d45a30fe0b6))
+* **ios:** image capInsets and getSize's bug ([bd66bac](https://github.com/Tencent/Hippy/commit/bd66bac67b45e7246821b207e6c2d1cff5bb2a6d))
+* **ios:** lineHeight attribute was incorrectly inherited ([bb11f1d](https://github.com/Tencent/Hippy/commit/bb11f1d09be49e33d3480fda37492d94437717a6))
+* **ios:** loss of touch end or cancel event in multi-finger scenarios ([#3892](https://github.com/Tencent/Hippy/issues/3892)) ([7ab2ec1](https://github.com/Tencent/Hippy/commit/7ab2ec170ff1d5469cd36abde41f4ba728727cc6))
+* **ios:** move nodes op non same parent support ([2fdf1b2](https://github.com/Tencent/Hippy/commit/2fdf1b2126f1a67ea419501d053ae33ff1e0d12b))
+* **ios:** multi-threading issue in createView ([a21c4dc](https://github.com/Tencent/Hippy/commit/a21c4dcb750d512373cf6d7070e45ddb75110ced))
+* **ios:** null exception when converting JSI object to dictionary ([4249f3a](https://github.com/Tencent/Hippy/commit/4249f3ab616bdc38a92e4109ce761ba1ab16e471))
+* **ios:** performance api of FP not working ([a63ddf3](https://github.com/Tencent/Hippy/commit/a63ddf3f3aef710cbc3c82b6a4ad645917ed4bec))
+* **ios:** potential thread race in HippyJSExecutor ([201807b](https://github.com/Tencent/Hippy/commit/201807b967643c1e18213183d8614f73a3c15207))
+* **ios:** resolve non-standard object type when creating js object ([2d9837b](https://github.com/Tencent/Hippy/commit/2d9837bf7add5a55ecb6c5b377bc54f32549d5b3))
+* **ios:** resolve null pointer crash when loadBundleURL ([1735774](https://github.com/Tencent/Hippy/commit/1735774bdd0f4f90cf658bd9b96fea6d970be867))
+* **ios:** tiny issue of  TransactionListener in UIManager ([#3821](https://github.com/Tencent/Hippy/issues/3821)) ([d62d926](https://github.com/Tencent/Hippy/commit/d62d926f6aa448de55cd2af34fc2b0a03e86c6fd))
+* **perf:** fix OnResourceLoadEnd crash ([#3888](https://github.com/Tencent/Hippy/issues/3888)) ([948927c](https://github.com/Tencent/Hippy/commit/948927c098c6476f6c3a95fb045bbb57ab5c67e6))
+* **perf:** fix OnResourceLoadEnd crash ([#3895](https://github.com/Tencent/Hippy/issues/3895)) ([1537ba8](https://github.com/Tencent/Hippy/commit/1537ba887e5588ef0b1ff249e21381a1d9f7333c))
+* **vue-next:** fix vue-next package dependencies issue ([3aa1ca4](https://github.com/Tencent/Hippy/commit/3aa1ca4b0562ceb34e858598bb7ae9625b4c7b31))
+
+
+### Features
+
+* **action:** fix v8 build error ([3ce42a2](https://github.com/Tencent/Hippy/commit/3ce42a2a4e4ee5c23ff044b8804596c0f5654c00))
+* **action:** install ninja-build before v8 build ([#3864](https://github.com/Tencent/Hippy/issues/3864)) ([00cd292](https://github.com/Tencent/Hippy/commit/00cd292175296ee2ac5041c3219f437d6f130b8d))
+* **action:** update v8 compiler action ([4d72166](https://github.com/Tencent/Hippy/commit/4d7216678a306ee0fae9febaaf0f134bdce45011))
+* **android:** add orientationChange event for Modal ([#3861](https://github.com/Tencent/Hippy/issues/3861)) ([3a3364c](https://github.com/Tencent/Hippy/commit/3a3364c384a26c9baac2616a4d6c1c5a45a68158))
+* **doc:** update hippy3.0 vue-next version ([8f72368](https://github.com/Tencent/Hippy/commit/8f723687d4997159f96e9f2d3171e4d25b84ac2a))
+* **doc:** update js doc ([c6b8b0f](https://github.com/Tencent/Hippy/commit/c6b8b0f4e6cdb5aa38737f49f916c58ad60f13f8))
+* **doc:** update js doc for 3.3 ([473cf27](https://github.com/Tencent/Hippy/commit/473cf27cce2d32433366f20ab325f2318de33c06))
+* **dom:** fix vue3 list item position  ([#3826](https://github.com/Tencent/Hippy/issues/3826)) ([c723688](https://github.com/Tencent/Hippy/commit/c7236883db0346cf28c57979d7f4462b55cf0963))
+* **ios:** add custom image loader support ([#3830](https://github.com/Tencent/Hippy/issues/3830)) ([5e4e889](https://github.com/Tencent/Hippy/commit/5e4e889b1e744a799b6987de8a88a2f28f6e2832))
+* **ios:** unify HippyBridge's notifications and improve compatibility ([f6458d1](https://github.com/Tencent/Hippy/commit/f6458d1455335b792a1c0c7c50d702c61d715f80))
+* **ios:** update ViewPager's pageIndex automatically after data changes ([#3857](https://github.com/Tencent/Hippy/issues/3857)) ([4769911](https://github.com/Tencent/Hippy/commit/4769911d34c54ca1b7d45b9fd46fdab6a1e38353))
+* **v8:** add version log for v8 ([70c4626](https://github.com/Tencent/Hippy/commit/70c46264e5f444b811f148acc271a96ac5408f10))
+* **vue-next:** add update event operation ([#3837](https://github.com/Tencent/Hippy/issues/3837)) ([c950b00](https://github.com/Tencent/Hippy/commit/c950b00120194034c14ca7698eddb8aedf84e320))
+* **vue-next:** add vue3 css cache ([3041367](https://github.com/Tencent/Hippy/commit/3041367a5a6c1f159aabacea24d885e4cf7d9877))
+* **vue-next:** modify comment ([a413feb](https://github.com/Tencent/Hippy/commit/a413febe5f7e727ea5ca8368b555125b8f7e8337))
+* **vue-next:** update comments ([f24440b](https://github.com/Tencent/Hippy/commit/f24440b3f0854bd2fcf77e6f823636ff92f76016))
+* **vue:** fix attribute inheritance style not empty ([#3868](https://github.com/Tencent/Hippy/issues/3868)) ([413e401](https://github.com/Tencent/Hippy/commit/413e40184262772029dbad02106c9e01fb486304))
+* **vue:** fix vue replace &nbsp ([b858402](https://github.com/Tencent/Hippy/commit/b858402a8cb2672005d96d15334dd8b9a32803cf))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 

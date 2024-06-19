@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-router",
-  "version": "unspecified",
+  "version": "3.3.0-beta",
   "description": "Official router for hippy-vue",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

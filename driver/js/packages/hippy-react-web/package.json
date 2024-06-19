@@ -1,6 +1,6 @@
 {
   "name": "@hippy/react-web",
-  "version": "unspecified",
+  "version": "3.3.0-beta",
   "description": "Web Adapter for Hippy React",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
