@@ -95,6 +95,24 @@
 
 3. hippy-react animation 事件监听不再支持 onRNfqbAnimationXX  兼容写法，统一用 onHippyAnimationXX 或者 onAnimationXX
 
+4. hippy-react 初始化动画对象（new Animation），需要在根节点渲染之后，否则会因为 Dom Manager未创建提示报错
+   hippy-vue/hippy-vue-next 初始化动画对象（new Animation），需要在 Vue.start 回调之后，否则会因为 Dom Manager未创建提示报错
+
+5. hippy-react/hippy-vue/hippy-vue-next 如果使用了颜色属性的渐变动画，需要显示指定 color 单位，添加 valueType：'color' 字段，例如：
+
+``` javascript
+    animation: new Animation({
+        startValue: 'red',
+        toValue: 'yellow',
+        valueType: 'color', // 颜色动画需显式指定color单位
+        duration: 1000,
+        delay: 0,
+        mode: 'timing',
+        timingFunction: 'linear',
+    }),
+```
+
+
 # 验证关注点
 
 一、Hippy 3.0 前端架构升级主要有如下改动点：
