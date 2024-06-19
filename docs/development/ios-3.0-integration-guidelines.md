@@ -57,16 +57,32 @@
     target TargetName do
 
         # 在此指定步骤1中记录的hippy版本号，可访问 https://github.com/Tencent/Hippy/releases 查询更多版本信息
-        pod 'hippy', '3.2.0'
+        pod 'hippy', '3.3.0'
 
     end
     ```
 
-    !> 请注意，由于hippy3.x中大量使用了 #include"path/to/file.h" 的方式引用C++头文件，因此如果开启了 CocoaPods 的 framework 格式集成选项（即Podfile中 `use_frameworks!` 配置为开启状态），则必须在 Podfile 文件中加入如下配置：
+    > 请注意，由于hippy3.x中使用了 #include "path/to/file.h" 的方式引用C++头文件，因此如果开启了 CocoaPods 的 framework 格式集成选项（即Podfile中 `use_frameworks!` 配置为开启状态），则必须在 Podfile 文件中加入如下配置：
 
     ```text
     # 工程开启 use_frameworks! 后需添加此环境变量，用于hippy使用正确设置项
     ENV["use_frameworks"] = "true"
+    ```
+
+    > 同时，Podfile中必须采用指定hippy地址的集成方式，以使环境变量生效，更新后的Podfile如下所示：
+
+    ```text
+    use_frameworks!
+    platform :ios, '11.0'
+    ENV["use_frameworks"] = "true" # for hippy3
+
+    # TargetName大概率是您的项目名称
+    target TargetName do
+
+        # 在此指定步骤1中记录的hippy版本号，可访问 https://github.com/Tencent/Hippy/releases 查询更多版本信息
+        pod 'hippy', :git => 'https://github.com/Tencent/Hippy.git', :tag => '3.3.0'
+
+    end
     ```
 
     > 默认配置下，Hippy SDK使用布局引擎是[Taitank](https://github.com/Tencent/Taitank)，JS引擎是系统的`JavaScriptCore`，如需切换使用其他引擎，请参照下文[《引擎切换（可选）》](#四引擎切换可选)一节调整配置。
@@ -75,6 +91,13 @@
 
     ```shell
     pod install
+    ```
+
+    > 请注意，由于 `hippy.podspec` 中依赖 `CMake` 编译部分 `C++` 模块，因此请确保您的开发环境已经正确配置。具体来说，您需要确保已经安装了 `Xcode` 命令行工具。可以在命令行中执行如下指令来安装必要的工具：
+
+    ```shell
+    sudo xcode-select --install
+    sudo xcode-select --reset
     ```
 
     命令成功执行后，使用 CocoaPods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
