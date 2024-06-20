@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0) (2024-06-20)
+
+
+### Bug Fixes
+
+* **vue-next:** fix vue-next package dependencies issue ([3aa1ca4](https://github.com/Tencent/Hippy/commit/3aa1ca4b0562ceb34e858598bb7ae9625b4c7b31))
+
+
+### Features
+
+* **dom:** fix vue3 list item position  ([#3826](https://github.com/Tencent/Hippy/issues/3826)) ([c723688](https://github.com/Tencent/Hippy/commit/c7236883db0346cf28c57979d7f4462b55cf0963))
+* **vue-next:** add update event operation ([#3837](https://github.com/Tencent/Hippy/issues/3837)) ([c950b00](https://github.com/Tencent/Hippy/commit/c950b00120194034c14ca7698eddb8aedf84e320))
+* **vue-next:** add vue3 css cache ([3041367](https://github.com/Tencent/Hippy/commit/3041367a5a6c1f159aabacea24d885e4cf7d9877))
+* **vue-next:** modify comment ([a413feb](https://github.com/Tencent/Hippy/commit/a413febe5f7e727ea5ca8368b555125b8f7e8337))
+* **vue-next:** update comments ([f24440b](https://github.com/Tencent/Hippy/commit/f24440b3f0854bd2fcf77e6f823636ff92f76016))
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 **Note:** Version bump only for package @hippy/vue-next
