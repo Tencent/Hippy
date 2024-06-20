@@ -219,6 +219,10 @@ function translateToNativeEventName(name) {
   return name.replace(/^(on)?/g, '').toLocaleLowerCase();
 }
 
+function isTextNode(targetNode: ElementNode) {
+  return (targetNode && targetNode.nativeName === 'Text') || ['p', 'span'].indexOf(targetNode.tagName) !== -1;
+}
+
 export {
   relativeToRefType,
   NATIVE_EVENT_INDEX,
@@ -241,4 +245,5 @@ export {
   getElementFromFiber,
   unCacheFiberNodeOnIdle,
   recursivelyUnCacheFiberNode,
+  isTextNode,
 };
