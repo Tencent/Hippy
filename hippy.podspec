@@ -192,7 +192,8 @@ Pod::Spec.new do |s|
     }
     driver.dependency 'hippy/Footstone'
     driver.dependency 'hippy/Dom'
-  end 
+    driver.dependency 'hippy/VFS'
+  end
 
   s.subspec 'Dom' do |dom|
     dom_source_files = Array['dom/include/**/*.h', 'dom/src/**/*.cc']
