@@ -197,6 +197,13 @@ function deepCopy(data, hash = new WeakMap()) {
   return newData;
 }
 
+function isStyleNotEmpty(style: string | number | null | undefined) {
+  if (typeof style === 'string') {
+    return style.trim() !== '';
+  }
+  return style !== null && style !== undefined;
+}
+
 export {
   trace,
   warn,
@@ -214,4 +221,5 @@ export {
   convertImgUrl,
   isHostComponent,
   deepCopy,
+  isStyleNotEmpty,
 };

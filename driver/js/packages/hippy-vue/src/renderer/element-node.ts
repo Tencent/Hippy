@@ -294,6 +294,8 @@ interface OptionMapType {
   notUpdateStyle?: boolean;
 }
 
+const inheritProperties = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
 export class ElementNode extends ViewNode {
   // id
   public id = '';
@@ -493,7 +495,12 @@ export class ElementNode extends ViewNode {
       const styleValue = batchStyles[styleKey];
       this.setStyle(styleKey, styleValue, true);
     });
-    updateChild(this);
+    const needInherit = inheritProperties.some(prop => Object.prototype.hasOwnProperty.call(batchStyles, prop));
+    if (needInherit) {
+      updateWithChildren(this);
+    } else {
+      updateChild(this);
+    }
   }
 
   public setStyle(rawKey: string, rawValue: NeedToTyped, notToNative = false) {
@@ -556,7 +563,11 @@ export class ElementNode extends ViewNode {
     }
     this.style[key] = value;
     if (!notToNative) {
-      updateChild(this);
+      if (inheritProperties.indexOf(key) >= 0) {
+        updateWithChildren(this);
+      } else {
+        updateChild(this);
+      }
     }
   }
 

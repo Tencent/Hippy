@@ -1,5 +1,8 @@
 <template>
-  <div class="p-demo">
+   <div
+    class="p-demo"
+    :style="{color: topColor}"
+    >
     <div>
       <label>不带样式：</label>
       <p
@@ -64,6 +67,13 @@
         @click="changeTextShadow"
       >
         这里是文字灰色阴影，点击可改变颜色
+      </p>
+      <p
+        class="p-demo-7 p-demo-content"
+        :style="textShadow"
+        @click="changeTextColor"
+      >
+        验证属性继承更改效果，点击可改变整体颜色
       </p>
       <label>文本字符间距</label>
       <p
@@ -376,6 +386,7 @@ import Vue from 'vue';
 export default {
   data() {
     return {
+      topColor: 'grey',
       Platform: Vue.Native.Platform,
       textShadowIndex: 0,
       isClicked: false,
@@ -416,6 +427,10 @@ export default {
         textShadowRadius: 3,
         textShadowColor: this.textShadowIndex % 2 === 1 ? 'red' : 'grey',
       };
+      this.textShadowIndex += 1;
+    },
+    changeTextColor() {
+      this.topColor = this.textShadowIndex % 2 === 1 ? 'red' : 'grey',
       this.textShadowIndex += 1;
     },
     // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2

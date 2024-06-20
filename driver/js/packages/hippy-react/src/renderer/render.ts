@@ -28,8 +28,9 @@ import {
   translateToNativeEventName,
   eventHandlerType,
   nativeEventMap,
+  isTextNode,
 } from '../utils/node';
-import { deepCopy, isDev, isTraceEnabled, trace, warn } from '../utils';
+import { deepCopy, isDev, isTraceEnabled, trace, warn, isStyleNotEmpty } from '../utils';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -260,6 +261,23 @@ function renderToNative(
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
+  let resultStyle = targetNode.style;
+  if (targetNode.parentNode instanceof Element) {
+    // Implement attribute inheritance logic
+    // Only inherit color and font properties
+    const parentNodeStyle = Object.assign({}, targetNode.parentNode.inheritStyle, targetNode.parentNode.style);
+    const { style, inheritStyle } = targetNode;
+    const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+
+    styleAttributes.forEach((attribute) => {
+      if (!isStyleNotEmpty(style[attribute]) && isStyleNotEmpty(parentNodeStyle[attribute])) {
+        inheritStyle[attribute] = parentNodeStyle[attribute];
+      }
+    });
+    if (isTextNode(targetNode)) {
+      resultStyle = Object.assign({}, inheritStyle, style);
+    }
+  }
   // Translate to native node
   const nativeNode: HippyTypes.NativeNode = {
     id: targetNode.nodeId,
@@ -267,7 +285,7 @@ function renderToNative(
     name: targetNode.nativeName,
     props: {
       ...getNativeProps(targetNode),
-      style: targetNode.style,
+      style: resultStyle,
     },
     tagName: targetNode.tagName,
   };

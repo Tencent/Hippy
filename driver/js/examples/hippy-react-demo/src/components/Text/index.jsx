@@ -77,6 +77,7 @@ export default class TextExpo extends React.Component {
         x: 1,
         y: 1,
       },
+      scrollColor: 'gray',
       numberOfLines: 2,
       ellipsizeMode: undefined,
     };
@@ -85,6 +86,7 @@ export default class TextExpo extends React.Component {
     this.incrementLine = this.incrementLine.bind(this);
     this.decrementLine = this.decrementLine.bind(this);
     this.changeMode = this.changeMode.bind(this);
+    this.changeColor = this.changeColor.bind(this);
   }
 
   incrementFontSize() {
@@ -129,19 +131,24 @@ export default class TextExpo extends React.Component {
     this.setState({ ellipsizeMode: mode });
   }
 
+  changeColor() {
+    this.setState({ scrollColor: 'red' });
+  }
+
   changeBreakStrategy(breakStrategy) {
     this.setState({ breakStrategy });
   }
 
   render() {
-    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy } = this.state;
+    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy,
+      scrollColor } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
       </View>
     );
     return (
-      <ScrollView style={{ paddingHorizontal: 10 }}>
+      <ScrollView style={{ padding: 10, color: scrollColor, fontFamily: 'TTTGB' }}>
         {renderTitle('shadow')}
         <View style={[styles.itemContent, { height: 60 }]} onClick={() => {
           let textShadowColor = 'red';
@@ -173,10 +180,13 @@ export default class TextExpo extends React.Component {
           <Text style={[styles.normalText, { color: 'rgb(228,61,36)' }]}>This is red</Text>
         </View>
         {renderTitle('fontSize')}
-        <View style={[styles.itemContent, { height: 100 }]}>
+        <View style={[styles.itemContent, { height: 125, color: 'blue', fontFamily: 'not-support-fontstyle' }]}>
           <Text style={[styles.normalText, { fontSize }]}>
             { `Text fontSize is ${fontSize}` }
           </Text>
+          <View style={styles.button} onClick={this.changeColor}>
+            <Text style={styles.buttonText}>切换字体颜色</Text>
+          </View>
           <View style={styles.button} onClick={this.incrementFontSize}>
             <Text style={styles.buttonText}>放大字体</Text>
           </View>
