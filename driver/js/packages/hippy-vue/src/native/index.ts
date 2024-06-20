@@ -55,7 +55,7 @@ import {
   setCacheNodeStyle,
   getCacheNodeStyle,
 } from '../util/node-style';
-import { isStyleMatched, preCacheNode } from '../util/node';
+import { isHippyTextNode, isStyleMatched, preCacheNode } from '../util/node';
 import { fromAstNodes, SelectorsMap } from '../style';
 import { CallbackType, NeedToTyped } from '../types/native';
 import ElementNode from '../renderer/element-node';
@@ -442,9 +442,11 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
   }
 
   let style;
+  let resultStyle;
   if (notUpdateStyle) {
     // No need to update CSS, use cache directly
     style = getCacheNodeStyle(targetNode.nodeId);
+    resultStyle = style;
   } else {
     // Recalculate CSS styles style
     style = getElemCss(targetNode);
@@ -453,9 +455,10 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
     // CSS preprocessing
     getBeforeRenderToNative()();
 
+    // style before merge inherit style
+    const originStyle = Object.assign({}, style);
+
     if (targetNode.parentNode) {
-      // Implement attribute inheritance logic
-      // Only inherit color and font properties
       const parentNodeStyle = getCacheNodeStyle(targetNode.parentNode.nodeId);
       const styleAttributes = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
 
@@ -465,14 +468,18 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
         }
       });
     }
-    // use defaultNativeStyle later to avoid incorrect compute style from inherit node
-    // in beforeRenderToNative hook
-    if (targetNode.meta.component.defaultNativeStyle) {
-      style = { ...targetNode.meta.component.defaultNativeStyle, ...style };
-    }
 
     // Cache css result
     setCacheNodeStyle(targetNode.nodeId, style);
+
+    // style after merge inherit style
+    resultStyle = isHippyTextNode(targetNode) ? style : originStyle;
+
+    // use defaultNativeStyle later to avoid incorrect compute style from inherit node
+    // in beforeRenderToNative hook
+    if (targetNode.meta.component.defaultNativeStyle) {
+      style = { ...targetNode.meta.component.defaultNativeStyle, ...resultStyle };
+    }
   }
   // Translate to native node
   const nativeNode: NeedToTyped = {
@@ -481,14 +488,14 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
     name: targetNode.meta.component.name,
     props: {
       ...getNativeProps(targetNode),
-      style,
+      style: resultStyle,
     },
     tagName: targetNode.tagName,
   };
 
   processModalView(nativeNode);
-  parseViewComponent(targetNode, nativeNode, style);
-  parseTextInputComponent(targetNode, style);
+  parseViewComponent(targetNode, nativeNode, resultStyle);
+  parseTextInputComponent(targetNode, resultStyle);
   // Convert to real native event
   const eventNode: NeedToTyped = getEventNode(targetNode);
   let printedNode: NeedToTyped = undefined;
