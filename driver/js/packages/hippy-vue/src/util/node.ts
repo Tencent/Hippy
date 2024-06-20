@@ -137,6 +137,10 @@ const RelativeToRefType = {
   AFTER: 1,
 };
 
+function isHippyTextNode(targetNode) {
+  return targetNode.meta?.component && targetNode.meta.component.name === 'Text';
+}
+
 export {
   RelativeToRefType,
   findNotToSkipNode,
@@ -148,4 +152,5 @@ export {
   getNodeById,
   unCacheNodeOnIdle,
   isStyleMatched,
+  isHippyTextNode,
 };
