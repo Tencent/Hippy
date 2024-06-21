@@ -478,7 +478,7 @@ function renderToNative(rootViewId, targetNode, refInfo = {}, notUpdateStyle = f
     // use defaultNativeStyle later to avoid incorrect compute style from inherit node
     // in beforeRenderToNative hook
     if (targetNode.meta.component.defaultNativeStyle) {
-      style = { ...targetNode.meta.component.defaultNativeStyle, ...resultStyle };
+      resultStyle = { ...targetNode.meta.component.defaultNativeStyle, ...resultStyle };
     }
   }
   // Translate to native node
