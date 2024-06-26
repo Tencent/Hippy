@@ -39,6 +39,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 public class StickyHeaderHelper extends OnScrollListener implements
         ViewTreeObserver.OnGlobalLayoutListener {
 
+    private static final String TAG = "StickyHeaderHelper";
     private static final int INVALID_POSITION = -1;
     private final com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener headerAttachListener;
     private RecyclerViewBase recyclerView;
@@ -75,8 +76,12 @@ public class StickyHeaderHelper extends OnScrollListener implements
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         int newStickyPosition = getStickyItemPosition();
         if (currentStickPos != newStickyPosition) {
-            detachSticky();
-            attachSticky(newStickyPosition);
+            try {
+                detachSticky();
+                attachSticky(newStickyPosition);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "sticky handle error: " + e.getMessage());
+            }
         }
         offsetSticky();
     }
@@ -93,7 +98,7 @@ public class StickyHeaderHelper extends OnScrollListener implements
      * 如果当前stickHolder和新的stickyHolder 不一样，那么把当前的stickyHolder删除掉，并还原HeaderView的Translation
      */
     public void detachSticky() {
-        if (headerOrgViewHolder != null) {
+        if (headerOrgViewHolder != null && this.currentHeaderView != null) {
             removeViewFromParent(this.currentHeaderView);
             currentHeaderView.setTranslationY(0);
             currentHeaderView.setTranslationX(0);
