@@ -94,6 +94,11 @@ export default {
   underline-color-android: #40b883;
   placeholder-text-color: #666;
   align-self: center;
+  /* you can use line-height/line-spacing/line-height-multiple */
+  /* to control the space between lines in multi-line input. (iOS only for now) */
+  line-height: 30;
+  /*line-spacing: 20;*/
+  /*line-height-multiple: 1.5;*/
 }
 
 #demo-textarea .output {

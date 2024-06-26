@@ -15,6 +15,9 @@
 		4CBD515D378CB81C4C164353 /* DebugCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01F6A42F861E597779C10D09 /* DebugCell.xib */; };
 		5A5A9B087B27BD97E132C49E /* DemoBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4708C41E8571123282E2B806 /* DemoBaseViewController.m */; };
 		5A60628334CE16EA4F8B1329 /* DemoNavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */; };
+		719D92A12C2AF85E00E26339 /* HippyDemo.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 719D92A02C2AF85E00E26339 /* HippyDemo.xctestplan */; };
+		719D92A32C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 719D92A22C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan */; };
+		719D92A52C2AFC6300E26339 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 719D92A42C2AFC6300E26339 /* PrivacyInfo.xcprivacy */; };
 		72328C3389BA8DD5E54D7D5F /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 46034630F6D4A25199673157 /* TurboConfig.m */; };
 		74C51526435B1AB788CBF991 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8AEAE8BF116954FB41BDF9 /* TurboBaseModule.mm */; };
 		7C8A07982ADCEE2D7C9EAED8 /* Pods_HippyDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */; };
@@ -76,6 +79,9 @@
 		6045C301C6CFDC6C2E87AA66 /* IconUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IconUtils.h; sourceTree = "<group>"; };
 		6094F1F80FD70F9F9853EE15 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6C482239432657812B25A59A /* SettingsInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsInfo.h; sourceTree = "<group>"; };
+		719D92A02C2AF85E00E26339 /* HippyDemo.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HippyDemo.xctestplan; sourceTree = "<group>"; };
+		719D92A22C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "hippy-Unit-UnitTests.xctestplan"; sourceTree = "<group>"; };
+		719D92A42C2AFC6300E26339 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../../../PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		73A859BDC9C3189E38FD082F /* MyViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
 		7CC425F89818837D6DA1053A /* PageManagerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageManagerViewController.m; sourceTree = "<group>"; };
 		7DB34DDF95B8E9C9AD87FFE4 /* Pods-HippyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.release.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.release.xcconfig"; sourceTree = "<group>"; };
@@ -172,6 +178,9 @@
 			isa = PBXGroup;
 			children = (
 				5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */,
+				719D92A02C2AF85E00E26339 /* HippyDemo.xctestplan */,
+				719D92A22C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan */,
+				719D92A42C2AFC6300E26339 /* PrivacyInfo.xcprivacy */,
 				1E1EECB72C2ACDCB192E6628 /* res */,
 				F3C07E1B41FBB8BA0834C6BC /* fonts */,
 				0632A691275B124491E38EA7 /* HippyDemo */,
@@ -327,7 +336,10 @@
 				9CF888F990C83ECD4F6C78AA /* Assets.xcassets in Resources */,
 				4CBD515D378CB81C4C164353 /* DebugCell.xib in Resources */,
 				36842E3B36BB6E52267BED0F /* HomePageView.xib in Resources */,
+				719D92A12C2AF85E00E26339 /* HippyDemo.xctestplan in Resources */,
 				C1A78F8868963E6C790472AA /* PageCreationCell.xib in Resources */,
+				719D92A32C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan in Resources */,
+				719D92A52C2AFC6300E26339 /* PrivacyInfo.xcprivacy in Resources */,
 				EBC6C5A3C36A88BF4DAD00BE /* res in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -63,6 +63,14 @@
 @property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, strong) UIColor *textColor;
+
+/// ParagraphStyles - lineHeight
+@property (nonatomic, strong) NSNumber *lineHeight;
+/// ParagraphStyles - lineSpacing
+@property (nonatomic, strong) NSNumber *lineSpacing;
+/// ParagraphStyles - lineHeightMultiple
+@property (nonatomic, strong) NSNumber *lineHeightMultiple;
+
 @property (nonatomic, copy) HippyDirectEventBlock onChangeText;
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;
 @property (nonatomic, copy) HippyDirectEventBlock onFocus;
