@@ -22,14 +22,14 @@
 
 2. Maven 集成
 
-   - 查询 [Maven Central Hippy 版本](https://search.maven.org/search?q=com.tencent.hippy)，其中 `hippy-release` 为 `release` 版本，`hippy-debug` 为 `debug` 版本，`hippy-snapshot` 为 `beta` 版本
+   - 查询 [Maven Central Hippy 版本](https://search.maven.org/search?q=com.tencent.hippy)
 
    - 配置 build.gradle
 
      下面引用Hippy最新版本号可在上述链接中查询
 
    ```java
-    implementation 'com.tencent.hippy:hippy-snapshot:3.2.0'
+    implementation 'com.tencent.hippy:release:3.3.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
