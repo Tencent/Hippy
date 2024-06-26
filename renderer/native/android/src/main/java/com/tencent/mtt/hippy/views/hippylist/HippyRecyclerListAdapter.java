@@ -252,7 +252,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             return 0;
         }
         if (node.shouldSticky()) {
-            return STICK_ITEM_VIEW_TYPE_BASE - position;
+            return STICK_ITEM_VIEW_TYPE_BASE - node.getItemViewType();
         }
         return node.getItemViewType();
     }
