@@ -60,7 +60,6 @@
 - (void)performTextUpdate;
 
 @property (nonatomic, copy) NSString *value;
-@property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *defaultValue;
 @property (nonatomic, strong) UIColor *textColor;
 

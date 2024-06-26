@@ -282,21 +282,23 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 }
 
 - (void)updateContentSize {
-    CGSize size = (CGSize) { _scrollView.frame.size.width, INFINITY };
-    size.height = [_textView sizeThatFits:size].height;
-    _scrollView.contentSize = size;
-    _textView.frame = (CGRect) { CGPointZero, size };
-
-    if (_viewDidCompleteInitialLayout && _onContentSizeChange && !CGSizeEqualToSize(_previousContentSize, size)) {
-        _previousContentSize = size;
+    CGSize contentSize = (CGSize) { CGRectGetMaxX(_scrollView.frame), INFINITY };
+    contentSize.height = [_textView sizeThatFits:contentSize].height;
+    
+    if (_viewDidCompleteInitialLayout && _onContentSizeChange && !CGSizeEqualToSize(_previousContentSize, contentSize)) {
+        _previousContentSize = contentSize;
         _onContentSizeChange(@{
             @"contentSize": @ {
-                @"height": @(size.height),
-                @"width": @(size.width),
+                @"height": @(contentSize.height),
+                @"width": @(contentSize.width),
             },
             @"target": self.hippyTag,
         });
     }
+    
+    CGSize viewSize = CGSizeMake(CGRectGetWidth(_scrollView.frame), MAX(contentSize.height, self.frame.size.height));
+    _scrollView.contentSize = viewSize;
+    _textView.frame = (CGRect) { CGPointZero, viewSize };
 }
 
 - (void)updatePlaceholder {
@@ -741,14 +743,6 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
 
 - (void)setValue:(NSString *)value {
     [self setText:value];
-}
-
-- (void)setFontSize:(NSNumber *)fontSize {
-    _fontSize = fontSize;
-
-    if ([fontSize floatValue] > 0) {
-        [self setFont:[UIFont systemFontOfSize:[fontSize floatValue]]];
-    }
 }
 
 - (void)setDefaultValue:(NSString *)defaultValue {
