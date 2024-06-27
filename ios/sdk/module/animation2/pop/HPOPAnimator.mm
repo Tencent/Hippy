@@ -532,20 +532,20 @@ static void stopAndCleanup(HPOPAnimator *self, POPAnimatorItemRef item, bool sho
   pthread_mutex_unlock(&_lock);
 }
 
-- (void)_renderTime:(CFTimeInterval)time items:(std::list<POPAnimatorItemRef>)items
+- (void)_renderTime:(CFTimeInterval)time items:(std::list<POPAnimatorItemRef> &)items
 {
   // begin transaction with actions disabled
   [CATransaction begin];
   [CATransaction setDisableActions:YES];
+    
+  // lock
+  pthread_mutex_lock(&_lock);
 
   // notify delegate
   NSArray *allDelegates = _animatorDelegates.allObjects;
   for (id<HPOPAnimatorDelegate> delegate in allDelegates) {
     [delegate animatorWillAnimate:self];
   }
-
-  // lock
-  pthread_mutex_lock(&_lock);
 
   // count active animations
   const NSUInteger count = items.size();
