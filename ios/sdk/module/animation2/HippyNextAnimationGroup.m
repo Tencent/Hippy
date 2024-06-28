@@ -51,13 +51,26 @@
 {
     NSInteger _currentRepeatCount;
     BOOL _isGroupPausedCausedReturn;
+    
+    // Member variables used to correct the animation time.
+    CFTimeInterval _totalDuration;
+    CFTimeInterval _lastStartTime;
+    CFTimeInterval _cumulativeFrameDelay;
 }
 
 - (BOOL)prepareForTarget:(id)target withType:(NSString *)type {
+    CFTimeInterval totalDuration = 0.0;
+    HippyNextAnimation *previousAnimation;
+    
     for (HippyNextAnimation *anim in self.animations) {
         if (![anim prepareForTarget:target withType:type]) {
             return NO;
         }
+        if (!previousAnimation || (previousAnimation && anim.isFollow)) {
+            totalDuration += anim.duration;
+        }
+        previousAnimation = anim;
+        _totalDuration = totalDuration;
     }
     return YES;
 }
@@ -93,6 +106,28 @@
                 }
             }];
         } else {
+            // Record the time when the animation group started,
+            // and correct the time offset if needed.
+            if (!previousAnimation) {
+                if (_lastStartTime > DBL_EPSILON) {
+                    // Since CADisplayLink's callback is used to execute the animation group,
+                    // there is a frame time interval between each animation.
+                    // In order to ensure the time synchronization between different animation groups,
+                    // we need to continuously correct possible time deviations to avoid the accumulation of time differences.
+                    CFTimeInterval refreshPeriod = HPOPAnimator.sharedAnimator.refreshPeriod;
+                    if (refreshPeriod > DBL_EPSILON) {
+                        if (_cumulativeFrameDelay <= DBL_EPSILON) {
+                            for (HippyNextAnimation *animation in self.animations) {
+                                _cumulativeFrameDelay += ceil(animation.duration / refreshPeriod) * refreshPeriod - animation.duration;
+                            }
+                        }
+                        
+                        CFTimeInterval timeOffset = (CACurrentMediaTime() - _lastStartTime) - (_totalDuration + _cumulativeFrameDelay);
+                        animation.beginTime = timeOffset;
+                    }
+                }
+                _lastStartTime = CACurrentMediaTime();
+            }
             [animation startAnimation];
         }
         previousAnimation = animation;
