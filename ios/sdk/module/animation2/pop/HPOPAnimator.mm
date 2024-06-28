@@ -532,6 +532,20 @@ static void stopAndCleanup(HPOPAnimator *self, POPAnimatorItemRef item, bool sho
   pthread_mutex_unlock(&_lock);
 }
 
+// Custom hash function for dispatch_queue_t
+struct DispatchQueueHash {
+  std::size_t operator()(const dispatch_queue_t& queue) const {
+    return std::hash<void*>()((__bridge void*)queue);
+  }
+};
+
+// Custom equality function for dispatch_queue_t
+struct DispatchQueueEqual {
+  bool operator()(const dispatch_queue_t& lhs, const dispatch_queue_t& rhs) const {
+    return lhs == rhs;
+  }
+};
+
 - (void)_renderTime:(CFTimeInterval)time items:(std::list<POPAnimatorItemRef> &)items
 {
   // begin transaction with actions disabled
@@ -559,14 +573,33 @@ static void stopAndCleanup(HPOPAnimator *self, POPAnimatorItemRef item, bool sho
     // unlock
     pthread_mutex_unlock(&_lock);
 
-    for (auto item : vector) {
-        if (dispatch_queue_t queue = item->animation.customRunningQueue) {
-            dispatch_async(queue, ^{
-                [self _renderTime:time item:item];
-            });
-        } else {
-            [self _renderTime:time item:item];
+    // Group items by their customRunningQueue
+    std::unordered_map<dispatch_queue_t, std::vector<POPAnimatorItemRef>, DispatchQueueHash, DispatchQueueEqual> queueMap;
+    for (auto& item : vector) {
+      dispatch_queue_t queue = item->animation.customRunningQueue;
+      queueMap[queue].emplace_back(std::move(item));
+    }
+    
+    // Dispatch tasks for each queue
+    for (auto& pair : queueMap) {
+      dispatch_queue_t queue = pair.first;
+      auto itemList = pair.second; // Make a copy of the item list to capture in the block
+      
+      if (queue) {
+        __weak __typeof(self) weakSelf = self;
+        dispatch_async(queue, ^{
+          __strong __typeof(weakSelf)strongSelf = weakSelf;
+          if (strongSelf) {
+            for (auto& item : itemList) {
+              [strongSelf _renderTime:time item:item];
+            }
+          }
+        });
+      } else {
+        for (auto& item : itemList) {
+          [self _renderTime:time item:item];
         }
+      }
     }
   }
 
