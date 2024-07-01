@@ -327,6 +327,8 @@ import icon from './qb_icon_new.png';
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| lineSpacingExtra      | 多行显示时每行文字的额外行高，如果style里设置的lineHeight属性该属性设置无效   | `number`                                                    | `Android` |
+| lineSpacingMultiplier | 多行显示时每行文字的行高乘积系数，如果style里设置的lineHeight属性该属性设置无效    | `number`                                                   | `Android` |
 | numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web、Web-Renderer、Voltron` |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS、Voltron` |

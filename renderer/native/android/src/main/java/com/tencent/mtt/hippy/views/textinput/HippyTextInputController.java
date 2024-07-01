@@ -37,23 +37,30 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.component.text.TextRenderSupplier;
+import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.TextInputRenderNode;
 import com.tencent.renderer.node.TextVirtualNode;
+import com.tencent.renderer.node.ViewPagerRenderNode;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CALL_UI_FUNCTION_ERR;
 
@@ -61,6 +68,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CA
 public class HippyTextInputController extends HippyViewController<HippyTextInput> {
 
     public static final String CLASS_NAME = "TextInput";
+    public final static int UNSET = -1;
     public static final int DEFAULT_TEXT_COLOR = Color.BLACK;
     public static final int DEFAULT_PLACEHOLDER_TEXT_COLOR = Color.GRAY;
     private static final String TAG = "HippyTextInputControlle";
@@ -82,6 +90,17 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     @Override
     protected View createViewImpl(Context context) {
         return new HippyTextInput(context);
+    }
+
+    @Override
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazy) {
+        return new TextInputRenderNode(rootId, id, props, className, controllerManager, isLazy);
+    }
+
+    @Override
+    public void onBatchComplete(@NonNull HippyTextInput textInput) {
+        textInput.onBatchComplete();
     }
 
     @Override
@@ -274,6 +293,24 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     @HippyControllerProps(name = "letterSpacing", defaultType = HippyControllerProps.NUMBER)
     public void setLetterSpacing(HippyTextInput view, float letterSpacing) {
         view.setLetterSpacing(PixelUtil.dp2px(letterSpacing));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_HEIGHT, defaultType = HippyControllerProps.NUMBER)
+    public void setLineHeight(HippyTextInput view, int lineHeight) {
+        view.setTextLineHeight(Math.round(PixelUtil.dp2px(lineHeight)));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER, defaultNumber = UNSET)
+    public void setLineSpacingMultiplier(HippyTextInput view, float lineSpacingMultiplier) {
+        view.setLineSpacingMultiplier(lineSpacingMultiplier);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0.0f)
+    public void setLineSpacingExtra(HippyTextInput view, float lineSpacingExtra) {
+        view.setLineSpacingExtra(PixelUtil.dp2px(lineSpacingExtra));
     }
 
     @HippyControllerProps(name = "value", defaultType = HippyControllerProps.STRING)

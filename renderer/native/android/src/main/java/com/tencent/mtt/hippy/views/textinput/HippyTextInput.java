@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.views.textinput;
 
+import static com.tencent.mtt.hippy.views.textinput.HippyTextInputController.UNSET;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.BlendMode;
@@ -83,10 +85,15 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private final ViewTreeObserver.OnGlobalLayoutListener mKeyboardEventObserver = this::checkSendKeyboardEvent;
     private boolean mIsKeyBoardShow = false;    //键盘是否在显示
     private boolean mIsKeyBoardShowBySelf = false;
+    private boolean mShouldUpdateTypeface = false;
+    private boolean mShouldUpdateLineHeight = false;
     private int mListenerFlag = 0;
     private ReactContentSizeWatcher mReactContentSizeWatcher = null;
     private boolean mItalic = false;
     private int mFontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+    private float mLineSpacingMultiplier = 1.0f;
+    private float mLineSpacingExtra = 0.0f;
+    private int mLineHeight = 0;
     @Nullable
     private String mFontFamily;
     private Paint mTextPaint;
@@ -175,6 +182,48 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             gravityVertical = mDefaultGravityVertical;
         }
         setGravity((getGravity() & ~Gravity.VERTICAL_GRAVITY_MASK) | gravityVertical);
+    }
+
+    public void setLineSpacingMultiplier(float spacingMultiplier) {
+        if (Float.compare(spacingMultiplier, mLineSpacingMultiplier) != 0) {
+            mLineSpacingMultiplier = spacingMultiplier;
+            mShouldUpdateLineHeight = true;
+        }
+    }
+
+    public void setLineSpacingExtra(float spacingExtra) {
+        if (Float.compare(spacingExtra, mLineSpacingExtra) != 0) {
+            mLineSpacingExtra = spacingExtra;
+            mShouldUpdateLineHeight = true;
+        }
+    }
+
+    public void setTextLineHeight(int lineHeight) {
+        if (Float.compare(lineHeight, mLineHeight) != 0) {
+            mLineHeight = lineHeight;
+            mShouldUpdateLineHeight = true;
+        }
+    }
+
+    public void onBatchComplete() {
+        if (mShouldUpdateTypeface) {
+            updateTypeface();
+            mShouldUpdateTypeface = false;
+        }
+        if (!mShouldUpdateLineHeight) {
+            return;
+        }
+        if (mLineHeight > 0) {
+            final int fontHeight = getPaint().getFontMetricsInt(null);
+            // Make sure we don't setLineSpacing if it's not needed to avoid unnecessary redraw.
+            if (mLineHeight != fontHeight) {
+                // Set lineSpacingExtra by the difference of lineSpacing with lineHeight
+                setLineSpacing(mLineHeight - fontHeight, 1f);
+            }
+        } else {
+            setLineSpacing(mLineSpacingExtra, mLineSpacingMultiplier);
+        }
+        mShouldUpdateLineHeight = false;
     }
 
     @Override
@@ -702,14 +751,14 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     public void setFontStyle(String style) {
         if (TypeFaceUtil.TEXT_FONT_STYLE_ITALIC.equals(style) != mItalic) {
             mItalic = !mItalic;
-            updateTypeface();
+            mShouldUpdateTypeface = true;
         }
     }
 
     public void setFontFamily(String family) {
         if (!Objects.equals(mFontFamily, family)) {
             mFontFamily = family;
-            updateTypeface();
+            mShouldUpdateTypeface = true;
         }
     }
 
@@ -731,7 +780,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         }
         if (fontWeight != mFontWeight) {
             mFontWeight = fontWeight;
-            updateTypeface();
+            mShouldUpdateTypeface = true;
         }
     }
 
