@@ -78,6 +78,7 @@
  Funnel methods for category additions.
  */
 - (void)addAnimation:(HPOPAnimation *)anim forObject:(id)obj key:(NSString *)key;
+- (void)addAnimations:(NSArray<HPOPAnimation *> *)anims forObjects:(NSArray<id> *)objs andKeys:(NSArray<NSString *> *)keys;
 - (void)removeAllAnimationsForObject:(id)obj;
 - (void)removeAnimationForObject:(id)obj key:(NSString *)key;
 - (NSArray *)animationKeysForObject:(id)obj;

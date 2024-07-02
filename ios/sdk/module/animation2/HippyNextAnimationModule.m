@@ -26,6 +26,7 @@
 #import "HippyNextAnimation.h"
 #import "HippyNextAnimationGroup.h"
 #import "HippyShadowView.h"
+#import "HPOPAnimatorPrivate.h"
 
 
 @interface HippyNextAnimationModule () <HPOPAnimationDelegate, HPOPAnimatorDelegate, HippyNextAnimationControlDelegate>
@@ -39,6 +40,15 @@
 
 /// whether should relayout on next frame
 @property (atomic, assign) BOOL shouldCallUIManagerToUpdateLayout;
+
+/// AnimationGroup synchronization - lock
+@property (nonatomic, strong) NSLock *groupAnimSyncLock;
+/// AnimationGroup synchronization - pending animations dictionary in AnimationGroup
+/// Key: hash of queue, Value: HippyNextAnimation array
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSMutableArray<HippyNextAnimation *> *> *pendingStartGroupAnimations;
+/// AnimationGroup synchronization - states of all queues
+/// Key: hash of queue, Value: should sync state
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSNumber * > *shouldFlushPendingAnimsInNextSync;
 
 @end
 
@@ -70,6 +80,9 @@ HIPPY_EXPORT_MODULE(AnimationModule)
         _paramsByHippyTag = [NSMutableDictionary dictionary];
         _paramsByAnimationId = [NSMutableDictionary dictionary];
         _updatedPropsForNextFrameDict = [NSMutableDictionary dictionary];
+        _groupAnimSyncLock = [[NSLock alloc] init];
+        _pendingStartGroupAnimations = [NSMutableDictionary dictionary];
+        _shouldFlushPendingAnimsInNextSync = [NSMutableDictionary dictionary];
         [HPOPAnimator.sharedAnimator addAnimatorDelegate:self];
     }
     return self;
@@ -372,6 +385,31 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     }
 }
 
+- (void)addAnimInGroupToPendingStartList:(HippyNextAnimation *)anim {
+    // run in mainQueue or anim.customRunningQueue
+    NSNumber *queueKey = @([anim.customRunningQueue?:dispatch_get_main_queue() hash]);
+    
+    // lock
+    [self.groupAnimSyncLock lock];
+    
+    // get pending animations array and state for current queue
+    BOOL shouldFlush = [[self.shouldFlushPendingAnimsInNextSync objectForKey:queueKey] boolValue];
+    NSMutableArray *pendings = [self.pendingStartGroupAnimations objectForKey:queueKey];
+    if (!pendings) {
+        pendings = [NSMutableArray arrayWithObject:anim];
+        self.pendingStartGroupAnimations[queueKey] = pendings;
+    } else {
+        [pendings addObject:anim];
+    }
+    
+    // update state
+    if (!shouldFlush) {
+        self.shouldFlushPendingAnimsInNextSync[queueKey] = @(YES);
+    }
+    
+    // unlock
+    [self.groupAnimSyncLock unlock];
+}
 
 #pragma mark - HPOPAnimatorDelegate
 
@@ -385,6 +423,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
         __weak __typeof(self)weakSelf = self;
         [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
             __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
             [strongSelf->_updatedPropsForNextFrameDict enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key,
                                                                                            NSDictionary * _Nonnull obj,
                                                                                            BOOL * _Nonnull stop) {
@@ -396,6 +437,45 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
         }];
         self.shouldCallUIManagerToUpdateLayout = NO;
     }
+}
+
+- (void)animatorDidAnimate:(HPOPAnimator *)animator inCustomQueue:(dispatch_queue_t)queue {
+    // call from main and custom queue
+    NSNumber *queueKey = @(queue.hash);
+    
+    // lock
+    [self.groupAnimSyncLock lock];
+    
+    // get sync state for current queue
+    BOOL shouldFlush = [[self.shouldFlushPendingAnimsInNextSync objectForKey:queueKey] boolValue];
+    if (shouldFlush) {
+        [self.shouldFlushPendingAnimsInNextSync removeObjectForKey:queueKey];
+        
+        // flush pending animations
+        __weak __typeof(self)weakSelf = self;
+        dispatch_async(queue ?: dispatch_get_main_queue(), ^{
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
+            
+            // flush pending animations
+            [strongSelf.groupAnimSyncLock lock];
+            NSMutableArray<HippyNextAnimation *> *pendingAnims = [strongSelf.pendingStartGroupAnimations objectForKey:queueKey];
+            [strongSelf.groupAnimSyncLock unlock];
+            
+            NSMutableArray<id> *targetObjects = [NSMutableArray arrayWithCapacity:pendingAnims.count];
+            for (HippyNextAnimation *anim in pendingAnims) {
+                [targetObjects addObject:anim.targetObject];
+            }
+            
+            [[HPOPAnimator sharedAnimator] addAnimations:pendingAnims forObjects:targetObjects andKeys:nil];
+            [pendingAnims removeAllObjects];
+        });
+    }
+    
+    // unlock
+    [self.groupAnimSyncLock unlock];
 }
 
 
