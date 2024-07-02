@@ -593,11 +593,20 @@ struct DispatchQueueEqual {
             for (auto& item : itemList) {
               [strongSelf _renderTime:time item:item];
             }
+            // notify delegate for custom queue anims
+            for (id<HPOPAnimatorDelegate> delegate in allDelegates) {
+              [delegate animatorDidAnimate:self inCustomQueue:queue];
+            }
           }
         });
       } else {
         for (auto& item : itemList) {
           [self _renderTime:time item:item];
+        }
+        // notify delegate for main queue anims
+        queue = dispatch_get_main_queue();
+        for (id<HPOPAnimatorDelegate> delegate in allDelegates) {
+          [delegate animatorDidAnimate:self inCustomQueue:queue];
         }
       }
     }
@@ -758,6 +767,67 @@ struct DispatchQueueEqual {
   // support animation re-use, reset all animation state
   POPAnimationGetState(anim)->reset(true);
 
+  // update display link
+  updateDisplayLink(self);
+
+  // unlock
+  pthread_mutex_unlock(&_lock);
+
+  // schedule runloop processing of pending animations
+  [self _scheduleProcessPendingList];
+}
+
+- (void)addAnimations:(NSArray<HPOPAnimation *> *)anims 
+           forObjects:(NSArray<id> *)objs
+              andKeys:(NSArray<NSString *> *)keys
+{
+  if (!anims.count || (anims.count != objs.count)) {
+    return;
+  }
+    
+  if (keys.count > 0 && (objs.count != keys.count)) {
+    NSAssert(NO, @"keys number should match objs");
+    return;
+  }
+    
+  // lock
+  pthread_mutex_lock(&_lock);
+  
+  for (NSUInteger index = 0; index < anims.count; index++) {
+    HPOPAnimation *anim = anims[index];
+    id obj = objs[index];
+    NSString *key = keys ? keys[index] : [[NSUUID UUID] UUIDString];
+    
+    // get key, animation dict associated with object
+    NSMutableDictionary *keyAnimationDict = (__bridge id)CFDictionaryGetValue(_dict, (__bridge void *)obj);
+    
+    // update associated animation state
+    if (nil == keyAnimationDict) {
+      keyAnimationDict = [NSMutableDictionary dictionary];
+      CFDictionarySetValue(_dict, (__bridge void *)obj, (__bridge void *)keyAnimationDict);
+    } else {
+      // if the animation instance already exists, avoid cancelling only to restart
+      HPOPAnimation *existingAnim = keyAnimationDict[key];
+      if (existingAnim) {
+        if (existingAnim == anim) {
+          continue;
+        }
+        [self removeAnimationForObject:obj key:key cleanupDict:NO];
+      }
+    }
+    keyAnimationDict[key] = anim;
+    
+    // create entry after potential removal
+    POPAnimatorItemRef item(new POPAnimatorItem(obj, key, anim));
+    
+    // add to list and pending list
+    _list.push_back(item);
+    _pendingList.push_back(item);
+    
+    // support animation re-use, reset all animation state
+    POPAnimationGetState(anim)->reset(true);
+  }
+  
   // update display link
   updateDisplayLink(self);
 

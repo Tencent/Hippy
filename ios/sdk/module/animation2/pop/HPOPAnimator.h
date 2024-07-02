@@ -79,13 +79,18 @@
 @protocol HPOPAnimatorDelegate <NSObject>
 
 /**
- @abstract Called on each frame before animation application.
+ @abstract Called every frame before the animation is executed, only on the main thread.
  */
 - (void)animatorWillAnimate:(HPOPAnimator *)animator;
 
 /**
- @abstract Called on each frame after animation application.
+ @abstract Called every frame after the animation is executed, only on the main thread.
  */
 - (void)animatorDidAnimate:(HPOPAnimator *)animator;
+
+/**
+ @abstract Called every frame after the animation is executed, along with queue information
+ */
+- (void)animatorDidAnimate:(HPOPAnimator *)animator inCustomQueue:(dispatch_queue_t)queue;
 
 @end
