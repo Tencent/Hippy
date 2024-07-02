@@ -33,6 +33,16 @@
     return [objc_getAssociatedObject(self, _cmd) boolValue];
 }
 
+- (void)startAnimationInGroupForFirstFire:(BOOL)isFirstFire {
+    if (isFirstFire) {
+        [self startAnimation];
+    } else {
+        // In order to ensure the time synchronization between different animation groups,
+        // We need to make sure the animations are executed at the same time.
+        [self.controlDelegate addAnimInGroupToPendingStartList:self];
+    }
+}
+
 @end
 
 #pragma mark -
@@ -51,26 +61,13 @@
 {
     NSInteger _currentRepeatCount;
     BOOL _isGroupPausedCausedReturn;
-    
-    // Member variables used to correct the animation time.
-    CFTimeInterval _totalDuration;
-    CFTimeInterval _lastStartTime;
-    CFTimeInterval _cumulativeFrameDelay;
 }
 
 - (BOOL)prepareForTarget:(id)target withType:(NSString *)type {
-    CFTimeInterval totalDuration = 0.0;
-    HippyNextAnimation *previousAnimation;
-    
     for (HippyNextAnimation *anim in self.animations) {
         if (![anim prepareForTarget:target withType:type]) {
             return NO;
         }
-        if (!previousAnimation || (previousAnimation && anim.isFollow)) {
-            totalDuration += anim.duration;
-        }
-        previousAnimation = anim;
-        _totalDuration = totalDuration;
     }
     return YES;
 }
@@ -97,38 +94,23 @@
         _isGroupPausedCausedReturn = YES;
         return;
     }
-    __block HippyNextAnimation *previousAnimation;
+    HippyNextAnimation *previousAnimation;
     for (HippyNextAnimation *animation in self.animations) {
         if (animation.isFollow && previousAnimation) {
             [previousAnimation setCompletionBlock:^(HPOPAnimation *anim, BOOL finished) {
                 if (finished) {
-                    [animation startAnimation];
+                    [animation startAnimationInGroupForFirstFire:NO];
                 }
             }];
         } else {
-            // Record the time when the animation group started,
-            // and correct the time offset if needed.
             if (!previousAnimation) {
-                if (_lastStartTime > DBL_EPSILON) {
-                    // Since CADisplayLink's callback is used to execute the animation group,
-                    // there is a frame time interval between each animation.
-                    // In order to ensure the time synchronization between different animation groups,
-                    // we need to continuously correct possible time deviations to avoid the accumulation of time differences.
-                    CFTimeInterval refreshPeriod = HPOPAnimator.sharedAnimator.refreshPeriod;
-                    if (refreshPeriod > DBL_EPSILON) {
-                        if (_cumulativeFrameDelay <= DBL_EPSILON) {
-                            for (HippyNextAnimation *animation in self.animations) {
-                                _cumulativeFrameDelay += ceil(animation.duration / refreshPeriod) * refreshPeriod - animation.duration;
-                            }
-                        }
-                        
-                        CFTimeInterval timeOffset = (CACurrentMediaTime() - _lastStartTime) - (_totalDuration + _cumulativeFrameDelay);
-                        animation.beginTime = timeOffset;
-                    }
-                }
-                _lastStartTime = CACurrentMediaTime();
+                // Use repeatCount to determine whether the AnimationSet is executed for the first time.
+                // If it is not the first time, use the synchronization mechanism
+                // to ensure that the progress of different animation groups started at the same time is synchronized.
+                [animation startAnimationInGroupForFirstFire:(repeatCount == self.repeatCount)];
+            } else {
+                [animation startAnimationInGroupForFirstFire:NO];
             }
-            [animation startAnimation];
         }
         previousAnimation = animation;
     }

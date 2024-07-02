@@ -48,6 +48,12 @@ typedef NS_ENUM(NSInteger, HippyNextAnimationValueType) {
 /// request for updating layout
 - (void)requestUpdateUILayout:(HippyNextAnimation *)anim withNextFrameProp:(nullable NSDictionary *)nextFrameProp;
 
+/// Add animation to pending start list 
+///
+/// To ensure that the animation in AnimationGroup starts simultaneously.
+/// - Parameter anim: HippyNextAnimation instance
+- (void)addAnimInGroupToPendingStartList:(HippyNextAnimation *)anim;
+
 @end
 
 
