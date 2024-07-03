@@ -465,7 +465,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
             [strongSelf.groupAnimSyncLock unlock];
             
             NSMutableArray<id> *targetObjects = [NSMutableArray arrayWithCapacity:pendingAnims.count];
+            CFTimeInterval now = CACurrentMediaTime();
             for (HippyNextAnimation *anim in pendingAnims) {
+                anim.beginTime = now + anim.delayTime;
                 [targetObjects addObject:anim.targetObject];
             }
             

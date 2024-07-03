@@ -87,8 +87,11 @@ static HippyNetInfoIntenal *instance = nil;
 
 static NSString *radioAccessNameIn(CTTelephonyNetworkInfo *networkInfo) {
     if (@available(iOS 13.0, *)) {
-        if (networkInfo.dataServiceIdentifier) {
-            return [networkInfo.serviceCurrentRadioAccessTechnology objectForKey:networkInfo.dataServiceIdentifier];
+        // CTTelephonyNetwork has some multi-threading problems for now
+        // https://developer.apple.com/forums/thread/683362
+        NSString *identifier = networkInfo.dataServiceIdentifier;
+        if (identifier) {
+            return [networkInfo.serviceCurrentRadioAccessTechnology objectForKey:identifier];
         }
         return nil;
     } else {
