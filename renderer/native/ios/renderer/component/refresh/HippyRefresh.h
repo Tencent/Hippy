@@ -23,6 +23,9 @@
 #import <UIKit/UIKit.h>
 #import "NativeRenderTouchesView.h"
 
+
+#define HIPPY_REFRESH_ANIM_DURATION  0.2 // Default expand or collapse animation time
+
 typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
     HippyRefreshStatusIdle,
     HippyRefreshStatusPulling,
@@ -38,6 +41,7 @@ typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
 
 @end
 
+/// Base class of HeaderRefresh and FooterRefresh
 @interface HippyRefresh : NativeRenderTouchesView {
 @protected
     __weak UIScrollView *_scrollView;
