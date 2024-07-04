@@ -71,7 +71,7 @@
     }
     switch (status) {
         case HippyRefreshStatusIdle: {
-            [UIView animateWithDuration:.2f animations:^{
+            [UIView animateWithDuration:HIPPY_REFRESH_ANIM_DURATION animations:^{
                 UIEdgeInsets insets = self.scrollView.contentInset;
                 self.scrollView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, 0, insets.right);
             } completion:^(BOOL finished) {
@@ -84,7 +84,7 @@
                 CGFloat maxOffset = _scrollView.contentSize.height - height + CGRectGetHeight(self.bounds);
                 height = currentOffset - maxOffset + height;
             }
-            [UIView animateWithDuration:.2f animations:^{
+            [UIView animateWithDuration:HIPPY_REFRESH_ANIM_DURATION animations:^{
                 UIEdgeInsets insets = self.scrollView.contentInset;
                 self.scrollView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, height, insets.right);
             } completion:^(BOOL finished) {
@@ -106,10 +106,10 @@
 }
 
 - (void)refresh {
-    [UIView animateWithDuration:.2f animations:^{
+    [UIView animateWithDuration:HIPPY_REFRESH_ANIM_DURATION animations:^{
         CGPoint bottomOffset
             = CGPointMake(0, self.scrollView.contentSize.height - self.scrollView.bounds.size.height + self.scrollView.contentInset.bottom);
-        [self.scrollView setContentOffset:bottomOffset animated:YES];
+        self.scrollView.contentOffset = bottomOffset;
     } completion:^(BOOL finished) {
         self.status = HippyRefreshStatusStartLoading;
     }];
