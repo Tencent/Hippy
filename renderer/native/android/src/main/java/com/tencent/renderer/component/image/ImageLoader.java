@@ -64,7 +64,9 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     @Override
     public void saveImageToCache(@NonNull ImageDataSupplier data) {
-        mImagePool.release((ImageDataHolder) data);
+        if (data.isCacheable()) {
+            mImagePool.release((ImageDataHolder) data);
+        }
     }
 
     private void doListenerCallback(@NonNull final ImageRequestListener listener,
@@ -81,16 +83,13 @@ public class ImageLoader implements ImageLoaderAdapter {
             @Nullable final ImageDataHolder imageHolder,
             @Nullable String errorMessage) {
         final String error = (errorMessage != null) ? errorMessage : "";
-        return new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<ImageRequestListener> listeners = mListenersMap.get(urlKey);
-                mListenersMap.remove(urlKey);
-                if (listeners != null && listeners.size() > 0) {
-                    for (ImageRequestListener listener : listeners) {
-                        if (listener != null) {
-                            doListenerCallback(listener, imageHolder, error);
-                        }
+        return () -> {
+            ArrayList<ImageRequestListener> listeners = mListenersMap.get(urlKey);
+            mListenersMap.remove(urlKey);
+            if (listeners != null && listeners.size() > 0) {
+                for (ImageRequestListener listener : listeners) {
+                    if (listener != null) {
+                        doListenerCallback(listener, imageHolder, error);
                     }
                 }
             }
@@ -104,20 +103,26 @@ public class ImageLoader implements ImageLoaderAdapter {
         String errorMessage = null;
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
-                == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE && bytes != null) {
-            imageHolder = new ImageDataHolder(url, urlKey, width, height);
-            try {
-                imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
-                // Should check the request data returned from the host, if the data is
-                // invalid, the request is considered to have failed
-                if (!imageHolder.checkImageData()) {
+                == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
+            if (dataHolder.bitmap != null) {
+                imageHolder = new ImageDataHolder(url, urlKey, dataHolder.bitmap, width, height);
+            } else if (bytes != null) {
+                imageHolder = new ImageDataHolder(url, urlKey, width, height);
+                try {
+                    imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
+                    // Should check the request data returned from the host, if the data is
+                    // invalid, the request is considered to have failed
+                    if (!imageHolder.checkImageData()) {
+                        imageHolder = null;
+                        errorMessage = "Image data decoding failed!";
+                    }
+                } catch (NativeRenderException e) {
+                    e.printStackTrace();
                     imageHolder = null;
-                    errorMessage = "Image data decoding failed!";
+                    errorMessage = e.getMessage();
                 }
-            } catch (NativeRenderException e) {
-                e.printStackTrace();
-                imageHolder = null;
-                errorMessage = e.getMessage();
+            } else {
+                errorMessage = dataHolder.errorMessage;
             }
         } else {
             errorMessage = dataHolder.errorMessage;
@@ -133,15 +138,12 @@ public class ImageLoader implements ImageLoaderAdapter {
 
     private void handleRequestProgress(final long total, final long loaded,
             @NonNull final ImageDataKey urlKey) {
-        Runnable progressRunnable = new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<ImageRequestListener> listeners = mListenersMap.get(urlKey);
-                if (listeners != null) {
-                    for (ImageRequestListener listener : listeners) {
-                        if (listener != null) {
-                            listener.onRequestProgress(total, loaded);
-                        }
+        Runnable progressRunnable = () -> {
+            ArrayList<ImageRequestListener> listeners = mListenersMap.get(urlKey);
+            if (listeners != null) {
+                for (ImageRequestListener listener : listeners) {
+                    if (listener != null) {
+                        listener.onRequestProgress(total, loaded);
                     }
                 }
             }
@@ -169,24 +171,23 @@ public class ImageLoader implements ImageLoaderAdapter {
         ResourceDataHolder dataHolder = mVfsManager.fetchResourceSync(url, null, requestParams);
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
-                != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null) {
+                != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
             return null;
         }
-        ImageDataHolder imageHolder = ImageDataHolder.obtain();
-        if (imageHolder != null) {
-            imageHolder.init(url, null, width, height);
-        } else {
-            imageHolder = new ImageDataHolder(url, width, height);
-        }
-        try {
-            imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
-            if (imageHolder.checkImageData()) {
-                return imageHolder;
+        if (dataHolder.bitmap != null) {
+            return new ImageDataHolder(url, dataHolder.bitmap, width, height);
+        } else if (bytes != null) {
+            ImageDataHolder imageHolder = new ImageDataHolder(url, width, height);
+            try {
+                imageHolder.decodeImageData(bytes, initProps, mImageDecoderAdapter);
+                if (imageHolder.checkImageData()) {
+                    return imageHolder;
+                }
+            } catch (NativeRenderException e) {
+                e.printStackTrace();
+            } finally {
+                dataHolder.recycle();
             }
-        } catch (NativeRenderException e) {
-            e.printStackTrace();
-        } finally {
-            dataHolder.recycle();
         }
         return null;
     }

@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 
 public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
 
-    private static final int DEFAULT_IMAGE_POOL_SIZE = 24;
+    private static final int DEFAULT_IMAGE_POOL_SIZE = 16;
     private LruCache<ImageDataKey, ImageRecycleObject> mPools;
 
     public ImageDataPool() {
