@@ -38,7 +38,7 @@ NSString * const HippyModalHostViewDismissNotification = @"HippyModalHostViewDis
 
 @implementation HippyModalHostShadowView
 
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex{
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSUInteger)atIndex{
     [super insertHippySubview:subview atIndex:atIndex];
     CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
     [subview setLayoutFrame:frame];

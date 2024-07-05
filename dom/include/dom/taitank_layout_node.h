@@ -49,7 +49,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 设置 Taitank Layout 的属性
-   * @param style_map 属性的map
+   * @param style_update 属性的map
    */
   void SetLayoutStyles(
       const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
@@ -69,7 +69,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 设置 position 属性
-   * @param css_direction（EdgeLeft|EdgeTop|EdgeRight|EdgeBottom|EdgeStart|EdgeEnd)
+   * @param edge （EdgeLeft|EdgeTop|EdgeRight|EdgeBottom|EdgeStart|EdgeEnd)
    * @param position 位置
    */
   void SetPosition(Edge edge, float position) override;
@@ -126,21 +126,21 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 获取 margin 属性
-   * @param edge
+   * @param edge Edge
    * @return left 属性
    */
   float GetMargin(Edge edge) override;
 
   /**
    * @brief 获取 padding 属性
-   * @param edge
+   * @param edge Edge
    * @return padding 属性
    */
   float GetPadding(Edge edge) override;
 
   /**
    * @brief 获取 border 属性
-   * @param edge
+   * @param edge Edge
    * @return border 属性
    */
   float GetBorder(Edge edge) override;
@@ -159,7 +159,6 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 是否 overflow
-   * @param overflow
    * @return border 属性
    */
   bool LayoutHadOverflow();
@@ -172,14 +171,14 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 插入子节点
-   * @param child
-   * @param index
+   * @param child LayoutNode ptr
+   * @param index uint32
    */
   void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) override;
 
   /**
    * @brief 删除子节点
-   * @param child
+   * @param child LayoutNode ptr
    */
   void RemoveChild(const std::shared_ptr<LayoutNode> child) override;
 
@@ -191,7 +190,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 设置 has new layout 属性
-   * @param has_new_layout
+   * @param has_new_layout bool
    */
   void SetHasNewLayout(bool has_new_layout) override;
 
@@ -257,7 +256,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 设置 flex basis 属性
-   * @param flex basis
+   * @param flex_basis flex basis
    */
   void SetFlexBasis(float flex_basis);
 
@@ -269,59 +268,59 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 设置 flex grow属性
-   * @param flex grow
+   * @param flex_grow flex grow
    */
   void SetFlexGrow(float flex_grow);
 
   /**
    * @brief 设置 flex shrink属性
-   * @param flex shrink
+   * @param flex_shrink flex shrink
    */
   void SetFlexShrink(float flex_shrink);
 
   /**
    * @brief 设置 flex direction 属性
-   * @param flex direction (FLexDirectionRow|FLexDirectionRowReverse|FLexDirectionColumn|FLexDirectionColumnReverse)
+   * @param flex_direction (FLexDirectionRow|FLexDirectionRowReverse|FLexDirectionColumn|FLexDirectionColumnReverse)
    */
   void SetFlexDirection(FlexDirection flex_direction);
 
   /**
    * @brief 设置 position type 属性
-   * @param position_type（PositionTypeRelative|PositionTypeAbsolute)
+   * @param position_type （PositionTypeRelative|PositionTypeAbsolute)
    */
   void SetPositionType(PositionType position_type);
 
   /**
    * @brief 设置 position 属性
-   * @param css_direction（CSSLeft|CSSTop|CSSRight|CSSBottom|CSSStart|CSSEnd)
-   * @param position
+   * @param css_direction （CSSLeft|CSSTop|CSSRight|CSSBottom|CSSStart|CSSEnd)
+   * @param position float
    */
   void SetPosition(CSSDirection css_direction, float position);
 
   /**
    * @brief 设置 margin 属性
-   * @param css_direction
-   * @param margin
+   * @param css_direction CSSDirection
+   * @param margin float
    */
   void SetMargin(CSSDirection css_direction, float margin);
 
   /**
    * @brief 设置 margin auto属性
-   * @param css_direction
+   * @param css_direction CSSDirection
    */
   void SetMarginAuto(CSSDirection css_direction);
 
   /**
    * @brief 设置 padding 属性
-   * @param css_direction
-   * @param padding
+   * @param css_direction CSSDirection
+   * @param padding float
    */
   void SetPadding(CSSDirection css_direction, float padding);
 
   /**
    * @brief 设置 border 属性
-   * @param css_direction
-   * @param border
+   * @param css_direction CSSDirection
+   * @param border float
    */
   void SetBorder(CSSDirection css_direction, float border);
 
@@ -333,25 +332,25 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 设置 justify content 属性
-   * @param justify
+   * @param justify FlexAlign
    */
   void SetJustifyContent(FlexAlign justify);
 
   /**
    * @brief 设置 align content 属性
-   * @param align_content
+   * @param align_content FlexAlign
    */
   void SetAlignContent(FlexAlign align_content);
 
   /**
    * @brief 设置 align items 属性
-   * @param align_items
+   * @param align_items FlexAlign
    */
   void SetAlignItems(FlexAlign align_items);
 
   /**
    * @brief 设置 align self 属性
-   * @param align_self
+   * @param align_self FlexAlign
    */
   void SetAlignSelf(FlexAlign align_self);
 
@@ -375,7 +374,6 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 分配节点
-   * @param overflow_type (OverflowVisible|OverflowHidden|OverflowScroll)
    */
   void Allocate();
 

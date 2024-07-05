@@ -57,15 +57,21 @@ inline std::ostream& operator<<(std::ostream& stream, const string_view& str_vie
     }
     case string_view::Encoding::Utf16: {
       const std::u16string& str = str_view.utf16_value();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
       std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
           kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
+#pragma clang diagnostic pop
       stream << convert.to_bytes(str);
       break;
     }
     case string_view::Encoding::Utf32: {
       const std::u32string& str = str_view.utf32_value();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
       std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
           kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
+#pragma clang diagnostic pop
       stream << convert.to_bytes(str);
       break;
     }

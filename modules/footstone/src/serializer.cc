@@ -101,9 +101,11 @@ void Serializer::WriteString(const std::string& value) {
     WriteTag(SerializationTag::kOneByteString);
     WriteOneByteString(c, value.length());
   } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
     std::u16string u16 = converter.from_bytes(value);
-
+#pragma clang diagnostic pop
     WriteTag(SerializationTag::kTwoByteString);
     WriteTwoByteString(u16.c_str(), u16.length());
   }

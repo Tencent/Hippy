@@ -79,7 +79,7 @@ extern NSString *const HippySecondaryBundleDidLoadNotification DEPRECATED_MSG_AT
 @property (nonatomic, copy, nullable) NSDictionary *appProperties;
 
 /// The backing view controller of the root view.
-@property (nonatomic, weak) UIViewController *hippyViewController;
+@property (nonatomic, weak, nullable) UIViewController *hippyViewController;
 
 /// Whether to disable automatic RunHippyApplication execution after loading.
 /// By default, the runHippyApplication is automatically called after resources have loaded.

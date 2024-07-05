@@ -24,7 +24,9 @@
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 constexpr const char kCmdChromeSocketClose[] = "chrome_socket_closed";
+#endif
 
 std::string TdfRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
 

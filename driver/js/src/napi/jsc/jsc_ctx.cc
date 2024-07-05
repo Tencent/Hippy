@@ -21,7 +21,6 @@
  */
 
 #include "driver/napi/jsc/jsc_ctx.h"
-
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "driver/napi/jsc/jsc_ctx_value.h"
@@ -41,11 +40,12 @@ using JSCVM = hippy::vm::JSCVM;
 
 constexpr char16_t kFunctionName[] = u"Function";
 constexpr char16_t kDefinePropertyStr[] = u"defineProperty";
-constexpr char16_t kPrototypeStr[] = u"prototype";
 constexpr char16_t kObjectStr[] = u"Object";
 constexpr char16_t kGetStr[] = u"get";
 constexpr char16_t kSetStr[] = u"set";
-constexpr char16_t kSetPrototypeOfName[] = u"setPrototypeOf";
+// not used:
+//constexpr char16_t kPrototypeStr[] = u"prototype";
+//constexpr char16_t kSetPrototypeOfName[] = u"setPrototypeOf";
 
 static std::once_flag global_class_flag;
 static JSClassRef global_class;
@@ -1112,7 +1112,6 @@ std::shared_ptr<CtxValue> JSCCtx::GetProperty(const std::shared_ptr<CtxValue>& o
   }
   JSValueRef prop_ref = JSObjectGetProperty(context_, obj_ref, key_str_ref, &exception);
   if (JSValueIsNull(context_, prop_ref) || JSValueIsUndefined(context_, prop_ref)) {
-    auto xxx = JSObjectGetPrototype(context_, obj_ref);
     return nullptr;
   }
   JSStringRelease(key_str_ref);
