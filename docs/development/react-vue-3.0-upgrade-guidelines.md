@@ -91,14 +91,17 @@
 Vue3.0 默认开启 scoped 无需设置开关
 
 5. hippy-vue 布局属性如 height、width 在 3.0 的版本将不支持放在自定义属性里，如：
-```
+
+``` javascript
     <div
       :height="36"
       :width="36"
     >
 ```
+
 需要放在style属性中，如：
-```
+
+``` javascript
     <div
       :style={height: 36, width: 36}
     >
