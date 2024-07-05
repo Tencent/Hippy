@@ -31,7 +31,6 @@ class TdfParseJsonUtil {
  public:
   /**
    * @brief get the corresponding key value from the Json structure
-   * @tparam T
    * @param json Json data
    * @param key the key that needs to be retrieved
    * @param default_value default value if no key exists

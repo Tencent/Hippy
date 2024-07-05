@@ -62,8 +62,8 @@ class BaseDomain {
 
   /**
    * @brief handle domain.enable and domain.disable switch
-   * @param id
-   * @param method
+   * @param id frontend id
+   * @param method event name
    * @return if switch enable or disable return true, else return false
    */
   bool HandleDomainSwitchEvent(int32_t id, const std::string& method);
@@ -77,15 +77,15 @@ class BaseDomain {
 
   /**
    * @brief handle domain.method fail response
-   * @param id
-   * @param error_code
-   * @param error_msg
+   * @param id frontend id
+   * @param error_code error code
+   * @param error_msg error msg
    */
   void ResponseErrorToFrontend(int32_t id, const int32_t error_code, const std::string& error_msg);
 
   /**
    * @brief send event to frontend
-   * @param inspect event that need to implement ToJsonString
+   * @param event event that need to implement ToJsonString
    */
   void SendEventToFrontend(InspectEvent&& event);
 

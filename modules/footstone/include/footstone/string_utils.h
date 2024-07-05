@@ -66,9 +66,8 @@ class StringUtils {
 
   /**
    * @brief simple characterization method
-   * @tparam T
    * @param value object that needs to be characterized
-   * @return
+   * @return std::string
    */
   template<typename T>
   static std::string ToString(T value) {

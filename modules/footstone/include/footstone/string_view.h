@@ -44,7 +44,10 @@ class string_view final {
   using char8_t_ = char8_t;
 #else
   using char8_t_ = uint8_t;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   using u8string = std::basic_string<uint8_t, std::char_traits<uint8_t>, std::allocator<uint8_t> >;
+#pragma clang diagnostic pop
 #endif  // __cpp_char8_t
   using u16string = std::u16string;
   using u32string = std::u32string;
