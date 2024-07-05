@@ -27,6 +27,9 @@
 @class HippyShadowView;
 @class HippyRootView;
 
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface UIView (Hippy) <HippyComponent, HippyViewEventProtocol>
 
 /**
@@ -81,7 +84,7 @@
 /**
  * This method finds and returns the containing view controller for the view.
  */
-- (UIViewController *)hippyViewController;
+- (nullable UIViewController *)hippyViewController;
 
 // FIXME: remove this method
 /**
@@ -95,3 +98,5 @@
 @property (nonatomic, weak) __kindof HippyShadowView *hippyShadowView;
 
 @end
+
+NS_ASSUME_NONNULL_END

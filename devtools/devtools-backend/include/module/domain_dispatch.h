@@ -56,7 +56,7 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
 
   /**
    * @brief receive msg from frontend
-   * @param params passing from frontend
+   * @param data passing from frontend
    */
   bool ReceiveDataFromFrontend(const std::string& data);
 

@@ -299,8 +299,11 @@ class StringViewUtils {
 
   inline static string_view::u8string U32ToU8(
       const std::u32string &str) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
         kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
+#pragma clang diagnostic pop
     std::string bytes = convert.to_bytes(str);
     const string_view::char8_t_ *ptr =
         reinterpret_cast<const string_view::char8_t_ *>(bytes.data());
@@ -310,15 +313,21 @@ class StringViewUtils {
   inline static std::u32string U8ToU32(
       const string_view::u8string &str) {
     const char *ptr = reinterpret_cast<const char *>(str.c_str());
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
         kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
+#pragma clang diagnostic pop
     return convert.from_bytes(ptr, ptr + str.length());
   }
 
   inline static string_view::u8string U16ToU8(
       const std::u16string &str) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
         kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
+#pragma clang diagnostic pop
     std::string bytes = convert.to_bytes(str);
     const string_view::char8_t_ *ptr =
         reinterpret_cast<const string_view::char8_t_ *>(bytes.data());
@@ -328,14 +337,20 @@ class StringViewUtils {
   inline static std::u16string U8ToU16(
       const string_view::u8string &str) {
     const char *ptr = reinterpret_cast<const char *>(str.c_str());
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
         kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
+#pragma clang diagnostic pop
     return convert.from_bytes(ptr, ptr + str.length());
   }
 
   inline static std::u16string U32ToU16(const std::u32string &str) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf16<char32_t>, char32_t> convert(
         kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
+#pragma clang diagnostic pop
     std::string bytes = convert.to_bytes(str);
     return std::u16string(reinterpret_cast<const char16_t *>(bytes.c_str()),
                           bytes.length() / sizeof(char16_t));
@@ -343,8 +358,11 @@ class StringViewUtils {
 
   inline static std::u32string U16ToU32(const std::u16string &str) {
     const char16_t *ptr = str.c_str();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf16<char32_t>, char32_t>
         convert(kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
+#pragma clang diagnostic pop
     return convert.from_bytes(
         reinterpret_cast<const char *>(ptr),
         reinterpret_cast<const char *>(ptr + str.length()));
