@@ -30,7 +30,7 @@ class HippyFileHandler : public VFSUriHandler {
 public:
     HippyFileHandler() = delete;
     HippyFileHandler(HippyBridge *bridge);
-    
+
     virtual void RequestUntrustedContent(
         std::shared_ptr<hippy::RequestJob> request,
         std::shared_ptr<hippy::JobResponse> response,
@@ -40,12 +40,19 @@ public:
         std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
         std::function<std::shared_ptr<UriHandler>()> next) override;
 
+    /// Convert relative addresses(such as hpfile://) to absolute paths
+    /// - Parameters:
+    ///   - hippyFileUrl: file url
+    ///   - hippySandboxDirectory: sandbox directory of hippy app
+    static NSURL *AbsoluteURLFromHippyFileURL(NSURL *hippyFileUrl, NSURL *hippySandboxDirectory);
+
     virtual void RequestUntrustedContent(NSURLRequest *request,
                                          NSDictionary *extraInfo,
                                          NSOperationQueue *queue,
                                          VFSHandlerProgressBlock progress,
-                                         VFSHandlerCompletionBlock completion, 
+                                         VFSHandlerCompletionBlock completion,
                                          VFSGetNextHandlerBlock next) override;
+
 private:
     __weak HippyBridge *bridge_;
 };
