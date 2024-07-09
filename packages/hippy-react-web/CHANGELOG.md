@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.12](https://github.com/Tencent/Hippy/compare/2.14.11...2.14.12) (2024-07-09)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
+
 ## [2.14.11](https://github.com/Tencent/Hippy/compare/2.14.10...2.14.11) (2023-12-20)
 
 **Note:** Version bump only for package @hippy/react-web

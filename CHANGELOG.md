@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.12](https://github.com/Tencent/Hippy/compare/2.14.11...2.14.12) (2024-07-09)
+
+
+### Bug Fixes
+
+* **core:** GetTurboModule crash protect ([#3945](https://github.com/Tencent/Hippy/issues/3945)) ([daa91ae](https://github.com/Tencent/Hippy/commit/daa91aefa21dd246d3608122bb29694a7280a146))
+
+
 ## [2.14.11](https://github.com/Tencent/Hippy/compare/2.14.10...2.14.11) (2023-12-20)
 
 
