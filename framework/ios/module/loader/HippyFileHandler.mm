@@ -22,7 +22,6 @@
 
 #import "HippyBridge.h"
 #import "HippyUtils.h"
-
 #include "HippyFileHandler.h"
 #include "footstone/logging.h"
 
@@ -40,6 +39,35 @@ void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob
                                                std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
                                                std::function<std::shared_ptr<UriHandler>()> next) {
     FOOTSTONE_UNIMPLEMENTED();
+}
+
+NSURL *HippyFileHandler::AbsoluteURLFromHippyFileURL(NSURL *fileUrl, NSURL *hippySandboxDirectory) {
+    static NSString *defaultHippyLocalFileURLPrefix = @"hpfile://";
+    static NSString *hippyLocalRelativeFilePathPrefix = @"./";
+    static NSString *hippyLocalAppBundleFilePathPrefix = @"appbundle/";
+    static NSString *hippyLocalContainerFilePathPrefix = @"container/";
+    
+    NSURL *absoluteURL = fileUrl;
+    NSString *urlString = [fileUrl absoluteString];
+    if ([urlString hasPrefix:defaultHippyLocalFileURLPrefix]) {
+        NSString *path = [urlString substringFromIndex:[defaultHippyLocalFileURLPrefix length]];
+        
+        if ([path hasPrefix:hippyLocalRelativeFilePathPrefix]) {
+            // Hippy Sandbox Relative Path
+            NSString *relativePath = [path substringFromIndex:hippyLocalRelativeFilePathPrefix.length];
+            absoluteURL = [NSURL fileURLWithPath:relativePath relativeToURL:hippySandboxDirectory];
+        } else if ([path hasPrefix:hippyLocalAppBundleFilePathPrefix]) {
+            // App Bundle Path
+            NSString *relativePath = [path substringFromIndex:[hippyLocalAppBundleFilePathPrefix length]];
+            absoluteURL = [[NSBundle mainBundle] URLForResource:relativePath withExtension:nil];
+        } else if ([path hasPrefix:hippyLocalContainerFilePathPrefix]) {
+            // App Container Path
+            NSString *relativePath = [path substringFromIndex:[hippyLocalContainerFilePathPrefix length]];
+            NSString *containerPath = [NSHomeDirectory() stringByAppendingPathComponent:relativePath];
+            absoluteURL = [NSURL fileURLWithPath:containerPath];
+        }
+    }
+    return absoluteURL;
 }
 
 void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
@@ -62,12 +90,7 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
         return;
     }
     
-    NSURL *absoluteURL = url;
-    static NSString *defaultHippyLocalFileURLPrefix = @"hpfile://.";
-    if ([[url absoluteString] hasPrefix:defaultHippyLocalFileURLPrefix]) {
-        NSString *path = [[url absoluteString] substringFromIndex:[defaultHippyLocalFileURLPrefix length] - 1];
-        absoluteURL = [NSURL fileURLWithPath:path relativeToURL:bridge.sandboxDirectory];
-    }
+    NSURL *absoluteURL = AbsoluteURLFromHippyFileURL(url, bridge.sandboxDirectory);
     if ([absoluteURL isFileURL] || [absoluteURL isFileReferenceURL]) {
         void (^opBlock)() = ^{
             NSError *error;
