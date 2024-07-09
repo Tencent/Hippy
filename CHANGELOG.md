@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.16.7](https://github.com/Tencent/Hippy/compare/2.16.6...2.16.7) (2024-07-09)
+
+
+### Bug Fixes
+
+* **jsc:** fix jsc crash on ios12 ([45fac1c](https://github.com/Tencent/Hippy/commit/45fac1c11a5cfed1947cdfd3d36fedbb305a2713))
+
+
+
+
+
 ## [2.16.6](https://github.com/Tencent/Hippy/compare/2.16.5...2.16.6) (2024-04-11)
 
 
