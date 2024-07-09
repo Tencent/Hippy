@@ -19,7 +19,6 @@ package com.tencent.renderer.component.image;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.IMAGE_DATA_DECODE_ERR;
 
 import android.graphics.ImageDecoder;
-import android.graphics.drawable.Animatable;
 import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.RequiresApi;
@@ -45,7 +44,6 @@ import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupplier {
 
@@ -61,6 +59,11 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
      * Mark that image data is decoded internally and needs to recycle.
      */
     private static final int FLAG_RECYCLABLE = 0x00000004;
+    /**
+     * Mark that image bitmap is provided by host, do not need cache.
+     */
+    private static final int FLAG_CACHEABLE = 0x00000008;
+
     private int mStateFlags = 0;
     private int mWidth;
     private int mHeight;
@@ -77,23 +80,34 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     private BitmapFactory.Options mOptions;
 
     public ImageDataHolder(@NonNull String source) {
-        init(source, null, 0, 0);
+        init(source, null, null, 0, 0);
     }
 
     public ImageDataHolder(@NonNull String source, int width, int height) {
-        init(source, null, width, height);
+        init(source, null, null, width, height);
+    }
+
+    public ImageDataHolder(@NonNull String source, @Nullable Bitmap bitmap, int width, int height) {
+        init(source, null, bitmap, width, height);
     }
 
     public ImageDataHolder(@NonNull String source, @NonNull ImageDataKey key, int width,
             int height) {
-        init(source, key, width, height);
+        init(source, key, null, width, height);
     }
 
-    public void init(@NonNull String source, @Nullable ImageDataKey key, int width, int height) {
+    public ImageDataHolder(@NonNull String source, @NonNull ImageDataKey key, @Nullable Bitmap bitmap, int width,
+            int height) {
+        init(source, key, bitmap, width, height);
+    }
+
+    public void init(@NonNull String source, @Nullable ImageDataKey key, @Nullable Bitmap bitmap, int width,
+            int height) {
         mSource = source;
         mWidth = width;
         mHeight = height;
         mKey = (key == null) ? new ImageDataKey(source) : key;
+        mBitmap = bitmap;
     }
 
     @Nullable
@@ -172,6 +186,9 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
 
     @Override
     public boolean isScraped() {
+        if (!checkStateFlag(FLAG_CACHEABLE)) {
+            return mBitmap == null || mBitmap.isRecycled();
+        }
         if (mOptions == null) {
             return true;
         }
@@ -195,13 +212,32 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
     }
 
     @Override
+    public boolean isCacheable() {
+        return checkStateFlag(FLAG_CACHEABLE);
+    }
+
+    @Override
     public int getImageWidth() {
-        return (mOptions != null) ? mOptions.outWidth : 0;
+        if (mOptions != null) {
+            return mOptions.outWidth;
+        } else if (mBitmap != null) {
+            return mBitmap.getWidth();
+        } else if (mGifMovie != null) {
+            return mGifMovie.width();
+        }
+        return 0;
     }
 
     @Override
     public int getImageHeight() {
-        return (mOptions != null) ? mOptions.outHeight : 0;
+        if (mOptions != null) {
+            return mOptions.outHeight;
+        } else if (mBitmap != null) {
+            return mBitmap.getHeight();
+        } else if (mGifMovie != null) {
+            return mGifMovie.height();
+        }
+        return 0;
     }
 
     @Override
@@ -216,7 +252,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
 
     @Override
     public boolean isAnimated() {
-        return mOptions != null && ImageDataUtils.isGif(mOptions);
+        return ImageDataUtils.isGif(mOptions);
     }
 
     @Nullable
@@ -256,6 +292,7 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
             if (imageDecoderAdapter != null) {
                 imageDecoderAdapter.afterDecode(initProps, this, mOptions);
             }
+            setStateFlag(FLAG_CACHEABLE);
         } catch (OutOfMemoryError | Exception e) {
             throw new NativeRenderException(IMAGE_DATA_DECODE_ERR, e.getMessage());
         }
@@ -275,9 +312,8 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
      * Decode image data with ImageDecoder.
      *
      * <p>
-     * Warning! AnimatedImageDrawable start will cause crash in some android platform when use
-     * ImageDecoder createSource API with ByteBuffer. Therefore, AnimatedImageDrawable is not
-     * supported at present.
+     * Warning! AnimatedImageDrawable start will cause crash in some android platform when use ImageDecoder createSource
+     * API with ByteBuffer. Therefore, AnimatedImageDrawable is not supported at present.
      * <p/>
      */
     @RequiresApi(api = VERSION_CODES.P)
@@ -290,7 +326,8 @@ public class ImageDataHolder extends ImageRecycleObject implements ImageDataSupp
         // will work around the issue
         ImageDecoder.Source source = ImageDecoder.createSource(ByteBuffer.wrap(data));
         return ImageDecoder.decodeDrawable(source,
-                (decoder, info, source1) -> {});
+                (decoder, info, source1) -> {
+                });
     }
 
     @RequiresApi(api = VERSION_CODES.P)

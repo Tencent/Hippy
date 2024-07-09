@@ -16,6 +16,7 @@
 
 package com.tencent.vfs;
 
+import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -47,6 +48,8 @@ public class ResourceDataHolder extends RecycleObject {
     public ByteBuffer buffer;
     @Nullable
     public byte[] bytes;
+    @Nullable
+    public Bitmap bitmap;
     @Nullable
     public HashMap<String, String> requestHeaders;
     @Nullable
@@ -104,6 +107,7 @@ public class ResourceDataHolder extends RecycleObject {
     public void recycle() {
         buffer = null;
         bytes = null;
+        bitmap = null;
         callback = null;
         errorMessage = null;
         processorTag = null;
