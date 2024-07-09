@@ -63,6 +63,11 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
   auto data = info.Data().As<v8::External>();
   auto runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->Value()));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  if (!runtime) {
+    TDF_BASE_LOG(ERROR) << "getTurboModule but runtime is null";
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
   std::shared_ptr<Ctx> ctx =
       std::static_pointer_cast<Ctx>(runtime->GetScope()->GetContext());
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
