@@ -55,7 +55,7 @@ JSValueRef InvokeJsCallback(JSContextRef ctx,
   void* external_data = func_wrapper->data;
   CallbackInfo cb_info;
   cb_info.SetSlot(func_data->global_external_data);
-  auto context = const_cast<JSGlobalContextRef>(ctx);
+  auto context = JSContextGetGlobalContext(ctx);
   cb_info.SetReceiver(std::make_shared<JSCCtxValue>(context, object));
   for (size_t i = 0; i < argumentCount; i++) {
     cb_info.AddValue(std::make_shared<JSCCtxValue>(context, arguments[i]));
@@ -110,7 +110,7 @@ static JSValueRef JSObjectGetPropertyCallback(
   JSValueRef *exception_ref) {
 
   FuncData* func_data = reinterpret_cast<FuncData*>(JSObjectGetPrivate(object));
-  auto context = const_cast<JSGlobalContextRef>(ctx);
+  auto context = JSContextGetGlobalContext(ctx);
   auto func_wrapper = reinterpret_cast<FuncWrapper*>(func_data->func_wrapper);
   auto js_cb = func_wrapper->cb;
   void* external_data = func_wrapper->data;
