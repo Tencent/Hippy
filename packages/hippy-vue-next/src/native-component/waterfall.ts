@@ -219,6 +219,9 @@ export function registerWaterfall(vueApp: App): void {
       startLoadMore() {
         this.call('startLoadMore');
       },
+      stopScroll() {
+        this.call('stopScroll');
+      },
     },
     render() {
       const on = getEventRedirects.call(this, [
@@ -228,6 +231,7 @@ export function registerWaterfall(vueApp: App): void {
         'exposureReport',
         'initialListReady',
         'scroll',
+        'momentumScrollBegin',
       ]);
 
       return h(
