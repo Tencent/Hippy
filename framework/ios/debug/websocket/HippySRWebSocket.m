@@ -481,7 +481,7 @@ static __strong NSData *CRLFCRLF;
         request, CFSTR("Host"), (__bridge CFStringRef)(_url.port ? [NSString stringWithFormat:@"%@:%@", _url.host, _url.port] : _url.host));
 
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+    __unused int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
     assert(result == 0);
     _secKey = [keyBytes base64EncodedStringWithOptions:0];
     assert([_secKey length] == 24);
@@ -611,13 +611,13 @@ static __strong NSData *CRLFCRLF;
             NSRange remainingRange = { 0 };
 
             NSUInteger usedLength = 0;
-
-            BOOL success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t)
-                                 usedLength:&usedLength
-                                   encoding:NSUTF8StringEncoding
-                                    options:NSStringEncodingConversionExternalRepresentation
-                                      range:NSMakeRange(0, reason.length)
-                             remainingRange:&remainingRange];
+            __unused BOOL success;
+            success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t)
+                            usedLength:&usedLength
+                              encoding:NSUTF8StringEncoding
+                               options:NSStringEncodingConversionExternalRepresentation
+                                 range:NSMakeRange(0, reason.length)
+                        remainingRange:&remainingRange];
 
             assert(success);
             assert(remainingRange.length == 0);
@@ -991,7 +991,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
             [socket _handleFrameHeader:header curData:socket->_currentFrameData];
         } else {
             [socket _addConsumerWithDataLength:extra_bytes_needed callback:^(HippySRWebSocket *_socket, NSData *_data) {
-                size_t mapped_size = _data.length;
+                __unused size_t mapped_size = _data.length;
                 const void *mapped_buffer = _data.bytes;
                 size_t offset = 0;
 

@@ -24,6 +24,8 @@
 
 @class UIImage;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol HippyImageProviderProtocol <NSObject>
 
 @required
@@ -89,3 +91,5 @@
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame;
 
 @end
+
+NS_ASSUME_NONNULL_END

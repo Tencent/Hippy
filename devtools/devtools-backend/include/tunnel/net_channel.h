@@ -43,7 +43,7 @@ class NetChannel {
 
   /**
    * @brief send data to frontend
-   * @param rsp_data
+   * @param rsp_data string
    */
   virtual void Send(const std::string &rsp_data) = 0;
 

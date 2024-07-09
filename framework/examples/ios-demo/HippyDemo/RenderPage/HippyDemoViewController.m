@@ -201,7 +201,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
         NSURL *indexBundleURL = [self indexBundleURL];
         [hippyBridge loadBundleURL:vendorBundleURL
                         bundleType:HippyBridgeBundleTypeVendor
-                        completion:^(NSURL * _Nullable, NSError * _Nullable) {
+                        completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
             NSLog(@"url %@ load finish", vendorBundleURL);
         }];
         hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];

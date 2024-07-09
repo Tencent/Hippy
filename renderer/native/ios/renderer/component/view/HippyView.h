@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  * get content for layer
  * return YES if getting content synchronized,else return NO
  */
-- (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *_Nullable))contentBlock;
+- (BOOL)getLayerContentForColor:(nullable UIColor *)color completionBlock:(void (^)(UIImage *_Nullable))contentBlock;
 
 /**
  * CALayerContents Filter

@@ -51,7 +51,7 @@
 }
 
 - (void)refresh {
-    [UIView animateWithDuration:.2f animations:^{
+    [UIView animateWithDuration:HIPPY_REFRESH_ANIM_DURATION animations:^{
         self.scrollView.contentOffset = CGPointZero;
     } completion:^(BOOL finished) {
         self.status = HippyRefreshStatusStartLoading;

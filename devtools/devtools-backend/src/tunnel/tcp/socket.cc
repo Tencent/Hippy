@@ -1,4 +1,24 @@
 /*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * socket.c
  *
  * Copyright (C) 2012-2020 Nikias Bassen <nikias@gmx.li>
@@ -235,7 +255,7 @@ int socket_connect_unix(const char *filename) {
 
       struct timeval timeout;
       timeout.tv_sec = CONNECT_TIMEOUT / 1000;
-      timeout.tv_usec = (CONNECT_TIMEOUT - (timeout.tv_sec * 1000)) * 1000;
+      timeout.tv_usec = (int32_t)(CONNECT_TIMEOUT - (timeout.tv_sec * 1000)) * 1000;
       if (select(sfd + 1, NULL, &fds, NULL, &timeout) == 1) {
         int so_error;
         socklen_t len = sizeof(so_error);
@@ -392,7 +412,7 @@ int socket_connect_addr(struct sockaddr *addr, uint16_t port) {
 
       struct timeval timeout;
       timeout.tv_sec = CONNECT_TIMEOUT / 1000;
-      timeout.tv_usec = (CONNECT_TIMEOUT - (timeout.tv_sec * 1000)) * 1000;
+      timeout.tv_usec = (int32_t)(CONNECT_TIMEOUT - (timeout.tv_sec * 1000)) * 1000;
       if (select(sfd + 1, NULL, &fds, NULL, &timeout) == 1) {
         int so_error;
         socklen_t len = sizeof(so_error);
@@ -472,7 +492,7 @@ int socket_connect(const char *addr, uint16_t port) {
   hints.ai_flags = 0;
   hints.ai_protocol = IPPROTO_TCP;
 
-  sprintf(portstr, "%d", port);
+  snprintf(portstr, sizeof(portstr), "%d", port);
 
   res = getaddrinfo(addr, portstr, &hints, &result);
   if (res != 0) {
@@ -524,7 +544,7 @@ int socket_connect(const char *addr, uint16_t port) {
 
       struct timeval timeout;
       timeout.tv_sec = CONNECT_TIMEOUT / 1000;
-      timeout.tv_usec = (CONNECT_TIMEOUT - (timeout.tv_sec * 1000)) * 1000;
+      timeout.tv_usec = (int32_t)(CONNECT_TIMEOUT - (timeout.tv_sec * 1000)) * 1000;
       if (select(sfd + 1, NULL, &fds, NULL, &timeout) == 1) {
         int so_error;
         socklen_t len = sizeof(so_error);
@@ -584,7 +604,7 @@ int socket_check_fd(int fd, fd_mode fdm, unsigned int timeout) {
   do {
     if (timeout > 0) {
       to.tv_sec = (time_t) (timeout / 1000);
-      to.tv_usec = (time_t) ((timeout - static_cast<unsigned long>(to.tv_sec) * 1000) * 1000);
+      to.tv_usec = (int32_t)((timeout - static_cast<unsigned long>(to.tv_sec) * 1000) * 1000);
       pto = &to;
     } else {
       pto = NULL;
