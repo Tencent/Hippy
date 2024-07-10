@@ -128,7 +128,6 @@ public class HippyOverPullHelper {
                         setOverPullState(OVER_PULL_UP_ING);
                     }
                     Number deltaY = (event.getRawY() - lastRawY) / 3.0f;
-                    LogUtils.e("maxli", "checkOverDrag: deltaY " + deltaY + ", offset " + offset);
                     recyclerView.offsetChildrenVertical(deltaY.intValue());
                     if (overPullListener != null) {
                         overPullListener.onOverPullStateChanged(overPullState, overPullState,
