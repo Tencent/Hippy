@@ -90,7 +90,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private int mListenerFlag = 0;
     private ReactContentSizeWatcher mReactContentSizeWatcher = null;
     private boolean mItalic = false;
-    private int mFontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+    private String mFontWeight = TypeFaceUtil.TEXT_FONT_STYLE_NORMAL;
     private float mLineSpacingMultiplier = 1.0f;
     private float mLineSpacingExtra = 0.0f;
     private int mLineHeight = 0;
@@ -763,23 +763,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     }
 
     public void setFontWeight(String weight) {
-        int fontWeight;
-        if (TextUtils.isEmpty(weight) || TypeFaceUtil.TEXT_FONT_STYLE_NORMAL.equals(weight)) {
-            // case normal
-            fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
-        } else if (TypeFaceUtil.TEXT_FONT_STYLE_BOLD.equals(weight)) {
-            // case bold
-            fontWeight = TypeFaceUtil.WEIGHT_BOLE;
-        } else {
-            // case number
-            try {
-                fontWeight = Math.min(Math.max(1, Integer.parseInt(weight)), 1000);
-            } catch (NumberFormatException ignored) {
-                fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
-            }
-        }
-        if (fontWeight != mFontWeight) {
-            mFontWeight = fontWeight;
+        if (!mFontWeight.equals(weight)) {
+            mFontWeight = weight;
             mShouldUpdateTypeface = true;
         }
     }

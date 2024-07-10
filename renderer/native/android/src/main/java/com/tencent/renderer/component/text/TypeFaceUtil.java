@@ -18,11 +18,11 @@ package com.tencent.renderer.component.text;
 
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 
 import android.util.SparseArray;
-import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -43,26 +43,25 @@ public class TypeFaceUtil {
     private static final String[] FONT_EXTENSIONS = {".ttf", ".otf"};
     private static final String FONTS_PATH = "fonts/";
     private static final Map<String, SparseArray<Typeface>> sFontCache = new HashMap<>();
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
-    private static final boolean SUPPORT_FONT_WEIGHT = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
 
     /**
-     * @deprecated use {@link #getTypeface(String, int, boolean, FontAdapter)} instead
+     * @deprecated use {@link #getTypeface(String, String, boolean, FontAdapter)} instead
      */
     @Deprecated
     public static Typeface getTypeface(String fontFamilyName, int style,
             @Nullable FontAdapter fontAdapter) {
         boolean italic = (style & Typeface.ITALIC) != 0;
-        int weightNumber = (style & Typeface.BOLD) != 0 ? WEIGHT_BOLE : WEIGHT_NORMAL;
-        return getTypeface(fontFamilyName, weightNumber, italic, fontAdapter);
+        String weight = (style & Typeface.BOLD) != 0 ? TEXT_FONT_STYLE_BOLD : TEXT_FONT_STYLE_NORMAL;
+        return getTypeface(fontFamilyName, weight, italic, fontAdapter);
     }
 
-    public static Typeface getTypeface(String fontFamilyName, int weight, boolean italic,
+    public static Typeface getTypeface(String fontFamilyName, String weight, boolean italic,
             @Nullable FontAdapter fontAdapter) {
-        final int style = toStyle(weight, italic);
+        int weightNumber = getWeightNumber(weight);
+        final int style = toStyle(weight, weightNumber, italic);
         Typeface typeface = (fontAdapter != null) ? fontAdapter.getCustomTypeface(fontFamilyName, style) : null;
         if (typeface == null) {
-            final int key = SUPPORT_FONT_WEIGHT ? ((weight << 1) | (italic ? 1 : 0)) : style;
+            final int key = (weightNumber > 0) ? ((weightNumber << 1) | (italic ? 1 : 0)) : style;
             SparseArray<Typeface> cache = sFontCache.get(fontFamilyName);
             if (cache == null) {
                 cache = new SparseArray<>(4);
@@ -71,7 +70,7 @@ public class TypeFaceUtil {
                 typeface = cache.get(key);
             }
             if (typeface == null) {
-                typeface = createTypeface(fontFamilyName, weight, italic, fontAdapter);
+                typeface = createTypeface(fontFamilyName, weightNumber, style, italic, fontAdapter);
                 if (typeface != null) {
                     cache.put(key, typeface);
                 }
@@ -80,9 +79,8 @@ public class TypeFaceUtil {
         return typeface;
     }
 
-    private static Typeface createTypeface(String fontFamilyName, int weight, boolean italic,
+    private static Typeface createTypeface(String fontFamilyName, int weightNumber, int style, boolean italic,
             @Nullable FontAdapter fontAdapter) {
-        final int style = toStyle(weight, italic);
         final String extension = EXTENSIONS[style];
         final String[] familyNameList;
         if (fontFamilyName.indexOf(',') == -1) {
@@ -113,8 +111,8 @@ public class TypeFaceUtil {
                 try {
                     Typeface typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
                     if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
-                        if (SUPPORT_FONT_WEIGHT) {
-                            return Typeface.create(typeface, weight, italic);
+                        if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
+                            return Typeface.create(typeface, weightNumber, italic);
                         }
                         // "bold" has no effect on api level < P, prefer to use `Paint.setFakeBoldText(boolean)`
                         return italic ? Typeface.create(typeface, Typeface.ITALIC) : typeface;
@@ -138,46 +136,57 @@ public class TypeFaceUtil {
                 }
             }
         }
-
         final Typeface systemDefault = Typeface.create(Typeface.DEFAULT, style);
         for (String splitName : familyNameList) {
             Typeface typeface = Typeface.create(splitName, style);
             if (typeface != null && !typeface.equals(systemDefault)) {
-                return SUPPORT_FONT_WEIGHT ? Typeface.create(typeface, weight, italic) : typeface;
+                if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
+                    return Typeface.create(typeface, weightNumber, italic);
+                }
+                return typeface;
             }
         }
-        return SUPPORT_FONT_WEIGHT ? Typeface.create(systemDefault, weight, italic) : systemDefault;
+        return (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) ?
+                Typeface.create(systemDefault, weightNumber, italic) : systemDefault;
     }
 
-    private static int toStyle(int weight, boolean italic) {
-        return weight < WEIGHT_BOLE ?
-                (italic ? Typeface.ITALIC : Typeface.NORMAL) :
-                (italic ? Typeface.BOLD_ITALIC : Typeface.BOLD);
+    private static int getWeightNumber(String weight) {
+        int weightNumber = 0;
+        try {
+            weightNumber = Math.min(Math.max(1, Integer.parseInt(weight)), 1000);
+        } catch (NumberFormatException ignored) {
+            // Weight supports setting non numeric strings
+        }
+        return weightNumber;
     }
 
-    /**
-     * @deprecated use {@link #apply(Paint, boolean, int, String, FontAdapter)} instead
-     */
-    @Deprecated
-    public static void apply(Paint paint, int style, int weight, String family,
-            @Nullable FontAdapter fontAdapter) {
-        boolean italic = style == Typeface.ITALIC;
-        int weightNumber = weight == Typeface.BOLD ? WEIGHT_BOLE : WEIGHT_NORMAL;
-        apply(paint, italic, weightNumber, family, fontAdapter);
+    private static int toStyle(String weight, int weightNumber, boolean italic) {
+        if (weight.equals(TEXT_FONT_STYLE_NORMAL)) {
+            return italic ? Typeface.ITALIC : Typeface.NORMAL;
+        } else if (weight.equals(TEXT_FONT_STYLE_BOLD)) {
+            return italic ? Typeface.BOLD_ITALIC : Typeface.BOLD;
+        } else {
+            return weightNumber < WEIGHT_BOLE ?
+                    (italic ? Typeface.ITALIC : Typeface.NORMAL) :
+                    (italic ? Typeface.BOLD_ITALIC : Typeface.BOLD);
+        }
     }
 
-    public static void apply(Paint paint, boolean italic, int weight, String familyName,
+    public static void apply(Paint paint, boolean italic, String weight, String familyName,
             @Nullable FontAdapter fontAdapter) {
         Typeface typeface;
+        int weightNumber = getWeightNumber(weight);
         if (TextUtils.isEmpty(familyName)) {
             final Typeface base = paint.getTypeface();
-            typeface = SUPPORT_FONT_WEIGHT
-                    ? Typeface.create(base, weight, italic)
-                    : Typeface.create(base, toStyle(weight, italic));
+            if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
+                typeface = Typeface.create(base, weightNumber, italic);
+            } else {
+                typeface = Typeface.create(base, toStyle(weight, weightNumber, italic));
+            }
         } else {
             typeface = getTypeface(familyName, weight, italic, fontAdapter);
         }
-        if (weight >= WEIGHT_BOLE && typeface != null && !typeface.isBold()) {
+        if (weightNumber >= WEIGHT_BOLE && typeface != null && !typeface.isBold()) {
             paint.setFakeBoldText(true);
         }
         paint.setTypeface(typeface);
