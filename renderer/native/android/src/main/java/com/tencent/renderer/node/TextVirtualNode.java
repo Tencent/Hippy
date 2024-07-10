@@ -88,7 +88,7 @@ public class TextVirtualNode extends VirtualNode {
     protected int mColor = Color.BLACK;
     protected int mNumberOfLines;
     protected boolean mItalic = false;
-    protected int mFontWeight = TypeFaceUtil.WEIGHT_NORMAL;
+    protected String mFontWeight = TypeFaceUtil.TEXT_FONT_STYLE_NORMAL;
     protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
     protected int mShadowColor = TEXT_SHADOW_COLOR_DEFAULT;
     protected float mShadowOffsetDx = 0.0f;
@@ -183,23 +183,8 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
     public void setFontWeight(String weight) {
-        int fontWeight;
-        if (TextUtils.isEmpty(weight) || TypeFaceUtil.TEXT_FONT_STYLE_NORMAL.equals(weight)) {
-            // case normal
-            fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
-        } else if (TypeFaceUtil.TEXT_FONT_STYLE_BOLD.equals(weight)) {
-            // case bold
-            fontWeight = TypeFaceUtil.WEIGHT_BOLE;
-        } else {
-            // case number
-            try {
-                fontWeight = Math.min(Math.max(1, Integer.parseInt(weight)), 1000);
-            } catch (NumberFormatException ignored) {
-                fontWeight = TypeFaceUtil.WEIGHT_NORMAL;
-            }
-        }
-        if (fontWeight != mFontWeight) {
-            mFontWeight = fontWeight;
+        if (!mFontWeight.equals(weight)) {
+            mFontWeight = weight;
             markDirty();
         }
     }
