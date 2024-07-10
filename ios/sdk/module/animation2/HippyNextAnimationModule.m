@@ -464,14 +464,25 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
             NSMutableArray<HippyNextAnimation *> *pendingAnims = [strongSelf.pendingStartGroupAnimations objectForKey:queueKey];
             [strongSelf.groupAnimSyncLock unlock];
             
+            NSMutableArray<HippyNextAnimation *> *resultAnims = nil;
             NSMutableArray<id> *targetObjects = [NSMutableArray arrayWithCapacity:pendingAnims.count];
             CFTimeInterval now = CACurrentMediaTime();
             for (HippyNextAnimation *anim in pendingAnims) {
+                id target = anim.targetObject;
+                if (!target) {
+                    if (!resultAnims) {
+                        // only copy when needed
+                        resultAnims = [pendingAnims mutableCopy];
+                    }
+                    [resultAnims removeObject:anim];
+                    continue;
+                }
                 anim.beginTime = now + anim.delayTime;
-                [targetObjects addObject:anim.targetObject];
+                [targetObjects addObject:target];
             }
             
-            [[HPOPAnimator sharedAnimator] addAnimations:pendingAnims forObjects:targetObjects andKeys:nil];
+            [[HPOPAnimator sharedAnimator] addAnimations:resultAnims ?: pendingAnims
+                                              forObjects:targetObjects andKeys:nil];
             [pendingAnims removeAllObjects];
         });
     }
