@@ -47,6 +47,7 @@ import java.util.Set;
 public class NetworkModule extends HippyNativeModuleBase {
 
     private static final String TAG = "NetworkModule";
+    private static final String HTTP_RESPONSE_REQUEST_DURATION = "Hippy-Request-Duration";
 
     public NetworkModule(HippyEngineContext context) {
         super(context);
@@ -103,8 +104,9 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
 
     @NonNull
-    protected JSObject handleFetchResponse(@NonNull ResourceDataHolder dataHolder)
-            throws IllegalStateException {
+    protected JSObject handleFetchResponse(@NonNull ResourceDataHolder dataHolder,
+                                           double requestDuration)
+        throws IllegalStateException {
         JSObject responseObject = new JSObject();
         int statusCode = -1;
         String responseMessage = null;
@@ -129,6 +131,7 @@ public class NetworkModule extends HippyNativeModuleBase {
         if (responseMessage == null) {
             responseMessage = (dataHolder.errorMessage == null) ? "" : dataHolder.errorMessage;
         }
+        headerObject.set(HTTP_RESPONSE_REQUEST_DURATION, Double.toString(requestDuration));
         responseObject.set(HTTP_RESPONSE_STATUS_CODE, statusCode);
         responseObject.set("statusLine", responseMessage);
         responseObject.set("respHeaders", headerObject);
@@ -145,10 +148,12 @@ public class NetworkModule extends HippyNativeModuleBase {
         return responseObject;
     }
 
-    protected void handleFetchResult(@NonNull ResourceDataHolder dataHolder, final Promise promise) {
+    protected void handleFetchResult(@NonNull ResourceDataHolder dataHolder,
+                                     double requestDuration,
+                                     final Promise promise) {
         try {
             if (dataHolder.resultCode == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
-                JSObject responseObject = handleFetchResponse(dataHolder);
+                JSObject responseObject = handleFetchResponse(dataHolder, requestDuration);
                 promise.resolve(responseObject);
             } else {
                 String errorMessage =
@@ -177,19 +182,25 @@ public class NetworkModule extends HippyNativeModuleBase {
             promise.reject("Get url parameter failed!");
             return;
         }
-        vfsManager.fetchResourceAsync(uri, requestHeaders, requestParams,
-                new FetchResourceCallback() {
-                    @Override
-                    public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
-                        handleFetchResult(dataHolder, promise);
-                        dataHolder.recycle();
-                    }
 
-                    @Override
-                    public void onFetchProgress(long total, long loaded) {
-                        // Nothing need to do here.
-                    }
-                });
+        // Record request start time
+        final long startTime = System.nanoTime();
+
+        vfsManager.fetchResourceAsync(uri, requestHeaders, requestParams,
+            new FetchResourceCallback() {
+                @Override
+                public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
+                    // Time taken for the request, in milliseconds
+                    double requestDuration = (System.nanoTime() - startTime) / 1_000_000.0;
+                    handleFetchResult(dataHolder, requestDuration, promise);
+                    dataHolder.recycle();
+                }
+
+                @Override
+                public void onFetchProgress(long total, long loaded) {
+                    // Nothing need to do here.
+                }
+            });
     }
 
     @HippyMethod(name = "getCookie")
