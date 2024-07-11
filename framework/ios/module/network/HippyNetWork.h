@@ -21,9 +21,9 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyBridgeModule.h"
 
+/// Hippy Network module
 @interface HippyNetWork : NSObject <HippyBridgeModule, NSURLSessionDataDelegate>
 
 @end
