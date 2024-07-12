@@ -39,6 +39,7 @@ import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +65,7 @@ public class ControllerUpdateManger<T> {
             NodeProps.OVERFLOW
     };
     @Nullable
-    private Renderer mRenderer;
+    private final WeakReference<Renderer> mRendererWeakRef;
     @Nullable
     private ComponentController mComponentController;
     @Nullable
@@ -79,11 +80,11 @@ public class ControllerUpdateManger<T> {
     }
 
     public ControllerUpdateManger(@NonNull Renderer renderer) {
-        mRenderer = renderer;
+        mRendererWeakRef = new WeakReference<>(renderer);
     }
 
     public void clear() {
-        mRenderer = null;
+
     }
 
     public void setCustomPropsController(T controller) {
@@ -144,10 +145,7 @@ public class ControllerUpdateManger<T> {
             return true;
         }
         // Special case: property "opacity" in TextVirtualNode also need to process in HippyViewController
-        if (NodeProps.OPACITY.equals(name)) {
-            return true;
-        }
-        return false;
+        return NodeProps.OPACITY.equals(name);
     }
 
     void findViewPropsMethod(Class<?> cls,
@@ -198,8 +196,9 @@ public class ControllerUpdateManger<T> {
                 methodHolder.method.invoke(obj, arg1, value);
             }
         } catch (Exception exception) {
-            if (mRenderer != null) {
-                mRenderer.handleRenderException(
+            Renderer renderer = mRendererWeakRef.get();
+            if (renderer != null) {
+                renderer.handleRenderException(
                         PropertyUtils.makePropertyConvertException(exception, key,
                                 methodHolder.method));
             }

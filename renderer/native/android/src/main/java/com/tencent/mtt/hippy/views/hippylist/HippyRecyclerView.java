@@ -98,6 +98,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void onDestroy() {
         if (stickyHeaderHelper != null) {
             stickyHeaderHelper.detachSticky();
+            stickyHeaderHelper.onDestroy();
         }
     }
 
