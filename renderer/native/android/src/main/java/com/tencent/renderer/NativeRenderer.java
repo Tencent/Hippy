@@ -67,6 +67,7 @@ import com.tencent.renderer.utils.EventUtils.EventType;
 
 import com.tencent.renderer.utils.MapUtils;
 import com.tencent.vfs.VfsManager;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,7 +121,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
     private FCPBatchState mFcpBatchState = FCPBatchState.WATCHING;
     @Nullable
-    private FrameworkProxy mFrameworkProxy;
+    private WeakReference<FrameworkProxy> mFrameworkProxyWeakRef;
     @Nullable
     private List<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
     @NonNull
@@ -194,16 +195,23 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return mRenderProvider.getInstanceId();
     }
 
+    @Nullable
+    private FrameworkProxy getFrameworkProxy() {
+        return (mFrameworkProxyWeakRef != null) ? mFrameworkProxyWeakRef.get() : null;
+    }
+
     @Override
     @Nullable
     public Object getCustomViewCreator() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getCustomViewCreator() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getCustomViewCreator() : null;
     }
 
     @Override
     @Nullable
     public String getBundlePath() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getBundlePath() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getBundlePath() : null;
     }
 
     @Override
@@ -218,31 +226,36 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     @Nullable
     public VfsManager getVfsManager() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getVfsManager() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getVfsManager() : null;
     }
 
     @Override
     @Nullable
     public ImageDecoderAdapter getImageDecoderAdapter() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getImageDecoderAdapter() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getImageDecoderAdapter() : null;
     }
 
     @Override
     @Nullable
     public FontAdapter getFontAdapter() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getFontAdapter() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getFontAdapter() : null;
     }
 
     @Nullable
     public LogAdapter getLogAdapter() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getLogAdapter() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getLogAdapter() : null;
     }
 
     @Override
     @Nullable
     public Executor getBackgroundExecutor() {
-        if (mFrameworkProxy != null && mFrameworkProxy.getBackgroundExecutor() != null) {
-            return mFrameworkProxy.getBackgroundExecutor();
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null && frameworkProxy.getBackgroundExecutor() != null) {
+            return frameworkProxy.getBackgroundExecutor();
         }
         if (mBackgroundExecutor == null) {
             mBackgroundExecutor = Executors.newFixedThreadPool(4);
@@ -268,8 +281,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             msg = exception.getMessage();
         }
         LogUtils.e(TAG, msg);
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.handleNativeException(exception);
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.handleNativeException(exception);
         }
     }
 
@@ -284,17 +298,19 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     @Nullable
     public BaseEngineContext getEngineContext() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getEngineContext() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getEngineContext() : null;
     }
 
     @Override
     public int getEngineId() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getEngineId() : -1;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getEngineId() : -1;
     }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
-        mFrameworkProxy = proxy;
+        mFrameworkProxyWeakRef = new WeakReference<>(proxy);
     }
 
     @Override
@@ -313,7 +329,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (mImageLoader != null) {
             mImageLoader.destroy();
         }
-        mFrameworkProxy = null;
         NativeRendererManager.removeNativeRendererInstance(mRenderProvider.getInstanceId());
     }
 
@@ -359,15 +374,17 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void onFirstPaint() {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.onFirstPaint();
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.onFirstPaint();
         }
     }
 
     @Override
     public void onFirstContentfulPaint() {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.onFirstContentfulPaint();
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.onFirstContentfulPaint();
         }
     }
 
@@ -391,8 +408,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void onSizeChanged(int rootId, int w, int h, int ow, int oh) {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.onSizeChanged(rootId, w, h, ow, oh);
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.onSizeChanged(rootId, w, h, ow, oh);
         }
         onSizeChanged(rootId, w, h);
     }
@@ -404,8 +422,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void updateDimension(int width, int height) {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.updateDimension(width, height);
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.updateDimension(width, height);
         }
     }
 
