@@ -46,7 +46,7 @@ public class ImageLoader implements ImageLoaderAdapter {
     @NonNull
     private final HashMap<ImageDataKey, ArrayList<ImageRequestListener>> mListenersMap = new HashMap<>();
     @NonNull
-    private final Pool<ImageDataKey, ImageRecycleObject> mImagePool = new ImageDataPool();
+    private final static Pool<ImageDataKey, ImageRecycleObject> mImagePool = new ImageDataPool();
 
     public ImageLoader(@NonNull VfsManager vfsManager,
             @Nullable ImageDecoderAdapter imageDecoderAdapter) {
