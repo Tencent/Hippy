@@ -35,7 +35,6 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
-import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewWrapper;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
@@ -58,6 +57,7 @@ import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.node.VirtualNode;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,24 +74,26 @@ public class ControllerManager {
     @NonNull
     private final Map<Integer, Pool<String, View>> mRecycleViewPools = new HashMap<>();
     @Nullable
-    private Renderer mRenderer;
+    private final WeakReference<Renderer> mRendererWeakRef;
     @Nullable
     private static List<Class<?>> sDefaultControllers;
 
     public ControllerManager(@NonNull Renderer renderer) {
-        mRenderer = renderer;
+        mRendererWeakRef = new WeakReference<>(renderer);
         mControllerRegistry = new ControllerRegistry(renderer);
         mControllerUpdateManger = new ControllerUpdateManger<>(renderer);
     }
 
     @Nullable
     public RenderManager getRenderManager() {
-        return mRenderer != null ? ((NativeRender) mRenderer).getRenderManager() : null;
+        Renderer renderer = mRendererWeakRef.get();
+        return renderer != null ? ((NativeRender) renderer).getRenderManager() : null;
     }
 
     @Nullable
     public NativeRender getNativeRender() {
-        return mRenderer != null ? ((NativeRender) mRenderer) : null;
+        Renderer renderer = mRendererWeakRef.get();
+        return renderer != null ? ((NativeRender) renderer) : null;
     }
 
     @NonNull
@@ -192,7 +194,6 @@ public class ControllerManager {
                 deleteRootView(mControllerRegistry.getRootIdAt(i));
             }
         }
-        mRenderer = null;
     }
 
     @Nullable
@@ -234,7 +235,7 @@ public class ControllerManager {
         if (view != null || rootView == null || controller == null) {
             return;
         }
-        view = controller.createView(rootView, id, mRenderer, className, props);
+        view = controller.createView(rootView, id, mRendererWeakRef.get(), className, props);
         if (view != null) {
             addPreView(view, rootId);
         }
@@ -291,7 +292,7 @@ public class ControllerManager {
                 if (controller == null) {
                     return null;
                 }
-                view = controller.createView(rootView, id, mRenderer, className, node.getProps());
+                view = controller.createView(rootView, id, mRendererWeakRef.get(), className, node.getProps());
                 node.setNodeFlag(FLAG_UPDATE_LAYOUT);
             }
             if (view != null) {
@@ -625,21 +626,23 @@ public class ControllerManager {
     }
 
     private void reportRemoveViewException(int pid, View parent, int id, View child) {
-        if (mRenderer != null) {
+        Renderer renderer = mRendererWeakRef.get();
+        if (renderer != null) {
             NativeRenderException exception = new NativeRenderException(
                     REMOVE_CHILD_VIEW_FAILED_ERR,
                     getViewOperationExceptionMessage(pid, parent, id, child,
                             "Remove view failed:"));
-            mRenderer.handleRenderException(exception);
+            renderer.handleRenderException(exception);
         }
     }
 
     private void reportAddViewException(int pid, View parent, int id, View child) {
-        if (mRenderer != null) {
+        Renderer renderer = mRendererWeakRef.get();
+        if (renderer != null) {
             NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
                     getViewOperationExceptionMessage(pid, parent, id, child,
                             "Add child to parent failed:"));
-            mRenderer.handleRenderException(exception);
+            renderer.handleRenderException(exception);
         }
     }
 }
