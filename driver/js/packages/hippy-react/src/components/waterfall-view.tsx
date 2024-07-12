@@ -24,10 +24,10 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
+import { Device } from '../native';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import View from './view';
-import { Device } from '../native';
 
 type DataItem = any;
 
@@ -293,7 +293,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     if (typeof renderBanner === 'function') {
       const banner = renderBanner();
       if (banner) {
-        if (Device.platform.OS === 'ios') {
+        if (Device.platform.OS === 'ios' || Device.platform.OS === 'ohos') {
           itemList.push((
             <View key="bannerView">
               {React.cloneElement(banner)}

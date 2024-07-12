@@ -4,7 +4,7 @@
       ref="gridView"
       :content-inset="contentInset"
       :column-spacing="columnSpacing"
-      :contain-banner-view="true"
+      :contain-banner-view="!isAndroid"
       :contain-pull-footer="true"
       :inter-item-spacing="interItemSpacing"
       :number-of-columns="numberOfColumns"
@@ -25,7 +25,7 @@
         </p>
       </pull-header>
       <div
-        v-if="isIos"
+        v-if="!isAndroid"
         class="banner-view"
       >
         <span>BannerView</span>
@@ -94,7 +94,7 @@ const interItemSpacing = 6;
 const numberOfColumns = 2;
 // inner content padding
 const contentInset = { top: 0, left: 5, bottom: 0, right: 5 };
-const isIos = Native.Platform === 'ios';
+const isAndroid = Native.Platform === 'android';
 
 const mockFetchData = async (): Promise<any> => new Promise((resolve) => {
   setTimeout(() => {
@@ -248,7 +248,7 @@ export default defineComponent({
       onRefresh,
       onEndReached,
       onClickItem,
-      isIos,
+      isAndroid,
       onHeaderPulling,
       onFooterPulling,
       onHeaderIdle,
