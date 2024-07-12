@@ -110,6 +110,7 @@ void NativeRenderManager::DestroyRenderDelegate(JNIEnv* j_env) {
   j_env->CallVoidMethod(j_object, j_method_id);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
+  persistent_map_.Erase(id_);
 }
 
 void NativeRenderManager::InitDensity() {
