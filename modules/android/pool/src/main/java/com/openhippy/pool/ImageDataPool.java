@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
 
     private static final int DEFAULT_IMAGE_POOL_SIZE = 16;
+    private final Object mLock = new Object();
     private LruCache<ImageDataKey, ImageRecycleObject> mPools;
 
     public ImageDataPool() {
@@ -50,15 +51,17 @@ public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
     @Override
     @Nullable
     public ImageRecycleObject acquire(@NonNull ImageDataKey key) {
-        ImageRecycleObject data = mPools.get(key);
-        if (data != null && data.isScraped()) {
-            // Bitmap may have been recycled, must be removed from the cache and not
-            // returned to the component.
-            mPools.remove(key);
-            data.evicted();
-            return null;
+        synchronized (mLock) {
+            ImageRecycleObject data = mPools.get(key);
+            if (data != null && data.isScraped()) {
+                // Bitmap may have been recycled, must be removed from the cache and not
+                // returned to the component.
+                mPools.remove(key);
+                data.evicted();
+                return null;
+            }
+            return data;
         }
-        return data;
     }
 
     @Override
@@ -71,18 +74,24 @@ public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
 
     @Override
     public void release(@NonNull ImageDataKey key, @NonNull ImageRecycleObject data) {
-        mPools.put(key, data);
-        data.cached();
+        synchronized (mLock) {
+            mPools.put(key, data);
+            data.cached();
+        }
     }
 
     @Override
     public void clear() {
-        mPools.evictAll();
+        synchronized (mLock) {
+            mPools.evictAll();
+        }
     }
 
     @Override
     public void remove(@NonNull ImageDataKey key) {
-        mPools.remove(key);
+        synchronized (mLock) {
+            mPools.remove(key);
+        }
     }
 
     private void onEntryEvicted(@NonNull ImageRecycleObject data) {
