@@ -436,7 +436,6 @@ static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
 
 @implementation HippyRootContentView {
     __weak HippyBridge *_bridge;
-    UIColor *_backgroundColor;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -482,17 +481,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
             [_bridge.uiManager setFrame:frame fromOriginFrame:originFrame forView:self];
         }
     }
-}
-
-- (void)setBackgroundColor:(UIColor *)backgroundColor {
-    _backgroundColor = backgroundColor;
-    if (self.hippyTag && _bridge.isValid) {
-        [_bridge.uiManager setBackgroundColor:backgroundColor forView:self];
-    }
-}
-
-- (UIColor *)backgroundColor {
-    return _backgroundColor;
 }
 
 - (void)invalidate {

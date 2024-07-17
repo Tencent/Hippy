@@ -323,4 +323,16 @@ Hippy_ARRAY_CONVERTER(HippyFontVariantDescriptor)
     return [self updateFont:font withFamily:nil size:nil weight:nil style:style variant:nil scaleMultiplier:1];
 }
 
++ (NSString *)familyNameWithCSSNameMatching:(NSString *)fontName {
+    NSString *familyName = fontName;
+    if (fontName && ![[UIFont familyNames] containsObject:fontName]) {
+        // Not a real FamilyName
+        // Using CSS name matching semantics.
+        // fontSize here is just a placeholder for getting font.
+        UIFont *cssFont = [UIFont fontWithName:fontName size:14.0];
+        familyName = cssFont.familyName;
+    }
+    return familyName;
+}
+
 @end

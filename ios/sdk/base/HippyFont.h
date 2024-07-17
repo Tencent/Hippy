@@ -44,6 +44,13 @@
 + (UIFont *)updateFont:(UIFont *)font withWeight:(NSString *)weight;
 + (UIFont *)updateFont:(UIFont *)font withStyle:(NSString *)style;
 
+/// Get the
+/// JS side usually pass a `fontName` instead of `fontFamily`
+/// If not match, the original value is returned.
+///
+/// - Parameter fontFamily: NSString *
++ (NSString *)familyNameWithCSSNameMatching:(NSString *)fontName;
+
 @end
 
 @interface HippyConvert (HippyFont)
