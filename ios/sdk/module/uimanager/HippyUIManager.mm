@@ -49,6 +49,9 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyVirtualList.h"
+#import "HippyShadowText.h"
+#import "HippyShadowTextView.h"
+#import "HippyShadowView+MTTLayout.h"
 
 
 @protocol HippyBaseListViewProtocol;
@@ -70,7 +73,7 @@ NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManager
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
 NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
-
+NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNotification";
 
 
 @implementation HippyUIManager {
@@ -107,6 +110,7 @@ HIPPY_EXPORT_MODULE()
         [center addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [center addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
         [center addObserver:self selector:@selector(appWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+        [center addObserver:self selector:@selector(onFontChangedFromNative:) name:HippyFontChangeTriggerNotification object:nil];
     }
     return self;
 }
@@ -144,6 +148,36 @@ HIPPY_EXPORT_MODULE()
         [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
                                                             object:self];
         [self setNeedsLayout];
+    });
+}
+
+- (void)onFontChangedFromNative:(NSNotification *)notification {
+    NSNumber *targetRootTag = notification.object;
+    
+    __weak __typeof(self)weakSelf = self;
+    dispatch_async(HippyGetUIManagerQueue(), ^{
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        if ((targetRootTag != nil) && ![strongSelf->_rootViewTags containsObject:targetRootTag]) {
+            // do compare if notification has target RootView.
+            return;
+        }
+        NSArray<HippyShadowView *> *shadowViews = strongSelf->_shadowViewRegistry.allValues;
+        Class shadowTextClass = [HippyShadowText class];
+        Class shadowTextViewClass = [HippyShadowTextView class];
+        for (HippyShadowView *shadowView in shadowViews) {
+            if ([shadowView isKindOfClass:shadowTextClass]) {
+                [shadowView dirtyText];
+                [shadowView dirtyPropagation];
+            } else if ([shadowView isKindOfClass:shadowTextViewClass]) {
+                [shadowView dirtyText];
+                [shadowView dirtyPropagation];
+                MTTNodeMarkDirty(shadowView.nodeRef);
+            }
+        }
+        [strongSelf setNeedsLayout];
     });
 }
 
@@ -395,25 +429,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
         [self setNeedsLayout];
     });
-}
-
-- (void)setBackgroundColor:(UIColor *)color forView:(UIView *)view {
-    HippyAssertMainQueue();
-    /*
-          NSNumber *hippyTag = view.hippyTag;
-          dispatch_async(HippyGetUIManagerQueue(), ^{
-            if (!self->_viewRegistry) {
-              return;
-            }
-
-            HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
-            HippyAssert(shadowView != nil, @"Could not locate root view with tag #%@", hippyTag);
-            shadowView.backgroundColor = color;
-            [self _amendPendingUIBlocksWithStylePropagationUpdateForShadowView:shadowView];
-            [self flushVirtualNodeBlocks];
-            [self flushUIBlocks];
-          });
-     */
 }
 
 /**
