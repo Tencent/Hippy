@@ -24,9 +24,21 @@
 #import "MTTLayout.h"
 #import "x5LayoutUtil.h"
 #import "HippyShadowView+MTTLayout.h"
+#import "HippyFont.h"
+
 
 @interface HippyShadowTextView ()
+
+/// Cached font
+@property (nonatomic, strong) UIFont *font;
+/// Whether font needs to be updated.
+@property (nonatomic, assign) BOOL isFontDirty;
+/// Cached attributes
 @property (nonatomic, strong) NSDictionary *dicAttributes;
+
+/// rebuild and update the font property
+- (void)rebuildAndUpdateFont;
+
 @end
 
 static MTTSize x5MeasureFunc(
@@ -34,6 +46,11 @@ static MTTSize x5MeasureFunc(
     HippyShadowTextView *shadowText = (__bridge HippyShadowTextView *)MTTNodeGetContext(node);
     NSString *text = shadowText.text ?: shadowText.placeholder;
     if (nil == shadowText.dicAttributes) {
+        if (shadowText.isFontDirty) {
+            [shadowText rebuildAndUpdateFont];
+            shadowText.isFontDirty = NO;
+        }
+        // Keep this historical code, default fontSize 16.
         if (shadowText.font == nil) {
             shadowText.font = [UIFont systemFontOfSize:16];
         }
@@ -93,6 +110,65 @@ static MTTSize x5MeasureFunc(
         newProps = dic;
     }
     return newProps;
+}
+
+- (void)dirtyText {
+    [super dirtyText];
+    self.isFontDirty = YES;
+    self.dicAttributes = nil;
+}
+
+- (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
+            virtualApplierBlocks:(NSMutableSet<HippyApplierVirtualBlock> *)virtualApplierBlocks
+                parentProperties:(NSDictionary<NSString *,id> *)parentProperties {
+    [super collectUpdatedProperties:applierBlocks 
+               virtualApplierBlocks:virtualApplierBlocks
+                   parentProperties:parentProperties];
+    
+    // Set needs layout for font change event, etc.
+    NSNumber *currentTag = self.hippyTag;
+    [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry){
+        UIView *view = viewRegistry[currentTag];
+        [view setNeedsLayout];
+    }];
+}
+
+
+#pragma mark - Font Related
+
+- (void)setFontSize:(NSNumber *)fontSize {
+    _fontSize = fontSize;
+    self.isFontDirty = YES;
+}
+
+- (void)setFontStyle:(NSString *)fontStyle {
+    _fontStyle = fontStyle;
+    self.isFontDirty = YES;
+}
+
+- (void)setFontWeight:(NSString *)fontWeight {
+    _fontWeight = fontWeight;
+    self.isFontDirty = YES;
+}
+
+- (void)setFontFamily:(NSString *)fontFamily {
+    _fontFamily = fontFamily;
+    self.isFontDirty = YES;
+}
+
+- (void)rebuildAndUpdateFont {
+    // Convert fontName to fontFamily if needed
+    NSString *familyName = [HippyFont familyNameWithCSSNameMatching:self.fontFamily];
+    UIFont *font = [HippyFont updateFont:self.font
+                              withFamily:familyName
+                                    size:self.fontSize
+                                  weight:self.fontWeight
+                                   style:self.fontStyle
+                                 variant:nil
+                         scaleMultiplier:1.0];
+    if (self.font != font) {
+        self.font = font;
+    }
 }
 
 @end
