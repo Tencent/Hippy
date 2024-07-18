@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.5](https://github.com/Tencent/Hippy/compare/2.17.4...2.17.5) (2024-07-18)
+
+
+### Bug Fixes
+
+* **hippy-react:** fix declaration for animation and scroll-view ([#3510](https://github.com/Tencent/Hippy/issues/3510)) ([3d8945c](https://github.com/Tencent/Hippy/commit/3d8945c2e53a628db57f6b5da4b8af36f876411f))
+
+
+
+
+
 ## [2.17.3](https://github.com/Tencent/Hippy/compare/2.17.2...2.17.3) (2024-04-10)
 
 **Note:** Version bump only for package @hippy/react

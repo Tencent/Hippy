@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.5](https://github.com/Tencent/Hippy/compare/2.17.4...2.17.5) (2024-07-18)
+
+
+### Bug Fixes
+
+* **android:** resolve local ref overflow ([07ae1da](https://github.com/Tencent/Hippy/commit/07ae1dab0730f2c880d9640e4ec16944b78960f4))
+* **hippy-react:** fix declaration for animation and scroll-view ([#3510](https://github.com/Tencent/Hippy/issues/3510)) ([3d8945c](https://github.com/Tencent/Hippy/commit/3d8945c2e53a628db57f6b5da4b8af36f876411f))
+* **hippy-react:** fix GenericStyleProp recursive problem ([987dc29](https://github.com/Tencent/Hippy/commit/987dc29b373c388c93cad1dff479bf9c7c2aafa2))
+* **hippy-react:** fix TransformsStyle declaration ([634c2f2](https://github.com/Tencent/Hippy/commit/634c2f2da6a9a855c8c30144442b0025d7f0d8eb))
+* **ios:** add a null protection to animation target (new anim module) ([67d4afb](https://github.com/Tencent/Hippy/commit/67d4afb526ecba01a1e1ac87c4963ba671c95f55))
+* **ios:** delay of animationSet not working under new sync mechanism ([c2b6a59](https://github.com/Tencent/Hippy/commit/c2b6a59244efcefcbda7ff5b1a7803d5f55f76cb))
+* **ios:** improve synchronization between animationSets ([8dacfb0](https://github.com/Tencent/Hippy/commit/8dacfb0d94cc967d543da83154a21d6b6eb48176))
+* **ios:** resolve a multithreading issue in Animator ([110f139](https://github.com/Tencent/Hippy/commit/110f139917e1421ddb07f94b3a22b5e3cc0c2bb8))
+* **ios:** responsable region issue of Textinput ([ce67783](https://github.com/Tencent/Hippy/commit/ce677839c49fd5f07b81b311c42ce0e6091a2f0b))
+* **ios:** simultaneous animationSets desynchronize over time ([9b77b8f](https://github.com/Tencent/Hippy/commit/9b77b8ff1f9ed1f7bdd828f3e8f6d4ac9df6d671))
+
+
+### Features
+
+* **ios:** add paragraph styles support for TextInput ([692843a](https://github.com/Tencent/Hippy/commit/692843a5f97213da6001d41af9ab45989c3603c4))
+
+
+
+
+
 ## [2.17.3](https://github.com/Tencent/Hippy/compare/2.17.2...2.17.3) (2024-04-10)
 
 
