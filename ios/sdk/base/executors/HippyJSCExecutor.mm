@@ -320,7 +320,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
         }
     };
     std::unique_ptr<Engine::RegisterMap> ptr = std::make_unique<Engine::RegisterMap>();
-    ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
+    ptr->insert(std::make_pair(hippy::base::kAsyncTaskEndKey, taskEndCB));
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
     ptr->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scopeInitializedCB));
     return ptr;
