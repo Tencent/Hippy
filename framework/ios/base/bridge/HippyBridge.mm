@@ -52,27 +52,24 @@
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "HippyBase64DataHandler.h"
-
-#include <objc/runtime.h>
-#include <sys/utsname.h>
-#include <string>
+#import "NativeRenderManager.h"
+#import "HippyRootView.h"
+#import "UIView+Hippy.h"
+#import "UIView+MountEvent.h"
 
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/scene.h"
 #include "dom/render_manager.h"
 #include "driver/scope.h"
-#include "driver/performance/performance.h"
 #include "footstone/worker_manager.h"
 #include "vfs/uri_loader.h"
 #include "VFSUriHandler.h"
 #include "footstone/logging.h"
 
-#import "NativeRenderManager.h"
-#import "HippyRootView.h"
-#import "UIView+Hippy.h"
-#import "UIView+MountEvent.h"
-
+#include <objc/runtime.h>
+#include <sys/utsname.h>
+#include <string>
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"
@@ -155,8 +152,6 @@ static inline void registerLogDelegateToHippyCore() {
     NSMutableArray<NSURL *> *_bundleURLs;
     NSURL *_sandboxDirectory;
     
-    footstone::TimePoint _startTime;
-    
     std::shared_ptr<VFSUriLoader> _uriLoader;
     std::shared_ptr<hippy::RootNode> _rootNode;
     
@@ -187,6 +182,7 @@ static inline void registerLogDelegateToHippyCore() {
 @synthesize renderManager = _renderManager;
 @synthesize imageLoader = _imageLoader;
 @synthesize imageProviders = _imageProviders;
+@synthesize startTime = _startTime;
 
 dispatch_queue_t HippyJSThread;
 
@@ -439,10 +435,6 @@ dispatch_queue_t HippyBridgeQueue() {
             HippyBridge *strongSelf = weakSelf;
             if (strongSelf) {
                 dispatch_semaphore_signal(strongSelf.moduleSemaphore);
-                footstone::TimePoint endTime = footstone::TimePoint::SystemNow();
-                auto enty = strongSelf.javaScriptExecutor.pScope->GetPerformance()->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
-                enty->SetHippyNativeInitStart(strongSelf->_startTime);
-                enty->SetHippyNativeInitEnd(endTime);
             }
         }];
         
