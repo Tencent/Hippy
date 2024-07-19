@@ -3,10 +3,7 @@
     "strict": true,
     "target": "esnext",
     "module": "esnext",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
+    "lib": ["esnext", "dom"],
     "declaration": true,
     "rootDir": ".",
     "baseUrl": "./",
@@ -17,13 +14,6 @@
     "esModuleInterop": true,
     "noImplicitAny": false
   },
-  "include": [
-    "src/*",
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/dist",
-    "**/node_modules"
-  ]
+  "include": ["src/*", "app.d.ts"],
+  "exclude": ["node_modules", "dist", "**/dist", "**/node_modules"]
 }
