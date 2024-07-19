@@ -22,6 +22,7 @@
 
 #import "HippyBridge+PerformanceAPI.h"
 #import "HippyJSExecutor.h"
+#import "HippyLog.h"
 #import "driver/scope.h"
 
 @implementation HippyBridge (PerformanceAPI)
@@ -38,10 +39,20 @@
         if (!entry) {
             return;
         }
+        entry->SetHippyRunApplicationEnd(domManager->GetDomStartTimePoint());
         entry->SetHippyDomStart(domManager->GetDomStartTimePoint());
         entry->SetHippyDomEnd(domManager->GetDomEndTimePoint());
         entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint());
         entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
+        
+#if HIPPY_DEBUG
+        int64_t totalFPTime = (entry->GetHippyFirstFrameEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
+        auto nativeInit = (entry->GetHippyNativeInitEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
+        auto runApplication = (entry->GetHippyRunApplicationEnd() - entry->GetHippyRunApplicationStart()).ToMilliseconds();
+        auto domCreate = (entry->GetHippyDomEnd() - entry->GetHippyDomStart()).ToMilliseconds();
+        auto firstFrame = (entry->GetHippyFirstFrameEnd() - entry->GetHippyFirstFrameStart()).ToMilliseconds();
+        HippyLogTrace(@"Hippy FP=%lld, detail: %lld, %lld, %lld, %lld", totalFPTime, nativeInit, runApplication, domCreate, firstFrame);
+#endif /* HIPPY_DEBUG */
     }
 }
 

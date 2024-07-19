@@ -24,6 +24,7 @@
 #define HippyBridge_Private_h
 
 #import "HippyBridge.h"
+#import "footstone/time_point.h"
 #include <memory>
 
 class VFSUriLoader;
@@ -45,6 +46,9 @@ class RenderManager;
 
 /// URI Loader
 @property (nonatomic, assign) std::weak_ptr<VFSUriLoader> vfsUriLoader;
+
+/// Start time of hippyBridge, for performance api.
+@property (nonatomic, assign) footstone::TimePoint startTime;
 
 @end
 
