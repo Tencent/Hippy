@@ -209,7 +209,7 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
         std::shared_ptr<napi::CtxValue> propRef = convertObjcObjectToCtxValue(jscCtx, propValue, module);
         std::shared_ptr<JSCCtxValue> ctx_value =
             std::static_pointer_cast<JSCCtxValue>(propRef);
-        JSValueRef valueRef = ctx_value->value_;
+        JSValueRef valueRef = ctx_value ? ctx_value->value_ : nullptr;
         
         JSStringRef propName = JSStringCreateWithCFString((__bridge CFStringRef)propertyName);
         JSValueRef jsError = NULL;
