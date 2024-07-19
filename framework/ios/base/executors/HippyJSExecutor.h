@@ -55,49 +55,59 @@ class UriLoader;
 
 typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 
-/**
- * Default name for the JS thread
- */
-HIPPY_EXTERN NSString *const HippyJSCThreadName;
 
 /**
  * Uses a JavaScriptCore context as the execution engine.
  */
 @interface HippyJSExecutor : NSObject<HippyInvalidating>
 
-@property (nonatomic, strong) HippyBridge *bridge;
+/// HippyBridge instance
+@property (nonatomic, weak) HippyBridge *bridge;
 
 /**
  * Whether the executor has been invalidated
  */
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
+/// EngineKey
 @property (nonatomic, copy) NSString *enginekey;
-/*
- *hippy-core js engine
- */
+
+/// hippy scope
 @property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
 
+/// context created block
 @property(nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
 
+/// Init method
+/// - Parameters:
+///   - engineKey: NSString
+///   - bridge: HippyBridge instance
 - (instancetype)initWithEngineKey:(NSString *)engineKey bridge:(HippyBridge *)bridge;
 
-/**
- * Used to set up the executor after the bridge has been fully initialized.
- * Do any expensive setup in this method instead of `-init`.
- */
+/// Used to set up the executor after bridge has been fully initialized.
 - (void)setup;
 
+/// Set sandbox directory for Hippy
+/// - Parameter directory: NSString
 - (void)setSandboxDirectory:(NSString *)directory;
 
+/// Set context name
+/// - Parameter contextName: NSString
 - (void)setContextName:(NSString *)contextName;
 
+/// Set whether js engine is inspectable
+/// - Parameter inspectable: BOOL
 - (void)setInspecable:(BOOL)inspectable;
 
+/// Set Uri loader
+/// - Parameter uriLoader: vfs::UriLoader
 - (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader;
 
+/// Get turbo object
+/// - Parameter name: NSString
 - (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
+// TODO: 疑似已废弃
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
  * with JSValue, containing the next queue, and JSContext.
@@ -109,7 +119,10 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  * method name and optional additional arguments on the JS thread and calls the
  * given callback with JSValue, containing the next queue, and JSContext.
  */
-- (void)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
+- (void)callFunctionOnModule:(NSString *)moduleName
+                      method:(NSString *)method
+                   arguments:(NSArray *)args
+                    callback:(HippyJavaScriptCallback)onComplete;
 
 /**
  * Executes BatchedBridge.invokeCallbackAndReturnFlushedQueue with the cbID,
