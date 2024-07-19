@@ -214,6 +214,7 @@ void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
         return;
       }
       auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+      entry->SetHippyRunApplicationEnd(dom_manager->GetDomStartTimePoint());
       entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint());
       entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint());
       entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint());
