@@ -527,7 +527,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
   auto cb = [WEAK_THIS, weak_context, value]() mutable {
 #endif
     DEFINE_AND_CHECK_SELF(Scope)
-    // perfromance start time
+    // perfromance - RunApplication start time (end at DomStart)
     auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
     entry->SetHippyRunApplicationStart(footstone::TimePoint::SystemNow());
 
@@ -561,9 +561,6 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
         context->ThrowException("Application entry not found");
       }
     }
-
-    // perfromance end time
-    entry->SetHippyRunApplicationEnd(footstone::TimePoint::SystemNow());
   };
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
