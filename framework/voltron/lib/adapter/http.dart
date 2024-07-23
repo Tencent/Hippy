@@ -65,7 +65,7 @@ abstract class VoltronHttpAdapter with Destroyable {
           statusMessage: e.response?.statusMessage ?? '',
           headerMap: e.response?.headers.map ?? {},
           requestOptions: e.requestOptions,
-          data: e.response?.data,
+          data: e.response?.data??'',
         );
       } else {
         httpResponse = VoltronHttpResponse(
