@@ -1,6 +1,6 @@
 ## 0.0.40
 
--resolve dio error data is null
+- resolve dio error data is null
 
 ## 0.0.39
 
