@@ -2,6 +2,10 @@
 
 -resolve dio error data is null
 
+## 0.0.39
+
+- resolve remoteServerUrl connect without '/'
+
 ## 0.0.38
 
 - resolve remoteServerUrl parse version id failed
