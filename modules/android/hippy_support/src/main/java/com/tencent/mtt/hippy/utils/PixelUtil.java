@@ -21,12 +21,18 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class PixelUtil {
 
     private static DisplayMetrics sDisplayMetrics = null;
+    private static DisplayMetrics sCustomDisplayMetrics = null;
 
     public static DisplayMetrics getMetrics() {
+        if (sCustomDisplayMetrics != null) {
+            return sCustomDisplayMetrics;
+        }
         if (sDisplayMetrics == null) {
             sDisplayMetrics = new DisplayMetrics();
             WindowManager windowManager = (WindowManager) ContextHolder.getAppContext()
@@ -37,12 +43,17 @@ public class PixelUtil {
         return sDisplayMetrics;
     }
 
+    @Nullable
+    public static DisplayMetrics getCustomDisplayMetrics() {
+        return sCustomDisplayMetrics;
+    }
+
     /**
      * Set display metrics, call by host app
      */
     @SuppressWarnings("unused")
-    public static void setDisplayMetrics(DisplayMetrics metrics) {
-        sDisplayMetrics = metrics;
+    public static void setDisplayMetrics(@NonNull DisplayMetrics metrics) {
+        sCustomDisplayMetrics = metrics;
     }
 
     /**
