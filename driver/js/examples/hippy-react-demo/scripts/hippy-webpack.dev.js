@@ -17,7 +17,7 @@ module.exports = {
     // remote debug server address
     remote: {
       protocol: 'http',
-      host: '127.0.0.1',
+      host: '192.168.80.11',
       port: 38989,
     },
     // support inspect react components, store and router, by default is disabled
@@ -67,7 +67,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(jsx?)$/,
+        test: /\.((j|t)sx?)$/,
         exclude: /@hippy\/hippy-react-devtools-plugin/,
         use: [
           {
@@ -76,6 +76,7 @@ module.exports = {
               sourceType: 'unambiguous',
               presets: [
                 '@babel/preset-react',
+                '@babel/preset-typescript',
                 [
                   '@babel/preset-env',
                   {
@@ -117,7 +118,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: (() => {
       const aliases = {};
