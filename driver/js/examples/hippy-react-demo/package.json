@@ -22,9 +22,9 @@
     "React"
   ],
   "dependencies": {
-    "@hippy/react": "v3.0-dev",
+    "@hippy/react": "v3.3-latest",
     "@hippy/react-reconciler": "react17",
-    "@hippy/react-web": "v3.0-dev",
+    "@hippy/react-web": "v3.3-latest",
     "@hippy/rmc-list-view": "latest",
     "@hippy/rmc-pull-to-refresh": "latest",
     "@hippy/web-renderer": "latest",
