@@ -173,7 +173,7 @@ public class DimensionsUtil {
         if (context == null) {
             return null;
         }
-        DisplayMetrics windowDisplayMetrics = PixelUtil.getMetrics();
+        DisplayMetrics windowDisplayMetrics = PixelUtil.getCustomDisplayMetrics();
         if (windowDisplayMetrics == null) {
             windowDisplayMetrics = context.getResources().getDisplayMetrics();
         }
