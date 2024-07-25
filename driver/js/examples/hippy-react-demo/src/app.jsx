@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import {
   ConsoleModule,
 } from '@hippy/react';
-import HomeEntry from './pages/entry';
-import ContainerView from './shared/ContainerView';
+import { View, Text } from '@hippy/react';
 
 export default class App extends Component {
   componentDidMount() {
@@ -12,9 +11,9 @@ export default class App extends Component {
 
   render() {
     return (
-      <ContainerView>
-        <HomeEntry />
-      </ContainerView>
+      <View style={{ backgroundColor: '#f0f0f0f0', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontSize: 24, color: '#0f0f0f' }}>Hello World!</Text>
+      </View>
     );
   }
 }
