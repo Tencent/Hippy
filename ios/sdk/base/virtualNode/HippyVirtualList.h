@@ -26,7 +26,6 @@
 
 @property (nonatomic, copy) NSString *itemViewType;
 @property (nonatomic, assign) BOOL sticky;
-@property (nonatomic, weak) UIView *cell;
 @property (nonatomic, weak) HippyVirtualList *listNode;
 
 @end
