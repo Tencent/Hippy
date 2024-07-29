@@ -648,7 +648,9 @@ void TaitankLayoutNode::SetPosition(Edge edge, float position) {
 void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
   assert(engine_node_ != nullptr);
   TaitankConfigRef config = engine_node_->GetConfig();
-  config->SetScaleFactor(sacle_factor);
+  if (config) {
+    config->SetScaleFactor(sacle_factor);
+  }
 }
 
 void TaitankLayoutNode::SetMaxWidth(float max_width) {
@@ -821,6 +823,7 @@ void TaitankLayoutNode::Allocate() { engine_node_ = new TaitankNode(); }
 void TaitankLayoutNode::Deallocate() {
   if (engine_node_ == nullptr) return;
   delete engine_node_;
+  engine_node_ = nullptr;
 }
 
 void InitLayoutConsts() {
