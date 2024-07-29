@@ -4,6 +4,7 @@ import {
   View,
   Text,
   ViewPager,
+  RefreshWrapper,
 } from '@hippy/react';
 import { CirclePagerView, SquarePagerView, TrianglePagerView } from '../../shared/PagerItemView';
 
@@ -65,6 +66,8 @@ export default class PagerExample extends React.Component {
       super(props);
       this.onPageSelected = this.onPageSelected.bind(this);
       this.onPageScrollStateChanged = this.onPageScrollStateChanged.bind(this);
+      this.onRefresh = this.onRefresh.bind(this);
+      this.getRefresh = this.getRefresh.bind(this);
     }
 
     onPageSelected(pageData) {
@@ -81,6 +84,25 @@ export default class PagerExample extends React.Component {
     onPageScroll({ offset, position }) {
       console.log('onPageScroll', offset, position);
     }
+
+    onRefresh() {
+      setTimeout(async () => {
+        console.log('raytest RefreshWrapper onRefresh');
+        this.refresh.refreshCompleted();
+      }, 3000);
+    }
+
+    getRefresh() {
+      return (
+      <View style={{ flex: 1, width: 80, backgroundColor: 'green' }}>
+        <View style={{ flex: 2 }}></View>
+        <View style={{ width: 40, height: 40, alignSelf: 'center', backgroundColor: 'red' }}></View>
+        <Text style={{ flex: 1, marginTop: 10, textAlign: 'center' }}>刷新中...</Text>
+        <View style={{ flex: 2 }}></View>
+      </View>
+      );
+    }
+
     render() {
       const { selectedIndex } = this.state;
       return (
@@ -98,26 +120,41 @@ export default class PagerExample extends React.Component {
               <Text style={styles.buttonText}>直接滑到第1页</Text>
             </View>
           </View>
-          <ViewPager
+
+          <RefreshWrapper
             ref={(ref) => {
-              this.viewpager = ref;
+              this.refresh = ref;
             }}
-            style={styles.container}
-            initialPage={0}
-            keyboardDismissMode="none"
-            scrollEnabled
-            onPageSelected={this.onPageSelected}
-            onPageScrollStateChanged={this.onPageScrollStateChanged}
-            onPageScroll={this.onPageScroll}
+            style={{ flex: 1 }}
+            horizontal={true}
+            onRefresh={this.onRefresh}
+            bounceTime={500}
+            getRefresh={this.getRefresh}
           >
-            {
-              [
-                SquarePagerView('squarePager'),
-                TrianglePagerView('TrianglePager'),
-                CirclePagerView('CirclePager'),
-              ]
-            }
-          </ViewPager>
+
+            <ViewPager
+              ref={(ref) => {
+                this.viewpager = ref;
+              }}
+              style={styles.container}
+              initialPage={0}
+              keyboardDismissMode="none"
+              scrollEnabled
+              onPageSelected={this.onPageSelected}
+              onPageScrollStateChanged={this.onPageScrollStateChanged}
+              onPageScroll={this.onPageScroll}
+            >
+              {
+                [
+                  SquarePagerView('squarePager'),
+                  TrianglePagerView('TrianglePager'),
+                  CirclePagerView('CirclePager'),
+                ]
+              }
+            </ViewPager>
+
+            </RefreshWrapper>
+
           <View style={styles.dotContainer}>
             {
               new Array(PAGE_COUNT).fill(0)

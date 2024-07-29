@@ -25,6 +25,7 @@ import Element from '../dom/element-node';
 
 export interface RefreshWrapperProps {
   bounceTime?: number;
+  horizontal?: boolean;
   onRefresh?: () => void;
   getRefresh?: () => ReactElement;
 }
@@ -63,7 +64,10 @@ export class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    */
   public render() {
     const { children, ...nativeProps } = this.props;
-    const style: CSSProperties = { left: 0, right: 0, position: 'absolute' };
+    // Set the style according to the horizontal prop
+    const style: CSSProperties = nativeProps.horizontal
+    ? { top: 0, bottom: 0, position: 'absolute' }
+    : { left: 0, right: 0, position: 'absolute' };
     return (
       <div nativeName="RefreshWrapper" ref={(ref) => {
         this.instance = ref;
