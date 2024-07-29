@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import "HippyDefines.h"
 #import "HippyComponent.h"
 #import "HippyViewEventProtocol.h"
 
