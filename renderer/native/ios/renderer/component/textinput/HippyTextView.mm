@@ -21,7 +21,6 @@
  */
 
 #import "HippyTextView.h"
-
 #import "HippyConvert.h"
 #import "HippyShadowText.h"
 #import "HippyText.h"
@@ -29,7 +28,7 @@
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
 
-@implementation NativeRenderUITextView
+@implementation HippyUITextView
 
 - (void)paste:(id)sender {
     _textWasPasted = YES;
@@ -70,9 +69,15 @@
 - (void)setCaretColor:(UIColor*)color{
     self.tintColor = color;
 }
+
+- (void)setCanEdit:(BOOL)canEdit {
+    _canEdit = canEdit;
+    [self setEditable:canEdit];
+}
+
 @end
 
-@interface HippyTextView () <NativeRenderUITextViewResponseDelegate>
+@interface HippyTextView () <HippyUITextViewResponseDelegate>
 
 /// ParagraphStyle for TextView and PlaceholderView,
 /// used for lineHeight config and etc.
@@ -130,7 +135,7 @@
         [self setContentInset:UIEdgeInsetsZero];
         _placeholderTextColor = [self defaultPlaceholderTextColor];
         _blurOnSubmit = NO;
-        _textView = [[NativeRenderUITextView alloc] initWithFrame:CGRectZero];
+        _textView = [[HippyUITextView alloc] initWithFrame:CGRectZero];
         _textView.responderDelegate = self;
         _textView.backgroundColor = [UIColor clearColor];
         _textView.textColor = [UIColor blackColor];
@@ -557,7 +562,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     return YES;
 }
 
-- (BOOL)textView:(NativeRenderUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+- (BOOL)textView:(HippyUITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     if (_onKeyPress) {
         NSString *resultKey = text;
         if ([text isEqualToString:@" "]) {
@@ -627,7 +632,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     return YES;
 }
 
-- (void)textViewDidChangeSelection:(NativeRenderUITextView *)textView {
+- (void)textViewDidChangeSelection:(HippyUITextView *)textView {
     if (_onSelectionChange && textView.selectedTextRange != _previousSelectionRange
         && ![textView.selectedTextRange isEqual:_previousSelectionRange]) {
         _previousSelectionRange = textView.selectedTextRange;

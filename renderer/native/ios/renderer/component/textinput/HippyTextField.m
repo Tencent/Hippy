@@ -63,9 +63,9 @@
     }
 }
 
-- (void)setEditable:(BOOL)editable {
-    _editable = editable;
-    [self setEnabled:editable];
+- (void)setCanEdit:(BOOL)canEdit {
+    _canEdit = canEdit;
+    [self setEnabled:canEdit];
 }
 
 - (void)paste:(id)sender {
