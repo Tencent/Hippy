@@ -24,50 +24,26 @@
 #import "UIView+Hippy.h"
 #import "HippyRefreshWrapperItemView.h"
 #import "HippyScrollableProtocol.h"
+
+
+static NSTimeInterval const kHippyDefaultRefreshBounceTime = 400.0;
+
 @interface HippyRefreshWrapper () <UIScrollViewDelegate>
+
+/// The child view of RefreshWrapper
 @property (nonatomic, weak) HippyRefreshWrapperItemView *wrapperItemView;
+/// Scrollable target
 @property (nonatomic, weak) id<HippyScrollableProtocol> scrollableView;
-@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
-@property (nonatomic, assign) CGFloat bounceTime;
-@property (nonatomic, weak) HippyBridge *bridge;
+
 @end
+
 @implementation HippyRefreshWrapper
+
 - (void)addSubview:(UIView *)view {
     if (view != _wrapperItemView) {
         [super addSubview:view];
     }
     [self refactorViews];
-}
-
-- (void)refactorViews {
-    if (_wrapperItemView && _scrollableView) {
-        CGSize size = _wrapperItemView.frame.size;
-        _wrapperItemView.frame = CGRectMake(0, -size.height, size.width, size.height);
-        [_scrollableView.realScrollView addSubview:_wrapperItemView];
-    }
-}
-
-- (void)refreshCompleted {
-    CGFloat duration = _bounceTime != 0 ? _bounceTime : 400;
-    UIEdgeInsets contentInset = self->_scrollableView.realScrollView.contentInset;
-    contentInset.top = 0;
-    [UIView animateWithDuration:duration / 1000.f animations:^{
-        [self->_scrollableView.realScrollView setContentInset:contentInset];
-    }];
-}
-
-- (void)startRefresh {
-    CGFloat wrapperItemViewHeight = _wrapperItemView.frame.size.height;
-    UIEdgeInsets insets = _scrollableView.realScrollView.contentInset;
-    insets.top = wrapperItemViewHeight;
-    CGFloat duration = _bounceTime != 0 ? _bounceTime : 400;
-    [UIView animateWithDuration:duration / 1000.f animations:^{
-        [self->_scrollableView.realScrollView setContentInset:insets];
-        [self->_scrollableView.realScrollView setContentOffset:CGPointMake(0, -insets.top)];
-    }];
-    if (_onRefresh) {
-        _onRefresh(@{});
-    }
 }
 
 - (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)index {
@@ -84,15 +60,81 @@
     [_scrollableView removeScrollListener:self];
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    CGFloat wrapperItemViewHeight = _wrapperItemView.frame.size.height;
-    UIEdgeInsets insets = scrollView.contentInset;
-    CGFloat contentOffsetY = scrollView.contentOffset.y;
-    if (contentOffsetY <= -wrapperItemViewHeight && insets.top != wrapperItemViewHeight) {
+
+#pragma mark - Public & Private Methods
+
+- (void)refactorViews {
+    if (_wrapperItemView && _scrollableView) {
+        CGSize size = _wrapperItemView.frame.size;
+        if (self.isHorizontal) {
+            _wrapperItemView.frame = CGRectMake(-size.width, 0, size.width, size.height);
+        } else {
+            _wrapperItemView.frame = CGRectMake(0, -size.height, size.width, size.height);
+        }
+        [_scrollableView.realScrollView addSubview:_wrapperItemView];
+    }
+}
+
+- (void)refreshCompleted {
+    CGFloat duration = _bounceTime != 0 ? _bounceTime : kHippyDefaultRefreshBounceTime;
+    UIEdgeInsets contentInset = self.scrollableView.realScrollView.contentInset;
+    if (self.isHorizontal) {
+        contentInset.left = 0;
+    } else {
+        contentInset.top = 0;
+    }
+    [UIView animateWithDuration:duration / 1000.0 animations:^{
+        [self.scrollableView.realScrollView setContentInset:contentInset];
+    }];
+}
+
+- (void)startRefresh {
+    UIEdgeInsets insets = _scrollableView.realScrollView.contentInset;
+    CGPoint targetContentOffset;
+    if (self.isHorizontal) {
+        CGFloat wrapperItemViewWidth = CGRectGetWidth(_wrapperItemView.frame);
+        insets.left = wrapperItemViewWidth;
+        targetContentOffset = CGPointMake(-wrapperItemViewWidth, 0);
+    } else {
+        CGFloat wrapperItemViewHeight = CGRectGetHeight(_wrapperItemView.frame);
         insets.top = wrapperItemViewHeight;
-        scrollView.contentInset = insets;
-        if (_onRefresh) {
-            _onRefresh(@{});
+        targetContentOffset = CGPointMake(0, -wrapperItemViewHeight);
+    }
+    
+    CGFloat duration = _bounceTime > DBL_EPSILON ? _bounceTime : kHippyDefaultRefreshBounceTime;
+    [UIView animateWithDuration:duration / 1000.0 animations:^{
+        [self.scrollableView.realScrollView setContentInset:insets];
+        [self.scrollableView.realScrollView setContentOffset:targetContentOffset];
+    }];
+    if (_onRefresh) {
+        _onRefresh(@{});
+    }
+}
+
+#pragma mark - ScrollListener, UIScrollViewDelegate
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView 
+                     withVelocity:(CGPoint)velocity
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
+    UIEdgeInsets insets = scrollView.contentInset;
+    if (self.isHorizontal) {
+        CGFloat wrapperItemViewWidth = CGRectGetWidth(_wrapperItemView.frame);
+        CGFloat contentOffsetX = scrollView.contentOffset.x;
+        if (contentOffsetX <= -wrapperItemViewWidth && insets.left != wrapperItemViewWidth) {
+            // Update the end sliding state of scrollview
+            targetContentOffset->x = -wrapperItemViewWidth;
+            // start refresh and call js
+            [self startRefresh];
+        }
+    } else {
+        CGFloat wrapperItemViewHeight = CGRectGetHeight(_wrapperItemView.frame);
+        CGFloat contentOffsetY = scrollView.contentOffset.y;
+        if (contentOffsetY <= -wrapperItemViewHeight && insets.top != wrapperItemViewHeight) {
+            insets.top = wrapperItemViewHeight;
+            scrollView.contentInset = insets;
+            if (_onRefresh) {
+                _onRefresh(@{});
+            }
         }
     }
 }

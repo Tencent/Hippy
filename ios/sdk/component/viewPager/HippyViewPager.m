@@ -325,7 +325,16 @@
     self.previousStopOffset = [self contentOffset].x;
 }
 
-#pragma mark scrollview listener methods
+#pragma mark - scrollview listener methods
+
+- (UIScrollView *)realScrollView {
+    return self;
+}
+
+- (NSHashTable *)scrollListeners {
+    return _scrollViewListener;
+}
+
 - (void)addScrollListener:(id<UIScrollViewDelegate>)scrollListener {
     [_scrollViewListener addObject:scrollListener];
 }

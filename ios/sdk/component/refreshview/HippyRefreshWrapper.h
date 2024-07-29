@@ -21,12 +21,31 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyComponent.h"
 #import "HippyInvalidating.h"
+
 NS_ASSUME_NONNULL_BEGIN
+
 @class HippyBridge;
+
+/// RefreshWrapper add refresh capability to scrollable components such as ListView
 @interface HippyRefreshWrapper : UIView <HippyInvalidating>
+
+/// Direction of Refresh
+@property (nonatomic, assign, getter=isHorizontal) BOOL horizontal;
+
+/// Bounce time of refresh start/end animation
+@property (nonatomic, assign) CGFloat bounceTime;
+
+/// The onRefresh block that JS side binding.
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
+
+/// Call to indicate refresh completion.
 - (void)refreshCompleted;
+
+/// Call to start the refresh process.
 - (void)startRefresh;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -21,13 +21,7 @@
  */
 #import "HippyRefreshWrapperItemView.h"
 #import "UIView+Hippy.h"
-@implementation HippyRefreshWrapperItemView
 
-- (void)setFrame:(CGRect)frame {
-    if ([self.superview isKindOfClass:[UIScrollView class]]) {
-        frame.origin.y = -frame.size.height;
-    }
-    [super setFrame:frame];
-}
+@implementation HippyRefreshWrapperItemView
 
 @end

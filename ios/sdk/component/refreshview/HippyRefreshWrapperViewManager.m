@@ -27,11 +27,13 @@
 
 HIPPY_EXPORT_MODULE(RefreshWrapper)
 
+HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
 
-HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 - (UIView *)view {
-    return [HippyRefreshWrapper new];
+    HippyRefreshWrapper *refreshWrapper = [HippyRefreshWrapper new];
+    return refreshWrapper;
 }
 
 HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg) {
