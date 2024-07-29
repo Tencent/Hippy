@@ -35,6 +35,9 @@
 @end
 
 @interface HippyUITextView : UITextView
+/// iOS18's UITextInput adds an `editable` property, which conflicts with the one defined in HippyUITextField.
+/// For consistency, we added a canEdit property here too, which has the same meaning as editable
+@property (nonatomic, assign) BOOL canEdit;
 @property (nonatomic, assign) BOOL textWasPasted;
 @property (nonatomic, weak) id<HippyUITextViewResponseDelegate> responderDelegate;
 @end

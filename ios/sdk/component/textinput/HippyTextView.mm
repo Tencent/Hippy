@@ -73,6 +73,11 @@
     }
 }
 
+- (void)setCanEdit:(BOOL)canEdit {
+    _canEdit = canEdit;
+    [self setEditable:canEdit];
+}
+
 @end
 
 @interface HippyTextView () <HippyUITextViewResponseDelegate>
