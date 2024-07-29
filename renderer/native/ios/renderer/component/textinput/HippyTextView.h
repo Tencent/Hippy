@@ -21,25 +21,35 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyView.h"
 #import "HippyBaseTextInput.h"
 #import "UIView+Hippy.h"
 
-@protocol NativeRenderUITextViewResponseDelegate <NSObject>
+
+/// Response delegate of HippyUITextView
+@protocol HippyUITextViewResponseDelegate <NSObject>
 @required
 - (void)textview_becomeFirstResponder;
 - (void)textview_resignFirstResponder;
 @end
 
-@interface NativeRenderUITextView : UITextView
+
+/// UITextView's Hippy Extension
+@interface HippyUITextView : UITextView
+/// iOS18's UITextInput adds an `editable` property, which conflicts with the one defined in HippyUITextField.
+/// For consistency, we added a canEdit property here too, which has the same meaning as editable
+@property (nonatomic, assign) BOOL canEdit;
+/// Indicate whether text was pasted
 @property (nonatomic, assign) BOOL textWasPasted;
-@property (nonatomic, weak) id<NativeRenderUITextViewResponseDelegate> responderDelegate;
+/// Response delegate of HippyUITextView
+@property (nonatomic, weak) id<HippyUITextViewResponseDelegate> responderDelegate;
 @end
 
+
+/// Hippy multi-line TextView component
 @interface HippyTextView : HippyBaseTextInput <UITextViewDelegate> {
 @protected
-    NativeRenderUITextView *_textView;
+    HippyUITextView *_textView;
 }
 
 @property (nonatomic, assign) BOOL autoCorrect;
