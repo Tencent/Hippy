@@ -952,7 +952,22 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                 return;
             }
         }
-        [uiManager createViewByComponentData:componentData hippyVirtualNode:node hippyTag:hippyTag properties:newProps viewName:viewName];
+        
+#if HIPPY_DEV
+        UIView *view = [uiManager createViewByComponentData:componentData
+                                           hippyVirtualNode:node
+                                                   hippyTag:hippyTag
+                                                 properties:newProps
+                                                   viewName:viewName];
+
+        view._DEBUG_hippyShadowView = shadowView;
+#else
+        UIView *view = [uiManager createViewByComponentData:componentData
+                                           hippyVirtualNode:node
+                                                   hippyTag:hippyTag
+                                                 properties:newProps
+                                                   viewName:viewName];
+#endif /* HIPPY_DEV */
     }];
     
     [self addVirtulNodeBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,HippyVirtualNode *> *virtualNodeRegistry) {
