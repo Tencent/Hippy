@@ -68,6 +68,8 @@ export default class PagerExample extends React.Component {
       this.onPageScrollStateChanged = this.onPageScrollStateChanged.bind(this);
       this.onRefresh = this.onRefresh.bind(this);
       this.getRefresh = this.getRefresh.bind(this);
+      this.onFooterRefresh = this.onFooterRefresh.bind(this);
+      this.getFooterRefresh = this.getFooterRefresh.bind(this);
     }
 
     onPageSelected(pageData) {
@@ -85,14 +87,44 @@ export default class PagerExample extends React.Component {
       console.log('onPageScroll', offset, position);
     }
 
+    /**
+     * callback for header
+     */
     onRefresh() {
       setTimeout(async () => {
-        console.log('raytest RefreshWrapper onRefresh');
+        console.log('RefreshWrapper onRefresh');
         this.refresh.refreshCompleted();
       }, 3000);
     }
 
+    /**
+     *  get header view
+     */
     getRefresh() {
+      return (
+      <View style={{ flex: 1, width: 80, backgroundColor: 'green' }}>
+        <View style={{ flex: 2 }}></View>
+        <View style={{ width: 40, height: 40, alignSelf: 'center', backgroundColor: 'red' }}></View>
+        <Text style={{ flex: 1, marginTop: 10, textAlign: 'center' }}>刷新中...</Text>
+        <View style={{ flex: 2 }}></View>
+      </View>
+      );
+    }
+
+    /**
+     * callback for footer
+     */
+    onFooterRefresh() {
+      setTimeout(async () => {
+        console.log('RefreshWrapper onFooterRefresh');
+        this.refresh.refreshFooterCompleted();
+      }, 3000);
+    }
+
+    /**
+     *  get footer view
+     */
+    getFooterRefresh() {
       return (
       <View style={{ flex: 1, width: 80, backgroundColor: 'green' }}>
         <View style={{ flex: 2 }}></View>
@@ -127,9 +159,13 @@ export default class PagerExample extends React.Component {
             }}
             style={{ flex: 1 }}
             horizontal={true}
+            hiddenHeader={false}
+            showFooter={true}
             onRefresh={this.onRefresh}
+            onFooterRefresh={this.onFooterRefresh}
             bounceTime={500}
             getRefresh={this.getRefresh}
+            getFooterRefresh={this.getFooterRefresh}
           >
 
             <ViewPager
