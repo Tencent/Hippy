@@ -40,11 +40,20 @@ NS_ASSUME_NONNULL_BEGIN
 /// The onRefresh block that JS side binding.
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 
+/// The footer onRefresh block that JS side binding.
+@property (nonatomic, copy) HippyDirectEventBlock onFooterRefresh;
+
 /// Call to indicate refresh completion.
 - (void)refreshCompleted;
 
+/// Call to indicate refresh footer completion.
+- (void)refreshFooterCompleted;
+
 /// Call to start the refresh process.
 - (void)startRefresh;
+
+/// Call to start the footer refresh process.
+- (void)startRefreshFooter;
 
 @end
 

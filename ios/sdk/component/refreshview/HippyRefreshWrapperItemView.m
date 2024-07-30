@@ -19,9 +19,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #import "HippyRefreshWrapperItemView.h"
-#import "UIView+Hippy.h"
 
 @implementation HippyRefreshWrapperItemView
+
+@end
+
+@implementation HippyRefreshWrapperFooterItemView
 
 @end
