@@ -42,13 +42,9 @@ export interface RefreshWrapperProps {
  */
 export class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
-  private refreshComplected: () => void;
-  private refreshFooterComplected: () => void;
 
   public constructor(props: RefreshWrapperProps) {
     super(props);
-    this.refreshComplected = this.refreshCompleted.bind(this);
-    this.refreshFooterComplected = this.refreshFooterCompleted.bind(this);
   }
 
   /**
@@ -76,7 +72,7 @@ export class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    * Call native that data is refreshed. (For Footer)
    */
   public refreshFooterCompleted() {
-    callUIFunction(this.instance as Element, 'refreshFooterComplected', null);
+    callUIFunction(this.instance as Element, 'refreshFooterCompleted', null);
   }
 
   /**
