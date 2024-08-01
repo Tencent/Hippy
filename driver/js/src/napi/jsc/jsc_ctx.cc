@@ -939,7 +939,7 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
 
 string_view JSCCtx::GetExceptionMessage(const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
-    return string_view();
+    return string_view("");
   }
 
   std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(exception, string_view(kMessageStr, ARRAY_SIZE(kMessageStr) - 1));

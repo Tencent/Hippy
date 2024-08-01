@@ -126,6 +126,7 @@ Scope::Scope(std::weak_ptr<Engine> engine,
       context_(nullptr),
       name_(std::move(name)),
       call_ui_function_callback_id_(0),
+      extra_function_map_(std::make_unique<RegisterMap>()),
       performance_(std::make_shared<Performance>()) {}
 
 Scope::~Scope() {
