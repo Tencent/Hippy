@@ -17,13 +17,14 @@
 package com.tencent.mtt.hippy.common;
 
 import androidx.annotation.Nullable;
+import java.lang.ref.WeakReference;
 
 public class ThreadExecutor implements Thread.UncaughtExceptionHandler {
 
     private final HippyHandlerThread mBridgeThread;
     private final HippyHandlerThread mModuleThread;
     @Nullable
-    private UncaughtExceptionHandler mUncaughtExceptionHandler;
+    private WeakReference<UncaughtExceptionHandler> mUncaughtExceptionHandlerRef;
     private final int mGroupId;
 
     public ThreadExecutor(int groupId) {
@@ -35,7 +36,7 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler {
     }
 
     public void setUncaughtExceptionHandler(UncaughtExceptionHandler exceptionHandler) {
-        mUncaughtExceptionHandler = exceptionHandler;
+        mUncaughtExceptionHandlerRef = new WeakReference<>(exceptionHandler);
     }
 
     public void destroy() {
@@ -47,7 +48,6 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler {
             mBridgeThread.quit();
             mBridgeThread.setUncaughtExceptionHandler(null);
         }
-        mUncaughtExceptionHandler = null;
     }
 
     public HippyHandlerThread getModuleThread() {
@@ -60,8 +60,11 @@ public class ThreadExecutor implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        if (mUncaughtExceptionHandler != null) {
-            mUncaughtExceptionHandler.handleThreadUncaughtException(t, e, mGroupId);
+        if (mUncaughtExceptionHandlerRef != null) {
+            UncaughtExceptionHandler handler = mUncaughtExceptionHandlerRef.get();
+            if (handler != null) {
+                handler.handleThreadUncaughtException(t, e, mGroupId);
+            }
         } else {
             throw new RuntimeException(e);
         }

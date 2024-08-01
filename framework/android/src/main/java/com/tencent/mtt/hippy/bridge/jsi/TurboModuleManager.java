@@ -16,11 +16,13 @@
 package com.tencent.mtt.hippy.bridge.jsi;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.common.ThreadExecutor.UncaughtExceptionHandler;
 import com.tencent.mtt.hippy.modules.HippyModuleManagerImpl;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,10 +30,10 @@ public class TurboModuleManager {
   public static final String TAG = "TurboModuleManager";
 
   private final Map<String, HippyNativeModuleBase> mModuleMap = new HashMap<>();
-  private final HippyEngineContext mHippyEngineContext;
+  private final WeakReference<HippyEngineContext> mHippyEngineContextRef;
 
   public TurboModuleManager(HippyEngineContext context) {
-    mHippyEngineContext = context;
+    mHippyEngineContextRef = new WeakReference<>(context);
   }
 
   public HippyNativeModuleBase get(String name) {
@@ -40,8 +42,11 @@ public class TurboModuleManager {
     if (module != null) {
       return module;
     }
-
-    HippyModuleManagerImpl hippyModuleManager = (HippyModuleManagerImpl) mHippyEngineContext.getModuleManager();
+    HippyEngineContext engineContext = mHippyEngineContextRef.get();
+    if (engineContext == null) {
+      return null;
+    }
+    HippyModuleManagerImpl hippyModuleManager = (HippyModuleManagerImpl) engineContext.getModuleManager();
     HippyNativeModuleInfo moduleInfo = hippyModuleManager.getNativeModuleInfo().get(name);
     if (moduleInfo == null) {
       return null;
