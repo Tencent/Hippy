@@ -30,6 +30,7 @@
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
 #import "HippyVirtualList.h"
+#import "HippyReusableNodeCache.h"
 
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
@@ -47,6 +48,9 @@
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
     NSArray<HippyBaseListViewCell *> *_previousVisibleCells;
+    
+    // Reusable Node Cache
+    HippyReusableNodeCache *_reusableNodeCache;
 }
 
 @synthesize node = _node;
@@ -59,6 +63,7 @@
         _isInitialListReady = NO;
         _preNumberOfRows = 0;
         _preloadItemNumber = 1;
+        _reusableNodeCache = [[HippyReusableNodeCache alloc] init];
         [self initTableView];
     }
 
@@ -275,6 +280,8 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     HippyVirtualCell *node = [_dataSource cellForIndexPath:indexPath];
+    [_reusableNodeCache removeNode:node forIdentifier:node.itemViewType];
+    HippyLogTrace(@"ListViewDebug willDisplayCell:%@, remove cellNode from queue: %@ ", @(indexPath.row), node.hippyTag);
     NSInteger index = [_subNodes indexOfObject:node];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -307,13 +314,20 @@
     NSAssert([cell isKindOfClass:[HippyBaseListViewCell class]], @"cell must be subclass of HippyBaseListViewCell");
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
         HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
-        hippyCell.node.cell = nil;
+        HippyVirtualCell *cellNode = [_dataSource cellForIndexPath:indexPath];
+        NSString *reuseIdentifier = cellNode.itemViewType;
+        if (cellNode && reuseIdentifier) {
+            HippyLogTrace(@"ListViewDebug endDisplay:%@, enque cellNode: %@ for %@", @(indexPath.row), cellNode.hippyTag, reuseIdentifier);
+            [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
+            hippyCell.node = nil;
+        }
     }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     HippyVirtualCell *indexNode = [_dataSource cellForIndexPath:indexPath];
     NSString *identifier = indexNode.itemViewType;
+    HippyLogTrace(@"ListViewDebug --- Start CellForRow indexPath: %@ - %@", @(indexPath.row), identifier);
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
     if (nil == cell) {
         Class cls = [self listViewCellClass];
@@ -321,20 +335,34 @@
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
+    
     UIView *cellView = nil;
-    if (cell.node.cell) {
-        cellView = [_bridge.uiManager createViewFromNode:indexNode];
+    UIView *cachedView = [_bridge.uiManager viewForHippyTag:indexNode.hippyTag];
+    if (cachedView) {
+        // First, try to get cached cellView in viewRegistry
+        cellView = cachedView;
+        HippyLogTrace(@"ListViewDebug row: %@ === start reuse cache(%@), cellType:%@", @(indexPath.row), indexNode.hippyTag, identifier);
     } else {
-        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
-        if (nil == cellView) {
+        // If no cache in viewRegistry, try get one resuable virtual node for later use.
+        HippyVirtualNode *reusedNode = [_reusableNodeCache dequeueItemNodeForIdentifier:identifier];
+        HippyLogTrace(@"ListViewDebug row: %@ === start update node from %@ to %@, cellType:%@",
+              @(indexPath.row), reusedNode.hippyTag, indexNode.hippyTag, identifier);
+        
+        if (reusedNode) {
+            cellView = [_bridge.uiManager updateNode:reusedNode withNode:indexNode];
+        }
+        if (!cellView) {
+            // If no cellView from reuse, create one.
+            HippyLogTrace(@"ListViewDebug row: %@ === create View from Node: %@, cellType:%@", @(indexPath.row), indexNode.hippyTag, identifier);
             cellView = [_bridge.uiManager createViewFromNode:indexNode];
         }
     }
+
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
     cell.node = indexNode;
-    cell.node.cell = cell;
+    HippyLogTrace(@"ListViewDebug ### End CellForRow indexPath end:%@, type:%@, tag:%@", @(indexPath.row), identifier, cell.node.hippyTag);
     return cell;
 }
 

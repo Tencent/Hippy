@@ -24,7 +24,7 @@
 #import "HippyVirtualNode.h"
 
 @interface HippyReusableNodeCache () {
-    NSMutableDictionary<NSString *, NSMutableSet<HippyVirtualNode *> *> *_cache;
+    NSMutableDictionary<NSString *, NSHashTable<HippyVirtualNode *> *> *_cache;
 }
 
 @end
@@ -34,7 +34,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _cache = [[NSMutableDictionary  alloc] initWithCapacity:8];
+        _cache = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -43,16 +43,16 @@
     if (!node || !identifier) {
         return;
     }
-    NSMutableSet *set = _cache[identifier];
+    NSHashTable *set = _cache[identifier];
     if (!set) {
-        set = [NSMutableSet set];
+        set = [NSHashTable weakObjectsHashTable];
         _cache[identifier] = set;
     }
     [set addObject:node];
 }
 
 - (HippyVirtualNode *)dequeueItemNodeForIdentifier:(NSString *)identifier {
-    NSMutableSet *set = _cache[identifier];
+    NSHashTable *set = _cache[identifier];
     HippyVirtualNode *cell = [set anyObject];
     if (cell) {
         [set removeObject:cell];
@@ -61,12 +61,12 @@
 }
 
 - (BOOL)queueContainsNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier {
-    NSSet *set = _cache[identifier];
+    NSHashTable *set = _cache[identifier];
     return [set containsObject:node];
 }
 
 - (BOOL)removeNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier {
-    NSMutableSet *set = _cache[identifier];
+    NSHashTable *set = _cache[identifier];
     if ([set containsObject:node]) {
         [set removeObject:node];
         return YES;
