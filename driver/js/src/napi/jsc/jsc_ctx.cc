@@ -359,7 +359,6 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
       JSObjectCallAsFunction(context_, define_property, object, 3, values, &exception);
       if (exception) {
         SetException(std::make_shared<JSCCtxValue>(context_, exception));
-        FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
         return nullptr;
       }
     }
@@ -895,7 +894,6 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   auto function_object = JSValueToObject(context_, function_value->value_, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-    FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
     return nullptr;
   }
 
@@ -903,7 +901,6 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   auto receiver_object = JSValueToObject(context_, receiver_value->value_, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-    FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
     return nullptr;
   }
 
@@ -911,7 +908,6 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
     auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, 0, nullptr, &exception);
     if (exception) {
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
-      FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
       return nullptr;
     }
     return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
@@ -926,7 +922,6 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, argc, values, &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-    FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
     return nullptr;
   }
 
@@ -1142,7 +1137,6 @@ std::shared_ptr<CtxValue> JSCCtx::RunScript(const string_view& data,
 
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
-    FOOTSTONE_LOG(ERROR) << GetExceptionMessage(exception_);
     return nullptr;
   }
 
