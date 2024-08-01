@@ -42,6 +42,7 @@ describe('style-parser/color-parser.ts', () => {
     expect(translateColor('transparent')).toEqual(0);
     expect(translateColor('blueviolet')).toEqual(4287245282);
     expect(translateColor(4287245282)).toEqual(3808397867);
+    // FIXME custom variable
     expect(translateColor('var(-Bg)')).toEqual('var(-Bg)');
   });
 
