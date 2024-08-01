@@ -19,15 +19,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #import "HippyRefreshWrapperItemView.h"
-#import "UIView+Hippy.h"
+
 @implementation HippyRefreshWrapperItemView
 
-- (void)setFrame:(CGRect)frame {
-    if ([self.superview isKindOfClass:[UIScrollView class]]) {
-        frame.origin.y = -frame.size.height;
-    }
-    [super setFrame:frame];
-}
+@end
+
+@implementation HippyRefreshWrapperFooterItemView
 
 @end

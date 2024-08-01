@@ -25,8 +25,13 @@ import Element from '../dom/element-node';
 
 export interface RefreshWrapperProps {
   bounceTime?: number;
-  onRefresh?: () => void;
-  getRefresh?: () => ReactElement;
+  horizontal?: boolean;
+  hiddenHeader?: boolean;
+  showFooter?: boolean;
+  onRefresh?: () => void;                 // header refresh callback
+  getRefresh?: () => ReactElement;        // get header refresh view
+  onFooterRefresh?: () => void;           // footer refresh callback
+  getFooterRefresh?: () => ReactElement;  // get footer refresh view
 }
 
 /**
@@ -37,25 +42,37 @@ export interface RefreshWrapperProps {
  */
 export class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
-  private refreshComplected: () => void;
 
   public constructor(props: RefreshWrapperProps) {
     super(props);
-    this.refreshComplected = this.refreshCompleted.bind(this);
   }
 
   /**
-   * Call native for start refresh.
+   * Call native for start refresh. (For Header)
    */
   public startRefresh() {
     callUIFunction(this.instance as Element, 'startRefresh', null);
   }
 
   /**
-   * Call native that data is refreshed
+   * Call native for start refresh. (For Footer)
+   */
+  public startRefreshFooter() {
+    callUIFunction(this.instance as Element, 'startRefreshFooter', null);
+  }
+
+  /**
+   * Call native that data is refreshed. (For Header)
    */
   public refreshCompleted() {
     callUIFunction(this.instance as Element, 'refreshComplected', null);
+  }
+
+  /**
+   * Call native that data is refreshed. (For Footer)
+   */
+  public refreshFooterCompleted() {
+    callUIFunction(this.instance as Element, 'refreshFooterCompleted', null);
   }
 
   /**
@@ -63,23 +80,43 @@ export class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    */
   public render() {
     const { children, ...nativeProps } = this.props;
-    const style: CSSProperties = { left: 0, right: 0, position: 'absolute' };
+    // Set the style according to the horizontal prop
+    const style: CSSProperties = nativeProps.horizontal
+      ? { top: 0, bottom: 0, position: 'absolute' }
+      : { left: 0, right: 0, position: 'absolute' };
     return (
       <div nativeName="RefreshWrapper" ref={(ref) => {
         this.instance = ref;
       }} {...nativeProps}>
-        <div nativeName="RefreshWrapperItemView" style={style}>
+        { !this.props.hiddenHeader ? <div nativeName="RefreshWrapperItemView" style={style}>
           { this.getRefresh() }
-        </div>
+        </div> : null}
         { children }
+        { this.props.showFooter ? <div nativeName="RefreshWrapperFooterItemView" style={style}>
+          { this.getFooterRefresh() }
+        </div> : null }
       </div>
     );
   }
 
+  /**
+   * callback for header
+   */
   private getRefresh(): ReactElement | null {
     const { getRefresh } = this.props;
     if (typeof getRefresh === 'function') {
       return getRefresh() || null;
+    }
+    return null;
+  }
+
+  /**
+   * callback for footer
+   */
+  private getFooterRefresh(): ReactElement | null {
+    const { getFooterRefresh } = this.props;
+    if (typeof getFooterRefresh === 'function') {
+      return getFooterRefresh() || null;
     }
     return null;
   }

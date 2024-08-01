@@ -23,15 +23,20 @@
 #import "HippyRefreshWrapperViewManager.h"
 #import "HippyRefreshWrapper.h"
 #import "HippyUIManager.h"
+
+
 @implementation HippyRefreshWrapperViewManager
 
 HIPPY_EXPORT_MODULE(RefreshWrapper)
 
-HIPPY_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
-
+HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onFooterRefresh, HippyDirectEventBlock)
+
 - (UIView *)view {
-    return [HippyRefreshWrapper new];
+    HippyRefreshWrapper *refreshWrapper = [HippyRefreshWrapper new];
+    return refreshWrapper;
 }
 
 HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg) {
@@ -41,11 +46,26 @@ HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg
     }];
 }
 
+HIPPY_EXPORT_METHOD(refreshFooterCompleted:(NSNumber *__nonnull)hippyTag args:(id)arg) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
+        [wrapperView refreshFooterCompleted];
+    }];
+}
+
 HIPPY_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag args:(id)arg) {
     [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView startRefresh];
     }];
 }
+
+HIPPY_EXPORT_METHOD(startRefreshFooter:(NSNumber *__nonnull)hippyTag args:(id)arg) {
+    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
+        [wrapperView startRefreshFooter];
+    }];
+}
+
 
 @end

@@ -22,24 +22,57 @@
 
 #import <UIKit/UIKit.h>
 
-#define RN_FORWARD_SCROLL_EVENT(call)                                                     \
-    for (NSObject<UIScrollViewDelegate> * scrollViewListener in [self scrollListeners]) { \
-        if ([scrollViewListener respondsToSelector:_cmd]) {                               \
-            [scrollViewListener call];                                                    \
-        }                                                                                 \
-    }
+@protocol HippyScrollableProtocol;
+/// Delegate used to deliver layout events
+@protocol HippyScrollableLayoutDelegate <NSObject>
 
+/// Trigger when scrollable did layout subviews.
+/// - Parameter scrollableView: scrollable object
+- (void)scrollableDidLayout:(id<HippyScrollableProtocol>)scrollableView;
+
+@end
+
+
+/// Scrollable components' protocol
 @protocol HippyScrollableProtocol <UIScrollViewDelegate>
 
+/// Return realScrollView's contentSize
 @property (nonatomic, readonly) CGSize contentSize;
 
+/// Add scroll event listener
+/// - Parameter scrollListener: id
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
+
+/// Remove scroll event listener
+/// - Parameter scrollListener: id
 - (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
+
+/// Get the real scrollView
 - (UIScrollView *)realScrollView;
+
+/// Get all scroll event listeners
 - (NSHashTable *)scrollListeners;
 
 @optional
+
+/// Scroll to specific offset
+/// - Parameters:
+///   - offset: contentOffset CGPoint
+///   - animated: BOOL
 - (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated;
+
+/// Scroll to specific index
+/// - Parameters:
+///   - index: NSInteger
+///   - animated: BOOL
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
+
+/// Add layout event delegate
+/// - Parameter delegate: id
+- (void)addHippyScrollableLayoutDelegate:(id<HippyScrollableLayoutDelegate>)delegate;
+
+/// Remove layout delegate
+/// - Parameter delegate: id
+- (void)removeHippyScrollableLayoutDelegate:(id<HippyScrollableLayoutDelegate>)delegate;
 
 @end

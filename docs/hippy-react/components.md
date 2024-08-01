@@ -210,17 +210,20 @@ import icon from './qb_icon_new.png';
 
 [[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RefreshWrapper)
 
-包裹住 `ListView` 提供下滑刷新功能的组件.
-
-> `RefreshWrapper` 现在只支持包裹一个 `ListView` 组件，暂不支持别的组件的下滑刷新功能。
+包裹住 `ListView` 或 `ViewPager` 提供滑动刷新功能的组件.
 
 ## 参数
 
 | 参数       | 描述                                                 | 类型       | 支持平台 |
 | ---------- | ---------------------------------------------------- | ---------- | -------- |
-| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
-| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onRefresh  | 当`RefreshWrapper`的`Refresh Header`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| getRefresh | 定义`Refresh Header`刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS、Web-Renderer`    |
+
+| hiddenHeader  | 是否显示`RefreshWrapper`的`Refresh Header`，`default: false`，`最低支持版本 2.17.6` | `boolean`   | `Android、iOS` |
+| showFooter  | 是否显示`RefreshWrapper`的`Refresh Footer`，`default: false`，`最低支持版本 2.17.6` | `boolean`   | `Android、iOS` |
+| onFooterRefresh  | 当`RefreshWrapper`的`Refresh Footer`执行刷新操作时，会触发到此回调函数。 `最低支持版本 2.17.6` | `Function` | `Android、iOS` |
+| getFooterRefresh | 定义`Refresh Footer`刷新栏的视图表现，返回 `View`， `Text` 等组件。`最低支持版本 2.17.6` | `Function` | `Android、iOS` |
 
 ## 方法
 
