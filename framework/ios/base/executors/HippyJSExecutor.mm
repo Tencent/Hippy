@@ -75,7 +75,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 constexpr char kGlobalKey[] = "global";
 constexpr char kHippyKey[] = "Hippy";
 static NSString * const kHippyNativeGlobalKey = @"__HIPPYNATIVEGLOBAL__";
-
+static const char * kHippyExceptionEventName = "uncaughtException";
 
 
 @interface HippyJSExecutor () {
@@ -102,8 +102,18 @@ static NSString * const kHippyNativeGlobalKey = @"__HIPPYNATIVEGLOBAL__";
     const char *pName = [self.enginekey UTF8String] ?: "";
     auto scope = engine->GetEngine()->CreateScope(pName);
     
+    __weak __typeof(self)weakSelf = self;
+    hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
+        @autoreleasepool {
+            HippyJSExecutor *strongSelf = weakSelf;
+            if (strongSelf) {
+                handleJsExcepiton(strongSelf->_pScope);
+            }
+        }
+    };
+    scope->RegisterExtraCallback(hippy::kAsyncTaskEndKey, taskEndCB);
+    
     dispatch_semaphore_t scopeSemaphore = dispatch_semaphore_create(0);
-    __weak HippyJSExecutor *weakSelf = self;
     footstone::TimePoint startPoint = footstone::TimePoint::SystemNow();
     engine->GetEngine()->GetJsTaskRunner()->PostTask([weakSelf, scopeSemaphore, startPoint](){
         @autoreleasepool {
@@ -726,5 +736,30 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
 
     return [devInfo assembleFullWSURLWithClientId:clientId contextName:bridge.contextName];
 }
+
+
+#pragma mark - Exception Handle
+
+static void handleJsExcepiton(std::shared_ptr<hippy::Scope> scope) {
+    if (!scope) {
+        return;
+    }
+    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+    std::shared_ptr<hippy::napi::JSCCtxValue> exception = std::static_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
+    if (exception) {
+        // if native does not handled, rethrow to js
+        if (!context->IsExceptionHandled()) {
+            hippy::vm::VM::HandleException(context, kHippyExceptionEventName, exception);
+        }
+        string_view exceptionStrView = context->GetExceptionMessage(exception);
+        auto errU8Str = StringViewUtils::ConvertEncoding(exceptionStrView, string_view::Encoding::Utf8).utf8_value();
+        std::string errStr = StringViewUtils::ToStdString(errU8Str);
+        NSError *error = HippyErrorWithMessage([NSString stringWithUTF8String:errStr.c_str()]);
+        HippyFatal(error);
+        context->SetException(nullptr);
+        context->SetExceptionHandled(true);
+    }
+}
+
 
 @end

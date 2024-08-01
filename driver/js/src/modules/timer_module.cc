@@ -216,6 +216,15 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     }
     std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
     context->CallFunction(function, context->GetGlobalObject(), 0, nullptr);
+
+#if defined(JS_JSC)
+    // exception check for jsc
+    RegisterFunction func;
+    if (scope->GetExtraCallback(kAsyncTaskEndKey, func)) {
+      func(nullptr);
+    }
+#endif /* defined(JS_JSC) */
+
     if (!repeat) {
       timer_map->erase(task_id);
     }
