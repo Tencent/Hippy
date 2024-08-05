@@ -30,7 +30,7 @@
 
 @implementation NSObject (CtxValue)
 
-- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
+- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
         HippyLogWarn(@"%@ No convertToCtxValue method", NSStringFromClass([self class]));
         std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
