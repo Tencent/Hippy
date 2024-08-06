@@ -142,7 +142,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 // here we use super's hippyBridgeDidFinishTransaction imp to trigger reload,
 // and override reloadData to handle special logic
 - (void)reloadData {
-    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
+    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.hippySubviews copy];
     self->_dataSource = [[HippyNextBaseListViewDataSource alloc] initWithDataSource:datasource
                                                                        itemViewName:[self compoentItemName]
                                                                   containBannerView:NO];
