@@ -269,9 +269,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     
     UIView *cellView = nil;
     UIView *cachedVisibleCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
-    if (cachedVisibleCellView &&
-        [shadowView isKindOfClass:HippyShadowWaterfallItem.class] &&
-        !((HippyShadowWaterfallItem *)shadowView).layoutDirty) {
+    if (cachedVisibleCellView) {
         cellView = cachedVisibleCellView;
         HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
     } else {
