@@ -29,14 +29,19 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol HippyShadowWaterfallItemFrameChangedProtocol <NSObject>
 
 @required
+/// Calledn when item frame changed
+/// - Parameter item: shadow waterfall item
 - (void)itemFrameChanged:(__kindof HippyShadowWaterfallItem *)item;
 
 @end
 
+/// Waterfall item's shadowView
 @interface HippyShadowWaterfallItem : HippyShadowView
 
-@property(nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
-@property(nonatomic, weak) id<HippyShadowWaterfallItemFrameChangedProtocol> observer;
+@property (nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
+
+/// frame change observer, usually is shadowListView
+@property (nonatomic, weak) id<HippyShadowWaterfallItemFrameChangedProtocol> observer;
 
 @end
 

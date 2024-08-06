@@ -198,11 +198,11 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 - (void)hippyBridgeDidFinishTransaction {
     HippyShadowListView *listNode = self.hippyShadowView;
-    if (!_dataSource || (listNode && listNode.itemChangeContext.hasChanges)) {
-        HippyLogTrace(@"🔥 %@ Reload %@", self.hippyTag, [[listNode itemChangeContext] description]);
+    if (!_dataSource || (listNode && listNode.isDirty)) {
+        HippyLogTrace(@"🔥 %@ Reload", self.hippyTag);
         [self cacheVisibleCellViewsForReuse];
         [self reloadData];
-        [listNode.itemChangeContext clear];
+        listNode.isDirty = NO;
     }
 }
 
