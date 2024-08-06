@@ -34,6 +34,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
@@ -116,7 +117,7 @@ public class HippyRootView extends FrameLayout {
 
     private GlobalLayoutListener getGlobalLayoutListener() {
         if (mGlobalLayoutListener == null) {
-            mGlobalLayoutListener = new GlobalLayoutListener();
+            mGlobalLayoutListener = new GlobalLayoutListener(this);
         }
         return mGlobalLayoutListener;
     }
@@ -124,6 +125,11 @@ public class HippyRootView extends FrameLayout {
     private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
 
         private int mOrientation = ORIENTATION_UNDEFINED;
+        private final WeakReference<View> mRootViewRef;
+
+        GlobalLayoutListener(View rootView) {
+            mRootViewRef = new WeakReference<>(rootView);
+        }
 
         @Override
         public void onGlobalLayout() {
@@ -137,7 +143,10 @@ public class HippyRootView extends FrameLayout {
                 sendOrientationChangeEvent(mOrientation);
                 NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(context);
                 if (nativeRenderer != null) {
-                    nativeRenderer.updateDimension(-1, -1);
+                    View rootView = mRootViewRef.get();
+                    int width = (rootView != null) ? rootView.getWidth() : -1;
+                    int height = (rootView != null) ? rootView.getHeight() : -1;
+                    nativeRenderer.updateDimension(width, height);
                 }
             }
         }

@@ -157,9 +157,9 @@ public class TimeMonitor {
 
         void print() {
             if (mMonitorPoints != null) {
-                LogUtils.i(TAG, "group " + name + ", totalTime " + totalTime + "ms");
+                LogUtils.e(TAG, "group " + name + ", totalTime " + totalTime + "ms");
                 for (MonitorPoint monitorPoint : mMonitorPoints) {
-                    LogUtils.i(TAG,
+                    LogUtils.e(TAG,
                             monitorPoint.key + ": " + (monitorPoint.endTime - monitorPoint.startTime)
                                     + "ms");
                 }
