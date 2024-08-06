@@ -38,8 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Waterfall item's shadowView
 @interface HippyShadowWaterfallItem : HippyShadowView
 
-@property (nonatomic, assign, getter=isLayoutDirty) BOOL layoutDirty;
-
 /// frame change observer, usually is shadowListView
 @property (nonatomic, weak) id<HippyShadowWaterfallItemFrameChangedProtocol> observer;
 

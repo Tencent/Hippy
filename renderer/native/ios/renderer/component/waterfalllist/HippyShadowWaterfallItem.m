@@ -46,17 +46,7 @@
         // If item has not yet been created, then no need to collect blocks.
         return;
     }
-    _layoutDirty = NO;
-    if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
-        return;
-    }
-    if (NativeRenderUpdateLifecycleLayoutDirtied == _propagationLifecycle) {
-        _layoutDirty = YES;
-    }
-    _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-    for (HippyShadowView *renderObjectView in self.hippySubviews) {
-        [renderObjectView amendLayoutBeforeMount:blocks];
-    }
+    [super amendLayoutBeforeMount:blocks];
 }
 
 @end

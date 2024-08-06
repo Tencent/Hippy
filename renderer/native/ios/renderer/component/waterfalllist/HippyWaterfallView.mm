@@ -263,9 +263,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     
     UIView *cellView = nil;
     UIView *cachedCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
-    if (cachedCellView &&
-        [shadowView isKindOfClass:HippyShadowWaterfallItem.class] &&
-        !((HippyShadowWaterfallItem *)shadowView).layoutDirty) {
+    if (cachedCellView) {
         cellView = cachedCellView;
     } else {
         cellView = [self.uiManager createViewForShadowListItem:shadowView];
