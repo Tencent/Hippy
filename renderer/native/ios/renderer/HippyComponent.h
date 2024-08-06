@@ -47,7 +47,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 @property (nonatomic, weak) __kindof id<HippyComponent> parent;
 
 /// Subviews of current component
-- (NSArray<__kindof id<HippyComponent>> *)subcomponents;
+- (NSArray<__kindof id<HippyComponent>> *)hippySubviews;
 
 /// Inset
 /// - Parameters:

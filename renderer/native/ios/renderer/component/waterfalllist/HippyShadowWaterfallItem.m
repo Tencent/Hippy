@@ -54,7 +54,7 @@
         _layoutDirty = YES;
     }
     _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-    for (HippyShadowView *renderObjectView in self.subcomponents) {
+    for (HippyShadowView *renderObjectView in self.hippySubviews) {
         [renderObjectView amendLayoutBeforeMount:blocks];
     }
 }

@@ -157,7 +157,7 @@ constexpr char kVSyncKey[] = "frameupdate";
 static void NativeRenderTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>)) {
     if (view.hippyTag != nil) {
         block(view);
-        for (id<HippyComponent> subview in view.subcomponents) {
+        for (id<HippyComponent> subview in view.hippySubviews) {
             NativeRenderTraverseViewNodes(subview, block);
         }
     }
@@ -597,7 +597,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }
         
         NSUInteger index = 0;
-        for (HippyShadowView *subRenderObject in shadowView.subcomponents) {
+        for (HippyShadowView *subRenderObject in shadowView.hippySubviews) {
             UIView *subview = [self createViewRecursiveFromRenderObjectWithNOLock:subRenderObject];
             [view insertHippySubview:subview atIndex:index];
             index++;
