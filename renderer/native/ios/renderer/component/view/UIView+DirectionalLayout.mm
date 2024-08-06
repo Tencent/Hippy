@@ -67,7 +67,7 @@
 - (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
     if (hippy::Direction::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
-        for (UIView *subview in self.subcomponents) {
+        for (UIView *subview in self.hippySubviews) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

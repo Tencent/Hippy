@@ -313,8 +313,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.hippyShadowView.subcomponents containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.subcomponents.count];
+    [self.dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.hippySubviews.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 

@@ -27,7 +27,7 @@
 #import "HippyLog.h"
 
 static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDescendants) {
-    for (UIView *child in view.subcomponents) {
+    for (UIView *child in view.hippySubviews) {
         if ([child isKindOfClass:[HippyText class]]) {
             collectNonTextDescendants((HippyText *)child, nonTextDescendants);
         } else {
@@ -65,11 +65,11 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
 }
 
 - (void)removeHippySubview:(UIView *)subview {
-    if ([[self subcomponents] containsObject:subview]) {
+    if ([[self hippySubviews] containsObject:subview]) {
         [super removeHippySubview:subview];
     }
     else {
-        NSArray<UIView *> *hippySubviews = [self subcomponents];
+        NSArray<UIView *> *hippySubviews = [self hippySubviews];
         for (UIView *hippySubview in hippySubviews) {
             [hippySubview removeHippySubview:subview];
         }
