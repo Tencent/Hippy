@@ -195,13 +195,19 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     [self dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
 }
 
-- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex {
-    if (!subview) {
-        HippyAssert(subview != nil, @"subview should not be nil!");
-        return;
+- (void)moveHippySubviews:(NSDictionary<NSNumber *,id<HippyComponent>> *)movedSubviewsIndexMap {
+    // First, remove
+    for (id<HippyComponent> subview in movedSubviewsIndexMap.allValues) {
+        [self removeHippySubview:subview];
     }
-    [self removeHippySubview:subview];
-    [self insertHippySubview:subview atIndex:atIndex];
+    
+    // Second, place subview to its right place
+    // Since the inex here means the final index to place,
+    // it must be inserted from smallest to largest, otherwise it will be out of order.
+    NSArray *orderedIndexes = [[movedSubviewsIndexMap allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    for (NSNumber *index in orderedIndexes) {
+        [self insertHippySubview:movedSubviewsIndexMap[index] atIndex:index.unsignedLongValue];
+    }
 }
 
 - (void)removeHippySubview:(HippyShadowView *)subview {

@@ -60,10 +60,8 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 - (void)removeHippySubview:(id<HippyComponent>)subview;
 
 /// Move
-/// - Parameters:
-///   - subview: id
-///   - atIndex: NSUInteger
-- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex;
+/// - Parameter movedSubviewsIndexMap: IndexToSubView Map
+- (void)moveHippySubviews:(NSDictionary<NSNumber *, id<HippyComponent>> *)movedSubviewsIndexMap;
 
 /// Remove from superview
 - (void)removeFromHippySuperview;

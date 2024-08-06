@@ -168,9 +168,11 @@
     [_itemChangeContext appendDeletedItem:subview];
 }
 
-- (void)moveHippySubview:(id<HippyComponent>)subview toIndex:(NSUInteger)atIndex {
-    [super moveHippySubview:subview toIndex:atIndex];
-    [_itemChangeContext appendMovedItem:subview];
+- (void)moveHippySubviews:(NSDictionary<NSNumber *, id<HippyComponent>> *)movedSubviewsIndexMap {
+    [super moveHippySubviews:movedSubviewsIndexMap];
+    for (id<HippyComponent> subview in movedSubviewsIndexMap.allValues) {
+        [_itemChangeContext appendMovedItem:subview];
+    }
 }
 
 - (void)itemFrameChanged:(__kindof HippyShadowWaterfallItem *)item {
