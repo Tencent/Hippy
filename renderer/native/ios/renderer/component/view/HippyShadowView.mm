@@ -45,7 +45,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
         return;
     }
     _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-    for (HippyShadowView *renderObjectView in self.subcomponents) {
+    for (HippyShadowView *renderObjectView in self.hippySubviews) {
         [renderObjectView amendLayoutBeforeMount:blocks];
     }
 }
@@ -160,15 +160,15 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 
 - (void)synchronousRecusivelySetCreationTypeToInstant {
     self.creationType = HippyCreationTypeInstantly;
-    for (HippyShadowView *subShadowView in self.subcomponents) {
+    for (HippyShadowView *subShadowView in self.hippySubviews) {
         [subShadowView synchronousRecusivelySetCreationTypeToInstant];
     }
 }
 
 - (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock {
     UIView *container = creationBlock(self);
-    NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.subcomponents count]];
-    for (HippyShadowView *subviews in self.subcomponents) {
+    NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.hippySubviews count]];
+    for (HippyShadowView *subviews in self.hippySubviews) {
         UIView *subview = [subviews createView:creationBlock insertChildren:insertionBlock];
         if (subview) {
             [children addObject:subview];
@@ -217,7 +217,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     [superview removeHippySubview:self];
 }
 
-- (NSArray<HippyShadowView *> *)subcomponents {
+- (NSArray<HippyShadowView *> *)hippySubviews {
     return _objectSubviews;
 }
 
@@ -415,7 +415,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {
     _confirmedLayoutDirection = confirmedLayoutDirection;
-    for (HippyShadowView *subviews in self.subcomponents) {
+    for (HippyShadowView *subviews in self.hippySubviews) {
         [subviews applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     }
 }
@@ -448,7 +448,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 - (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
     if (hippy::Direction::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = ((HippyShadowView *)[self parent]).confirmedLayoutDirection;
-        for (HippyShadowView *subview in self.subcomponents) {
+        for (HippyShadowView *subview in self.hippySubviews) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

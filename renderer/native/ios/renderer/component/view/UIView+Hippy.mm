@@ -140,7 +140,7 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     return view.hippyTag;
 }
 
-- (NSArray<UIView *> *)subcomponents {
+- (NSArray<__kindof id<HippyComponent>> *)hippySubviews {
     return objc_getAssociatedObject(self, _cmd);
 }
 
@@ -160,14 +160,14 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSUInteger)atIndex {
     // We access the associated object directly here in case someone overrides
-    // the `subcomponents` getter method and returns an immutable array.
+    // the `hippySubviews` getter method and returns an immutable array.
     if (nil == subview) {
         return;
     }
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
     if (!subviews) {
         subviews = [NSMutableArray new];
-        objc_setAssociatedObject(self, @selector(subcomponents), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(hippySubviews), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     if (atIndex <= [subviews count]) {
@@ -188,8 +188,8 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 
 - (void)removeHippySubview:(UIView *)subview {
     // We access the associated object directly here in case someone overrides
-    // the `subcomponents` getter method and returns an immutable array.
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
+    // the `hippySubviews` getter method and returns an immutable array.
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
     [subviews removeObject:subview];
     [subview sendDetachedFromWindowEvent];
     [subview removeFromSuperview];
@@ -201,7 +201,7 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
 }
 
 - (void)resetHippySubviews {
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
     if (subviews) {
         [subviews makeObjectsPerformSelector:@selector(sendDetachedFromWindowEvent)];
         [subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -241,13 +241,13 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     if (!subviews) {
         // Check if sorting is required - in most cases it won't be
         BOOL sortingRequired = NO;
-        for (UIView *subview in self.subcomponents) {
+        for (UIView *subview in self.hippySubviews) {
             if (subview.hippyZIndex != 0) {
                 sortingRequired = YES;
                 break;
             }
         }
-        subviews = sortingRequired ? [self.subcomponents sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
+        subviews = sortingRequired ? [self.hippySubviews sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
             if (a.hippyZIndex > b.hippyZIndex) {
                 return NSOrderedDescending;
             } else {
@@ -255,7 +255,7 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
                 // that original order is preserved
                 return NSOrderedAscending;
             }
-        }] : self.subcomponents;
+        }] : self.hippySubviews;
         objc_setAssociatedObject(self, _cmd, subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return subviews;

@@ -262,7 +262,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (NSArray<UIView *> *)subcomponents {
+- (NSArray<UIView *> *)hippySubviews {
     return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
 }
 
