@@ -27,6 +27,7 @@
 #import "HippyView.h"
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
+#import "HippyRenderUtils.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -169,7 +170,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     // TODO: detect up-front if re-rendering is necessary
     CGSize oldSize = self.bounds.size;
     [super hippySetFrame:frame];
-    if (!CGSizeEqualToSize(self.bounds.size, oldSize)) {
+    if (!HippyCGSizeRoundInPixelNearlyEqual(self.bounds.size, oldSize)) {
         [self.layer setNeedsDisplay];
     }
 }
@@ -235,7 +236,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
 }
 
 - (void)displayLayer:(CALayer *)layer {
-    if (CGSizeEqualToSize(layer.bounds.size, CGSizeZero)) {
+    if (HippyCGSizeNearlyEqual(layer.bounds.size, CGSizeZero)) {
         return;
     }
 
