@@ -21,6 +21,7 @@
  */
 
 #import "HippyShadowWaterfallItem.h"
+#import "HippyRenderUtils.h"
 
 @implementation HippyShadowWaterfallItem
 
@@ -35,7 +36,7 @@
 - (void)setFrame:(CGRect)frame {
     CGRect originFrame = self.frame;
     [super setFrame:frame];
-    if (!CGSizeEqualToSize(originFrame.size, frame.size) &&
+    if (!HippyCGSizeRoundInPixelNearlyEqual(originFrame.size, frame.size) &&
         [self.observer respondsToSelector:@selector(itemFrameChanged:)]) {
         [self.observer itemFrameChanged:self];
     }

@@ -27,6 +27,7 @@
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
+#import "HippyRenderUtils.h"
 
 @implementation HippyUITextView
 
@@ -290,7 +291,8 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     CGSize contentSize = (CGSize) { CGRectGetMaxX(_scrollView.frame), INFINITY };
     contentSize.height = [_textView sizeThatFits:contentSize].height;
     
-    if (_viewDidCompleteInitialLayout && _onContentSizeChange && !CGSizeEqualToSize(_previousContentSize, contentSize)) {
+    if (_viewDidCompleteInitialLayout && _onContentSizeChange 
+        && !HippyCGSizeRoundInPixelNearlyEqual(_previousContentSize, contentSize)) {
         _previousContentSize = contentSize;
         _onContentSizeChange(@{
             @"contentSize": @ {

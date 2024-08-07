@@ -26,8 +26,8 @@
 #import "UIView+DirectionalLayout.h"
 #import "UIView+MountEvent.h"
 #import "HippyLog.h"
+#import "HippyRenderUtils.h"
 
-#include "float.h"
 
 @interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
@@ -435,8 +435,8 @@
 }
 
 - (void)hippyBridgeDidFinishTransaction {
-    BOOL isFrameEqual = CGRectEqualToRect(self.frame, self.previousFrame);
-    BOOL isContentSizeEqual = CGSizeEqualToSize(self.contentSize, self.previousSize);
+    BOOL isFrameEqual = HippyCGRectRoundInPixelNearlyEqual(self.frame, self.previousFrame);
+    BOOL isContentSizeEqual = HippyCGSizeRoundInPixelNearlyEqual(self.contentSize, self.previousSize);
     if (!isContentSizeEqual || !isFrameEqual) {
         self.previousFrame = self.frame;
         self.previousSize = self.contentSize;
@@ -474,7 +474,7 @@
 
     CGSize updatedSize = CGSizeMake(lastViewPagerItem.frame.origin.x + lastViewPagerItem.frame.size.width,
                                     lastViewPagerItem.frame.origin.y + lastViewPagerItem.frame.size.height);
-    if (!CGSizeEqualToSize(self.contentSize, updatedSize)) {
+    if (!HippyCGSizeRoundInPixelNearlyEqual(self.contentSize, updatedSize)) {
         self.contentSize = updatedSize;
     }
     

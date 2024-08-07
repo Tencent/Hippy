@@ -34,11 +34,18 @@ HIPPY_EXTERN CGFloat HippyRoundPixelValue(CGFloat value);
 HIPPY_EXTERN CGFloat HippyCeilPixelValue(CGFloat value);
 HIPPY_EXTERN CGFloat HippyFloorPixelValue(CGFloat value);
 
-// Convert a size in points to pixels, rounded up to the nearest integral size
-HIPPY_EXTERN CGSize HippySizeInPixels(CGSize pointSize, CGFloat scale);
+/// Convert a size in points to pixels, rounded up to the nearest integral size
+FOUNDATION_EXTERN CGSize HippySizeCeilInPixels(CGSize pointSize, CGFloat scale);
+/// Convert a size in points to pixels, rounded to the nearest integral size
+FOUNDATION_EXTERN CGSize HippySizeRoundInPixels(CGSize pointSize, CGFloat scale);
 
 HIPPY_EXTERN BOOL HippyCGRectNearlyEqual(CGRect frame1, CGRect frame2);
 HIPPY_EXTERN BOOL HippyCGPointNearlyEqual(CGPoint point1, CGPoint point2);
 HIPPY_EXTERN BOOL HippyCGSizeNearlyEqual(CGSize size1, CGSize size2);
+
+/// First convert size in points to pixels by HippySizeRoundInPixels, then compare.
+HIPPY_EXTERN BOOL HippyCGSizeRoundInPixelNearlyEqual(CGSize size1, CGSize size2);
+HIPPY_EXTERN BOOL HippyCGRectRoundInPixelNearlyEqual(CGRect frame1, CGRect frame2);
+HIPPY_EXTERN BOOL HippyCGPointRoundInPixelNearlyEqual(CGPoint point1, CGPoint point2);
 
 NS_ASSUME_NONNULL_END
