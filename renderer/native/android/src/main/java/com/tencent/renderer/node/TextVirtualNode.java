@@ -31,6 +31,7 @@ import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.TextUtils.TruncateAt;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ImageSpan;
@@ -557,16 +558,20 @@ public class TextVirtualNode extends VirtualNode {
                     || desiredWidth > width)) {
                 desiredWidth = width;
             }
-            layout = buildStaticLayout(mSpanned, textPaint, (int) Math.ceil(desiredWidth));
-            if (mNumberOfLines > 0 && layout.getLineCount() > mNumberOfLines) {
-                int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
-                int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
-                if (lastLineStart < lastLineEnd) {
-                    int measureWidth = (int) Math.ceil(unconstrainedWidth ? desiredWidth : width);
-                    try {
-                        layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && MODE_TAIL.equals(mEllipsizeMode)) {
+                layout = buildTruncateAtEndStaticLayout(mSpanned, textPaint, (int) Math.ceil(desiredWidth), mNumberOfLines);
+            } else {
+                layout = buildStaticLayout(mSpanned, textPaint, (int) Math.ceil(desiredWidth));
+                if (mNumberOfLines > 0 && layout.getLineCount() > mNumberOfLines) {
+                    int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
+                    int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
+                    if (lastLineStart < lastLineEnd) {
+                        int measureWidth = (int) Math.ceil(unconstrainedWidth ? desiredWidth : width);
+                        try {
+                            layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -616,6 +621,26 @@ public class TextVirtualNode extends VirtualNode {
             mTextPaintInstance.setColor(mColor);
         }
         return mTextPaintInstance;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private StaticLayout buildTruncateAtEndStaticLayout(CharSequence source, TextPaint paint, int width, int numberOfLines) {
+        Layout.Alignment alignment = mAlignment;
+        if (I18nUtil.isRTL()) {
+            BidiFormatter bidiFormatter = BidiFormatter.getInstance();
+            if (bidiFormatter.isRtl(source.toString())
+                    && mAlignment == Layout.Alignment.ALIGN_OPPOSITE) {
+                alignment = Layout.Alignment.ALIGN_NORMAL;
+            }
+        }
+        return StaticLayout.Builder.obtain(source, 0, source.length(), paint, width)
+                .setAlignment(alignment)
+                .setLineSpacing(mLineSpacingExtra, getLineSpacingMultiplier())
+                .setIncludePad(true)
+                .setMaxLines(numberOfLines)
+                .setEllipsize(TruncateAt.END)
+                .setBreakStrategy(getBreakStrategy())
+                .build();
     }
 
     private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width) {
@@ -705,7 +730,6 @@ public class TextVirtualNode extends VirtualNode {
                             ? ((SpannableStringBuilder) formerLines).append(lastLine)
                             : ((StringBuilder) formerLines).append(lastLine);
         }
-
         return buildStaticLayout(truncated, paint, width);
     }
 
