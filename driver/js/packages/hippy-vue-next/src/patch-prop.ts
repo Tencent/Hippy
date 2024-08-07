@@ -30,16 +30,14 @@ import { patchClass } from './modules/class';
 import { patchEvent } from './modules/events';
 import { patchStyle } from './modules/style';
 import type { HippyElement } from './runtime/element/hippy-element';
-import type { HippyNode } from './runtime/node/hippy-node';
 
 export function patchProp(
-  el: NeedToTyped,
+  el: HippyElement,
   key: string,
   prevValue: NeedToTyped,
   nextValue: NeedToTyped,
-  namespace: ElementNamespace,
-  prevChildren: VNode<HippyNode, HippyElement>[] | undefined,
-  parentComponent: ComponentInternalInstance | null,
+  namespace?: ElementNamespace,
+  parentComponent?: ComponentInternalInstance | null,
 ): void {
   // It should be noted that the values contained in prop here will have strings, numbers, arrays, objects, etc.
   switch (key) {

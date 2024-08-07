@@ -63,7 +63,6 @@ module.exports = {
     globalObject: '(0, eval)("this")',
   },
   plugins: [
-    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),
