@@ -47,7 +47,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(jsx?)$/,
+        test: /\.((j|t)sx?)$/,
         use: [
           {
             loader: 'babel-loader',
@@ -55,6 +55,7 @@ module.exports = {
               sourceType: 'unambiguous',
               presets: [
                 '@babel/preset-react',
+                '@babel/preset-typescript',
                 [
                   '@babel/preset-env',
                   {
@@ -90,7 +91,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     // if node_modules path listed below is not your repo directory, change it.
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: (() => {

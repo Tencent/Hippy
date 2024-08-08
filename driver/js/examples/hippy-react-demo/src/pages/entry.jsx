@@ -7,6 +7,7 @@ import { View } from '@hippy/react';
 import routes from '../routes';
 import Header from '../shared/Header';
 import Gallery from './gallery';
+import AllowTs from "./allowTs";
 
 const ALL_ROUTES = [{
   path: '/Gallery',
@@ -16,6 +17,7 @@ const ALL_ROUTES = [{
 
 export const Entry = () => (
   <View style={{ flex: 1 }}>
+    <AllowTs test='1' />
     <MemoryRouter initialEntries={['/Gallery']}>
       {
         ALL_ROUTES.map((item) => {
