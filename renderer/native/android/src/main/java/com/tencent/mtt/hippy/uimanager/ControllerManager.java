@@ -178,8 +178,8 @@ public class ControllerManager {
     }
 
     public void destroy() {
-        mControllerRegistry.clear();
-        mControllerUpdateManger.clear();
+        mControllerRegistry.destroy();
+        mControllerUpdateManger.destroy();
         for (Pool<Integer, View> pool : mPreCreateViewPools.values()) {
             pool.clear();
         }
