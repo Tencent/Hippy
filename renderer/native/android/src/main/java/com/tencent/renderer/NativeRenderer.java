@@ -636,6 +636,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
+    public void deleteVirtualChildNode(int rootId, int nodeId) {
+        mVirtualNodeManager.deleteNode(rootId, nodeId);
+    }
+
+    @Override
     public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(ids.length);
         if (LogUtils.isDebugMode()) {
