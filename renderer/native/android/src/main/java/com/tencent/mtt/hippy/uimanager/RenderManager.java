@@ -16,10 +16,10 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
 import static com.tencent.renderer.NativeRenderer.NODE_ID;
 import static com.tencent.renderer.NativeRenderer.NODE_INDEX;
 import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_DELETED;
-import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
 
 import android.content.Context;
@@ -29,6 +29,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.openhippy.pool.BasePool.PoolType;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
@@ -39,6 +40,7 @@ import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.RenderNode;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,8 +68,11 @@ public class RenderManager {
     private final ControllerManager mControllerManager;
     @NonNull
     private final Map<Integer, LinkedHashSet<RenderNode>> mUIUpdateNodes = new HashMap<>();
+    @Nullable
+    private final WeakReference<Renderer> mRendererWeakRef;
 
     public RenderManager(Renderer renderer) {
+        mRendererWeakRef = new WeakReference<>(renderer);
         mControllerManager = new ControllerManager(renderer);
     }
 
@@ -381,6 +386,12 @@ public class RenderManager {
             node.getParent().removeChild(node);
         }
         removeRenderNode(rootId, node.getId());
+        if (node.getClassName().equals(TEXT_CLASS_NAME)) {
+            Renderer renderer = mRendererWeakRef.get();
+            if (renderer instanceof NativeRender) {
+                ((NativeRender) renderer).deleteVirtualChildNode(rootId, node.getId());
+            }
+        }
         node.setNodeFlag(FLAG_ALREADY_DELETED);
         node.onDeleted();
     }
@@ -389,6 +400,9 @@ public class RenderManager {
         RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootId == nodeId) {
             NativeRendererManager.removeRootNode(rootId);
+            if (rootNode != null) {
+                rootNode.clear();
+            }
         }
         if (rootNode != null) {
             rootNode.removeRenderNode(nodeId);
