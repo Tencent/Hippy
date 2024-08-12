@@ -67,6 +67,8 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
     @Nullable
     BaseEngineContext getEngineContext();
 
+    void deleteVirtualChildNode(int rootId, int nodeId);
+
     int getEngineId();
 
     /**
