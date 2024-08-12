@@ -49,7 +49,11 @@ public class ControllerRegistry {
         mRendererWeakRef = new WeakReference<>(renderer);
     }
 
-    public void clear() {}
+    void destroy() {
+        mViews.clear();
+        mRootViews.clear();
+        mControllers.clear();
+    }
 
     public void addControllerHolder(String name, ControllerHolder controllerHolder) {
         mControllers.put(name, controllerHolder);

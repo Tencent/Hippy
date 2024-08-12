@@ -83,7 +83,7 @@ public class ControllerUpdateManger<T> {
         mRendererWeakRef = new WeakReference<>(renderer);
     }
 
-    public void clear() {
+    void destroy() {
 
     }
 
