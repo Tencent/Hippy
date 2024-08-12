@@ -29,6 +29,13 @@
 #import "HippyRenderUtils.h"
 
 
+
+static NSString *const HippyPageScrollStateKey = @"pageScrollState";
+static NSString *const HippyPageScrollStateIdle = @"idle";
+static NSString *const HippyPageScrollStateSettling = @"settling";
+static NSString *const HippyPageScrollStateDragging = @"dragging";
+
+
 @interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
 @property (nonatomic, assign) BOOL isScrolling;
@@ -189,8 +196,15 @@
     self.targetContentOffsetX = CGRectGetMinX(theItem.frame);
     [self setContentOffset:theItem.frame.origin animated:animated];
     [self invokePageSelected:pageNumber];
+    
     if (self.onPageScrollStateChanged) {
-        self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
+        if (animated) {
+            HippyLogTrace(@"[HippyViewPager] settling --- (setPage withAnimation)");
+            self.onPageScrollStateChanged(@{ HippyPageScrollStateKey: HippyPageScrollStateSettling });
+        } else {
+            HippyLogTrace(@"[HippyViewPager] idle ~~~~~~ (setPage withoutAnimation)");
+            self.onPageScrollStateChanged(@{ HippyPageScrollStateKey: HippyPageScrollStateIdle });
+        }
     }
 }
 
@@ -233,7 +247,8 @@
         }
     }
     if (self.onPageScrollStateChanged) {
-        self.onPageScrollStateChanged(@{ @"pageScrollState": @"dragging" });
+        HippyLogTrace(@"[HippyViewPager] dragging --- (BeginDragging)");
+        self.onPageScrollStateChanged(@{ HippyPageScrollStateKey : HippyPageScrollStateDragging });
     }
 }
 
@@ -288,8 +303,9 @@
         self.isScrolling = NO;
     }
     if (self.onPageScrollStateChanged) {
-        NSString *state = decelerate ? @"settling" : @"idle";
-        self.onPageScrollStateChanged(@{ @"pageScrollState": state });
+        NSString *state = decelerate ? HippyPageScrollStateSettling : HippyPageScrollStateIdle;
+        HippyLogTrace(@"[HippyViewPager] %@ ??? (EndDragging)", state);
+        self.onPageScrollStateChanged(@{ HippyPageScrollStateKey : state });
     }
 }
 
@@ -303,7 +319,8 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     if (self.onPageScrollStateChanged) {
-        self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
+        HippyLogTrace(@"[HippyViewPager] idle ~~~~~~ (EndDecelerating)");
+        self.onPageScrollStateChanged(@{ HippyPageScrollStateKey : HippyPageScrollStateIdle });
     }
     self.isScrolling = NO;
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
@@ -314,6 +331,11 @@
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    if (self.onPageScrollStateChanged) {
+        HippyLogTrace(@"[HippyViewPager] idle ~~~~~~ (DidEndScrollingAnimation)");
+        self.onPageScrollStateChanged(@{ HippyPageScrollStateKey : HippyPageScrollStateIdle });
+    }
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollViewListener) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
             [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
@@ -482,8 +504,7 @@
         [self setPage:self.initialPage animated:NO];
         _didFirstTimeLayout = YES;
         self.needsResetPageIndex= NO;
-    }
-    else {
+    } else {
         if (self.needsResetPageIndex) {
             [self setPage:_lastPageIndex animated:NO];
             self.needsResetPageIndex= NO;
