@@ -170,7 +170,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     // TODO: detect up-front if re-rendering is necessary
     CGSize oldSize = self.bounds.size;
     [super hippySetFrame:frame];
-    if (!HippyCGSizeRoundInPixelNearlyEqual(self.bounds.size, oldSize)) {
+    if (!HippyCGSizeNearlyEqual(self.bounds.size, oldSize)) {
         [self.layer setNeedsDisplay];
     }
 }

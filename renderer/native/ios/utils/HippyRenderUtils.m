@@ -78,13 +78,13 @@ BOOL HippyCGRectNearlyEqual(CGRect frame1, CGRect frame2) {
 }
 
 BOOL HippyCGPointNearlyEqual(CGPoint point1, CGPoint point2) {
-    return fabs(point1.x - point2.x) < CGFLOAT_EPSILON &&
-            fabs(point1.y - point2.y) < CGFLOAT_EPSILON;
+    return fabs(point1.x - point2.x) < 3 * CGFLOAT_EPSILON &&
+            fabs(point1.y - point2.y) < 3 * CGFLOAT_EPSILON;
 }
 
 BOOL HippyCGSizeNearlyEqual(CGSize size1, CGSize size2) {
-    return fabs(size1.width - size2.width) < CGFLOAT_EPSILON &&
-            fabs(size1.height - size2.height) < CGFLOAT_EPSILON;
+    return fabs(size1.width - size2.width) < 3 * CGFLOAT_EPSILON &&
+            fabs(size1.height - size2.height) < 3 * CGFLOAT_EPSILON;
 }
 
 BOOL HippyCGSizeRoundInPixelNearlyEqual(CGSize size1, CGSize size2) {
