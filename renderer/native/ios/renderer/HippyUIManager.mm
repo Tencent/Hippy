@@ -426,7 +426,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             return;
         }
         
-        if (!CGRectEqualToRect(frame, renderObject.frame)) {
+        if (!HippyCGRectRoundInPixelNearlyEqual(frame, renderObject.frame)) {
             //renderObject.frame = frame;
             [renderObject setLayoutFrame:frame];
             std::weak_ptr<RootNode> rootNode = [strongSelf->_shadowViewRegistry rootNodeForTag:rootTag];
