@@ -28,6 +28,7 @@
 #import "UIView+Hippy.h"
 #import "HippyShadowView+Internal.h"
 #import "HippyAssert.h"
+#import "HippyRenderUtils.h"
 
 
 static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
@@ -286,7 +287,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 
 - (void)setLayoutFrame:(CGRect)frame dirtyPropagation:(BOOL)dirtyPropagation {
     CGRect currentFrame = self.frame;
-    if (CGRectEqualToRect(currentFrame, frame)) {
+    if (HippyCGRectRoundInPixelNearlyEqual(currentFrame, frame)) {
         return;
     }
     [self setFrame:frame];
