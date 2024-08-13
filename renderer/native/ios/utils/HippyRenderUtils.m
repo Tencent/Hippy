@@ -23,13 +23,15 @@
 #import "HippyUtils.h"
 #import "HippyRenderUtils.h"
 
+// Use global variable to facilitate unit test
+CGFloat gHippyScreenScaleValue = CGFLOAT_MAX;
+
 CGFloat HippyScreenScale(void) {
-    static CGFloat scale = CGFLOAT_MAX;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        scale = [UIScreen mainScreen].scale;
+        gHippyScreenScaleValue = [UIScreen mainScreen].scale;
     });
-    return scale;
+    return gHippyScreenScaleValue;
 }
 
 CGSize HippyScreenSize(void) {
@@ -56,10 +58,17 @@ CGFloat HippyFloorPixelValue(CGFloat value) {
     return floor(value * scale) / scale;
 }
 
-CGSize HippySizeInPixels(CGSize pointSize, CGFloat scale) {
+CGSize HippySizeCeilInPixels(CGSize pointSize, CGFloat scale) {
     return (CGSize) {
         ceil(pointSize.width * scale),
         ceil(pointSize.height * scale),
+    };
+}
+
+CGSize HippySizeRoundInPixels(CGSize pointSize, CGFloat scale) {
+    return (CGSize) {
+        round(pointSize.width * scale),
+        round(pointSize.height * scale),
     };
 }
 
@@ -69,11 +78,37 @@ BOOL HippyCGRectNearlyEqual(CGRect frame1, CGRect frame2) {
 }
 
 BOOL HippyCGPointNearlyEqual(CGPoint point1, CGPoint point2) {
-    return fabs(point1.x - point2.x) < CGFLOAT_EPSILON &&
-            fabs(point1.y - point2.y) < CGFLOAT_EPSILON;
+    return fabs(point1.x - point2.x) < 3 * CGFLOAT_EPSILON &&
+            fabs(point1.y - point2.y) < 3 * CGFLOAT_EPSILON;
 }
 
 BOOL HippyCGSizeNearlyEqual(CGSize size1, CGSize size2) {
-    return fabs(size1.width - size2.width) < CGFLOAT_EPSILON &&
-            fabs(size1.height - size2.height) < CGFLOAT_EPSILON;
+    return fabs(size1.width - size2.width) < 3 * CGFLOAT_EPSILON &&
+            fabs(size1.height - size2.height) < 3 * CGFLOAT_EPSILON;
+}
+
+BOOL HippyCGSizeRoundInPixelNearlyEqual(CGSize size1, CGSize size2) {
+    CGFloat scale = HippyScreenScale();
+    CGSize sizeA = HippySizeRoundInPixels(size1, scale);
+    CGSize sizeB = HippySizeRoundInPixels(size2, scale);
+    return HippyCGSizeNearlyEqual(sizeA,sizeB);
+}
+
+BOOL HippyCGPointRoundInPixelNearlyEqual(CGPoint point1, CGPoint point2) {
+    CGFloat scale = HippyScreenScale();
+    CGPoint pointA = (CGPoint) {
+        round(point1.x * scale),
+        round(point1.y * scale),
+    };
+    CGPoint pointB = (CGPoint) {
+        round(point2.x * scale),
+        round(point2.y * scale),
+    };
+    return fabs(pointA.x - pointB.x) < CGFLOAT_EPSILON &&
+    fabs(pointA.y - pointB.y) < CGFLOAT_EPSILON;
+}
+
+BOOL HippyCGRectRoundInPixelNearlyEqual(CGRect frame1, CGRect frame2) {
+    return HippyCGPointRoundInPixelNearlyEqual(frame1.origin, frame2.origin) &&
+    HippyCGSizeRoundInPixelNearlyEqual(frame1.size, frame2.size);
 }
