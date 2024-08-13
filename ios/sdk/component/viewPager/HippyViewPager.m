@@ -191,14 +191,18 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
     [self setContentOffset:theItem.frame.origin animated:animated];
     [self invokePageSelected:pageNumber];
     
-    if (self.onPageScrollStateChanged) {
-        if (animated) {
+    if (animated) {
+        if (self.onPageScrollStateChanged) {
             HippyLogTrace(@"[HippyViewPager] settling --- (setPage withAnimation)");
             self.onPageScrollStateChanged(@{ HippyPageScrollStateKey: HippyPageScrollStateSettling });
-        } else {
+        }
+    } else {
+        if (self.onPageScrollStateChanged) {
             HippyLogTrace(@"[HippyViewPager] idle ~~~~~~ (setPage withoutAnimation)");
             self.onPageScrollStateChanged(@{ HippyPageScrollStateKey: HippyPageScrollStateIdle });
         }
+        // Record stop offset for onPageScroll callback
+        [self recordScrollStopOffsetX];
     }
 }
 
