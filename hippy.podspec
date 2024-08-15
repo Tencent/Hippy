@@ -64,21 +64,6 @@ Pod::Spec.new do |s|
     'modules/vfs/ios/*.h',
     'modules/ios/image/*.h',
     ]
-    if js_engine == "jsc"
-      framework.exclude_files = [
-      'framework/ios/base/enginewrapper/v8',
-      'framework/ios/utils/v8']
-    elsif js_engine == "v8"
-      framework.exclude_files = [
-      'framework/ios/base/enginewrapper/jsc',
-      'framework/ios/utils/jsc']
-    else
-      framework.exclude_files = [
-      'framework/ios/base/enginewrapper/jsc',
-      'framework/ios/utils/jsc',
-      'framework/ios/base/enginewrapper/v8',
-      'framework/ios/utils/v8']
-    end
     framework.libraries = 'c++'
     framework.frameworks = 'CoreServices'
     framework.pod_target_xcconfig = {
