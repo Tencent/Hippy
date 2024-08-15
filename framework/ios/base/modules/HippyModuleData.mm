@@ -312,7 +312,13 @@
         [methods addObject:method.JSMethodName];
     }
 
-    NSArray *config = @[self.name, HippyNullIfNil(constants), HippyNullIfNil(methods), HippyNullIfNil(promiseMethods), HippyNullIfNil(syncMethods)];
+    NSArray *config = @[
+        self.name,
+        HippyNullIfNil(constants),
+        HippyNullIfNil(methods),
+        HippyNullIfNil(promiseMethods),
+        HippyNullIfNil(syncMethods)
+    ];
     return config;
 }
 

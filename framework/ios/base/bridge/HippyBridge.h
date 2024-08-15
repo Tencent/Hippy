@@ -318,8 +318,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
 
-- (NSString *)moduleConfig;
+/// Get all native module info.
+- (NSDictionary *)nativeModuleConfig;
 
+/// Get config info for given module name
+/// - Parameter moduleName: name of module
 - (NSArray *)configForModuleName:(NSString *)moduleName;
 
 - (BOOL)moduleSetupComplete;
@@ -350,9 +353,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (BOOL)moduleIsInitialized:(Class)moduleClass;
 
-/**
- * Get  the turbo module for a given name.
- */
+/// Get turbo module by name.
+/// - Parameter name: name of turbo module
 - (id)turboModuleWithName:(NSString *)name;
 
 

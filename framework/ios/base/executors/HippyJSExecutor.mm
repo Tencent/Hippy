@@ -24,7 +24,6 @@
 #import "VFSUriHandler.h"
 #import "HippyAssert.h"
 #import "HippyBundleURLProvider.h"
-#import "HippyContextWrapper.h"
 #import "HippyDefines.h"
 #import "HippyDevInfo.h"
 #import "HippyDevMenu.h"
@@ -74,14 +73,14 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 constexpr char kGlobalKey[] = "global";
 constexpr char kHippyKey[] = "Hippy";
-static NSString * const kHippyNativeGlobalKey = @"__HIPPYNATIVEGLOBAL__";
-static const char * kHippyExceptionEventName = "uncaughtException";
+constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
+constexpr char kHippyExceptionEventName[] = "uncaughtException";
+constexpr char kHippyRequireModuleConfigFuncKey[] = "nativeRequireModuleConfig";
+constexpr char kHippyFlushQueueImmediateFuncKey[] = "nativeFlushQueueImmediate";
+constexpr char kHippyGetTurboModule[] = "getTurboModule";
 
 
 @interface HippyJSExecutor () {
-    // Set at setUp time:
-    id<HippyContextWrapper> _contextWrapper;
-
 #ifdef JS_JSC
     BOOL _isInspectable;
 #endif //JS_JSC
@@ -139,102 +138,22 @@ static const char * kHippyExceptionEventName = "uncaughtException";
             // add `Hippy` property to global object
             auto hippy_key = context->CreateString(kHippyKey);
             context->SetProperty(global_object, hippy_key, context->CreateObject());
+                        
+            // inject device info to `__HIPPYNATIVEGLOBAL__`
+            [strongSelf injectDeviceInfoAsHippyNativeGlobal:bridge context:context globalObject:global_object];
             
-            // Context Wrapper
-            id<HippyContextWrapper> contextWrapper = CreateContextWrapper(context);
-            contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, 
-                                                NSString * _Nonnull message,
-                                                NSArray<HippyJSStackFrame *> * _Nonnull stackFrames) {
-                HippyJSExecutor *strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
-                HippyBridge *bridge = strongSelf.bridge;
-                if (!bridge) {
-                    return;
-                }
-                NSDictionary *userInfo = @{
-                    HippyFatalModuleName: bridge.moduleName?:@"unknown",
-                    NSLocalizedDescriptionKey:message?:@"unknown",
-                    HippyJSStackTraceKey:stackFrames
-                };
-                NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:userInfo];
-                HippyBridgeFatal(error, bridge);
-            };
-            strongSelf->_contextWrapper = contextWrapper;
+            // register `nativeRequireModuleConfig` function
+            [strongSelf registerRequiredModuleConfigFuncToJS:context globalObject:global_object scope:scope];
             
-            // inject device info information
-            NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[bridge deviceInfo]];
-            NSString *deviceName = [[UIDevice currentDevice] name];
-            NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, strongSelf]);
-            NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
-            [deviceInfo addEntriesFromDictionary:debugInfo];
-
-            NSError *serializationError;
-            NSString *deviceInfoStr = HippyJSONStringify(deviceInfo, &serializationError);
-            if (serializationError) {
-                NSString *errorString = [NSString stringWithFormat:@"device parse error:%@, deviceInfo:%@",
-                                         [serializationError localizedFailureReason], deviceInfo];
-                NSError *error = HippyErrorWithMessageAndModuleName(errorString, bridge.moduleName);
-                HippyBridgeFatal(error, bridge);
-            }
-            [contextWrapper createGlobalObject:kHippyNativeGlobalKey withJsonValue:deviceInfoStr];
+            // register `nativeFlushQueueImmediate` function
+            [strongSelf registerFlushQueueImmediateFuncToJS:context globalObject:global_object scope:scope];
             
-            // regist `nativeRequireModuleConfig` function
-            [contextWrapper registerFunction:@"nativeRequireModuleConfig" implementation:^id _Nullable(NSArray * _Nonnull arguments) {
-                NSString *moduleName = [arguments firstObject];
-                if (moduleName) {
-                    HippyJSExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
-                    }
-                    HippyBridge *bridge = strongSelf.bridge;
-                    if (!bridge) {
-                        return nil;
-                    }
-                    NSArray *result = [bridge configForModuleName:moduleName];
-                    return HippyNullIfNil(result);
-                }
-                return nil;
-            }];
-            
-            // regist `nativeFlushQueueImmediate` function
-            [contextWrapper registerFunction:@"nativeFlushQueueImmediate" implementation:^id _Nullable(NSArray * _Nonnull arguments) {
-                NSArray<NSArray *> *calls = [arguments firstObject];
-                HippyJSExecutor *strongSelf = weakSelf;
-                if (!strongSelf.valid || !calls) {
-                    return nil;
-                }
-                HippyBridge *bridge = strongSelf.bridge;
-                if (!bridge) {
-                    return nil;
-                }
-                [bridge handleBuffer:calls batchEnded:NO];
-                return nil;
-            }];
-            
-            auto turbo_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
-                @autoreleasepool {
-                    //todo
-                    HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
-                    if (!strongSelf) {
-                        return;
-                    }
-                    const auto &context = strongSelf.pScope->GetContext();
-                    if (context->IsString(info[0])) {
-                        NSString *name = ObjectFromCtxValue(context, info[0]);
-                        auto value = [strongSelf JSTurboObjectWithName:name];
-                        info.GetReturnValue()->Set(value);
-                    }
-                }
-            }, (__bridge void*)weakSelf);
-            auto turbo_function = context->CreateFunction(turbo_wrapper);
-            scope->SaveFunctionWrapper(std::move(turbo_wrapper));
-            context->SetProperty(global_object, context->CreateString("getTurboModule"), turbo_function);
+            // register `getTurboModule` function
+            [strongSelf registerGetTurboModuleFuncToJS:context globalObject:global_object scope:scope];
             
             // call finish block
             if (strongSelf.contextCreatedBlock) {
-                strongSelf.contextCreatedBlock(strongSelf->_contextWrapper);
+                strongSelf.contextCreatedBlock();
             }
             scope->SyncInitialize();
             
@@ -326,6 +245,99 @@ static const char * kHippyExceptionEventName = "uncaughtException";
     dispatch_async(dispatch_get_main_queue(), ^{
         [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
     });
+}
+
+
+#pragma mark - Subprocedures of Setup
+
+- (void)injectDeviceInfoAsHippyNativeGlobal:(HippyBridge *)bridge 
+                                    context:(const std::shared_ptr<hippy::Ctx> &)context
+                               globalObject:(const std::shared_ptr<hippy::CtxValue> &)globalObject {
+    NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[bridge deviceInfo]];
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, self]);
+    NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+    [deviceInfo addEntriesFromDictionary:debugInfo];
+    
+    auto key = context->CreateString(kHippyNativeGlobalKey);
+    auto value = [deviceInfo convertToCtxValue:context];
+    if (key && value) {
+        context->SetProperty(globalObject, key, value);
+    }
+}
+
+- (void)registerRequiredModuleConfigFuncToJS:(const std::shared_ptr<hippy::Ctx> &)context
+                                globalObject:(const std::shared_ptr<hippy::CtxValue> &)globalObject
+                                       scope:(const std::shared_ptr<hippy::Scope> &)scope {
+    __weak __typeof(self)weakSelf = self;
+    auto requireModuleConfigFunWrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
+        @autoreleasepool {
+            HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+            HippyBridge *bridge = strongSelf.bridge;
+            if (!strongSelf.valid || !bridge || !strongSelf.pScope) {
+                return;
+            }
+            
+            const auto &context = strongSelf.pScope->GetContext();
+            if (context->IsString(info[0])) {
+                NSString *moduleName = ObjectFromCtxValue(context, info[0]);
+                if (moduleName) {
+                    NSArray *result = [bridge configForModuleName:moduleName];
+                    info.GetReturnValue()->Set([HippyNullIfNil(result) convertToCtxValue:context]);
+                }
+            }
+        }
+    }, (__bridge void*)weakSelf);
+    auto requireModuleConfigFunction = context->CreateFunction(requireModuleConfigFunWrapper);
+    scope->SaveFunctionWrapper(std::move(requireModuleConfigFunWrapper));
+    context->SetProperty(globalObject, context->CreateString(kHippyRequireModuleConfigFuncKey), requireModuleConfigFunction);
+}
+
+- (void)registerFlushQueueImmediateFuncToJS:(const std::shared_ptr<hippy::Ctx> &)context
+                               globalObject:(const std::shared_ptr<hippy::CtxValue> &)globalObject
+                                      scope:(const std::shared_ptr<hippy::Scope> &)scope {
+    __weak __typeof(self)weakSelf = self;
+    auto nativeFlushQueueFunWrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
+        @autoreleasepool {
+            HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+            HippyBridge *bridge = strongSelf.bridge;
+            if (!strongSelf.valid || !bridge || !strongSelf.pScope) {
+                return;
+            }
+            
+            const auto &context = strongSelf.pScope->GetContext();
+            if (context->IsArray(info[0])) {
+                NSArray *calls = ObjectFromCtxValue(context, info[0]);
+                [bridge handleBuffer:calls batchEnded:NO];
+            }
+        }
+    }, (__bridge void*)weakSelf);
+    auto nativeFlushQueueFunction = context->CreateFunction(nativeFlushQueueFunWrapper);
+    scope->SaveFunctionWrapper(std::move(nativeFlushQueueFunWrapper));
+    context->SetProperty(globalObject, context->CreateString(kHippyFlushQueueImmediateFuncKey), nativeFlushQueueFunction);
+}
+
+- (void)registerGetTurboModuleFuncToJS:(const std::shared_ptr<hippy::Ctx> &)context
+                          globalObject:(const std::shared_ptr<hippy::CtxValue> &)globalObject
+                                 scope:(const std::shared_ptr<hippy::Scope> &)scope {
+    __weak __typeof(self)weakSelf = self;
+    auto turbo_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
+        @autoreleasepool {
+            HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+            if (!strongSelf || !strongSelf.pScope) {
+                return;
+            }
+            const auto &context = strongSelf.pScope->GetContext();
+            if (context->IsString(info[0])) {
+                NSString *name = ObjectFromCtxValue(context, info[0]);
+                auto value = [strongSelf JSTurboObjectWithName:name];
+                info.GetReturnValue()->Set(value);
+            }
+        }
+    }, (__bridge void*)weakSelf);
+    auto turbo_function = context->CreateFunction(turbo_wrapper);
+    scope->SaveFunctionWrapper(std::move(turbo_wrapper));
+    context->SetProperty(globalObject, context->CreateString(kHippyGetTurboModule), turbo_function);
 }
 
 
@@ -477,7 +489,7 @@ static const char * kHippyExceptionEventName = "uncaughtException";
 }
 
 - (void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
-    string_view str(kHippyNativeGlobalKey.UTF8String);
+    string_view str(kHippyNativeGlobalKey);
     auto context = self.pScope->GetContext();
     auto global_object = context->GetGlobalObject();
     auto hippy_native_object_key = context->CreateString(str);
@@ -667,45 +679,49 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
     }
 }
 
-- (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete {
-    HippyAssert(nil != script, @"param 'script' can't be nil");
-    if (nil == script) {
+- (void)injectObjectSync:(NSObject *)value asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete {
+    if (!objectName || !value) {
         if (onComplete) {
-            NSString *errorMessage = [NSString stringWithFormat:@"param 'script' is nil"];
-            NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
+            NSError *error = HippyErrorWithMessage(@"Inject param invalid");
             onComplete(@(NO), error);
         }
         return;
     }
-    if (HIPPY_DEBUG) {
-        HippyAssert(HippyJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
+    if (!self.isValid || !self.pScope) {
+        return;
     }
+    auto context = self.pScope->GetContext();
+    auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
+    auto globalObject = context->GetGlobalObject();
+    auto nameKey = context->CreateString(objectName.UTF8String);
+    auto ctxValue = [value convertToCtxValue:context];
+    if (nameKey && ctxValue) {
+        context->SetProperty(globalObject, nameKey, [value convertToCtxValue:context]);
+    } else {
+        HippyLogError(@"Convert Error while inject:%@ for:%@", value, objectName);
+    }
+    if (tryCatch->HasCaught()) {
+        NSString *errorMsg = StringViewToNSString(tryCatch->GetExceptionMessage());
+        NSError *error = HippyErrorWithMessage(errorMsg);
+        if (onComplete) {
+            onComplete(@(NO), error);
+        } else {
+            HippyLogError(@"Error(%@) while inject:%@ for:%@", errorMsg, value, objectName);
+        }
+    } else if (onComplete) {
+        onComplete(@(YES), nil);
+    }
+}
 
-    __weak HippyJSExecutor *weakSelf = self;
+- (void)injectObjectAsync:(NSObject *)value asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete {
+    __weak __typeof(self)weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
         @autoreleasepool {
-            HippyJSExecutor *strongSelf = weakSelf;
+            __strong __typeof(weakSelf)strongSelf = weakSelf;
             if (!strongSelf || !strongSelf.isValid) {
                 return;
             }
-            string_view json_view = NSStringToU8StringView(script);
-            string_view name_view = NSStringToU8StringView(objectName);
-            auto context = strongSelf.pScope->GetContext();
-            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-            auto global_object = context->GetGlobalObject();
-            auto name_key = context->CreateString(name_view);
-            auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:strongSelf.enginekey];
-            auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
-            context->SetProperty(global_object, name_key, json_value);
-            if (tryCatch->HasCaught()) {
-                string_view errorMsg = tryCatch->GetExceptionMessage();
-                NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
-                    NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
-                onComplete(@(NO), error);
-            }
-            else {
-                onComplete(@(YES), nil);
-            }
+            [strongSelf injectObjectSync:value asGlobalObjectNamed:objectName callback:onComplete];
         }
     }];
 }
