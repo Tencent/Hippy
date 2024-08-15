@@ -51,9 +51,7 @@ class UriLoader;
 }
 
 @class HippyBridge;
-@protocol HippyContextWrapper;
-
-typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
+typedef void (^HippyContextCreatedBlock)(void);
 
 
 /**
@@ -64,9 +62,7 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /// HippyBridge instance
 @property (nonatomic, weak) HippyBridge *bridge;
 
-/**
- * Whether the executor has been invalidated
- */
+/// Whether the executor has been invalidated
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
 /// EngineKey
@@ -76,7 +72,7 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 @property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
 
 /// context created block
-@property(nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
+@property (nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
 
 /// Init method
 /// - Parameters:
@@ -136,8 +132,6 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
  */
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete;
 
-- (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete;
-
 /**
  * Enqueue a block to run in the executors JS thread. Fallback to `dispatch_async`
  * on the main queue if the executor doesn't own a thread.
@@ -154,5 +148,12 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /// Updated hippy global info
 /// - Parameter dict: updated info
 - (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)dict;
+
+/// Inject object to JS global using `objectName` as key sync.
+/// Must be called in the JS thread.
+- (void)injectObjectSync:(NSObject *)value asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete;
+
+/// Inject object to JS global using `objectName` as key async.
+- (void)injectObjectAsync:(NSString *)value asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete;
 
 @end
