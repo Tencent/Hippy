@@ -266,6 +266,13 @@ class Animation implements Animation {
   }
 
   /**
+   * Stop the running animation
+   */
+  public stop() {
+    Bridge.callNative('AnimationModule', 'stopAnimation', this.animationId);
+  }
+
+  /**
    * Resume execution of paused animation
    */
   public resume() {
