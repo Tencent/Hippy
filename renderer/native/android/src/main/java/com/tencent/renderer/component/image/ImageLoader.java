@@ -155,9 +155,29 @@ public class ImageLoader implements ImageLoaderAdapter {
         }
     }
 
+    private void appendCustomRequestParams(@NonNull HashMap<String, String> requestParams,
+            @NonNull Map<String, Object> initProps) {
+        for (Map.Entry<String, Object> entry : initProps.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            try {
+                requestParams.put(key, String.valueOf(value));
+            } catch (Exception ignore) {
+                // For now, support custom attributes that can be converted to strings
+            }
+        }
+    }
+
     @NonNull
-    private HashMap<String, String> generateRequestParams(int width, int height) {
+    private HashMap<String, String> generateRequestParams(int width, int height,
+            @Nullable Map<String, Object> initProps) {
         HashMap<String, String> requestParams = new HashMap<>();
+        if (initProps != null) {
+            Object value = initProps.get("props");
+            if (value instanceof Map) {
+                appendCustomRequestParams(requestParams, (Map) value);
+            }
+        }
         requestParams.put("width", String.valueOf(width));
         requestParams.put("height", String.valueOf(height));
         requestParams.put(REQUEST_CONTENT_TYPE, REQUEST_CONTENT_TYPE_IMAGE);
@@ -167,7 +187,7 @@ public class ImageLoader implements ImageLoaderAdapter {
     @Nullable
     public ImageDataSupplier fetchImageSync(@NonNull String url,
             @Nullable Map<String, Object> initProps, int width, int height) {
-        HashMap<String, String> requestParams = generateRequestParams(width, height);
+        HashMap<String, String> requestParams = generateRequestParams(width, height, initProps);
         ResourceDataHolder dataHolder = mVfsManager.fetchResourceSync(url, null, requestParams);
         byte[] bytes = dataHolder.getBytes();
         if (dataHolder.resultCode
@@ -215,7 +235,7 @@ public class ImageLoader implements ImageLoaderAdapter {
         if (checkRepeatRequest(urlKey, listener)) {
             return;
         }
-        HashMap<String, String> requestParams = generateRequestParams(width, height);
+        HashMap<String, String> requestParams = generateRequestParams(width, height, initProps);
         mVfsManager.fetchResourceAsync(url, null, requestParams,
                 new FetchResourceCallback() {
                     @Override
