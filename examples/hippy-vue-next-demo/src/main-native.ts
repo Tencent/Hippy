@@ -47,6 +47,25 @@ const app: HippyApp = createApp(App, {
    * default is true, if set false, it will follow vue-loader compilerOptions whitespace setting
    */
   trimWhitespace: true,
+  styleOptions: {
+    beforeLoadStyle: (decl) => {
+      let { value } = decl;
+      // 比如可以对 rem 单位进行处理
+      if (typeof value === 'string' && /rem$/.test(value)) {
+        // get the numeric value of rem
+
+        const { screen } = Native.Dimensions;
+        // 比如可以对 rem 单位进行处理
+        if (typeof value === 'string' && /rem$/.test(value)) {
+          const { width, height } = screen;
+          // 防止hippy 旋转后，宽度发生变化
+          const realWidth = width > height ? width : height;
+          value = Number(parseFloat(`${(realWidth * 100 * Number(value.replace('rem', ''))) / 844}`).toFixed(2));
+        }
+      }
+      return { ...decl, value };
+    },
+  },
 });
 // create router
 const router = createRouter();
