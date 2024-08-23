@@ -220,7 +220,7 @@ export function getCssMap(
      *  Here is a secret startup option: beforeStyleLoadHook.
      *  Usage for process the styles while styles loading.
      */
-    const cssRules = fromAstNodes(styleCssMap);
+    const cssRules = fromAstNodes(styleCssMap, beforeLoadStyle);
     if (globalCssMap) {
       globalCssMap.append(cssRules);
     } else {
