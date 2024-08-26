@@ -25,7 +25,7 @@ ensure you were at `examples/hippy-vue-next-ssr-demo`.
 
 #### Development
 
-1. run `npm run ssr:dev-build` to build client entry & client bundle, then running hippy debug server
+1. run `npm run ssr:dev-client` to build client entry & client bundle, then running hippy debug server
 2. run `npm run ssr:dev-server` to build server bundle and start SSR web server to listen port **8080**.
 3. debug your app with [reference](https://hippyjs.org/en-us/#/guide/debug)
 > You can change server listen port 8080 in `server.ts` by your self, but you also need change request port 8080 in

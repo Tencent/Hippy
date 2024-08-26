@@ -3,7 +3,7 @@ const fs = require('fs');
 const webpack = require('webpack');
 
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const compilerSSR = require('@hippy/vue-next-compiler-ssr');
+
 const { VueLoaderPlugin } = require('vue-loader');
 const pkg = require('../../package.json');
 
@@ -24,8 +24,19 @@ if (fs.existsSync(hippyVueNextPath)) {
 } else {
   console.warn('* Using the @hippy/vue-next defined in package.json');
 }
-const { isNativeTag } = require(vueNext);
 
+let compilerSsrPkg = '@hippy/vue-next-compiler-ssr'
+let compilerSsrPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next-compiler-ssr/dist/index.js');
+if (fs.existsSync(compilerSsrPath)) {
+  console.warn(`* Using the @hippy/vue-next-compiler-ssr in ${compilerSsrPath}`);
+  compilerSsrPkg = compilerSsrPath
+} else {
+  console.warn('* Using the @hippy/vue-next-compiler-ssr defined in package.json');
+}
+
+
+const { isNativeTag } = require(vueNext);
+const compilerSsr = require(compilerSsrPkg);
 
 module.exports = {
   mode: 'development',
@@ -83,7 +94,7 @@ module.exports = {
                 comments: false,
               },
               // real used vue compiler
-              compiler: compilerSSR,
+              compiler: compilerSsr,
             },
           },
         ],
@@ -175,6 +186,16 @@ module.exports = {
         aliases['@hippy/vue-next'] = hippyVueNextPath;
       } else {
         console.warn('* Using the @hippy/vue-next defined in package.json');
+      }
+
+      // If @hippy/vue-next-server-render was built exist in packages directory then make an alias
+      // Remove the section if you don't use it
+      const hippyVueNextSsrPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next-server-renderer/dist');
+      if (fs.existsSync(path.resolve(hippyVueNextSsrPath, 'index.js'))) {
+        console.warn(`* Using the @hippy/vue-next-server-renderer in ${hippyVueNextSsrPath} as @hippy/vue-next-server-renderer alias`);
+        aliases['@hippy/vue-next-server-renderer'] = hippyVueNextSsrPath;
+      } else {
+        console.warn('* Using the @hippy/vue-next-server-renderer defined in package.json');
       }
 
       return aliases;
