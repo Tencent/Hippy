@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
+
+
+### Bug Fixes
+
+* **vue-next:** fix beforeLoadStyle not work ([35c8d23](https://github.com/Tencent/Hippy/commit/35c8d23513e32293389d8435112fecfb16d150a0))
+
+
+
+
+
 # [3.3.0](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0) (2024-06-20)
 
 

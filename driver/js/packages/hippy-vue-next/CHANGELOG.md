@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
+
+
+### Bug Fixes
+
+* **devtools:** fix vue3 devtools element ([33b3826](https://github.com/Tencent/Hippy/commit/33b3826ff9b9ad55284717b38c24347af264fc72))
+
+
+### Features
+
+* **vue-next:** fix onInterceptTouchEvent not work ([#3995](https://github.com/Tencent/Hippy/issues/3995)) ([fa6dead](https://github.com/Tencent/Hippy/commit/fa6deadaac28fd25281412ca27f74d88571588e2))
+
+
+
+
+
 # [3.3.0](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0) (2024-06-20)
 
 

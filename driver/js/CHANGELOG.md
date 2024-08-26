@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
+
+
+### Bug Fixes
+
+* **devtools:** fix vue3 devtools element ([33b3826](https://github.com/Tencent/Hippy/commit/33b3826ff9b9ad55284717b38c24347af264fc72))
+* **ios, android:** performance records inaccurate issues ([1083ed3](https://github.com/Tencent/Hippy/commit/1083ed3721651cc405bbce8d4b1923b1fc4e4631))
+* **ios:** add exception handle process for jsc ([#3976](https://github.com/Tencent/Hippy/issues/3976)) ([3fc7225](https://github.com/Tencent/Hippy/commit/3fc7225b46d86648eb1f9d244c2ed1eaa7996cb0))
+* **ios:** eliminate all warnings and open treat_warning_as_error ([1d9ed5a](https://github.com/Tencent/Hippy/commit/1d9ed5a93bf7c6636953c32db732eec62499d556))
+* **ios:** header and footer refresh bugs ([#3940](https://github.com/Tencent/Hippy/issues/3940)) ([c151da3](https://github.com/Tencent/Hippy/commit/c151da31be6cf2fa71228976ab4b60604f1497d4))
+* **ios:** iOS18 adaptation of TextView component ([773a21f](https://github.com/Tencent/Hippy/commit/773a21f8898bc35f010be5973b06a19faa3c17d9))
+* **ios:** responsable region issue of Textinput ([#3932](https://github.com/Tencent/Hippy/issues/3932)) ([7a2ce1d](https://github.com/Tencent/Hippy/commit/7a2ce1dc70902104620dd9f834bf8d4ddfc91e1d))
+* **vue-next:** fix beforeLoadStyle not work ([35c8d23](https://github.com/Tencent/Hippy/commit/35c8d23513e32293389d8435112fecfb16d150a0))
+
+
+### Features
+
+* **ios,android:** add request duration in fetch response header ([c5a676c](https://github.com/Tencent/Hippy/commit/c5a676ce4f348af048df8f070153cdce511cadfb))
+* **ios:** add app bundle and container path support for hpfile url ([64f94ae](https://github.com/Tencent/Hippy/commit/64f94ae2844ae7ce83491bb1a565efa26eae7675))
+* **ios:** add paragraph styles support for TextInput ([5aa12d9](https://github.com/Tencent/Hippy/commit/5aa12d9d985b54215980d6dbdfd619add7a128d9))
+* **react:** add font style inherit ([f717db5](https://github.com/Tencent/Hippy/commit/f717db5428f3b22f8510d7b740f542585c267820))
+* **vue-next:** fix onInterceptTouchEvent not work ([#3995](https://github.com/Tencent/Hippy/issues/3995)) ([fa6dead](https://github.com/Tencent/Hippy/commit/fa6deadaac28fd25281412ca27f74d88571588e2))
+* **vue:** fix default native style is empty ([8d51296](https://github.com/Tencent/Hippy/commit/8d51296ec95a28c5af71eacb1f4566919becc1ff))
+
+
+
+
+
 # [3.3.0](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0) (2024-06-20)
 
 

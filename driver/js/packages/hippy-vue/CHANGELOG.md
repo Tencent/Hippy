@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
+
+
+### Features
+
+* **react:** add font style inherit ([f717db5](https://github.com/Tencent/Hippy/commit/f717db5428f3b22f8510d7b740f542585c267820))
+* **vue:** fix default native style is empty ([8d51296](https://github.com/Tencent/Hippy/commit/8d51296ec95a28c5af71eacb1f4566919becc1ff))
+
+
+
+
+
 # [3.3.0](https://github.com/Tencent/Hippy/compare/3.2.0...3.3.0) (2024-06-20)
 
 
