@@ -1,8 +1,9 @@
 {
   "name": "@hippy/react",
-  "version": "3.3.1",
+  "version": "3.3.1-rc.2",
   "description": "Hippy react framework",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "homepage": "https://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy",
   "author": "OpenHippy Team",
