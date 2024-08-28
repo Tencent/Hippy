@@ -127,8 +127,7 @@ public:
   virtual std::shared_ptr<CtxValue> CreateObject() override;
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
-  virtual std::shared_ptr<CtxValue> CreateString(
-                                                 const string_view& string) override;
+  virtual std::shared_ptr<CtxValue> CreateString(const string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
