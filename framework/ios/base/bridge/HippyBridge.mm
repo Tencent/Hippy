@@ -787,8 +787,7 @@ dispatch_queue_t HippyBridgeQueue() {
 - (void)dispatchBlock:(dispatch_block_t)block queue:(dispatch_queue_t)queue {
     if (HippyJSThread == queue) {
         [_javaScriptExecutor executeBlockOnJavaScriptQueue:block];
-    }
-    else {
+    } else {
         dispatch_async(queue, block);
     }
 }
