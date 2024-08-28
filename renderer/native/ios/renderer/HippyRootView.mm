@@ -291,12 +291,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     return super.hippyTag;
 }
 
-- (void)bridgeDidReload {
-    HippyAssertMainQueue();
-    // Clear the hippyTag so it can be re-assigned
-    self.hippyTag = nil;
-}
-
 
 #pragma mark - Notification Handlers
 

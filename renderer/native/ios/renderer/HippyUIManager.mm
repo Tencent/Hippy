@@ -245,6 +245,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     });
 }
 
+- (void)dealloc {
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle], HippyUIManager(%p) dealloc", self);
+}
+
 #pragma mark Setter & Getter
 
 - (void)registRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
