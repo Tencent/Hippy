@@ -234,40 +234,24 @@ dispatch_queue_t HippyBridgeQueue() {
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _engineKey = executorKey.length > 0 ? executorKey : [NSString stringWithFormat:@"%p", self];
-        _invalidateReason = HippyInvalidateReasonDealloc;
-        _valid = YES;
         _bundlesQueue = [[HippyBundleOperationQueue alloc] init];
-        _startTime = footstone::TimePoint::SystemNow();
-        HippyLogInfo(@"HippyBridge init begin, self:%p", self);
-        registerLogDelegateToHippyCore();
-
-        HippyExecuteOnMainThread(^{
-            self->_isOSNightMode = [HippyDeviceBaseInfo isUIScreenInOSDarkMode];
-            self.cachedDimensionsInfo = hippyExportedDimensions(self);
-        }, YES);
         
+        HippyLogInfo(@"HippyBridge init begin, self:%p", self);
+        
+        // Set the log delegate for hippy core module
+        registerLogDelegateToHippyCore();
+        
+        // Setup
         [self setUp];
         
-        [self addImageProviderClass:[HippyDefaultImageProvider class]];
-        [self setVfsUriLoader:[self createURILoaderIfNeeded]];
-        [self setUpNativeRenderManager];
-        
+        // Record bridge instance for RedBox (Debug Only)
         [HippyBridge setCurrentBridge:self];
-        
-        [self loadPendingVendorBundleURLIfNeeded];
-        
-        // Set the default sandbox directory
-        [self setSandboxDirectory:[bundleURL URLByDeletingLastPathComponent]];
         HippyLogInfo(@"HippyBridge init end, self:%p", self);
     }
     return self;
 }
 
 - (void)dealloc {
-    /**
-     * This runs only on the main thread, but crashes the subclass
-     * HippyAssertMainQueue();
-     */
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.invalidateReason = HippyInvalidateReasonDealloc;
@@ -442,6 +426,14 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)setUp {
     _valid = YES;
+    _startTime = footstone::TimePoint::SystemNow();
+    
+    // Get global enviroment info
+    HippyExecuteOnMainThread(^{
+        self->_isOSNightMode = [HippyDeviceBaseInfo isUIScreenInOSDarkMode];
+        self.cachedDimensionsInfo = hippyExportedDimensions(self);
+    }, YES);
+    
     self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
         __weak HippyBridge *weakSelf = self;
@@ -478,6 +470,16 @@ dispatch_queue_t HippyBridgeQueue() {
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
     }
+    
+    [self addImageProviderClass:[HippyDefaultImageProvider class]];
+    [self setVfsUriLoader:[self createURILoaderIfNeeded]];
+    [self setUpNativeRenderManager];
+    
+    // Load pending js bundles
+    [self loadPendingVendorBundleURLIfNeeded];
+    
+    // Set the default sandbox directory
+    [self setSandboxDirectory:[_pendingLoadingVendorBundleURL URLByDeletingLastPathComponent]];
 }
 
 
@@ -1274,7 +1276,7 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     _rootNode->SetRootOrigin(rootView.frame.origin.x, rootView.frame.origin.y);
     
     //set rendermanager for dommanager
-    if (!domManager->GetRenderManager().lock()) {
+    if (domManager->GetRenderManager().lock() != _renderManager) {
         domManager->SetRenderManager(_renderManager);
     }
     //bind rootview and root node

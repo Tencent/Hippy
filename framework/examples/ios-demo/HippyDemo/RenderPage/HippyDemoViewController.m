@@ -25,15 +25,13 @@
 #import "HippyPageCache.h"
 #import "DemoConfigs.h"
 
-#import "HippyMethodInterceptorProtocol.h"
-
 #import <hippy/HippyBridge.h>
 #import <hippy/HippyRootView.h>
 #import <hippy/HippyLog.h>
 #import <hippy/HippyAssert.h>
 #import <hippy/UIView+Hippy.h>
+#import <hippy/HippyMethodInterceptorProtocol.h>
 
-static NSString *const engineKey = @"Demo";
 
 static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
     static NSArray *logLevelMap;
@@ -48,7 +46,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     NSString *levelStr = level < 0 || level > logLevelMap.count ? logLevelMap[1] : logLevelMap[level];
 
     if(fileName){
-        return [[NSString alloc] initWithFormat:@"[%@][%@:%d][%@]%@",
+        return [[NSString alloc] initWithFormat:@"[%@][%@:%d][%@] %@",
                 [formatter stringFromDate:timestamp],
                 fileName.lastPathComponent,
                 lineNumber.intValue,
@@ -142,89 +140,49 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
 }
 
 - (void)runHippyDemo {
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(_isDebugMode)};
-    NSString *uniqueEngineKey = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
+    // Necessary configuration:
+    NSString *moduleName = @"Demo";
+    NSDictionary *launchOptions = @{ @"DebugMode": @(_isDebugMode) };
+    NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
-    _hippyBridge = [[HippyBridge alloc] initWithDelegate:self
-                                          moduleProvider:nil
-                                           launchOptions:launchOptions
-                                             executorKey:uniqueEngineKey];
-    _hippyBridge.methodInterceptor = self;
-    
-    [_hippyBridge setInspectable:YES];
-    
-    [self mountConnector:_hippyBridge];
-}
-
-- (void)mountConnector:(HippyBridge *)hippyBridge {
-    BOOL isSimulator = NO;
-#if TARGET_IPHONE_SIMULATOR
-    isSimulator = YES;
-#endif
-    
-#if USE_NEW_LOAD
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
-                                                         moduleName:@"Demo"
-                                                  initialProperties:@{@"isSimulator": @(isSimulator)}
-                                                           delegate:self];
-    
-    if (_isDebugMode) {
-        hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
-        [hippyBridge loadBundleURL:_debugURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            [rootView runHippyApplication];
-        }];
-    } else {
-        NSURL *vendorBundleURL = [self vendorBundleURL];
-        [hippyBridge loadBundleURL:vendorBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            NSLog(@"url %@ load finish", vendorBundleURL);
-        }];
-        NSURL *indexBundleURL = [self indexBundleURL];
-        hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
-        [hippyBridge loadBundleURL:indexBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            NSLog(@"url %@ load finish", indexBundleURL);
-            [rootView runHippyApplication];
-        }];
-    }
-    
-#else
+    HippyBridge *bridge = nil;
     HippyRootView *rootView = nil;
-    
     if (_isDebugMode) {
-        hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
-        rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
-                                             businessURL:_debugURL
-                                              moduleName:@"Demo"
-                                       initialProperties:@{@"isSimulator": @(isSimulator)}
+        bridge = [[HippyBridge alloc] initWithDelegate:self
+                                             bundleURL:_debugURL
+                                        moduleProvider:nil
+                                         launchOptions:launchOptions
+                                           executorKey:nil];
+        rootView = [[HippyRootView alloc] initWithBridge:bridge
+                                              moduleName:moduleName
+                                       initialProperties:initialProperties
                                                 delegate:self];
     } else {
         NSURL *vendorBundleURL = [self vendorBundleURL];
         NSURL *indexBundleURL = [self indexBundleURL];
-        [hippyBridge loadBundleURL:vendorBundleURL
-                        bundleType:HippyBridgeBundleTypeVendor
-                        completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
-            NSLog(@"url %@ load finish", vendorBundleURL);
-        }];
-        hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
-        rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
+        HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                          bundleURL:vendorBundleURL
+                                                     moduleProvider:nil
+                                                      launchOptions:launchOptions
+                                                        executorKey:nil];
+        rootView = [[HippyRootView alloc] initWithBridge:bridge
                                              businessURL:indexBundleURL
-                                              moduleName:@"Demo"
-                                       initialProperties:@{@"isSimulator": @(isSimulator)}
+                                              moduleName:moduleName
+                                       initialProperties:initialProperties
                                                 delegate:self];
     }
     
-#endif
-    
+    bridge.methodInterceptor = self;
+    [bridge setInspectable:YES];
+    _hippyBridge = bridge;
     rootView.frame = self.contentAreaView.bounds;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    
     [self.contentAreaView addSubview:rootView];
     _hippyRootView = rootView;
 }
 
-- (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];
-    _hippyRootView.frame = self.contentAreaView.bounds;
-}
+
+#pragma mark -
 
 - (NSURL *)vendorBundleURL {
     NSString *path = nil;
