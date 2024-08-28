@@ -151,19 +151,12 @@ NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileN
         });
         [log appendString:[formatter stringFromDate:timestamp]];
     }
-    if (level) {
-        [log appendFormat:@"[%s]", HippyLogLevels[level]];
-    }
-
-    [log appendFormat:@"[tid:%@]", currentThreadName()];
-
+    [log appendFormat:@"[%s]", HippyLogLevels[level]];
+    [log appendFormat:@"[%@]", currentThreadName()];
+    
     if (fileName) {
         fileName = fileName.lastPathComponent;
-        if (lineNumber) {
-            [log appendFormat:@"[%@:%@]", fileName, lineNumber];
-        } else {
-            [log appendFormat:@"[%@]", fileName];
-        }
+        [log appendFormat:@"[%@:%@]", fileName, lineNumber];
     }
     if (message) {
         [log appendString:@" "];
