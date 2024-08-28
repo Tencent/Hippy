@@ -18,23 +18,40 @@
         android:label="@string/app_name"
         android:configChanges="orientation|screenSize"
         >
-        <intent-filter>
-          <action android:name="android.intent.action.MAIN" />
-          <category android:name="android.intent.category.LAUNCHER" />
-          <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-        </intent-filter>
+<!--        <intent-filter>-->
+<!--          <action android:name="android.intent.action.MAIN" />-->
+<!--          <category android:name="android.intent.category.LAUNCHER" />-->
+<!--          <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />-->
+<!--        </intent-filter>-->
       </activity>
+
+<!--      <activity-->
+<!--        android:name="com.tencent.mtt.hippy.example.BaseActivity"-->
+<!--        android:configChanges="orientation|screenSize">-->
+<!--        <intent-filter>-->
+<!--          <action android:name="android.intent.action.MAIN" />-->
+<!--          <category android:name="android.intent.category.LAUNCHER" />-->
+<!--          <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />-->
+<!--        </intent-filter>-->
+<!--      </activity>-->
 
       <activity
-        android:name="com.tencent.mtt.hippy.example.BaseActivity"
-        android:configChanges="orientation|screenSize">
+        android:name=".MainActivity"
+        android:configChanges="orientation|screenSize"
+        android:exported="true"
+        android:label="@string/app_name" >
         <intent-filter>
           <action android:name="android.intent.action.MAIN" />
+
+          <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        <intent-filter>
+          <action android:name="android.intent.action.MAIN" />
+
           <category android:name="android.intent.category.LAUNCHER" />
           <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
         </intent-filter>
       </activity>
-
     </application>
 
 </manifest>

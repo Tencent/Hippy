@@ -1,17 +1,22 @@
 package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
+import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
+import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
+import com.tencent.mtt.hippy.bridge.bundleloader.HippyAssetBundleLoader;
+import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.example.adapter.MyImageLoader;
@@ -25,12 +30,16 @@ public class MyActivity extends Activity
 {
 	private HippyEngine mHippyEngine;
 	private HippyRootView mHippyView;
+	private FrameLayout mRoot;
+    private boolean useHermes = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        Intent intent = getIntent();
+        useHermes = intent.getBooleanExtra("useHermes", false);
 
 		// 1/3. 初始化hippy引擎
 		{
@@ -50,7 +59,10 @@ public class MyActivity extends Activity
 			initParams.coreJSAssetsPath = "vendor.android.js";
 
 			initParams.codeCacheTag = "common";
-
+			V8InitParams v8Params = new V8InitParams();
+			v8Params.initialHeapSize = 10*1024*1024;
+			v8Params.maximumHeapSize = 30*1024*1024;
+			initParams.v8InitParams = v8Params;
 			// 可选：异常处理器
 			initParams.exceptionHandler = new HippyExceptionHandlerAdapter() {
 				// JavaScript执行异常
@@ -124,22 +136,26 @@ public class MyActivity extends Activity
 						// 可选：发送给Hippy前端模块的参数
 						loadParams.jsParams = new HippyMap();
 						loadParams.jsParams.pushString("msgFromNative", "Hi js developer, I come from native code!");
-						// 加载Hippy前端模块
-						mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
-							@Override
-							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
-								if (statusCode != ModuleLoadStatus.STATUS_OK) {
-									LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
-								}
-							}
 
-							@Override
-							public boolean onJsException(HippyJsException exception) {
-								return true;
-							}
+						mHippyEngine.preloadModule(new HippyAssetBundleLoader(MyActivity.this.getApplicationContext(), "index.android.js") {
 						});
+//						mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
+//							@Override
+//							public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+//								if (statusCode != ModuleLoadStatus.STATUS_OK) {
+//									LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
+//								}
+//							}
+//
+//							@Override
+//							public boolean onJsException(HippyJsException exception) {
+//								return true;
+//							}
+//						});
 
-						setContentView(mHippyView);
+						mRoot = new FrameLayout(MyActivity.this);
+						mRoot.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+						setContentView(mRoot);
 					}
 				}
 			});
@@ -155,7 +171,6 @@ public class MyActivity extends Activity
 	@Override
 	protected void onStop() {
 		super.onStop();
-		mHippyEngine.onEnginePause();
 	}
 
 	@Override
@@ -168,17 +183,59 @@ public class MyActivity extends Activity
 
 	@Override
 	public void onBackPressed() {
+		HippyEngine.ModuleLoadParams loadParams = new HippyEngine.ModuleLoadParams();
+		// 必须：该Hippy模块将要挂在的Activity or Dialog的context
+		loadParams.context = MyActivity.this;
+						/*
+						  必须：指定要加载的Hippy模块里的组件（component）。componentName对应的是js文件中的"appName"，比如：
+						  var hippy = new Hippy({
+						      appName: "Demo",
+						      entryPage: App
+						  });
+						  */
+		loadParams.componentName = "Demo";
+
+		loadParams.codeCacheTag = "Demo";
+						/*
+						  可选：二选一设置。自己开发的业务模块的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径）
+						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
+						 */
+		loadParams.jsAssetsPath = "index.android.js";
+						/*
+						  可选：二选一设置。自己开发的业务模块的jsbundle的文件路径（assets路径和文件路径二选一，优先使用assets路径）
+						  debugMode = false 时必须设置jsAssetsPath或jsFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
+						 */
+		loadParams.jsFilePath = null;
+		// 可选：发送给Hippy前端模块的参数
+		loadParams.jsParams = new HippyMap();
+		loadParams.jsParams.pushString("msgFromNative", "Hi js developer, I come from native code!");
 		// 可选：让hippy前端能够监听并拦截back事件
-		boolean handled = mHippyEngine.onBackPressed(new HippyEngine.BackPressHandler() {
+		mHippyView = mHippyEngine.loadModule(loadParams, new HippyEngine.ModuleListener() {
 			@Override
-			public void handleBackPress() {
-				MyActivity.this.doActivityBack();
+			public void onLoadCompleted(ModuleLoadStatus statusCode, String msg, HippyRootView hippyRootView) {
+				if (statusCode != ModuleLoadStatus.STATUS_OK) {
+					LogUtils.e("MyActivity", "loadModule failed code:" + statusCode + ", msg=" + msg);
+				}
+			}
+
+			@Override
+			public boolean onJsException(HippyJsException exception) {
+				return true;
 			}
 		});
-
-		if (!handled) {
-			super.onBackPressed();
-		}
+		mRoot.addView(mHippyView);
+//
+//		setContentView(mHippyView);
+//		boolean handled = mHippyEngine.onBackPressed(new HippyEngine.BackPressHandler() {
+//			@Override
+//			public void handleBackPress() {
+//				MyActivity.this.doActivityBack();
+//			}
+//		});
+//
+//		if (!handled) {
+//			super.onBackPressed();
+//		}
 	}
 
 	// 可选：让hippy前端能够监听并拦截back事件

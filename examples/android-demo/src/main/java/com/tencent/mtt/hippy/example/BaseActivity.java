@@ -53,7 +53,6 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 	protected void onStop()
 	{
 		super.onStop();
-		mEngineManager.onEnginePause();
 	}
 
 	@Override
