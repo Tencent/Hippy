@@ -33,34 +33,6 @@
 #import <hippy/HippyMethodInterceptorProtocol.h>
 
 
-static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-    static NSArray *logLevelMap;
-    static NSDateFormatter *formatter;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        logLevelMap = @[@"TRACE", @"INFO", @"WARN", @"ERROR", @"FATAL"];
-        formatter = [NSDateFormatter new];
-        formatter.dateFormat = formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
-    });
-
-    NSString *levelStr = level < 0 || level > logLevelMap.count ? logLevelMap[1] : logLevelMap[level];
-
-    if(fileName){
-        return [[NSString alloc] initWithFormat:@"[%@][%@:%d][%@] %@",
-                [formatter stringFromDate:timestamp],
-                fileName.lastPathComponent,
-                lineNumber.intValue,
-                levelStr,
-                message
-        ];
-    }else{
-        return [[NSString alloc] initWithFormat:@"[%@]%@",
-                [formatter stringFromDate:timestamp],
-                message
-        ];
-    }
-}
-
 @interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate, HippyRootViewDelegate> {
     DriverType _driverType;
     RenderType _renderType;
@@ -123,20 +95,17 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     }
 }
 
-- (void)registerLogFunction {
-    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-        NSString *log = formatLog([NSDate date], level, fileName, lineNumber, message);
-        if([log hasSuffix:@"\n"]){
-            fprintf(stderr, "%s", log.UTF8String);
-        }else{
-            fprintf(stderr, "%s\n", log.UTF8String);
-        }
-    });
-}
-
 - (void)runHippyCache {
     _hippyRootView.frame = self.contentAreaView.bounds;
     [self.contentAreaView addSubview:_hippyRootView];
+}
+
+#pragma mark - Hippy Setup
+
+- (void)registerLogFunction {
+    // Register your custom log function for Hippy,
+    // use HippyDefaultLogFunction as an example, it outputs logs to stderr.
+    HippySetLogFunction(HippyDefaultLogFunction);
 }
 
 - (void)runHippyDemo {
@@ -172,54 +141,43 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
                                                 delegate:self];
     }
     
-    bridge.methodInterceptor = self;
+    // // Config whether jsc is inspectable, Highly recommended setting,
+    // since inspectable of JSC is disabled by default since iOS 16.4
     [bridge setInspectable:YES];
     _hippyBridge = bridge;
     rootView.frame = self.contentAreaView.bounds;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.contentAreaView addSubview:rootView];
     _hippyRootView = rootView;
+    
+    
+    // Optional configs:
+    bridge.methodInterceptor = self; // see HippyMethodInterceptorProtocol
 }
 
 
-#pragma mark -
+#pragma mark - Helpers
+
+- (NSString *)currentJSBundleDir {
+    NSString *dir = nil;
+    if (DriverTypeVue2 == _driverType) {
+        dir = @"res/vue2";
+    } else if (DriverTypeVue3 == _driverType) {
+        dir = @"res/vue3";
+    } else if (DriverTypeReact == _driverType) {
+        dir = @"res/react";
+    }
+    return dir;
+}
 
 - (NSURL *)vendorBundleURL {
-    NSString *path = nil;
-    if (DriverTypeReact == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res/react"];
-    }
-    else if (DriverTypeVue == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res/vue3"];
-    }
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:[self currentJSBundleDir]];
     return [NSURL fileURLWithPath:path];
 }
 
 - (NSURL *)indexBundleURL {
-    NSString *path = nil;
-    if (DriverTypeReact == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res/react"];
-    }
-    else if (DriverTypeVue == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res/vue3"];
-    }
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:[self currentJSBundleDir]];
     return [NSURL fileURLWithPath:path];
-}
-
-- (DriverType)driverType {
-    return _driverType;
-}
-
-- (RenderType)renderType {
-    return _renderType;
-}
-
-- (NSURL *)debugURL {
-    return _debugURL;
-}
-
-- (BOOL)isDebugMode {
-    return _isDebugMode;
 }
 
 - (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
@@ -258,7 +216,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
 }
 
 
-#pragma mark - HippyMethodInterceptorProtocol
+#pragma mark - Optional - HippyMethodInterceptorProtocol
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName
                         methodName:(NSString *)methodName

@@ -27,7 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, DriverType) {
     DriverTypeReact,
-    DriverTypeVue,
+    DriverTypeVue2,
+    DriverTypeVue3
 };
 
 typedef NS_ENUM(NSUInteger, RenderType) {
