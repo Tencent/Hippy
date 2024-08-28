@@ -24,7 +24,6 @@
 		9C99A05896359E49AE9A8352 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F34E176169143334EDFC28 /* MyView.m */; };
 		9CF888F990C83ECD4F6C78AA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */; };
 		A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */; };
-		B8AA2B793BE43710EFC9D4DC /* TestModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = D2241406CEF00D2FF5938BB2 /* TestModule.mm */; };
 		BD5196B65EE0B712FDA2EB9B /* UIViewController+Title.m in Sources */ = {isa = PBXBuildFile; fileRef = C412B5D210F1E3359523628C /* UIViewController+Title.m */; };
 		C1A78F8868963E6C790472AA /* PageCreationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 25B65684EC9C9AF27BB04D21 /* PageCreationCell.xib */; };
 		C94B7BB8A618F36A1F58C270 /* HomePageViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90B5552FD45612EC5EC4CB45 /* HomePageViewController.mm */; };
@@ -90,7 +89,6 @@
 		9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDemoViewController.m; sourceTree = "<group>"; };
 		A066953E3614D26125F617EF /* HippyPageCacheContainerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPageCacheContainerView.m; sourceTree = "<group>"; };
 		B2FA2A97C78628634C6AFC9A /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
-		B5A22F93EAA399DE400CED88 /* TestModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestModule.h; sourceTree = "<group>"; };
 		BD54126F3E80B297E2109B40 /* DebugCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DebugCell.m; sourceTree = "<group>"; };
 		BF84819C1E7CCD88BCBEA4D7 /* HippyPageCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPageCache.h; sourceTree = "<group>"; };
 		C412B5D210F1E3359523628C /* UIViewController+Title.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Title.m"; sourceTree = "<group>"; };
@@ -98,7 +96,6 @@
 		C6BAC7BC0021E9E21B04E496 /* SettingsInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsInfo.m; sourceTree = "<group>"; };
 		C7504BC18486120B29F3D9FA /* PageCreationCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageCreationCell.h; sourceTree = "<group>"; };
 		CC8AEAE8BF116954FB41BDF9 /* TurboBaseModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboBaseModule.mm; sourceTree = "<group>"; };
-		D2241406CEF00D2FF5938BB2 /* TestModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestModule.mm; sourceTree = "<group>"; };
 		D2EE3455BE6DD7D2ADA20093 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DC53FC9D9560D6AD989F8540 /* HomePageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HomePageView.xib; sourceTree = "<group>"; };
 		DDD052D2760E830B1E0095EA /* UIViewController+Title.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Title.h"; sourceTree = "<group>"; };
@@ -135,8 +132,6 @@
 				17AB7FB6346FE861C9D953F5 /* IconUtils.m */,
 				177A9E8373F2682A9A831991 /* Info.plist */,
 				D2EE3455BE6DD7D2ADA20093 /* main.m */,
-				B5A22F93EAA399DE400CED88 /* TestModule.h */,
-				D2241406CEF00D2FF5938BB2 /* TestModule.mm */,
 				DDD052D2760E830B1E0095EA /* UIViewController+Title.h */,
 				C412B5D210F1E3359523628C /* UIViewController+Title.m */,
 				4CF6648308C60D57DD274D30 /* HomePage */,
@@ -381,7 +376,6 @@
 				DCCEB3FED1802C0D9C21AB11 /* PageManagerViewController.m in Sources */,
 				F3F6D205C6FBA36CB262A28E /* SettingsInfo.m in Sources */,
 				380469787621147052854E8F /* SettingsViewController.m in Sources */,
-				B8AA2B793BE43710EFC9D4DC /* TestModule.mm in Sources */,
 				74C51526435B1AB788CBF991 /* TurboBaseModule.mm in Sources */,
 				72328C3389BA8DD5E54D7D5F /* TurboConfig.m in Sources */,
 				BD5196B65EE0B712FDA2EB9B /* UIViewController+Title.m in Sources */,
