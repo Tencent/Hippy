@@ -520,8 +520,9 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     }
 }
 
-- (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
-{ return nil; }
+- (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return nil;
+}
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view {
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {

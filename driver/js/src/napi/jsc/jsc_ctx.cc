@@ -320,7 +320,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
   JSStringRef set_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kSetStr), ARRAY_SIZE(kSetStr) - 1);
   JSStringRef define_property_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kDefinePropertyStr), ARRAY_SIZE(kDefinePropertyStr) - 1);
   JSStringRef object_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kObjectStr), ARRAY_SIZE(kObjectStr) - 1);
-  for (auto i = 0; i < property_count; ++i) {
+  for (size_t i = 0; i < property_count; ++i) {
     auto property_descriptor = properties[i];
     auto property_object = JSObjectMake(context_, parent_class_ref, nullptr);
     if (property_descriptor->getter) {
