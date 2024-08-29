@@ -63,6 +63,16 @@ extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
 
 const char kHippyBridgeName[] = "hippyBridge";
 
+static std::string binaryBufferToHexString(const std::string& buffer) {
+  std::ostringstream oss;
+  for (const auto& byte : buffer) {
+    // 将每个字节转换为两位十六进制数
+    oss << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << ",";
+  }
+  return oss.str();
+}
+
+
 void CallFunction(JNIEnv* j_env,
                   __unused jobject j_obj,
                   jstring j_action,
@@ -140,6 +150,7 @@ void CallFunction(JNIEnv* j_env,
           isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
           buffer_data_.length());
       TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
+
       v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
       if (!ret.IsEmpty()) {
         params = std::make_shared<hippy::napi::V8CtxValue>(
@@ -149,6 +160,11 @@ void CallFunction(JNIEnv* j_env,
         if (try_catch.HasCaught()) {
           unicode_string_view msg = try_catch.GetExceptionMsg();
           j_msg = JniUtils::StrViewToJString(j_env, msg);
+
+          TDF_BASE_DLOG(ERROR) << "cpp CallFunction, error, msg: " << msg;
+          auto logBufferString = binaryBufferToHexString(buffer_data_);
+          TDF_BASE_DLOG(ERROR) << "cpp CallFunction, error, buffer len:" << buffer_data_.length() << ", buffer: = " << logBufferString << ", end.";
+
         } else {
           j_msg = JniUtils::StrViewToJString(j_env, u"deserializer error");
         }
