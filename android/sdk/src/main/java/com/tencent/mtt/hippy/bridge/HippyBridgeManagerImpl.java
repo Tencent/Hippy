@@ -161,13 +161,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     final int actinCode = msg.arg2;
     final int rootViewId = instanceId;
+    final Object msgObj = msg.obj;
     NativeCallback callback = new NativeCallback(mHandler) {
       @Override
       public void Call(long result, Message message, String action, String reason) {
         if (result != 0) {
           String info = "CallFunction error: actinCode=" + actinCode
               + ", result=" + result + ", reason=" + reason;
-          LogUtils.e("CallFunction", "handleCallFunction callback: " + info + ", msg.obj " + msg.obj);
+          LogUtils.e("CallFunction", "handleCallFunction callback: " + info + ", msg.obj " + msgObj);
           reportException(new Throwable(info));
         } else if (actinCode == FUNCTION_ACTION_LOAD_INSTANCE) {
           HippyRootView rootView = mContext.getInstance(rootViewId);
@@ -219,7 +220,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         int offset = buffer.arrayOffset() + buffer.position();
         int length = buffer.limit() - buffer.position();
         LogUtils.e("CallFunction", "handleCallFunction: offset " + offset + ", length " + length
-                + ", actinCode " + actinCode + ", msg.obj " + msg.obj);
+                + ", actinCode " + actinCode + ", msg.obj " + msg.obj + ", buffer " + Arrays.toString(buffer.array()));
         mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
       } else {
         mStringBuilder.setLength(0);
