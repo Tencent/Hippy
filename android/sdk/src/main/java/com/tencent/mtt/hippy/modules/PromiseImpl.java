@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.runtime.builtins.JSMap;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.HashMap;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -95,6 +96,8 @@ public class PromiseImpl implements Promise {
       jsObject.set("moduleFunc", mModuleFunc);
       jsObject.set("callId", mCallId);
       jsObject.set("params", obj);
+      LogUtils.e("CallFunction", "doCallback JSValue: result " + code + ", moduleName "
+              + mModuleName + ", moduleFunc " + mModuleFunc + ", callId " + mCallId + ", params " + obj);
       mContext.getBridgeManager().execCallback(jsObject, transferType);
     } else {
       HippyMap hippyMap = new HippyMap();
@@ -103,6 +106,7 @@ public class PromiseImpl implements Promise {
       hippyMap.pushString("moduleFunc", mModuleFunc);
       hippyMap.pushString("callId", mCallId);
       hippyMap.pushObject("params", obj);
+      LogUtils.e("CallFunction", "doCallback: hippyMap " + hippyMap);
       mContext.getBridgeManager().execCallback(hippyMap, transferType);
     }
   }
