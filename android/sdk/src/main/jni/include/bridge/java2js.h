@@ -36,7 +36,8 @@ void CallFunctionByHeapBuffer(JNIEnv* j_env,
                               jobject j_callback,
                               jbyteArray j_byte_array,
                               jint j_offset,
-                              jint j_length);
+                              jint j_length,
+                              jint j_id);
 
 void CallFunctionByDirectBuffer(JNIEnv* j_env,
                                 jobject j_obj,

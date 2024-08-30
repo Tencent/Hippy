@@ -15,6 +15,9 @@
  */
 package com.tencent.mtt.hippy.serialization.compatible;
 
+import static com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.mMsgId;
+import static com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.mPrintCount;
+
 import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.common.ConstantValue;
@@ -24,6 +27,7 @@ import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.Set;
 
 /**
@@ -61,9 +65,15 @@ public class Serializer extends PrimitiveValueSerializer {
       return true;
     }
     if (object instanceof HippyArray) {
+      if (mPrintCount > 0) {
+        LogUtils.e("CallFunction", "writeValue: Serializer HippyArray msg id: " + mMsgId + ", count " + writer.length() + ", object " + object);
+      }
       assignId(object);
       writeJSArray((HippyArray) object);
     } else if (object instanceof HippyMap) {
+      if (mPrintCount > 0) {
+        LogUtils.e("CallFunction", "writeValue: Serializer HippyMap msg id: " + mMsgId + ", count " + writer.length() + ", object " + object);
+      }
       assignId(object);
       writeJSObject((HippyMap) object);
     } else {
@@ -77,8 +87,14 @@ public class Serializer extends PrimitiveValueSerializer {
     Set<String> keys = value.keySet();
     for (String key : keys) {
       if (key == Null) {
+        if (mPrintCount > 0) {
+          LogUtils.e("CallFunction", "writeJSObject: key == null msg id: " + mMsgId);
+        }
         writeString("null");
       } else {
+        if (mPrintCount > 0) {
+          LogUtils.e("CallFunction", "writeJSObject: msg id: " + mMsgId + ", key " + key);
+        }
         writeString(key);
       }
       writeValue(value.get(key));

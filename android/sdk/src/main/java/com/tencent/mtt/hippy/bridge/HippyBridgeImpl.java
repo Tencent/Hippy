@@ -217,24 +217,24 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
        * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
        */
       offset += buffer.arrayOffset();
-      callFunction(action, mV8RuntimeId, callback, buffer.array(), offset, length);
+      callFunction(action, mV8RuntimeId, callback, buffer.array(), offset, length, -1);
     }
   }
 
   @Override
-  public void callFunction(String action, NativeCallback callback, byte[] buffer) {
-    callFunction(action, callback, buffer, 0, buffer.length);
+  public void callFunction(String action, NativeCallback callback, byte[] buffer, int id) {
+    callFunction(action, callback, buffer, 0, buffer.length, id);
   }
 
   @Override
   public void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
-      int length) {
+      int length, int id) {
     if (!mInit || TextUtils.isEmpty(action) || buffer == null || offset < 0 || length < 0
         || offset + length > buffer.length) {
       return;
     }
 
-    callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+    callFunction(action, mV8RuntimeId, callback, buffer, offset, length, id);
   }
 
   @Override
@@ -275,7 +275,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       ByteBuffer buffer, int offset, int length);
 
   public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
-      byte[] buffer, int offset, int length);
+      byte[] buffer, int offset, int length, int id);
 
   public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
@@ -414,7 +414,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       boolean isInspectMsg = Inspector.getInstance(mContext)
         .setWebSocketClient(mDebugWebSocketClient).dispatchReqFromFrontend(mContext, msg);
       if (!isInspectMsg) {
-        callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
+        callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE), -1);
       }
     }
   }

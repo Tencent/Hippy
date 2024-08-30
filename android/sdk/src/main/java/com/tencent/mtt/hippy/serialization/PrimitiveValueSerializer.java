@@ -15,11 +15,15 @@
  */
 package com.tencent.mtt.hippy.serialization;
 
+import static com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.mMsgId;
+import static com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.mPrintCount;
+
 import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.math.BigInteger;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -97,6 +101,9 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   }
 
   protected void writeTag(SerializationTag tag) {
+    if (mPrintCount > 0) {
+      LogUtils.e("CallFunction", "writeTag: msg id: " + mMsgId + ", count " + writer.length() + ", tag " + tag);
+    }
     writer.putByte(tag.getTag());
   }
 
@@ -114,6 +121,9 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * @param value JavaScript delegate object
    */
   public boolean writeValue(Object value) {
+    if (mPrintCount > 0) {
+      LogUtils.e("CallFunction", "writeValue: Primitive msg id: " + mMsgId + ", count " + writer.length() + ", value " + value);
+    }
     if (value instanceof String) {
       writeString((String) value);
     } else if (value instanceof Number) {
@@ -149,6 +159,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     } else {
       Integer id = objectMap.get(value);
       if (id != null) {
+        LogUtils.e("CallFunction", "writeValue: Primitive OBJECT_REFERENCE msg id: " + mMsgId + ", id " + id + ", value " + value);
         writeTag(SerializationTag.OBJECT_REFERENCE);
         writer.putVarint(id);
       } else {

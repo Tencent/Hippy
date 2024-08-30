@@ -36,9 +36,9 @@ public interface HippyBridge {
 
   void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-  void callFunction(String action, NativeCallback callback, byte[] buffer);
+  void callFunction(String action, NativeCallback callback, byte[] buffer, int id);
 
-  void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
+  void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length, int id);
 
   long getV8RuntimeId();
 

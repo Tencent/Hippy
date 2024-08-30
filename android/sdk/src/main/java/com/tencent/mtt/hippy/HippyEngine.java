@@ -72,10 +72,15 @@ public abstract class HippyEngine {
     LibraryLoader.loadLibraryIfNeed();
   }
 
-  public static void setNativeLogHandler(IHippyNativeLogHandler handler) {
-    if (handler != null) {
-      initNativeLogHandler(handler);
+  private static IHippyNativeLogHandler logHandler = new IHippyNativeLogHandler() {
+    @Override
+    public void onReceiveNativeLogMessage(String msg) {
+      LogUtils.e("CallFunction", "onReceiveNativeLogMessage msg:" + msg);
     }
+  };
+
+  public static void setNativeLogHandler(IHippyNativeLogHandler handler) {
+
   }
 
   @SuppressWarnings("JavaJniMissingFunction")
@@ -91,7 +96,7 @@ public abstract class HippyEngine {
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
     ContextHolder.initAppContext(params.context);
-
+    initNativeLogHandler(logHandler);
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
       hippyEngine = new HippyNormalEngineManager(params, null);

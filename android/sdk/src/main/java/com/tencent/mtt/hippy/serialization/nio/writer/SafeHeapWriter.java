@@ -15,6 +15,9 @@
  */
 package com.tencent.mtt.hippy.serialization.nio.writer;
 
+import static com.tencent.mtt.hippy.bridge.HippyBridgeManagerImpl.mMsgId;
+
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
@@ -37,6 +40,7 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
 
   private void enlargeBuffer(int min) {
     int twice = (value.length << 1) + 2;
+    LogUtils.e("CallFunction", "enlargeBuffer msg id: " + mMsgId + ", min " + min + ", twice " + twice + ", count " + count);
     @SuppressWarnings("ManualMinMaxCalculation") byte[] newData = new byte[min > twice ? min
         : twice];
     System.arraycopy(value, 0, newData, 0, count);

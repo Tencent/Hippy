@@ -50,6 +50,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
@@ -59,6 +60,9 @@ import java.util.ArrayList;
 @SuppressWarnings({"unused", "deprecation"})
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback,
     Handler.Callback {
+
+  private static final AtomicInteger sIdCounter = new AtomicInteger();
+  private static int sId = 0;
 
   static final int MSG_CODE_INIT_BRIDGE = 10;
   static final int MSG_CODE_RUN_BUNDLE = 11;
@@ -75,6 +79,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   public static final int BRIDGE_TYPE_SINGLE_THREAD = 2;
   public static final int BRIDGE_TYPE_NORMAL = 1;
 
+  public static int mMsgId = -1;
+  public static int mPrintCount = 0;
+
   final HippyEngineContext mContext;
   final HippyBundleLoader mCoreBundleLoader;
   HippyBridge mHippyBridge;
@@ -88,16 +95,16 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   private final int mGroupId;
   private final HippyThirdPartyAdapter mThirdPartyAdapter;
   private StringBuilder mStringBuilder;
-  private SafeHeapWriter safeHeapWriter;
-  private SafeDirectWriter safeDirectWriter;
-  private Serializer compatibleSerializer;
-  private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializer;
+  //private SafeHeapWriter safeHeapWriter;
+  //private SafeDirectWriter safeDirectWriter;
+  //private Serializer compatibleSerializer;
+  //private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializer;
   HippyEngine.ModuleListener mLoadModuleListener;
   private TurboModuleManager mTurboModuleManager;
   private HippyEngine.V8InitParams v8InitParams;
 
-  private Serializer compatibleSerializerTest;
-  private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializerTest;
+  //private Serializer compatibleSerializerTest;
+  //private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializerTest;
 
   public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
       int bridgeType, boolean enableV8Serialization, boolean isDevModule, String debugServerHost,
@@ -113,10 +120,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     this.v8InitParams = v8InitParams;
 
     if (enableV8Serialization) {
-      compatibleSerializer = new Serializer();
-      compatibleSerializerTest = new Serializer();
-      recommendSerializer = new com.tencent.mtt.hippy.serialization.recommend.Serializer();
-      recommendSerializerTest = new com.tencent.mtt.hippy.serialization.recommend.Serializer();
+      //compatibleSerializer = new Serializer();
+      //compatibleSerializerTest = new Serializer();
+      //recommendSerializer = new com.tencent.mtt.hippy.serialization.recommend.Serializer();
+      //recommendSerializerTest = new com.tencent.mtt.hippy.serialization.recommend.Serializer();
     } else {
       mStringBuilder = new StringBuilder(1024);
     }
@@ -125,6 +132,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
   private void handleCallFunction(Message msg) {
     String action = null;
     int instanceId = 0;
+    int id = -1;
     switch (msg.arg2) {
       case FUNCTION_ACTION_LOAD_INSTANCE: {
         if (msg.obj instanceof HippyMap) {
@@ -151,14 +159,17 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       }
       case FUNCTION_ACTION_CALLBACK: {
         action = "callBack";
+        id = sIdCounter.getAndIncrement();
         break;
       }
       case FUNCTION_ACTION_CALL_JSMODULE: {
         action = "callJsModule";
+        id = sIdCounter.getAndIncrement();
         break;
       }
     }
 
+    final int msgId = id;
     final int actinCode = msg.arg2;
     final int rootViewId = instanceId;
     final Object msgObj = msg.obj;
@@ -166,9 +177,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       @Override
       public void Call(long result, Message message, String action, String reason) {
         if (result != 0) {
-          String info = "CallFunction error: actinCode=" + actinCode
+          String info = "CallFunction error: id " + msgId + ", actinCode=" + actinCode
               + ", result=" + result + ", reason=" + reason;
           LogUtils.e("CallFunction", "handleCallFunction callback: " + info + ", msg.obj " + msgObj);
+          mPrintCount = 4;
           reportException(new Throwable(info));
         } else if (actinCode == FUNCTION_ACTION_LOAD_INSTANCE) {
           HippyRootView rootView = mContext.getInstance(rootViewId);
@@ -179,56 +191,90 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
       }
     };
 
-    PrimitiveValueSerializer serializer = (msg.obj instanceof JSValue) ?
-            recommendSerializer : compatibleSerializer;
+    if (msg.obj instanceof JSValue) {
+      LogUtils.e("CallFunction", "handleCallFunction error: msg.obj instanceof JSValue!!!!!!!!!!!!!");
+    }
 
-    if (msg.arg1 == BridgeTransferType.BRIDGE_TRANSFER_TYPE_NIO.value()) {
-      ByteBuffer buffer;
+//    PrimitiveValueSerializer serializer = (msg.obj instanceof JSValue) ?
+//            recommendSerializer : compatibleSerializer;
+
+//    if (msg.arg1 == BridgeTransferType.BRIDGE_TRANSFER_TYPE_NIO.value()) {
+//      ByteBuffer buffer;
+//      if (enableV8Serialization) {
+//        if (safeDirectWriter == null) {
+//          safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
+//        } else {
+//          safeDirectWriter.reset();
+//        }
+//        serializer.setWriter(safeDirectWriter);
+//        serializer.reset();
+//        serializer.writeHeader();
+//        serializer.writeValue(msg.obj);
+//        buffer = safeDirectWriter.chunked();
+//        LogUtils.e("CallFunction", "handleCallFunction BRIDGE_TRANSFER_TYPE_NIO: actinCode " + actinCode + ", msg.obj " + msg.obj);
+//      } else {
+//        mStringBuilder.setLength(0);
+//        byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
+//            StandardCharsets.UTF_16LE);
+//        buffer = ByteBuffer.allocateDirect(bytes.length);
+//        buffer.put(bytes);
+//      }
+//
+//      mHippyBridge.callFunction(action, callback, buffer);
+//    } else {
       if (enableV8Serialization) {
-        if (safeDirectWriter == null) {
-          safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
-        } else {
-          safeDirectWriter.reset();
-        }
-        serializer.setWriter(safeDirectWriter);
+//        if (safeHeapWriter == null) {
+//          safeHeapWriter = new SafeHeapWriter();
+//        } else {
+//          safeHeapWriter.reset();
+//        }
+//        serializer.setWriter(safeHeapWriter);
+//        serializer.reset();
+//        serializer.writeHeader();
+//        serializer.writeValue(msg.obj);
+//        ByteBuffer buffer = safeHeapWriter.chunked();
+//        int offset = buffer.arrayOffset() + buffer.position();
+//        int length = buffer.limit() - buffer.position();
+
+        LogUtils.e("CallFunction", "       \n");
+        LogUtils.e("CallFunction", "handleCallFunction====================================================================");
+        LogUtils.e("CallFunction", "handleCallFunction before: id " + msgId + ", msg.obj  " + msg.obj);
+        mMsgId = msgId;
+        PrimitiveValueSerializer serializer = new Serializer();;
+        SafeHeapWriter safeHeapWriterTest = new SafeHeapWriter();
+        serializer.setWriter(safeHeapWriterTest);
         serializer.reset();
         serializer.writeHeader();
         serializer.writeValue(msg.obj);
-        buffer = safeDirectWriter.chunked();
-        LogUtils.e("CallFunction", "handleCallFunction BRIDGE_TRANSFER_TYPE_NIO: actinCode " + actinCode + ", msg.obj " + msg.obj);
-      } else {
-        mStringBuilder.setLength(0);
-        byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
-            StandardCharsets.UTF_16LE);
-        buffer = ByteBuffer.allocateDirect(bytes.length);
-        buffer.put(bytes);
-      }
-
-      mHippyBridge.callFunction(action, callback, buffer);
-    } else {
-      if (enableV8Serialization) {
-        if (safeHeapWriter == null) {
-          safeHeapWriter = new SafeHeapWriter();
-        } else {
-          safeHeapWriter.reset();
-        }
-        serializer.setWriter(safeHeapWriter);
-        serializer.reset();
-        serializer.writeHeader();
-        serializer.writeValue(msg.obj);
-        ByteBuffer buffer = safeHeapWriter.chunked();
+        ByteBuffer buffer = safeHeapWriterTest.chunked();
         int offset = buffer.arrayOffset() + buffer.position();
         int length = buffer.limit() - buffer.position();
-        LogUtils.e("CallFunction", "handleCallFunction: offset " + offset + ", length " + length
-                + ", actinCode " + actinCode + ", msg.obj " + msg.obj + ", buffer " + Arrays.toString(buffer.array()));
-        mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
+        int[] unsignedInts = byteToUnsignedInt(buffer.array());
+        LogUtils.e("CallFunction", "handleCallFunction after: id " + msgId + ", offset " + offset + ", length " + length
+                + ", actinCode " + actinCode + ", msg.obj " + msg.obj + ", buffer " + Arrays.toString(unsignedInts));
+        mHippyBridge.callFunction(action, callback, buffer.array(), offset, length, msgId);
+        LogUtils.e("CallFunction", "handleCallFunction######################################################################\n");
+        LogUtils.e("CallFunction", "        \n");
+        if (mPrintCount > 0) {
+          mPrintCount--;
+        }
       } else {
         mStringBuilder.setLength(0);
         byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
             StandardCharsets.UTF_16LE);
-        mHippyBridge.callFunction(action, callback, bytes);
+        mHippyBridge.callFunction(action, callback, bytes, id);
       }
+//    }
+  }
+
+  public static int[] byteToUnsignedInt(byte[] signedBytes) {
+    int[] unsignedInts = new int[signedBytes.length];
+
+    for (int i = 0; i < signedBytes.length; i++) {
+      unsignedInts[i] = signedBytes[i] & 0xFF;
     }
+
+    return unsignedInts;
   }
 
   private void handleDestroyBridge(Message msg) {
@@ -500,23 +546,23 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
   @Override
   public void execCallback(Object params, BridgeTransferType transferType) {
-    try {
-      PrimitiveValueSerializer serializer = compatibleSerializerTest;
-      SafeHeapWriter safeHeapWriterTest = new SafeHeapWriter();
-      serializer.setWriter(safeHeapWriterTest);
-      serializer.reset();
-      serializer.writeHeader();
-      serializer.writeValue(params);
-      ByteBuffer buffer = safeHeapWriterTest.chunked();
-      int offset = buffer.arrayOffset() + buffer.position();
-      int length = buffer.limit() - buffer.position();
-      LogUtils.e("CallFunction", "execCallback: offset " + offset + ", length " + length);
-    } catch (Exception e) {
-      LogUtils.e("CallFunction", "execCallback: exception " + e.getMessage());
-    }
+//    try {
+//      PrimitiveValueSerializer serializer = compatibleSerializerTest;
+//      SafeHeapWriter safeHeapWriterTest = new SafeHeapWriter();
+//      serializer.setWriter(safeHeapWriterTest);
+//      serializer.reset();
+//      serializer.writeHeader();
+//      serializer.writeValue(params);
+//      ByteBuffer buffer = safeHeapWriterTest.chunked();
+//      int offset = buffer.arrayOffset() + buffer.position();
+//      int length = buffer.limit() - buffer.position();
+//      LogUtils.e("CallFunction", "execCallback: id " + id + ", offset " + offset + ", length " + length);
+//    } catch (Exception e) {
+//      LogUtils.e("CallFunction", "execCallback: exception " + e.getMessage() + ", id " + id);
+//    }
 
     Message message = mHandler
-        .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(), FUNCTION_ACTION_CALLBACK,
+        .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_CALLBACK,
             params);
     mHandler.sendMessage(message);
   }
@@ -556,23 +602,36 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     map.pushString("methodName", methodName);
     map.pushObject("params", param);
 
+/*
+    HippyMap mapTest = new HippyMap();
+    HippyMap paramTest = new HippyMap();
+    paramTest.pushString("name", "onTouchDown");
+    paramTest.pushInt("id", 99);
+    paramTest.pushDouble("page_x", 174.2857208251953);
+    paramTest.pushDouble("page_y", 414.2857360839844);
+
+    mapTest.pushString("moduleName", "EventDispatcher");
+    mapTest.pushString("methodName", "receiveNativeGesture");
+    mapTest.pushObject("params", paramTest);
+
     try {
-      PrimitiveValueSerializer serializer = compatibleSerializerTest;
+      PrimitiveValueSerializer serializer = new Serializer();;
       SafeHeapWriter safeHeapWriterTest = new SafeHeapWriter();
       serializer.setWriter(safeHeapWriterTest);
       serializer.reset();
       serializer.writeHeader();
-      serializer.writeValue(map);
+      serializer.writeValue(mapTest);
       ByteBuffer buffer = safeHeapWriterTest.chunked();
       int offset = buffer.arrayOffset() + buffer.position();
       int length = buffer.limit() - buffer.position();
-      LogUtils.e("CallFunction", "callJavaScriptModule: map " + map + ", offset " + offset + ", length " + length);
+      LogUtils.e("maxli", "callJavaScriptModule: id " + id + ", offset " + offset + ", length " + length
+              + ", buffer " + Arrays.toString(buffer.array()));
     } catch (Exception e) {
-      LogUtils.e("CallFunction", "callJavaScriptModule: exception " + e.getMessage());
+      LogUtils.e("CallFunction", "callJavaScriptModule: exception " + e.getMessage() + ", id " + id);
     }
-
+*/
     Message message = mHandler
-        .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(), FUNCTION_ACTION_CALL_JSMODULE,
+        .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_CALL_JSMODULE,
             map);
     mHandler.sendMessage(message);
   }

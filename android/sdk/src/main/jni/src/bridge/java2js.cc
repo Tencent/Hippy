@@ -39,7 +39,7 @@ enum CALLFUNCTION_CB_STATE {
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
         "callFunction",
-        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;[BII)V",
+        "(Ljava/lang/String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;[BIII)V",
         CallFunctionByHeapBuffer)
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
@@ -79,7 +79,8 @@ void CallFunction(JNIEnv* j_env,
                   jlong j_runtime_id,
                   jobject j_callback,
                   bytes buffer_data,
-                  std::shared_ptr<JavaRef> buffer_owner) {
+                  std::shared_ptr<JavaRef> buffer_owner,
+                  int msg_id) {
   TDF_BASE_DLOG(INFO) << "CallFunction j_runtime_id = " << j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
@@ -94,7 +95,7 @@ void CallFunction(JNIEnv* j_env,
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, cb_ = std::move(cb), action_name,
                     buffer_data_ = std::move(buffer_data),
-                    buffer_owner_ = std::move(buffer_owner)] {
+                    buffer_owner_ = std::move(buffer_owner), msg_id] {
     JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     std::shared_ptr<Scope> scope = runtime->GetScope();
     if (!scope) {
@@ -160,10 +161,10 @@ void CallFunction(JNIEnv* j_env,
         if (try_catch.HasCaught()) {
           unicode_string_view msg = try_catch.GetExceptionMsg();
           j_msg = JniUtils::StrViewToJString(j_env, msg);
-
-          TDF_BASE_DLOG(ERROR) << "cpp CallFunction, error, msg: " << msg;
+          TDF_BASE_LOG(ERROR) << "cpp CallFunction, error, id: " << msg_id;
+          TDF_BASE_LOG(ERROR) << "cpp CallFunction, error, msg: " << msg;
           auto logBufferString = binaryBufferToHexString(buffer_data_);
-          TDF_BASE_DLOG(ERROR) << "cpp CallFunction, error, buffer len:" << buffer_data_.length() << ", buffer: = " << logBufferString << ", end.";
+          TDF_BASE_LOG(ERROR) << "cpp CallFunction, error, buffer len:" << buffer_data_.length() << ", buffer: = " << logBufferString << ", end.";
 
         } else {
           j_msg = JniUtils::StrViewToJString(j_env, u"deserializer error");
@@ -201,11 +202,12 @@ void CallFunctionByHeapBuffer(JNIEnv* j_env,
                               jobject j_callback,
                               jbyteArray j_byte_array,
                               jint j_offset,
-                              jint j_length) {
+                              jint j_length,
+                              jint j_id) {
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array,
                                                     j_offset, j_length),
-               nullptr);
+               nullptr, j_id);
 }
 
 void CallFunctionByDirectBuffer(JNIEnv* j_env,
@@ -221,7 +223,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
   TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                bytes(buffer_address + j_offset, JniUtils::CheckedNumericCast<jint, size_t>(j_length)),
-               std::make_shared<JavaRef>(j_env, j_buffer));
+               std::make_shared<JavaRef>(j_env, j_buffer), -1);
 }
 
 void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
