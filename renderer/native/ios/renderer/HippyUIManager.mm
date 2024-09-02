@@ -825,14 +825,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                         [uiManager->_componentTransactionListeners addObject:view];
                     }
                     [tempCreatedViews addObject:view];
-                    
-                    // TODO: hippy3 events binding handling, performance needs to be improved here.
-                    const std::vector<std::string> &eventNames = [shadowView allEventNames];
-                    for (auto &event : eventNames) {
-                        [uiManager addEventNameInMainThread:event
-                                                    forView:view
-                                                 onRootNode:shadowView.rootNode];
-                    }
                 }
             }];
         }
@@ -1169,12 +1161,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             UIView *view = viewRegistry[@(node_id)];
             [uiManager addTouchEventListenerForType:name_ forView:view onRootNode:rootNode];
         }];
-    } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
-        std::string name_ = name;
-        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            UIView *view = viewRegistry[@(node_id)];
-            [uiManager addShowEventListenerForType:name_ forView:view onRootNode:rootNode];
-        }];
     } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
         std::string name_ = name;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -1204,8 +1190,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                 } forKey:vsyncKey];
             }
         }];
-    }
-    else {
+    } else {
         std::string name_ = name;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = viewRegistry[@(node_id)];
@@ -1226,8 +1211,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
                || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
         [self addTouchEventListenerForType:name forView:view onRootNode:rootNode];
-    } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
-        [self addShowEventListenerForType:name forView:view onRootNode:rootNode];
     } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
         [self addPressEventListenerForType:name forView:view onRootNode:rootNode];
     } else {
@@ -1382,13 +1365,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             [view setOnTouchCancel:eventListener];
         }
     }
-}
-
-- (void)addShowEventListenerForType:(const std::string &)type
-                            forView:(UIView *)view
-                         onRootNode:(std::weak_ptr<RootNode>)rootNode {
-    // Note: not implemented
-    // iOS do not have these event.
 }
 
 - (void)removeEventName:(const std::string &)eventName
