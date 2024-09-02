@@ -154,6 +154,7 @@ export default class ModalExpo extends React.Component {
           transparent={true}
           animationType={this.state.animationType}
           visible={visible}
+          onShow={() => { console.log('modal show'); }}
           requestClose={() => { /* Trigger when hardware back pressed */ }}
           orientationChange={(evt) => { console.log('orientation changed', evt.orientation); }}
           supportedOrientations={['portrait']}
