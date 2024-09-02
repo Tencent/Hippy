@@ -571,8 +571,6 @@ HIPPY_EXPORT_SHADOW_PROPERTY(flexBasis, CGFloat)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(overflow, NSString)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(onLayout, HippyDirectEventBlock)
-
 HIPPY_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)

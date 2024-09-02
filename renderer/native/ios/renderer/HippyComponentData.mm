@@ -192,11 +192,9 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
             // Build setter block
             void (^setterBlock)(id target, id json) = nil;
-            if (type == NSSelectorFromString(@"HippyDirectEventBlock:")) {
-                //TODO
-                //The component event response logic no longer executes this code
-            } else {
+            {
                 // Ordinary property handlers
+                // In hippy3, component's event property do not go here.
                 NSMethodSignature *typeSignature = [[HippyConvert class] methodSignatureForSelector:type];
                 if (!typeSignature) {
                     HippyLogError(@"No +[HippyConvert %@] function found.", NSStringFromSelector(type));
