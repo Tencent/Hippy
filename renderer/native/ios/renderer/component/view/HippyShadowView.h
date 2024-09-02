@@ -62,7 +62,6 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 
 
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
-@property(nonatomic, copy) HippyDirectEventBlock onLayout;
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
 /**
