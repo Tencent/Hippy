@@ -34,11 +34,6 @@
 
 
 @interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate, HippyRootViewDelegate> {
-    DriverType _driverType;
-    RenderType _renderType;
-    BOOL _isDebugMode;
-    NSURL *_debugURL;
-    
     HippyBridge *_hippyBridge;
     HippyRootView *_hippyRootView;
     BOOL _fromCache;
@@ -57,7 +52,7 @@
         _driverType = driverType;
         _renderType = renderType;
         _debugURL = debugURL;
-        _isDebugMode = isDebugMode;
+        _debugMode = isDebugMode;
     }
     return self;
 }
@@ -68,7 +63,7 @@
         _driverType = pageCache.driverType;
         _renderType = pageCache.renderType;
         _debugURL = pageCache.debugURL;
-        _isDebugMode = pageCache.isDebugMode;
+        _debugMode = pageCache.isDebugMode;
         _hippyRootView = pageCache.rootView;
         _hippyBridge = pageCache.hippyBridge;
         _fromCache = YES;
@@ -111,12 +106,12 @@
 - (void)runHippyDemo {
     // Necessary configuration:
     NSString *moduleName = @"Demo";
-    NSDictionary *launchOptions = @{ @"DebugMode": @(_isDebugMode) };
+    NSDictionary *launchOptions = @{ @"DebugMode": @(_debugMode) };
     NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
     HippyBridge *bridge = nil;
     HippyRootView *rootView = nil;
-    if (_isDebugMode) {
+    if (_debugMode) {
         bridge = [[HippyBridge alloc] initWithDelegate:self
                                              bundleURL:_debugURL
                                         moduleProvider:nil
@@ -129,11 +124,11 @@
     } else {
         NSURL *vendorBundleURL = [self vendorBundleURL];
         NSURL *indexBundleURL = [self indexBundleURL];
-        HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
-                                                          bundleURL:vendorBundleURL
-                                                     moduleProvider:nil
-                                                      launchOptions:launchOptions
-                                                        executorKey:nil];
+        bridge = [[HippyBridge alloc] initWithDelegate:self
+                                             bundleURL:vendorBundleURL
+                                        moduleProvider:nil
+                                         launchOptions:launchOptions
+                                           executorKey:moduleName];
         rootView = [[HippyRootView alloc] initWithBridge:bridge
                                              businessURL:indexBundleURL
                                               moduleName:moduleName
@@ -191,7 +186,7 @@
     pageCache.driverType = _driverType;
     pageCache.renderType = _renderType;
     pageCache.debugURL = _debugURL;
-    pageCache.debugMode = _isDebugMode;
+    pageCache.debugMode = _debugMode;
     UIGraphicsBeginImageContextWithOptions(_hippyRootView.bounds.size, NO, [UIScreen mainScreen].scale);
     [_hippyRootView drawViewHierarchyInRect:_hippyRootView.bounds afterScreenUpdates:YES];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
