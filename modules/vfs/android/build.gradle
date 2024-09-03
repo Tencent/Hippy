@@ -39,5 +39,6 @@ android {
 
 dependencies {
     compileOnly project(path: ':pool')
+    compileOnly project(path: ':hippy-support')
     implementation deps.annotation
 }
