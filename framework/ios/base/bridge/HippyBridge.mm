@@ -1025,24 +1025,19 @@ dispatch_queue_t HippyBridgeQueue() {
 
 - (void)setupDomManager:(std::shared_ptr<hippy::DomManager>)domManager
                   rootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
-    __weak HippyBridge *weakSelf = self;
-    dispatch_block_t block = ^(void){
-        HippyBridge *strongSelf = weakSelf;
-        HippyAssertParam(domManager);
-        if (!strongSelf || !domManager) {
-            return;
-        }
-        strongSelf.javaScriptExecutor.pScope->SetDomManager(domManager);
-        strongSelf.javaScriptExecutor.pScope->SetRootNode(rootNode);
-      #ifdef ENABLE_INSPECTOR
-        auto devtools_data_source = strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource();
-        if (devtools_data_source) {
-            strongSelf->_javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(domManager);
-            devtools_data_source->SetRootNode(rootNode);
-        }
-      #endif
-    };
-    block();
+    HippyAssertParam(domManager);
+    if (!domManager) {
+        return;
+    }
+    self.javaScriptExecutor.pScope->SetDomManager(domManager);
+    self.javaScriptExecutor.pScope->SetRootNode(rootNode);
+#ifdef ENABLE_INSPECTOR
+    auto devtools_data_source = self.javaScriptExecutor.pScope->GetDevtoolsDataSource();
+    if (devtools_data_source) {
+        self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(domManager);
+        devtools_data_source->SetRootNode(rootNode);
+    }
+#endif
 }
 
 - (BOOL)isValid {
