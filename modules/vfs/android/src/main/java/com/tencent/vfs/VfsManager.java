@@ -19,12 +19,15 @@ package com.tencent.vfs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.vfs.ResourceDataHolder.RequestFrom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class VfsManager {
+
+    private static final String TAG = "VfsManager";
 
     @NonNull
     private final CopyOnWriteArrayList<Processor> mProcessorChain;
@@ -118,7 +121,15 @@ public class VfsManager {
         int index = holder.index + 1;
         if (index < mProcessorChain.size()) {
             holder.index = index;
-            Processor processor = mProcessorChain.get(index);
+            Processor processor = null;
+            try {
+                processor = mProcessorChain.get(index);
+            } catch (IndexOutOfBoundsException e) {
+                LogUtils.e(TAG, "traverseForward get index " + index + " processor exception: " + e.getMessage());
+            }
+            if (processor == null) {
+                return;
+            }
             if (isSync) {
                 boolean goBack = processor.handleRequestSync(holder);
                 if (goBack) {
@@ -158,7 +169,15 @@ public class VfsManager {
         int index = holder.index - 1;
         if (index >= 0 && index < mProcessorChain.size()) {
             holder.index = index;
-            Processor processor = mProcessorChain.get(index);
+            Processor processor = null;
+            try {
+                processor = mProcessorChain.get(index);
+            } catch (IndexOutOfBoundsException e) {
+                LogUtils.e(TAG, "traverseGoBack get index " + index + " processor exception: " + e.getMessage());
+            }
+            if (processor == null) {
+                return;
+            }
             if (isSync) {
                 processor.handleResponseSync(holder);
                 traverseGoBack(holder, true);
