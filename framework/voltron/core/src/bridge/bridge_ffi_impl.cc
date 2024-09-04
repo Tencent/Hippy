@@ -281,7 +281,6 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
   }
 
   scope->SetDomManager(dom_manager);
-  scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
   render_manager->SetDomManager(dom_manager);
   render_manager->BindBridgeId(engine_id);
@@ -330,8 +329,9 @@ EXTERN_C void DoConnectRootViewAndRuntime(int32_t engine_id, uint32_t root_id) {
   }
 #endif
 
+  auto dom_manager = scope->GetDomManager().lock();
   std::shared_ptr<voltron::VoltronRenderManager> render_manager =
-      std::static_pointer_cast<voltron::VoltronRenderManager>(scope->GetRenderManager().lock());
+      std::static_pointer_cast<voltron::VoltronRenderManager>(dom_manager->GetRenderManager().lock());
 
   float density = render_manager->GetDensity();
   auto layout_node = root_node->GetLayoutNode();
