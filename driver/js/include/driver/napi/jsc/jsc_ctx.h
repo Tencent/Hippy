@@ -212,6 +212,8 @@ public:
   bool is_exception_handled_;
   std::unordered_map<string_view, std::shared_ptr<ClassDefinition>> class_definition_map_;
   std::weak_ptr<VM> vm_;
+    
+  std::unordered_map<JSClassRef, std::unique_ptr<ConstructorData>> constructor_data_holder_;
 };
 
 inline footstone::string_view ToStrView(JSStringRef str) {
