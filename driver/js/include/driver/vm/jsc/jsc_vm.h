@@ -46,7 +46,6 @@ public:
     JSContextGroupRelease(vm_);
   }
   
-  std::unordered_map<void*, std::unordered_map<JSClassRef, std::unique_ptr<ConstructorData>>> constructor_data_holder_;
   JSContextGroupRef vm_;
   
   static void SaveConstructorDataPtr(void* ptr);
