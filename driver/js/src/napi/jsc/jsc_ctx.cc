@@ -65,11 +65,7 @@ JSCCtx::JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm): vm_(vm) {
 
 JSCCtx::~JSCCtx() {
   JSGlobalContextRelease(context_);
-  auto vm = vm_.lock();
-  FOOTSTONE_CHECK(vm);
-  auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
-  auto& holder = jsc_vm->constructor_data_holder_[this];
-  for (auto& [key, item] : holder) {
+  for (auto& [key, item] : constructor_data_holder_) {
     item->prototype = nullptr;
     JSCVM::ClearConstructorDataPtr(item.get());
   }
@@ -969,30 +965,13 @@ void* JSCCtx::GetPrivateData(const std::shared_ptr<CtxValue>& object) {
 }
 
 void JSCCtx::SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data) {
-  auto vm = vm_.lock();
-  FOOTSTONE_CHECK(vm);
-  auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
-  auto& holder = jsc_vm->constructor_data_holder_;
-  auto it = holder.find(this);
-  if (it == holder.end()) {
-    holder[this] = std::unordered_map<JSClassRef, std::unique_ptr<ConstructorData>>{};
-  }
   JSCVM::SaveConstructorDataPtr(constructor_data.get());
-  holder[this][constructor_data->class_ref] = std::move(constructor_data);
+  constructor_data_holder_[constructor_data->class_ref] = std::move(constructor_data);
 }
 
 std::shared_ptr<JSCCtxValue> JSCCtx::GetClassPrototype(JSClassRef ref) {
-  auto vm = vm_.lock();
-  FOOTSTONE_CHECK(vm);
-  auto jsc_vm = std::static_pointer_cast<JSCVM>(vm);
-  auto& holder = jsc_vm->constructor_data_holder_;
-  auto it = holder.find(this);
-  if (it == holder.end()) {
-    return nullptr;
-  }
-  auto& class_map = it->second;
-  auto iterator = class_map.find(ref);
-  if (iterator == class_map.end()) {
+  auto iterator = constructor_data_holder_.find(ref);
+  if (iterator == constructor_data_holder_.end()) {
     return nullptr;
   }
   return iterator->second->prototype;
