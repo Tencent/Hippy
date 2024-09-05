@@ -42,6 +42,7 @@ class RenderManager;
 @protocol HippyBridgeInternal <NSObject>
 
 /// The C++ version of RenderManager instance, bridge holds
+/// One NativeRenderManager holds multiple Uimanager instance.
 @property (nonatomic, assign) std::shared_ptr<NativeRenderManager> renderManager;
 
 /// URI Loader

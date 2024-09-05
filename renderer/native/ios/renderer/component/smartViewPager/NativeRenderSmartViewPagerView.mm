@@ -29,7 +29,6 @@
 #import "NativeRenderSmartViewPagerView.h"
 #import "HippyScrollProtocol.h"
 #import "UIView+MountEvent.h"
-#import "UIView+Render.h"
 #import "UIView+Hippy.h"
 
 #include <objc/runtime.h>
@@ -59,8 +58,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 @implementation NativeRenderSmartViewPagerView
 
 #pragma mark Life Cycle
-- (instancetype)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame]) {
+- (instancetype)initWithBridge:(HippyBridge *)bridge {
+    if (self = [super initWithBridge:bridge]) {
         _isInitialListReady = NO;
         _dataSource = [[HippyNextBaseListViewDataSource alloc] initWithDataSource:nil 
                                                                      itemViewName:[self compoentItemName]
@@ -357,7 +356,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
-    UIView *cellView = [self.uiManager createViewForShadowListItem:renderObject];
+    UIView *cellView = [self.bridge.uiManager createViewForShadowListItem:renderObject];
     hpCell.cellView = cellView;
     cellView.parent = self;
 }

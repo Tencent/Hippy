@@ -66,8 +66,15 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /// The HippyUIManager responsible for updating the view hierarchy.
 @interface HippyUIManager : NSObject <HippyInvalidating>
 
+/// HippyBridge instance
 @property (nonatomic, weak) HippyBridge *bridge;
+
+/// View Registry of all nodes
 @property (nonatomic, readonly) HippyComponentMap *viewRegistry;
+
+/// Specify whether UI hierarchy will be created instantly.
+/// When setting YES, UI hierarchy will not be created automatically,
+/// default is NO.
 @property (nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
 
@@ -142,7 +149,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 @interface HippyBridge (HippyUIManager)
 
 /// The current HippyUIManager instance
-@property (nonatomic, readonly) HippyUIManager *uiManager;
+@property (nonatomic, strong) HippyUIManager *uiManager;
 
 /// A custom touch handler for gesture special processing
 /// You can use it when you need to modify Hippy's default gesture handling logic
