@@ -47,7 +47,6 @@
 #import "HippyLog.h"
 #import "HippyOCToHippyValue.h"
 #import "HippyUtils.h"
-#import "UIView+RenderManager.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "HippyBase64DataHandler.h"
@@ -55,11 +54,14 @@
 #import "HippyRootView.h"
 #import "UIView+Hippy.h"
 #import "UIView+MountEvent.h"
+#import "HippyUIManager.h"
+#import "HippyUIManager+Private.h"
 
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/scene.h"
 #include "dom/render_manager.h"
+#include "dom/layer_optimized_render_manager.h"
 #include "driver/scope.h"
 #include "footstone/worker_manager.h"
 #include "vfs/uri_loader.h"
@@ -267,19 +269,6 @@ dispatch_queue_t HippyBridgeQueue() {
     }
 }
 
-- (void)setUpNativeRenderManager {
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.engineKey];
-    auto domManager = engineResource->GetDomManager();
-    //Create NativeRenderManager
-    auto nativeRenderManager = std::make_shared<NativeRenderManager>();
-    nativeRenderManager->Initialize();
-    //set dom manager
-    nativeRenderManager->SetDomManager(domManager);
-    nativeRenderManager->SetVFSUriLoader([self createURILoaderIfNeeded]);
-    nativeRenderManager->SetHippyBridge(self);
-    _renderManager = nativeRenderManager;
-}
-
 - (std::shared_ptr<VFSUriLoader>)createURILoaderIfNeeded {
     if (!_uriLoader) {
         auto uriHandler = std::make_shared<VFSUriHandler>();
@@ -474,7 +463,6 @@ dispatch_queue_t HippyBridgeQueue() {
     
     [self addImageProviderClass:[HippyDefaultImageProvider class]];
     [self setVfsUriLoader:[self createURILoaderIfNeeded]];
-    [self setUpNativeRenderManager];
     
     // Load pending js bundles
     [self loadPendingVendorBundleURLIfNeeded];
@@ -682,12 +670,6 @@ dispatch_queue_t HippyBridgeQueue() {
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
     HippyLogInfo(@"[HP PERF] End loading instance for HippyBridge(%p)", self);
-}
-
-- (void)sendRootSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params {
-    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:params];
-    [dic setObject:tag forKey:@"rootViewId"];
-    [self sendEvent:@"onSizeChanged" params:dic];
 }
 
 - (void)setVfsUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
@@ -1252,8 +1234,6 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
 
 #pragma mark -
 
-
-//FIXME: 调整优化
 - (void)setRootView:(UIView *)rootView {
     auto engineResource = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.engineKey];
     auto domManager = engineResource->GetDomManager();
@@ -1269,21 +1249,38 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     _rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
     _rootNode->SetRootOrigin(rootView.frame.origin.x, rootView.frame.origin.y);
     
-    //set rendermanager for dommanager
-    if (domManager->GetRenderManager().lock() != _renderManager) {
-        domManager->SetRenderManager(_renderManager);
+    // Create NativeRenderManager if needed
+    auto renderManager = domManager->GetRenderManager().lock();
+    std::shared_ptr<NativeRenderManager> nativeRenderManager;
+    if (!renderManager) {
+        // Register RenderManager to DomManager
+        nativeRenderManager = std::make_shared<NativeRenderManager>(self.moduleName.UTF8String);
+        domManager->SetRenderManager(nativeRenderManager);
+    } else {
+#ifdef HIPPY_EXPERIMENT_LAYER_OPTIMIZATION
+        auto opRenderManager = std::static_pointer_cast<hippy::LayerOptimizedRenderManager>(renderManager);
+        nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(opRenderManager->GetInternalNativeRenderManager());
+#else
+        nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
+#endif /* HIPPY_EXPERIMENT_LAYER_OPTIMIZATION */
     }
-    //bind rootview and root node
-    _renderManager->RegisterRootView(rootView, _rootNode);
+    _renderManager = nativeRenderManager;
     
-    __weak HippyBridge *weakBridge = self;
-    auto cb = [weakBridge](int32_t tag, NSDictionary *params){
-        HippyBridge *strongBridge = weakBridge;
-        if (strongBridge) {
-            [strongBridge sendRootSizeChangedEvent:@(tag) params:params];
-        }
-    };
-    _renderManager->SetRootViewSizeChangedEvent(cb);
+    // Create UIManager if needed and register it to NativeRenderManager
+    // Note that one NativeRenderManager may have multiple UIManager,
+    // and one UIManager may have multiple rootViews,
+    // But one HippyBridge can only have one UIManager.
+    HippyUIManager *uiManager = self.uiManager;
+    if (!uiManager) {
+        uiManager = [[HippyUIManager alloc] init];
+        [uiManager setDomManager:domManager];
+        [uiManager setBridge:self];
+        self.uiManager = uiManager;
+    }
+    
+    //bind rootview and root node
+    _renderManager->RegisterRootView(rootView, _rootNode, uiManager);
+    
     //setup necessary params for bridge
     [self setupDomManager:domManager rootNode:_rootNode];
 }
@@ -1308,8 +1305,6 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     }};
     domManager->PostTask(hippy::dom::Scene(std::move(ops)));
 }
-
-
 
 @end
 
