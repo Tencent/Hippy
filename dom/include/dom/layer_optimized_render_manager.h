@@ -28,6 +28,7 @@ inline namespace dom {
 class LayerOptimizedRenderManager : public RenderManager {
  public:
   LayerOptimizedRenderManager(std::shared_ptr<RenderManager> render_manager);
+  inline std::shared_ptr<RenderManager> GetInternalNativeRenderManager() { return render_manager_; }
 
   void CreateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;

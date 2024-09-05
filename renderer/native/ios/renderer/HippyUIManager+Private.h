@@ -28,10 +28,8 @@
 #include <unordered_map>
 #include <functional>
 
-class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
-class RenderManager;
 class DomManager;
 class DomArgument;
 class RootNode;
@@ -53,21 +51,10 @@ class HippyValue;
 /// DomManager instance
 @property (nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 
-/// VFSUriLoader instance
-@property (nonatomic, assign) std::weak_ptr<VFSUriLoader> vfsUriLoader;
-
 @end
 
 
 @interface HippyUIManager (Private) <HippyUIManagerInternal>
-
-/// Set hippy::RenderManager
-/// - Parameter renderManager: hippy::RenderManager
-- (void)registRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager;
-
-/// Get hippy::RenderManager
-- (std::weak_ptr<hippy::RenderManager>)renderManager;
-
 
 - (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
