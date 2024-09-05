@@ -41,6 +41,8 @@
 #include "footstone/base_timer.h"
 #include "footstone/worker.h"
 
+#define HIPPY_EXPERIMENT_LAYER_OPTIMIZATION
+
 namespace hippy {
 inline namespace dom {
 
@@ -140,8 +142,12 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   friend class DomNode;
 
   uint32_t id_;
+#ifdef HIPPY_EXPERIMENT_LAYER_OPTIMIZATION
   std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
-  std::weak_ptr<RenderManager> render_manager_;
+  std::shared_ptr<RenderManager> render_manager_;
+#else
+  std::shared_ptr<RenderManager> render_manager_;
+#endif
   std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>> timer_map_;
   std::shared_ptr<TaskRunner> task_runner_;
   std::shared_ptr<Worker> worker_;

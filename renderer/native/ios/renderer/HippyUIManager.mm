@@ -41,8 +41,6 @@
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
-#import "UIView+Render.h"
-#import "UIView+RenderManager.h"
 #import "HippyBridgeModule.h"
 #import "HippyModulesSetup.h"
 #import "NativeRenderManager.h"
@@ -50,6 +48,7 @@
 #import "HippyModuleData.h"
 #import "HippyModuleMethod.h"
 #import "HippyBridge+Private.h"
+#import "HippyJSExecutor.h"
 #import "dom/root_node.h"
 #import "objc/runtime.h"
 #import <os/lock.h>
@@ -185,15 +184,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     // Listeners such as ScrollView/ListView etc. witch will listen to start layout event
     // The implementation here needs to be improved to provide a registration mechanism.
     NSHashTable<id<HippyComponent>> *_componentTransactionListeners;
-
-    std::weak_ptr<hippy::RenderManager> _renderManager;
     
     std::mutex _renderQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSArray<Class> *_extraComponents;
     
     NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
-    std::function<void(int32_t, NSDictionary *)> _rootViewSizeChangedCb;
 }
 
 
@@ -209,7 +205,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @implementation HippyUIManager
 
 @synthesize domManager = _domManager;
-@synthesize vfsUriLoader = _vfsUriLoader;
 
 #pragma mark Life cycle
 
@@ -250,14 +245,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 #pragma mark Setter & Getter
-
-- (void)registRenderManager:(std::weak_ptr<hippy::RenderManager>)renderManager {
-    _renderManager = renderManager;
-}
-
-- (std::weak_ptr<hippy::RenderManager>)renderManager {
-    return _renderManager;
-}
 
 - (void)setDomManager:(std::weak_ptr<DomManager>)domManager {
     _domManager = domManager;
@@ -335,7 +322,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     [rootView addObserver:self forKeyPath:@"frame" 
                   options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
                   context:NULL];
-    rootView.renderManager = [self renderManager];
     CGRect frame = rootView.frame;
 
     // Register shadow view
@@ -392,19 +378,22 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                                          @"width": @(CGRectGetWidth(curFrame)), @"height": @(CGRectGetHeight(curFrame)),
                                          @"rootViewId": rootTag
                 };
+                static const char *hippyOnSizeChangedKey = "onSizeChanged";
                 auto value = std::make_shared<footstone::HippyValue>([params toHippyValue]);
-                auto event = std::make_shared<DomEvent>("onSizeChanged", rootNode, NO, NO, value);
+                auto event = std::make_shared<DomEvent>(hippyOnSizeChangedKey, rootNode, NO, NO, value);
                 __weak HippyUIManager *weakSelf = self;
                 std::function<void()> func = [weakSelf, rootNode, event, rootTag](){
                     rootNode->HandleEvent(event);
                     HippyUIManager *strongSelf = weakSelf;
                     if (strongSelf) {
-                        [strongSelf domEventDidHandle:"onSizeChanged" forNode:[rootTag intValue] onRoot:[rootTag intValue]];
+                        [strongSelf domEventDidHandle:hippyOnSizeChangedKey forNode:[rootTag intValue] onRoot:[rootTag intValue]];
                     }
                 };
                 domManager->PostTask(hippy::Scene({func}));
-                if (_rootViewSizeChangedCb) {
-                    _rootViewSizeChangedCb([rootTag intValue], params);
+                
+                HippyBridge *bridge = self.bridge;
+                if (bridge) {
+                    [bridge sendEvent:@(hippyOnSizeChangedKey) params:params];
                 }
             }
         }
@@ -527,7 +516,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             view.viewName = viewName;
             view.rootTag = rootTag;
             view.hippyShadowView = shadowView;
-            view.renderManager = [self renderManager];
             [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
         }
     }
@@ -1169,24 +1157,26 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }];
     } else if (name == kVSyncKey) {
         std::string name_ = name;
-        auto weakDomManager = self.domManager;
+        __weak __typeof(self)weakSelf = self;
         [self domNodeForComponentTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
             if (node) {
                 //for kVSyncKey event, node is rootnode
-                NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", self, node_id];
+                __strong __typeof(weakSelf)strongSelf = weakSelf;
+                NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", strongSelf, node_id];
                 auto event = std::make_shared<hippy::DomEvent>(name_, node);
                 std::weak_ptr<DomNode> weakNode = node;
                 [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
-                    auto domManager = weakDomManager.lock();
-                    if (domManager) {
-                        std::function<void()> func = [weakNode, event](){
-                            auto strongNode = weakNode.lock();
-                            if (strongNode) {
-                                strongNode->HandleEvent(event);
-                            }
-                        };
-                        domManager->PostTask(hippy::Scene({func}));
+                    __strong __typeof(weakSelf)strongSelf = weakSelf;
+                    HippyBridge *bridge = strongSelf.bridge;
+                    if (!bridge) {
+                        return;
                     }
+                    [bridge.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+                        auto strongNode = weakNode.lock();
+                        if (strongNode) {
+                            strongNode->HandleEvent(event);
+                        }
+                    }];
                 } forKey:vsyncKey];
             }
         }];
@@ -1488,12 +1478,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return tmpProps;
 }
 
-- (void)setRootViewSizeChangedEvent:(std::function<void(int32_t rootTag, NSDictionary *)>)cb {
-    _rootViewSizeChangedCb = cb;
-}
-
 - (void)domEventDidHandle:(const std::string &)eventName forNode:(int32_t)tag onRoot:(int32_t)rootTag {
-    
+    // no op
 }
 
 #pragma mark Debug Methods
@@ -1522,12 +1508,11 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @implementation HippyBridge (HippyUIManager)
 
 - (HippyUIManager *)uiManager {
-    auto renderManager = [self renderManager];
-    if (renderManager) {
-        auto nativeRenderManager = std::static_pointer_cast<NativeRenderManager>(renderManager);
-        return nativeRenderManager->GetHippyUIManager();
-    }
-    return nil;
+    return objc_getAssociatedObject(self, @selector(uiManager));
+}
+
+- (void)setUiManager:(HippyUIManager *)uiManager {
+    objc_setAssociatedObject(self, @selector(uiManager), uiManager, OBJC_ASSOCIATION_RETAIN);
 }
 
 - (id<HippyCustomTouchHandlerProtocol>)customTouchHandler {
