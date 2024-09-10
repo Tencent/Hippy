@@ -162,6 +162,18 @@ static void NativeRenderTraverseViewNodes(id<HippyComponent> view, void (^block)
     }
 }
 
+
+@interface UIView (HippyUIManagerPrivate)
+
+/// Bind UIView with HippyUIManager
+/// This is a convenient method for UIView to get HippyUIManager instance.
+/// - Parameter uiManager: HippyUIManager instance
+- (void)setUiManager:(HippyUIManager *)uiManager;
+
+@end
+
+#pragma mark -
+
 #define AssertMainQueue() NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
 
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
@@ -318,8 +330,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     
     // Register view
     [_viewRegistry addRootComponent:rootView rootNode:rootNode forTag:hippyTag];
-    
-    [rootView addObserver:self forKeyPath:@"frame" 
+    rootView.uiManager = self;
+    [rootView addObserver:self forKeyPath:@"frame"
                   options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
                   context:NULL];
     CGRect frame = rootView.frame;
@@ -516,6 +528,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             view.viewName = viewName;
             view.rootTag = rootTag;
             view.hippyShadowView = shadowView;
+            view.uiManager = self;
             [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
         }
     }
@@ -1523,7 +1536,5 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     objc_setAssociatedObject(self, @selector(customTouchHandler), customTouchHandler, OBJC_ASSOCIATION_RETAIN);
 }
 
-
 @end
-
 

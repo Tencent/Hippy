@@ -56,9 +56,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     BOOL _allowNextScrollNoMatterWhat;
 }
 
-/// Weak ref of HippyBridge
-@property (nonatomic, weak, readonly) HippyBridge *bridge;
-
 /**
  * Content inset for HippyWaterfallView
  */
@@ -118,12 +115,6 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
 @property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
-
-/// Init method
-/// - Parameter bridge: HippyBridge instance
-- (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
-- (instancetype)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
-- (instancetype)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
 
 /**
  * Initial collection view
