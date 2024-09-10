@@ -124,6 +124,7 @@ class LayoutNode {
       const std::vector<std::string>& style_delete) = 0;
 };
 
+void InitLayoutConsts();
 std::shared_ptr<LayoutNode> CreateLayoutNode();
 
 }  // namespace dom

@@ -30,75 +30,82 @@
 namespace hippy {
 inline namespace dom {
 
-const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OVERFLOW_VISIBLE},
-                                                          {"hidden", OverflowType::OVERFLOW_HIDDEN},
-                                                          {"scroll", OverflowType::OVERFLOW_SCROLL}};
+class TaitankLayoutConsts {
+public:
+  const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OVERFLOW_VISIBLE},
+      {"hidden", OverflowType::OVERFLOW_HIDDEN},
+      {"scroll", OverflowType::OVERFLOW_SCROLL}};
+  
+  const std::map<std::string, FlexDirection> kFlexDirectionMap = {
+      {"row", FlexDirection::FLEX_DIRECTION_ROW},
+      {"row-reverse", FlexDirection::FLEX_DIRECTION_ROW_REVERSE},
+      {"column", FlexDirection::FLEX_DIRECTION_COLUMN},
+      {"column-reverse", FlexDirection::FLEX_DIRECTION_COLUNM_REVERSE}};
+  
+  const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FLEX_NO_WRAP},
+      {"wrap", FlexWrapMode::FLEX_WRAP},
+      {"wrap-reverse", FlexWrapMode::FLEX_WRAP_REVERSE}};
+  
+  const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FLEX_ALIGN_START},
+      {"center", FlexAlign::FLEX_ALIGN_CENTER},
+      {"flex-end", FlexAlign::FLEX_ALIGN_END},
+      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
+      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND},
+      {"space-evenly", FlexAlign::FLEX_ALIGN_SPACE_EVENLY}};
+  
+  const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FLEX_ALIGN_AUTO},
+      {"flex-start", FlexAlign::FLEX_ALIGN_START},
+      {"center", FlexAlign::FLEX_ALIGN_CENTER},
+      {"flex-end", FlexAlign::FLEX_ALIGN_END},
+      {"stretch", FlexAlign::FLEX_ALIGN_STRETCH},
+      {"baseline", FlexAlign::FLEX_ALIGN_BASE_LINE},
+      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
+      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND}};
+  
+  const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSS_ALL},
+      {kMarginVertical, CSSDirection::CSS_VERTICAL},
+      {kMarginHorizontal, CSSDirection::CSS_HORIZONTAL},
+      {kMarginLeft, CSSDirection::CSS_LEFT},
+      {kMarginRight, CSSDirection::CSS_RIGHT},
+      {kMarginTop, CSSDirection::CSS_TOP},
+      {kMarginBottom, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSS_ALL},
+      {kPaddingVertical, CSSDirection::CSS_VERTICAL},
+      {kPaddingHorizontal, CSSDirection::CSS_HORIZONTAL},
+      {kPaddingLeft, CSSDirection::CSS_LEFT},
+      {kPaddingRight, CSSDirection::CSS_RIGHT},
+      {kPaddingTop, CSSDirection::CSS_TOP},
+      {kPaddingBottom, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSS_LEFT},
+      {kRight, CSSDirection::CSS_RIGHT},
+      {kTop, CSSDirection::CSS_TOP},
+      {kBottom, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_ALL},
+      {kBorderLeftWidth, CSSDirection::CSS_LEFT},
+      {kBorderTopWidth, CSSDirection::CSS_TOP},
+      {kBorderRightWidth, CSSDirection::CSS_RIGHT},
+      {kBorderBottomWidth, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::POSITION_TYPE_RELATIVE},
+      {"absolute", PositionType::POSITION_TYPE_ABSOLUTE}};
+  
+  const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DISPLAY_TYPE_NONE}};
+  
+  const std::map<std::string, TaitankDirection> kDirectionMap = {
+      {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
+};
 
-const std::map<std::string, FlexDirection> kFlexDirectionMap = {
-    {"row", FlexDirection::FLEX_DIRECTION_ROW},
-    {"row-reverse", FlexDirection::FLEX_DIRECTION_ROW_REVERSE},
-    {"column", FlexDirection::FLEX_DIRECTION_COLUMN},
-    {"column-reverse", FlexDirection::FLEX_DIRECTION_COLUNM_REVERSE}};
-
-const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FLEX_NO_WRAP},
-                                                          {"wrap", FlexWrapMode::FLEX_WRAP},
-                                                          {"wrap-reverse", FlexWrapMode::FLEX_WRAP_REVERSE}};
-
-const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FLEX_ALIGN_START},
-                                                      {"center", FlexAlign::FLEX_ALIGN_CENTER},
-                                                      {"flex-end", FlexAlign::FLEX_ALIGN_END},
-                                                      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
-                                                      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND},
-                                                      {"space-evenly", FlexAlign::FLEX_ALIGN_SPACE_EVENLY}};
-
-const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FLEX_ALIGN_AUTO},
-                                                    {"flex-start", FlexAlign::FLEX_ALIGN_START},
-                                                    {"center", FlexAlign::FLEX_ALIGN_CENTER},
-                                                    {"flex-end", FlexAlign::FLEX_ALIGN_END},
-                                                    {"stretch", FlexAlign::FLEX_ALIGN_STRETCH},
-                                                    {"baseline", FlexAlign::FLEX_ALIGN_BASE_LINE},
-                                                    {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
-                                                    {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND}};
-
-const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSS_ALL},
-                                                        {kMarginVertical, CSSDirection::CSS_VERTICAL},
-                                                        {kMarginHorizontal, CSSDirection::CSS_HORIZONTAL},
-                                                        {kMarginLeft, CSSDirection::CSS_LEFT},
-                                                        {kMarginRight, CSSDirection::CSS_RIGHT},
-                                                        {kMarginTop, CSSDirection::CSS_TOP},
-                                                        {kMarginBottom, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSS_ALL},
-                                                         {kPaddingVertical, CSSDirection::CSS_VERTICAL},
-                                                         {kPaddingHorizontal, CSSDirection::CSS_HORIZONTAL},
-                                                         {kPaddingLeft, CSSDirection::CSS_LEFT},
-                                                         {kPaddingRight, CSSDirection::CSS_RIGHT},
-                                                         {kPaddingTop, CSSDirection::CSS_TOP},
-                                                         {kPaddingBottom, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSS_LEFT},
-                                                          {kRight, CSSDirection::CSS_RIGHT},
-                                                          {kTop, CSSDirection::CSS_TOP},
-                                                          {kBottom, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_ALL},
-                                                        {kBorderLeftWidth, CSSDirection::CSS_LEFT},
-                                                        {kBorderTopWidth, CSSDirection::CSS_TOP},
-                                                        {kBorderRightWidth, CSSDirection::CSS_RIGHT},
-                                                        {kBorderBottomWidth, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::POSITION_TYPE_RELATIVE},
-                                                              {"absolute", PositionType::POSITION_TYPE_ABSOLUTE}};
-
-const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DISPLAY_TYPE_NONE}};
-
-const std::map<std::string, TaitankDirection> kDirectionMap = {
-    {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
+static std::shared_ptr<TaitankLayoutConsts> global_layout_consts = nullptr;
 
 #define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
   static TYPE GetStyle##NAME(const std::string& key) {   \
-    auto iter = k##NAME##Map.find(key);                  \
-    if (iter != k##NAME##Map.end()) return iter->second; \
+    if (global_layout_consts == nullptr) return DEFAULT; \
+    auto &map = global_layout_consts->k##NAME##Map;      \
+    auto iter = map.find(key);                           \
+    if (iter != map.end()) return iter->second;          \
     return DEFAULT;                                      \
   }
 
@@ -809,6 +816,12 @@ void TaitankLayoutNode::Allocate() { engine_node_ = new TaitankNode(); }
 void TaitankLayoutNode::Deallocate() {
   if (engine_node_ == nullptr) return;
   delete engine_node_;
+}
+
+void InitLayoutConsts() {
+  if (global_layout_consts == nullptr) {
+    global_layout_consts = std::make_shared<TaitankLayoutConsts>();
+  }
 }
 
 std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<TaitankLayoutNode>(); }

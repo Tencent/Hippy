@@ -47,13 +47,6 @@ public:
   }
   
   JSContextGroupRef vm_;
-  
-  static void SaveConstructorDataPtr(void* ptr);
-  static void ClearConstructorDataPtr(void* ptr);
-  static bool IsValidConstructorDataPtr(void* ptr);
-  
-  static std::set<void*> constructor_data_ptr_set_;
-  static std::mutex mutex_;
     
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
   virtual std::shared_ptr<Ctx> CreateContext() override;
