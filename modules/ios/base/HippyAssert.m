@@ -96,6 +96,7 @@ void HippyFatal(NSError *error) {
             }
             [NSException raise:name format:@"%@", message];
         } @catch (NSException *e) {
+            // no op
         }
 #endif  //#ifdef DEBUG
     }
