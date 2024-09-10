@@ -25,6 +25,7 @@
 #import "HippyFooterRefresh.h"
 #import "HippyWaterfallItemView.h"
 #import "UIView+Hippy.h"
+#import "UIView+Render.h"
 #import "HippyRefresh.h"
 #import "HippyWaterfallViewDataSource.h"
 #import "HippyShadowView.h"
@@ -61,9 +62,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 @synthesize contentSize;
 
-- (instancetype)initWithBridge:(id)bridge {
-    if (self = [super initWithFrame:CGRectZero]) {
-        _bridge = bridge;
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         self.backgroundColor = [UIColor clearColor];
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
@@ -266,7 +266,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     if (cachedCellView) {
         cellView = cachedCellView;
     } else {
-        cellView = [self.bridge.uiManager createViewForShadowListItem:shadowView];
+        cellView = [self.uiManager createViewForShadowListItem:shadowView];
         [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
     }
     

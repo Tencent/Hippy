@@ -33,6 +33,7 @@
 @class HippyComponentMap;
 @protocol HippyImageProviderProtocol;
 
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
@@ -156,3 +157,5 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 @property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
 
 @end
+
+NS_ASSUME_NONNULL_END
