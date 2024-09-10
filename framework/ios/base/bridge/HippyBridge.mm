@@ -710,15 +710,19 @@ dispatch_queue_t HippyBridgeQueue() {
         return;
     }
     HippyAssert(self.javaScriptExecutor, @"js executor must not be null");
-    __weak HippyBridge *weakSelf = self;
+    __weak __typeof(self)weakSelf = self;
     [self.javaScriptExecutor executeApplicationScript:script sourceURL:sourceURL onComplete:^(id result ,NSError *error) {
-        HippyBridge *strongSelf = weakSelf;
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
         if (!strongSelf || ![strongSelf isValid]) {
             completion(result, error);
             return;
         }
         if (error) {
-            [strongSelf stopLoadingWithError:error scriptSourceURL:sourceURL];
+            HippyLogError(@"ExecuteApplicationScript Error! %@", error.description);
+            HippyExecuteOnMainQueue(^{
+                __strong __typeof(weakSelf)strongSelf = weakSelf;
+                [strongSelf stopLoadingWithError:error scriptSourceURL:sourceURL];
+            });
         }
         completion(result, error);
     }];
