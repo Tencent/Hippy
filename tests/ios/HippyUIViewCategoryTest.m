@@ -21,7 +21,18 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "UIView+Hippy.h"
+#import <hippy/UIView+Hippy.h>
+#import <hippy/UIView+Render.h>
+#import <hippy/HippyUIManager.h>
+
+@interface UIView (HippyUIManagerUnitTest)
+
+/// Bind UIView with HippyUIManager
+/// This is a convenient method for UIView to get HippyUIManager instance.
+/// - Parameter uiManager: HippyUIManager instance
+- (void)setUiManager:(HippyUIManager *)uiManager;
+
+@end
 
 @interface HippyUIViewCategoryTest : XCTestCase
 
@@ -47,8 +58,15 @@
     XCTAssert([testView hippyRootView] == testSuperView);
     testView.hippyTag = @(11);
     XCTAssert([testView hippyRootView] == nil);
+}
+
+- (void)testGetHippyUIManager {
+    UIView *testView = [UIView new];
+    XCTAssertNil([testView uiManager]);
     
-    
+    HippyUIManager *uiManager = [[HippyUIManager alloc] init];
+    XCTAssertNoThrow(testView.uiManager = uiManager);
+    XCTAssertTrue(testView.uiManager == uiManager);
 }
 
 
