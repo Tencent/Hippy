@@ -31,6 +31,7 @@
 #import "HippyShadowView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+Hippy.h"
+#import "UIView+Render.h"
 #import "HippyShadowListView.h"
 
 static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
@@ -48,8 +49,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if (self = [super initWithBridge:bridge]) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
         self.preloadItemNumber = 1;
     }
@@ -220,7 +221,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [self.bridge.uiManager createViewForShadowListItem:headerRenderObject];
+        UIView *headerView = [self.uiManager createViewForShadowListItem:headerRenderObject];
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
         headerView.frame = frame;
@@ -272,7 +273,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         cellView = cachedVisibleCellView;
         HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
     } else {
-        cellView = [self.bridge.uiManager createViewForShadowListItem:shadowView];
+        cellView = [self.uiManager createViewForShadowListItem:shadowView];
         [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
         HippyLogTrace(@"🟡 create cellView at %@ for %@", indexPath, shadowView.hippyTag);
     }

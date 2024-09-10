@@ -48,7 +48,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 
 - (UIView *)view {
-    return [[HippyNextBaseListView alloc] initWithBridge:self.bridge];
+    return [[HippyNextBaseListView alloc] init];
 }
 
 - (HippyShadowView *)shadowView {
