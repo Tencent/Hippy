@@ -28,6 +28,7 @@
 
 #include <mutex>
 #include <vector>
+#include <set>
 
 #include "footstone/logging.h"
 #include "footstone/string_view.h"
@@ -61,6 +62,27 @@ struct ConstructorData {
   ~ConstructorData() {
     JSClassRelease(class_ref);
   }
+};
+
+class ConstructorDataManager {
+public:
+  void SaveConstructorDataPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    constructor_data_ptr_set_.insert(ptr);
+  }
+
+  void ClearConstructorDataPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    constructor_data_ptr_set_.erase(ptr);
+  }
+
+  bool IsValidConstructorDataPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return constructor_data_ptr_set_.find(ptr) != constructor_data_ptr_set_.end();
+  }
+private:
+  std::set<void*> constructor_data_ptr_set_;
+  std::mutex mutex_;
 };
 
 class JSCCtx : public Ctx {
