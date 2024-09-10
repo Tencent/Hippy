@@ -46,7 +46,6 @@ public:
   virtual footstone::string_view GetExceptionMessage();
   
 private:
-  std::shared_ptr<JSCCtxValue> exception_;
   bool is_verbose_;
   bool is_rethrow_;
 };
