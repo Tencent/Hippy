@@ -160,6 +160,10 @@ static inline void registerLogDelegateToHippyCore() {
     std::shared_ptr<VFSUriLoader> _uriLoader;
     std::shared_ptr<hippy::RootNode> _rootNode;
     
+    // The C++ version of RenderManager instance, bridge holds,
+    // One NativeRenderManager holds multiple UIManager instance.
+    std::shared_ptr<NativeRenderManager> _renderManager;
+    
     // 缓存的设备信息
     NSDictionary *_cachedDeviceInfo;
 }
@@ -184,7 +188,6 @@ static inline void registerLogDelegateToHippyCore() {
 
 @implementation HippyBridge
 
-@synthesize renderManager = _renderManager;
 @synthesize imageLoader = _imageLoader;
 @synthesize imageProviders = _imageProviders;
 @synthesize startTime = _startTime;
@@ -259,12 +262,13 @@ dispatch_queue_t HippyBridgeQueue() {
     self.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
     
-    // FIXME: 检查问题
     if (_uriLoader) {
         _uriLoader->Terminate();
     }
-    if (_rootNode) {
+    if (_renderManager) {
         _renderManager->RemoveVSyncEventListener(_rootNode);
+    }
+    if (_rootNode) {
         _rootNode->ReleaseResources();
     }
 }
@@ -646,7 +650,9 @@ dispatch_queue_t HippyBridgeQueue() {
         if (auto scope = self.javaScriptExecutor.pScope) {
             scope->UnloadInstance(domValue);
         }
-        _renderManager->UnregisterRootView([rootTag intValue]);
+        if (_renderManager) {
+            _renderManager->UnregisterRootView([rootTag intValue]);
+        }
         if (_rootNode) {
             _rootNode->ReleaseResources();
             _rootNode = nullptr;
