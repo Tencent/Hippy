@@ -64,8 +64,9 @@ import {
   type JSChildNode,
   RESOLVE_DYNAMIC_COMPONENT,
   TRANSITION,
+  type DirectiveNode,
 } from '@vue/compiler-dom';
-import { isSymbol, isObject, isArray } from '@vue/shared';
+import { isSymbol, isObject, isArray, extend } from '@vue/shared';
 
 import { SSR_RENDER_COMPONENT, SSR_RENDER_VNODE } from '../runtimeHelpers';
 import {
@@ -149,8 +150,8 @@ export const ssrTransformComponent: NodeTransform = (node, context) => {
     // fallback in case the child is render-fn based). Store them in an array
     // for later use.
     if (clonedNode.children.length) {
-      buildSlots(clonedNode, context, (props, children) => {
-        vnodeBranches.push(createVNodeSlotBranch(props, children, context));
+      buildSlots(clonedNode, context, (props, vFor, children) => {
+        vnodeBranches.push(createVNodeSlotBranch(props, vFor, children, context));
         return createFunctionExpression(undefined);
       });
     }
@@ -174,7 +175,7 @@ export const ssrTransformComponent: NodeTransform = (node, context) => {
     const wipEntries: WIPSlotEntry[] = [];
     wipMap.set(node, wipEntries);
 
-    const buildSSRSlotFn: SlotFnBuilder = (props, children, loc) => {
+    const buildSSRSlotFn: SlotFnBuilder = (props, _vForExp, children, loc) => {
       const fn = createFunctionExpression(
         [props ?? '_', '_push', '_parent', '_scopeId'],
         undefined, // no return, assign body later
@@ -299,7 +300,8 @@ const vnodeDirectiveTransforms = {
 };
 
 function createVNodeSlotBranch(
-  props: ExpressionNode | undefined,
+  slotProps: ExpressionNode | undefined,
+  vFor: DirectiveNode | undefined,
   children: TemplateChildNode[],
   parentContext: TransformContext,
 ): ReturnStatement {
@@ -321,24 +323,29 @@ function createVNodeSlotBranch(
   };
 
   // wrap the children with a wrapper template for proper children treatment.
+  // important: provide v-slot="props" and v-for="exp" on the wrapper for
+  // proper scope analysis
+  const wrapperProps: TemplateNode['props'] = [];
+  if (slotProps) {
+    wrapperProps.push({
+      type: NodeTypes.DIRECTIVE,
+      name: 'slot',
+      exp: slotProps,
+      arg: undefined,
+      modifiers: [],
+      loc: locStub,
+    });
+  }
+  if (vFor) {
+    wrapperProps.push(extend({}, vFor));
+  }
   const wrapperNode: TemplateNode = {
     type: NodeTypes.ELEMENT,
     ns: Namespaces.HTML,
     tag: 'template',
     tagType: ElementTypes.TEMPLATE,
     isSelfClosing: false,
-    // important: provide v-slot="props" on the wrapper for proper
-    // scope analysis
-    props: [
-      {
-        type: NodeTypes.DIRECTIVE,
-        name: 'slot',
-        exp: props,
-        arg: undefined,
-        modifiers: [],
-        loc: locStub,
-      },
-    ],
+    props: wrapperProps,
     children,
     loc: locStub,
     codegenNode: undefined,

@@ -19,9 +19,9 @@
     "@hippy/vue-next": "v3.3-latest",
     "@hippy/vue-router-next-history": "0.0.1",
     "@hippy/web-renderer": "latest",
-    "@vue/runtime-core": "^3.2.46",
-    "@vue/shared": "^3.2.46",
-    "vue": "^3.2.46",
+    "@vue/runtime-core": "^3.4.32",
+    "@vue/shared": "^3.4.32",
+    "vue": "^3.4.32",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "@hippy/vue-css-loader": "v3.3-latest",
     "@vitejs/plugin-vue": "^1.9.4",
     "@vue/cli-service": "^4.5.19",
-    "@vue/compiler-sfc": "^3.2.46",
+    "@vue/compiler-sfc": "^3.4.32",
     "babel-loader": "^8.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "clean-webpack-plugin": "^4.0.0",
