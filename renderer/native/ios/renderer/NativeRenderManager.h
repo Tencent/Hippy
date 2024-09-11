@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <vector>
+#include <shared_mutex>
 #include <unordered_map>
 #include "dom/render_manager.h"
 
@@ -157,7 +158,7 @@ public:
     void UnregisterRootView(uint32_t id);
 
 private:
-
+    std::shared_mutex _mutex; // For _uiManagerMap's thread safety
     std::unordered_map<uint32_t, HippyUIManager *> _uiManagerMap;
 };
 
