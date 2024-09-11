@@ -28,22 +28,16 @@
 #include <memory>
 
 class VFSUriLoader;
-class NativeRenderManager;
 
 namespace hippy {
 inline namespace dom {
 class DomManager;
 class RootNode;
-class RenderManager;
 };
 };
 
 
 @protocol HippyBridgeInternal <NSObject>
-
-/// The C++ version of RenderManager instance, bridge holds
-/// One NativeRenderManager holds multiple Uimanager instance.
-@property (nonatomic, assign) std::shared_ptr<NativeRenderManager> renderManager;
 
 /// URI Loader
 @property (nonatomic, assign) std::weak_ptr<VFSUriLoader> vfsUriLoader;

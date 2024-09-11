@@ -72,7 +72,7 @@ static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri
     if (!url) {
         return nil;
     }
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     [request setAllHTTPHeaderFields:HttpHeadersFromMap(headers)];
     return [request copy];
 }

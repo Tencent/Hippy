@@ -47,8 +47,8 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_n
     @autoreleasepool {
         auto rootNode = root_node.lock();
         if (rootNode) {
+            std::shared_lock<std::shared_mutex> lock(_mutex);
             HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-            HippyAssertParam(uiManager);
             [uiManager createRenderNodes:std::move(nodes) onRootNode:root_node];
         }
     }
@@ -59,8 +59,8 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<hippy::RootNode> root_n
     @autoreleasepool {
         auto rootNode = root_node.lock();
         if (rootNode) {
+            std::shared_lock<std::shared_mutex> lock(_mutex);
             HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-            HippyAssertParam(uiManager);
             [uiManager updateRenderNodes:std::move(nodes) onRootNode:root_node];
         }
         
@@ -72,8 +72,8 @@ void NativeRenderManager::DeleteRenderNode(std::weak_ptr<hippy::RootNode> root_n
     @autoreleasepool {
         auto rootNode = root_node.lock();
         if (rootNode) {
+            std::shared_lock<std::shared_mutex> lock(_mutex);
             HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-            HippyAssertParam(uiManager);
             [uiManager deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
         }
     }
@@ -86,8 +86,8 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult>;
         std::vector<DomNodeUpdateInfoTuple> nodes_infos;
         nodes_infos.reserve(nodes.size());
@@ -111,8 +111,8 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         [uiManager renderMoveViews:std::move(moved_ids)
                      fromContainer:from_pid
                        toContainer:to_pid
@@ -128,8 +128,8 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         // Check whether all nodes have the same pid
         uint32_t firstPid = nodes[0]->GetPid();
         bool allSamePid = std::all_of(nodes.begin(), nodes.end(),
@@ -160,8 +160,8 @@ void NativeRenderManager::EndBatch(std::weak_ptr<hippy::RootNode> root_node) {
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         [uiManager batchOnRootNode:root_node];
         TDF_PERF_LOG("NativeRenderManager::EndBatch End");
 
@@ -182,8 +182,8 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<hippy::RootNode> root_n
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         auto node = dom_node.lock();
         if (node) {
             int32_t tag = node->GetId();
@@ -200,8 +200,8 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<hippy::RootNode> roo
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         auto node = dom_node.lock();
         if (node) {
             int32_t node_id = node->GetId();
@@ -216,8 +216,8 @@ void NativeRenderManager::RemoveVSyncEventListener(std::weak_ptr<hippy::RootNode
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         [uiManager removeVSyncEventOnRootNode:root_node];
     }
 }
@@ -232,8 +232,8 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
         if (!rootNode) {
             return;
         }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
-        HippyAssertParam(uiManager);
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
             HippyValue hippy_value;
@@ -258,6 +258,7 @@ void NativeRenderManager::RegisterRootView(UIView *view,
             return;
         }
         HippyAssertParam(uiManager);
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         _uiManagerMap[rootNode->GetId()] = uiManager;
         [uiManager registerRootView:view asRootNode:root_node];
     }
@@ -265,6 +266,7 @@ void NativeRenderManager::RegisterRootView(UIView *view,
 
 void NativeRenderManager::UnregisterRootView(uint32_t rootId) {
     @autoreleasepool {
+        std::shared_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootId];
         HippyAssertParam(uiManager);
         [uiManager unregisterRootViewFromTag:@(rootId)];
@@ -273,9 +275,11 @@ void NativeRenderManager::UnregisterRootView(uint32_t rootId) {
 }
 
 NativeRenderManager::~NativeRenderManager() {
+    std::shared_lock<std::shared_mutex> lock(_mutex);
     for (auto &pair : _uiManagerMap) {
         [pair.second invalidate];
     }
     _uiManagerMap.clear();
+    FOOTSTONE_LOG(INFO) << "~NativeRenderManager";
 }
  

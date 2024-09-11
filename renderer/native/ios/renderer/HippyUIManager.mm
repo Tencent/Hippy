@@ -322,11 +322,11 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     AssertMainQueue();
 
     NSNumber *hippyTag = rootView.hippyTag;
-    NSAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
-
-#if HIPPY_DEBUG
-    NSAssert(![_viewRegistry containRootComponentWithTag:hippyTag], @"RootView Tag already exists. Added %@ twice", hippyTag);
-#endif
+    HippyAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
+    if ([_viewRegistry containRootComponentWithTag:hippyTag]) {
+        HippyLogWarn(@"RootView Tag %@ already exists. Start Replace!", hippyTag);
+        [self unregisterRootViewFromTag:hippyTag];
+    }
     
     // Register view
     [_viewRegistry addRootComponent:rootView rootNode:rootNode forTag:hippyTag];
