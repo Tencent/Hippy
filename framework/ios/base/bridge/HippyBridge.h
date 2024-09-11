@@ -214,7 +214,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, copy, readonly) NSArray<NSURL *> *bundleURLs;
 
 /// Path of sandbox directory
-@property (nonatomic, strong) NSURL *sandboxDirectory;
+@property (nonatomic, strong) NSString *sandboxDirectory;
 
 /// Shared data between different rootViews on same bridge.
 /// Set by HippyRootView when runHippyApplication.
