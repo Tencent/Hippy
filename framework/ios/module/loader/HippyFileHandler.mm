@@ -90,7 +90,7 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
         return;
     }
     
-    NSURL *absoluteURL = AbsoluteURLFromHippyFileURL(url, bridge.sandboxDirectory);
+    NSURL *absoluteURL = AbsoluteURLFromHippyFileURL(url, [NSURL URLWithString:bridge.sandboxDirectory]);
     if ([absoluteURL isFileURL] || [absoluteURL isFileReferenceURL]) {
         void (^opBlock)() = ^{
             NSError *error;
