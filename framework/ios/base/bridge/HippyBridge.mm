@@ -155,7 +155,6 @@ static inline void registerLogDelegateToHippyCore() {
     BOOL _valid;
     HippyBundleOperationQueue *_bundlesQueue;
     NSMutableArray<NSURL *> *_bundleURLs;
-    NSURL *_sandboxDirectory;
     
     std::shared_ptr<VFSUriLoader> _uriLoader;
     std::shared_ptr<hippy::RootNode> _rootNode;
@@ -472,9 +471,10 @@ dispatch_queue_t HippyBridgeQueue() {
     [self loadPendingVendorBundleURLIfNeeded];
     
     // Set the default sandbox directory
-    [self setSandboxDirectory:[_pendingLoadingVendorBundleURL URLByDeletingLastPathComponent]];
-}
+    NSString *sandboxDir = [HippyUtils getBaseDirFromResourcePath:_pendingLoadingVendorBundleURL];
+    [self setSandboxDirectory:sandboxDir];
 
+}
 
 /// 加载初始化bridge时传入的Bundle URL
 - (void)loadPendingVendorBundleURLIfNeeded {
@@ -1195,10 +1195,12 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
 }
 
-- (void)setSandboxDirectory:(NSURL *)sandboxDirectory {
+- (void)setSandboxDirectory:(NSString *)sandboxDirectory {
     if (![_sandboxDirectory isEqual:sandboxDirectory]) {
         _sandboxDirectory = sandboxDirectory;
-        [self.javaScriptExecutor setSandboxDirectory:[sandboxDirectory absoluteString]];
+        if (sandboxDirectory) {
+            [self.javaScriptExecutor setSandboxDirectory:sandboxDirectory];
+        }
     }
 }
 

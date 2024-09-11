@@ -160,6 +160,12 @@ HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLRespons
 /// users may call it dynamically to determine the Hippy version number.
 + (NSString *)sdkVersion;
 
+/// Get base directory from given file resource URL.
+/// If it is a file URL, return the directory by deleting the last path component.
+/// Otherwise, return the string truncated after the last slash.
+/// - Parameter url: The given URL.
++ (NSString *)getBaseDirFromResourcePath:(NSURL *)url;
+
 @end
 
 
