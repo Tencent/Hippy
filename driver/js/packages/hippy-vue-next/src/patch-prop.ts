@@ -30,14 +30,13 @@ import { patchClass } from './modules/class';
 import { patchEvent } from './modules/events';
 import { patchStyle } from './modules/style';
 
-
 export function patchProp(
   el: NeedToTyped,
   key: string,
   prevValue: NeedToTyped,
   nextValue: NeedToTyped,
-  namespace?: ElementNamespace,
-  parentComponent?: ComponentInternalInstance | null,
+  namespace: ElementNamespace,
+  parentComponent: ComponentInternalInstance | null,
 ): void {
   // It should be noted that the values contained in prop here will have strings, numbers, arrays, objects, etc.
   switch (key) {

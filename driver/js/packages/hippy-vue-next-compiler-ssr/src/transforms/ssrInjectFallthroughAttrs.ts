@@ -29,7 +29,6 @@ import {
   type TemplateChildNode,
   type ParentNode,
   findDir,
-  isBuiltInType,
 } from '@vue/compiler-dom';
 
 const filterChild = (node: ParentNode) => node.children.filter(n => n.type !== NodeTypes.COMMENT);
@@ -49,8 +48,10 @@ export const ssrInjectFallthroughAttrs: NodeTransform = (node, context) => {
   if (
     node.type === NodeTypes.ELEMENT
     && node.tagType === ElementTypes.COMPONENT
-    && (isBuiltInType(node.tag, 'Transition')
-      || isBuiltInType(node.tag, 'KeepAlive'))
+    && (node.tag === 'transition'
+      || node.tag === 'Transition'
+      || node.tag === 'KeepAlive'
+      || node.tag === 'keep-alive')
   ) {
     const rootChildren = filterChild(context.root);
     if (rootChildren.length === 1 && rootChildren[0] === node) {
