@@ -23,7 +23,6 @@
 #import "HippyDemoViewController.h"
 #import "UIViewController+Title.h"
 #import "HippyPageCache.h"
-#import "DemoConfigs.h"
 
 #import <hippy/HippyBridge.h>
 #import <hippy/HippyRootView.h>

@@ -102,7 +102,6 @@
 		E54E76502FD6AF687683BA8A /* HippyPageCacheContainerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPageCacheContainerView.h; sourceTree = "<group>"; };
 		EEE0C5F943248577555BFB26 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		EF558AABDC113B410B8ED69C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		F3C3E83580FEFC6EEE4CF186 /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		FBB045A62B4E511674BF590C /* PageCreationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageCreationViewController.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -125,7 +124,6 @@
 				6094F1F80FD70F9F9853EE15 /* AppDelegate.m */,
 				427F60D1B98DA953328F4E71 /* DemoBaseViewController.h */,
 				4708C41E8571123282E2B806 /* DemoBaseViewController.m */,
-				F3C3E83580FEFC6EEE4CF186 /* DemoConfigs.h */,
 				80D715362B1A0B0DCEAA813D /* DemoNavigationViewController.h */,
 				16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */,
 				6045C301C6CFDC6C2E87AA66 /* IconUtils.h */,
