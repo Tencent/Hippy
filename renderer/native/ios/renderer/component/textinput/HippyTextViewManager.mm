@@ -47,18 +47,6 @@ HIPPY_EXPORT_MODULE(TextInput)
     } else {
         theView = [[HippyTextView alloc] init];
     }
-    if (self.props[@"onKeyboardWillShow"]) {
-        [[NSNotificationCenter defaultCenter] addObserver:theView
-                                                 selector:@selector(keyboardWillShow:)
-                                                     name:UIKeyboardWillShowNotification
-                                                   object:nil];
-    }
-    if (self.props[@"onKeyboardWillHide"]) {
-        [[NSNotificationCenter defaultCenter] addObserver:theView
-                                                 selector:@selector(keyboardWillHide:)
-                                                     name:UIKeyboardWillHideNotification
-                                                   object:nil];
-    }
     return theView;
 }
 
@@ -72,6 +60,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(onKeyPress, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onBlur, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onFocus, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardWillShow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardWillHide, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onKeyboardHeightChanged, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
