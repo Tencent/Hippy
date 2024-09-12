@@ -110,27 +110,6 @@
 @dynamic lineSpacing;
 @dynamic lineHeightMultiple;
 
-#pragma mark - Keyboard Events
-
-- (void)keyboardWillShow:(NSNotification *)aNotification {
-    [super keyboardWillShow:aNotification];
-    //获取键盘的高度
-    NSDictionary *userInfo = [aNotification userInfo];
-    NSValue *aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
-    CGRect keyboardRect = [aValue CGRectValue];
-    CGFloat keyboardHeight = keyboardRect.size.height;
-    if (self.isFirstResponder && _onKeyboardWillShow) {
-        _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
-    }
-}
-
-- (void)keyboardWillHide:(NSNotification *)aNotification {
-    [super keyboardWillHide:aNotification];
-    if (_onKeyboardWillHide) {
-        _onKeyboardWillHide(@{});
-    }
-}
-
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self setContentInset:UIEdgeInsetsZero];
