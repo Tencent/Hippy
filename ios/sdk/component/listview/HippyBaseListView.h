@@ -45,6 +45,7 @@
 
 @property (nonatomic, assign) NSUInteger preloadItemNumber;
 @property (nonatomic, assign) CGFloat initialContentOffset;
+@property (nonatomic, assign) NSUInteger initialContentIndex;
 @property (nonatomic, assign) BOOL manualScroll;
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) BOOL showScrollIndicator;
