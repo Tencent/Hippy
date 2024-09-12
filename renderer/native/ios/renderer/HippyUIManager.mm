@@ -826,6 +826,19 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                         [uiManager->_componentTransactionListeners addObject:view];
                     }
                     [tempCreatedViews addObject:view];
+                    
+                    // Note: Special logic, to be optimized
+                    // The `onAttachedToWindow` event must be mounted in advance,
+                    // because it will be called in `didUpdateHippySubviews` method.
+                    // Other events are not mounted here.
+                    static constexpr char onAttchedToWindowEventKey[] = "attachedtowindow";
+                    const std::vector<std::string>& eventNames = [shadowView allEventNames];
+                    auto it = std::find(eventNames.begin(), eventNames.end(), onAttchedToWindowEventKey);
+                    if (it != eventNames.end()) {
+                        [uiManager addEventNameInMainThread:onAttchedToWindowEventKey
+                                                    forView:view
+                                                 onRootNode:shadowView.rootNode];
+                    }
                 }
             }];
         }
