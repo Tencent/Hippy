@@ -152,10 +152,12 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
 }
 
 - (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
-    self.needsLayoutItems = YES;
-    self.needsResetPageIndex = YES;
-    [self setNeedsLayout];
+    if (!HippyCGRectRoundInPixelNearlyEqual(self.bounds, frame)) {
+        [super hippySetFrame:frame];
+        self.needsLayoutItems = YES;
+        self.needsResetPageIndex = YES;
+        [self setNeedsLayout];
+    }
 }
 
 - (void)didUpdateHippySubviews {
@@ -197,14 +199,18 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
     [self setContentOffset:theItem.frame.origin animated:animated];
     [self invokePageSelected:pageNumber];
     
-    if (self.onPageScrollStateChanged) {
-        if (animated) {
+    if (animated) {
+        if (self.onPageScrollStateChanged) {
             HippyLogTrace(@"[HippyViewPager] settling --- (setPage withAnimation)");
             self.onPageScrollStateChanged(@{ HippyPageScrollStateKey: HippyPageScrollStateSettling });
-        } else {
+        }
+    } else {
+        if (self.onPageScrollStateChanged) {
             HippyLogTrace(@"[HippyViewPager] idle ~~~~~~ (setPage withoutAnimation)");
             self.onPageScrollStateChanged(@{ HippyPageScrollStateKey: HippyPageScrollStateIdle });
         }
+        // Record stop offset for onPageScroll callback
+        [self recordScrollStopOffsetX];
     }
 }
 
@@ -212,11 +218,17 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
     CGFloat currentContentOffset = self.contentOffset.x;
+    CGFloat pageWidth = CGRectGetWidth(self.bounds);
     CGFloat offset = currentContentOffset - self.previousStopOffset;
-    CGFloat offsetRatio = fmod((offset / CGRectGetWidth(self.bounds)), 1.0 + DBL_EPSILON);
+    CGFloat offsetRatio = fmod((offset / pageWidth), 1.0 + DBL_EPSILON);
     
-    NSUInteger currentPageIndex = [self currentPageIndex];
-    NSInteger nextPageIndex = ceil(offsetRatio) == offsetRatio ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
+    // get current base page index
+    NSUInteger currentPageIndex = floor(currentContentOffset / pageWidth);
+    
+    // If offsetRatio is 1.0, then currentPageIndex is nextPageIndex, else nextPageIndex add/subtract 1.
+    // The theoretical maximum gap is 2 DBL_EPSILON, take 10 to allow for some redundancy.
+    BOOL isRatioEqualTo1 = (fabs(ceil(offsetRatio) - offsetRatio) < 10 * DBL_EPSILON);
+    NSInteger nextPageIndex = isRatioEqualTo1  ? currentPageIndex : currentPageIndex + ceil(offsetRatio);
     if (nextPageIndex < 0) {
         nextPageIndex = 0;
     } else if (nextPageIndex >= [self.viewPagerItems count]) {
@@ -224,6 +236,8 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
     }
     
     if (self.onPageScroll) {
+        HippyLogTrace(@"[HippyViewPager] CurrentPage:%ld NextPage:%ld Ratio:%f, %f-%f-%f",
+                      currentPageIndex, nextPageIndex, offsetRatio, pageWidth, currentContentOffset, offset);
         self.onPageScroll(@{
             @"position": @(nextPageIndex),
             @"offset": @(offsetRatio),
@@ -237,7 +251,6 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
     }
 }
 
-//用户拖拽的开始，也是整个滚动流程的开始
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     self.isScrolling = YES;
     self.targetContentOffsetX = CGFLOAT_MAX;
@@ -331,6 +344,7 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    self.isScrolling = NO;
     if (self.onPageScrollStateChanged) {
         HippyLogTrace(@"[HippyViewPager] idle ~~~~~~ (DidEndScrollingAnimation)");
         self.onPageScrollStateChanged(@{ HippyPageScrollStateKey : HippyPageScrollStateIdle });
@@ -351,8 +365,11 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
     }
 }
 
-- (void)scrollViewDidEndScrolling {
-    self.previousStopOffset = [self contentOffset].x;
+- (void)recordScrollStopOffsetX {
+    // Delay a bit to avoid recording offset of unfinished state
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.previousStopOffset = [self contentOffset].x;
+    });
 }
 
 #pragma mark scrollview listener methods
@@ -397,7 +414,7 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
 
 - (void)setIsScrolling:(BOOL)isScrolling {
     if (!isScrolling) {
-        [self scrollViewDidEndScrolling];
+        [self recordScrollStopOffsetX];
     }
     _isScrolling = isScrolling;
 }
