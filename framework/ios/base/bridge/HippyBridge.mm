@@ -1295,9 +1295,8 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     // But one HippyBridge can only have one UIManager.
     HippyUIManager *uiManager = self.uiManager;
     if (!uiManager) {
-        uiManager = [[HippyUIManager alloc] init];
+        uiManager = [[HippyUIManager alloc] initWithBridge:self];
         [uiManager setDomManager:domManager];
-        [uiManager setBridge:self];
         self.uiManager = uiManager;
     }
     

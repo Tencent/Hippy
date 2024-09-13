@@ -68,7 +68,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 @interface HippyUIManager : NSObject <HippyInvalidating>
 
 /// HippyBridge instance
-@property (nonatomic, weak) HippyBridge *bridge;
+@property (nonatomic, weak, readonly) HippyBridge *bridge;
 
 /// View Registry of all nodes
 @property (nonatomic, readonly) HippyComponentMap *viewRegistry;
@@ -78,6 +78,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /// default is NO.
 @property (nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
+/// Init method
+/// - Parameter bridge: HippyBridge
+- (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /// Gets the view associated with a hippyTag.
 /// - Parameters:
