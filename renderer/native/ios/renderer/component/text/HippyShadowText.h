@@ -29,27 +29,17 @@ typedef NS_ENUM(NSInteger, HippySizeComparison) {
     HippySizeWithinRange,
 };
 
-namespace hippy {
-inline namespace dom {
-enum class LayoutMeasureMode;
-struct LayoutSize;
-}
-}
 
 extern NSAttributedStringKey const HippyIsHighlightedAttributeName;
 extern NSAttributedStringKey const HippyTagAttributeName;
 extern NSAttributedStringKey const HippyShadowViewAttributeName;
 
-hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode,
-                                            __unused float height,
-                                            __unused hippy::LayoutMeasureMode heightMeasureMode,
-                                            void *layoutContext);
 
+/// Text's ShadowNode
 @interface HippyShadowText : HippyShadowView {
 @protected
     NSTextStorage *_cachedTextStorage;
     CGFloat _cachedTextStorageWidth;
-    hippy::LayoutMeasureMode _cachedTextStorageWidthMode;
     NSAttributedString *_cachedAttributedString;
     CGFloat _effectiveLetterSpacing;
     BOOL _textAlignSet;

@@ -27,7 +27,7 @@
 #import "HippyEventDispatcher.h"
 #import "HippyFileHandler.h"
 #import "HippyJSEnginesMapper.h"
-#import "HippyJSExecutor.h"
+#import "HippyJSExecutor+Internal.h"
 #import "HippyKeyCommands.h"
 #import "HippyModuleData.h"
 #import "HippyModuleMethod.h"

@@ -20,46 +20,25 @@
  * limitations under the License.
  */
 
-#ifndef HippyBridge_Private_h
-#define HippyBridge_Private_h
 
-#import "HippyBridge.h"
-#include "footstone/time_point.h"
-#include <memory>
-
-class VFSUriLoader;
+#import "HippyShadowText.h"
 
 namespace hippy {
 inline namespace dom {
-class DomManager;
-class RootNode;
-};
-};
+enum class LayoutMeasureMode;
+struct LayoutSize;
+}
+}
 
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol HippyBridgeInternal <NSObject>
+@interface HippyShadowText (Internal)
 
-/// URI Loader
-@property (nonatomic, assign) std::weak_ptr<VFSUriLoader> vfsUriLoader;
-
-/// Start time of hippyBridge, for performance api.
-@property (nonatomic, assign) footstone::TimePoint startTime;
-
-@end
-
-
-@interface HippyBridge (Private) <HippyBridgeInternal>
-
-/**
- * Set basic configuration for native render
- * @param domManager DomManager
- * @param rootNode RootNode
- */
-- (void)setupDomManager:(std::shared_ptr<hippy::DomManager>)domManager
-               rootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
+hippy::LayoutSize textMeasureFunc(HippyShadowText *weakShadowText,
+                                  float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                  float height, hippy::LayoutMeasureMode heightMeasureMode,
+                                  void *layoutContext);
 
 @end
 
-
-
-#endif /* HippyBridge_Private_h */
+NS_ASSUME_NONNULL_END
