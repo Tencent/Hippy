@@ -37,11 +37,6 @@ static void collectDirtyNonTextDescendants(HippyShadowText *renderObject, NSMuta
     }
 }
 
-@interface HippyShadowText (Private)
-// hplayout
-- (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode;
-@end
-
 @implementation HippyTextManager
 
 HIPPY_EXPORT_MODULE(Text)

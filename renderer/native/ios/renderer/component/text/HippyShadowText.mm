@@ -89,6 +89,7 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
 {
     BOOL _isNestedText; // Indicates whether Text is nested, for speeding up typesetting calculations
     BOOL _needRelayoutText; // special styles require two layouts, eg. verticalAlign etc
+    hippy::LayoutMeasureMode _cachedTextStorageWidthMode; // cached width mode when building text storage
 }
 
 @end
@@ -96,9 +97,10 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
 
 @implementation HippyShadowText
 
-hippy::LayoutSize textMeasureFunc(
-    HippyShadowText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
-                                 float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
+hippy::LayoutSize textMeasureFunc(HippyShadowText *weakShadowText,
+                                  float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                  float height, hippy::LayoutMeasureMode heightMeasureMode,
+                                  void *layoutContext) {
     hippy::LayoutSize retSize;
     HippyShadowText *strongShadowText = weakShadowText;
     if (strongShadowText) {

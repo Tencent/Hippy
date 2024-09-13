@@ -21,6 +21,7 @@
  */
 
 #import "HippyJSExecutor.h"
+#import "HippyJSExecutor+Internal.h"
 #import "VFSUriHandler.h"
 #import "HippyAssert.h"
 #import "HippyBundleURLProvider.h"
@@ -81,6 +82,9 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
 
 
 @interface HippyJSExecutor () {
+    // The hippy scope
+    std::shared_ptr<hippy::Scope> _pScope;
+    
 #ifdef JS_JSC
     BOOL _isInspectable;
 #endif //JS_JSC
@@ -96,6 +100,8 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
 
 @implementation HippyJSExecutor
 
+@synthesize pScope = _pScope;
+
 - (void)setup {
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.enginekey];
     const char *pName = [self.enginekey UTF8String] ?: "";
@@ -106,7 +112,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
             if (strongSelf) {
-                handleJsExcepiton(strongSelf->_pScope);
+                handleJsExcepiton(strongSelf.pScope);
             }
         }
     };
@@ -126,7 +132,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
             }
             
             dispatch_semaphore_wait(scopeSemaphore, DISPATCH_TIME_FOREVER);
-            auto scope = strongSelf->_pScope;
+            auto scope = strongSelf.pScope;
             scope->CreateContext();
             auto context = scope->GetContext();
             auto global_object = context->GetGlobalObject();
@@ -179,7 +185,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
             }];
         }
     });
-    self.pScope = scope;
+    _pScope = scope;
     dispatch_semaphore_signal(scopeSemaphore);
     
 #ifdef ENABLE_INSPECTOR
@@ -237,7 +243,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
     }
 #endif //JS_JSC
     self.pScope->WillExit();
-    self.pScope = nullptr;
+    _pScope = nullptr;
     NSString *enginekey = self.enginekey;
     if (!enginekey) {
         return;
@@ -373,7 +379,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
 - (SharedCtxValuePtr)JSTurboObjectWithName:(NSString *)name {
     // create HostObject by name
     HippyOCTurboModule *turboModule = [self->_bridge turboModuleWithName:name];
-    auto scope = self->_pScope;
+    auto scope = self.pScope;
     auto context = scope->GetContext();
     if (!turboModule) {
         return context->CreateNull();
