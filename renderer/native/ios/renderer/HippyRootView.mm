@@ -185,7 +185,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                     }
                     
                     // 抛出业务包(BusinessBundle aka SecondaryBundle)加载完成通知，for hippy2兼容
-                    NSMutableDictionary *userInfo = @{ kHippyNotiBundleUrlKey: url,
+                    NSMutableDictionary *userInfo = @{ kHippyNotiBundleUrlKey: url ?: @"",
                                                        kHippyNotiBridgeKey: strongSelf.bridge }.mutableCopy;
                     if (error) { [userInfo setObject:error forKey:kHippyNotiErrorKey]; }
                     HIPPY_IGNORE_WARNING_BEGIN(-Wdeprecated)
