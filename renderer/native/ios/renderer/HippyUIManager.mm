@@ -206,12 +206,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 
 
-#if HIPPY_DEBUG
-@property(nonatomic, assign) std::unordered_map<int32_t, std::unordered_map<int32_t, std::shared_ptr<hippy::DomNode>>> domNodesMap;
-- (std::shared_ptr<hippy::DomNode>)domNodeForTag:(int32_t)dom_tag onRootNode:(int32_t)root_tag;
-- (std::vector<std::shared_ptr<hippy::DomNode>>)childrenForNodeTag:(int32_t)tag onRootNode:(int32_t)root_tag;
-#endif
-
 @end
 
 @implementation HippyUIManager
@@ -220,9 +214,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 #pragma mark Life cycle
 
-- (instancetype)init {
+- (instancetype)initWithBridge:(HippyBridge *)bridge {
     self = [super init];
     if (self) {
+        _bridge = bridge;
         [self initContext];
     }
     return self;
@@ -671,9 +666,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }];
 }
 
-#pragma mark - Render Context Implementation
-
 - (__kindof HippyViewManager *)viewManagerForViewName:(NSString *)viewName {
+    HippyBridge *strongBridge = self.bridge;
     if (!_viewManagers) {
         _viewManagers = [NSMutableDictionary dictionary];
         if (_extraComponents) {
@@ -686,7 +680,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                 [_viewManagers setObject:cls forKey:viewName];
             }
         }
-        NSArray<Class> *classes = HippyGetViewManagerClasses(self.bridge);
+        NSArray<Class> *classes = HippyGetViewManagerClasses(strongBridge);
         NSMutableDictionary *defaultViewManagerClasses = [NSMutableDictionary dictionaryWithCapacity:[classes count]];
         for (Class cls in classes) {
             NSString *viewName = viewNameFromViewManagerClass(cls);
@@ -701,7 +695,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     id object = [_viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
-        viewManager.bridge = self.bridge;
+        viewManager.bridge = strongBridge;
         NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"Must be a HippyViewManager instance");
         [_viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
@@ -781,12 +775,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     if (!strongRootNode) {
         return;
     }
-#if HIPPY_DEBUG
-    auto &nodeMap = _domNodesMap[strongRootNode->GetId()];
-    for (auto node : nodes) {
-        nodeMap[node->GetId()] = node;
-    }
-#endif
     NSNumber *rootNodeTag = @(strongRootNode->GetId());
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NativeRenderViewsRelation *manager = [[NativeRenderViewsRelation alloc] init];
@@ -877,12 +865,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     if (!strongRootNode) {
         return;
     }
-#if HIPPY_DEBUG
-    auto &nodeMap = _domNodesMap[strongRootNode->GetId()];
-    for (auto node : nodes) {
-        nodeMap[node->GetId()] = node;
-    }
-#endif
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
@@ -909,12 +891,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     if (!strongRootNode) {
         return;
     }
-#if HIPPY_DEBUG
-    auto &nodeMap = _domNodesMap[strongRootNode->GetId()];
-    for (auto node : nodes) {
-        nodeMap[node->GetId()] = nullptr;
-    }
-#endif
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     NSDictionary *currentRegistry = [_shadowViewRegistry componentsForRootTag:rootTag];
@@ -1507,26 +1483,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 - (void)domEventDidHandle:(const std::string &)eventName forNode:(int32_t)tag onRoot:(int32_t)rootTag {
     // no op
 }
-
-#pragma mark Debug Methods
-#if HIPPY_DEBUG
-- (std::shared_ptr<hippy::DomNode>)domNodeForTag:(int32_t)dom_tag onRootNode:(int32_t)root_tag {
-    auto find = _domNodesMap.find(root_tag);
-    if (_domNodesMap.end() == find) {
-        return nullptr;
-    }
-    auto map = find->second;
-    auto domFind = map.find(dom_tag);
-    if (map.end() == domFind) {
-        return nullptr;
-    }
-    return domFind->second;
-}
-- (std::vector<std::shared_ptr<hippy::DomNode>>)childrenForNodeTag:(int32_t)tag onRootNode:(int32_t)root_tag {
-    auto node = [self domNodeForTag:tag onRootNode:root_tag];
-    return node ? node->GetChildren() : std::vector<std::shared_ptr<hippy::DomNode>>{};
-}
-#endif
 
 @end
 
