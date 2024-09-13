@@ -23,13 +23,7 @@
 #import "HippyDemoViewController.h"
 #import "UIViewController+Title.h"
 #import "HippyPageCache.h"
-
-#import <hippy/HippyBridge.h>
-#import <hippy/HippyRootView.h>
-#import <hippy/HippyLog.h>
-#import <hippy/HippyAssert.h>
-#import <hippy/UIView+Hippy.h>
-#import <hippy/HippyMethodInterceptorProtocol.h>
+@import hippy;
 
 
 @interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate, HippyRootViewDelegate> {

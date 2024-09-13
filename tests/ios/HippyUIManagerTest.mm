@@ -49,7 +49,8 @@
 }
 
 - (void)testGetComponentDataForViewName {
-    HippyUIManager *manager = [[HippyUIManager alloc] init];
+    HippyBridge *bridge = [[HippyBridge alloc] init];
+    HippyUIManager *manager = [[HippyUIManager alloc] initWithBridge:bridge];
     [manager registerExtraComponent:@[ HippyViewManager.class ]];
     
     XCTAssertNil([manager componentDataForViewName:nil]);
