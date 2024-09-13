@@ -9,7 +9,10 @@ workspace 'HippyDemo.xcworkspace'
 target "HippyDemo" do
   platform :ios, '11.0'
   
-  pod 'hippy', :path => '../../..', :testspecs => ['UnitTests']
+  # pod hippy,
+  # set modular_headers to true if you want to use modular import
+  # no need to set testspecs in your production app
+  pod 'hippy', :path => '../../..', :modular_headers => true, :testspecs => ['UnitTests']
   
 end
 

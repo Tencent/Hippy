@@ -24,35 +24,14 @@
 #import "HippyDefines.h"
 #import "HippyDefines.h"
 #import "HippyInvalidating.h"
-#include <memory>
 
+@class HippyBridge;
 
 /**
  * Block that when js script execution completion
  */
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
-
-
-namespace hippy {
-inline namespace driver {
-
-inline namespace napi {
-class CtxValue;
-}
-
-class Scope;
-
-}
-
-inline namespace vfs {
-class UriLoader;
-}
-
-}
-
-@class HippyBridge;
 typedef void (^HippyContextCreatedBlock)(void);
-
 
 /**
  * Uses a JavaScriptCore context as the execution engine.
@@ -67,9 +46,6 @@ typedef void (^HippyContextCreatedBlock)(void);
 
 /// EngineKey
 @property (nonatomic, copy) NSString *enginekey;
-
-/// hippy scope
-@property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
 
 /// context created block
 @property (nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
@@ -94,14 +70,6 @@ typedef void (^HippyContextCreatedBlock)(void);
 /// Set whether js engine is inspectable
 /// - Parameter inspectable: BOOL
 - (void)setInspecable:(BOOL)inspectable;
-
-/// Set Uri loader
-/// - Parameter uriLoader: vfs::UriLoader
-- (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader;
-
-/// Get turbo object
-/// - Parameter name: NSString
-- (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
 // TODO: 疑似已废弃
 /**
