@@ -22,7 +22,7 @@
 
 #include <cmath>
 #include <map>
-
+#include "footstone/check.h"
 #include "footstone/logging.h"
 
 #include "dom/node_props.h"
@@ -98,12 +98,13 @@ public:
       {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
 };
 
-static std::shared_ptr<TaitankLayoutConsts> global_layout_consts = nullptr;
+static footstone::SafeStaticVar<TaitankLayoutConsts> global_layout_consts;
 
 #define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
   static TYPE GetStyle##NAME(const std::string& key) {   \
-    if (global_layout_consts == nullptr) return DEFAULT; \
-    auto &map = global_layout_consts->k##NAME##Map;      \
+    auto layout_consts = footstone::GetSafeStaticVar(&global_layout_consts); \
+    if (layout_consts == nullptr) return DEFAULT;        \
+    auto &map = layout_consts->k##NAME##Map;             \
     auto iter = map.find(key);                           \
     if (iter != map.end()) return iter->second;          \
     return DEFAULT;                                      \
@@ -822,8 +823,10 @@ void TaitankLayoutNode::Deallocate() {
 }
 
 void InitLayoutConsts() {
-  if (global_layout_consts == nullptr) {
-    global_layout_consts = std::make_shared<TaitankLayoutConsts>();
+  auto layout_consts = footstone::GetSafeStaticVar(&global_layout_consts);
+  if (layout_consts == nullptr) {
+    layout_consts = std::make_shared<TaitankLayoutConsts>();
+    footstone::InitSafeStaticVar(&global_layout_consts, layout_consts);
   }
 }
 

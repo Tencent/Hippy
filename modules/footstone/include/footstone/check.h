@@ -44,5 +44,36 @@ static constexpr TargetType checked_numeric_cast(const SourceType& source) {
   return target;
 }
 
+template<typename T>
+class SafeStaticVar {
+public:
+  uint64_t sign_before_;
+  std::shared_ptr<T> var_inner_;
+  uint64_t sign_after_;
+};
+
+template<typename T>
+static void InitSafeStaticVar(SafeStaticVar<T> *var, std::shared_ptr<T> &var_inner) {
+  var->var_inner_ = var_inner;
+  uint64_t *p = (uint64_t *)&var_inner;
+  uint64_t value = *p;
+  var->sign_before_ = value;
+  var->sign_after_ = value;
+}
+
+template<typename T>
+static std::shared_ptr<T> GetSafeStaticVar(SafeStaticVar<T> *var) {
+  uint64_t *p = (uint64_t *)&var->var_inner_;
+  uint64_t value = *p;
+  if (var->sign_before_ != value) {
+    return nullptr;
+  }
+  if (var->sign_after_ != value) {
+    return nullptr;
+  }
+  return var->var_inner_;
+}
+
+
 }
 }
