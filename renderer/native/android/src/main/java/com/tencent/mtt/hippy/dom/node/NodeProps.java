@@ -107,6 +107,8 @@ public class NodeProps {
     public static final String TEXT_ALIGN = "textAlign";
     public static final String TEXT_ALIGN_VERTICAL = "textAlignVertical";
     public static final String TEXT_DECORATION_LINE = "textDecorationLine";
+    public static final String TEXT_DECORATION_COLOR = "textDecorationColor";
+    public static final String TEXT_DECORATION_STYLE = "textDecorationStyle";
     public static final String TEXT_SHADOW_OFFSET = "textShadowOffset";
     public static final String TEXT_SHADOW_RADIUS = "textShadowRadius";
     public static final String TEXT_SHADOW_COLOR = "textShadowColor";
@@ -120,6 +122,7 @@ public class NodeProps {
     public static final String ON_TOUCH_CANCEL = "touchcancel";
     public static final String ON_INTERCEPT_TOUCH_EVENT = "onInterceptTouchEvent";
     public static final String ON_INTERCEPT_PULL_UP_EVENT = "onInterceptPullUpEvent";
+    public static final String DISALLOW_INTERCEPT_TOUCH_EVENT = "disallowInterceptTouchEvent";
     public static final String ON_ATTACHED_TO_WINDOW = "attachedtowindow";
     public static final String ON_DETACHED_FROM_WINDOW = "detachedfromwindow";
 
@@ -164,4 +167,8 @@ public class NodeProps {
     public static final String BACKGROUND_RIPPLE = "nativeBackgroundAndroid";
     public static final String OVER_PULL = "bounces";
     public static final String HAS_STABLE_IDS = "hasStableIds";
+    public static final String NUMBER_OF_COLUMNS = "numberOfColumns";
+    public static final String COLUMN_SPACING = "columnSpacing";
+    public static final String ITEM_SPACING = "interItemSpacing";
+    public static final String FULL_SPAN = "fullSpan";
 }

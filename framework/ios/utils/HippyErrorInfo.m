@@ -22,11 +22,11 @@
 
 #import "HippyErrorInfo.h"
 
-#import "HPDriverStackFrame.h"
+#import "HippyJSStackFrame.h"
 
 @implementation HippyErrorInfo
 
-- (instancetype)initWithErrorMessage:(NSString *)errorMessage stack:(NSArray<HPDriverStackFrame *> *)stack {
+- (instancetype)initWithErrorMessage:(NSString *)errorMessage stack:(NSArray<HippyJSStackFrame *> *)stack {
     self = [super init];
     if (self) {
         _errorMessage = [errorMessage copy];

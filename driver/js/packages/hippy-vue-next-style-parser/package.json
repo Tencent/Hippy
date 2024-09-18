@@ -6,13 +6,16 @@
   "homepage": "https://hippyjs.org",
   "license": "Apache-2.0",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "keywords": [
     "hippy",
     "style",
     "parser"
   ],
+  "types": "dist/index.d.ts",
   "files": [
     "dist/index.js",
+    "dist/index.esm.js",
     "dist/index.d.ts",
     "README.md"
   ],
@@ -20,8 +23,29 @@
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },
-  "dependencies": {
-    "@vue/shared": "^3.2.21"
+  "peerDependencies": {
+    "@vue/shared": "^3.4.32"
   },
-  "entry": "./src/index.ts"
+  "devDependencies": {
+    "@vue/shared": "^3.4.32"
+  },
+  "entry": "./src/index.ts",
+  "jest": {
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "@hippy-vue-next-style-parser/(.*)$": "<rootDir>/src/$1"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "preset": "ts-jest",
+    "setupFiles": [
+      "<rootDir>/__test__/setup.ts"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "verbose": true
+  }
 }

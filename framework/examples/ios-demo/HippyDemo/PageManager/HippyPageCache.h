@@ -27,14 +27,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, DriverType) {
     DriverTypeReact,
-    DriverTypeVue,
+    DriverTypeVue2,
+    DriverTypeVue3
 };
 
 typedef NS_ENUM(NSUInteger, RenderType) {
     RenderTypeNative,
 };
 
-@class HippyConvenientBridge;
+@class HippyBridge, HippyRootView;
 @class HippyPageCacheManager, HippyPageCache;
 
 @protocol HippyPageCacheManagerObserverProtocol <NSObject>
@@ -55,8 +56,8 @@ typedef NS_ENUM(NSUInteger, RenderType) {
 
 @interface HippyPageCache : NSObject
 
-@property(nonatomic, strong) HippyConvenientBridge *convenientBridge;
-@property(nonatomic, strong) UIView *rootView;
+@property(nonatomic, strong) HippyBridge *hippyBridge;
+@property(nonatomic, strong) HippyRootView *rootView;
 @property(nonatomic, strong, nullable) UIImage *snapshot;
 
 @property(nonatomic, assign) DriverType driverType;

@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -33,6 +34,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
@@ -52,7 +54,6 @@ public class HippyRootView extends FrameLayout {
         setTag(tagMap);
         if (rootId != SCREEN_SNAPSHOT_ROOT_ID) {
             getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
-            setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
         }
     }
 
@@ -62,7 +63,7 @@ public class HippyRootView extends FrameLayout {
             firstViewAdded = true;
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
             if (nativeRenderer != null) {
-                nativeRenderer.onFirstViewAdded();
+                nativeRenderer.onFirstPaint();
             }
         }
     }
@@ -84,14 +85,12 @@ public class HippyRootView extends FrameLayout {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if (w != oldw || h != oldh) {
-            getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
-            if (nativeRenderer != null) {
-                nativeRenderer.onSizeChanged(getId(), w, h);
-            }
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        super.onSizeChanged(w, h, ow, oh);
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
+        if ((w != ow || h != oh) && nativeRenderer != null) {
+            nativeRenderer.updateDimension(w, h);
+            nativeRenderer.onSizeChanged(getId(), w, h, ow, oh);
         }
     }
 
@@ -118,54 +117,42 @@ public class HippyRootView extends FrameLayout {
 
     private GlobalLayoutListener getGlobalLayoutListener() {
         if (mGlobalLayoutListener == null) {
-            mGlobalLayoutListener = new GlobalLayoutListener();
+            mGlobalLayoutListener = new GlobalLayoutListener(this);
         }
         return mGlobalLayoutListener;
     }
 
-    private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener,
-            OnSystemUiVisibilityChangeListener {
+    private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
 
         private int mOrientation = ORIENTATION_UNDEFINED;
+        private final WeakReference<View> mRootViewRef;
 
-        @SuppressWarnings("RedundantIfStatement")
-        @Override
-        public void onSystemUiVisibilityChange(int visibility) {
-            if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-                checkUpdateDimension(false, true);
-            } else {
-                checkUpdateDimension(true, true);
-            }
+        GlobalLayoutListener(View rootView) {
+            mRootViewRef = new WeakReference<>(rootView);
         }
 
         @Override
         public void onGlobalLayout() {
-            if (getContext() != null) {
-                int orientation = getContext().getResources().getConfiguration().orientation;
-                if (orientation != mOrientation) {
-                    mOrientation = orientation;
-                    sendOrientationChangeEvent(mOrientation);
-                    checkUpdateDimension(false, false);
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
+            int orientation = context.getResources().getConfiguration().orientation;
+            if (orientation != mOrientation) {
+                mOrientation = orientation;
+                sendOrientationChangeEvent(mOrientation);
+                NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(context);
+                if (nativeRenderer != null) {
+                    View rootView = mRootViewRef.get();
+                    int width = (rootView != null) ? rootView.getWidth() : -1;
+                    int height = (rootView != null) ? rootView.getHeight() : -1;
+                    nativeRenderer.updateDimension(width, height);
                 }
             }
         }
 
         private void sendOrientationChangeEvent(int orientation) {
             LogUtils.d(TAG, "sendOrientationChangeEvent: orientation=" + orientation);
-        }
-
-        private void checkUpdateDimension(boolean shouldUseScreenDisplay,
-                boolean systemUiVisibilityChanged) {
-            checkUpdateDimension(-1, -1, shouldUseScreenDisplay, systemUiVisibilityChanged);
-        }
-
-        private void checkUpdateDimension(int width, int height, boolean shouldUseScreenDisplay,
-                boolean systemUiVisibilityChanged) {
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
-            if (nativeRenderer != null) {
-                nativeRenderer.updateDimension(width, height, shouldUseScreenDisplay,
-                        systemUiVisibilityChanged);
-            }
         }
     }
 }

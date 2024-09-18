@@ -16,15 +16,12 @@
 
 package com.openhippy.pool;
 
-import androidx.annotation.NonNull;
-
 public abstract class ImageRecycleObject extends RecycleObject {
 
     public abstract void evicted();
 
     public abstract void cached();
 
-    @NonNull
     public abstract ImageDataKey getCacheKey();
 
     public abstract boolean isScraped();

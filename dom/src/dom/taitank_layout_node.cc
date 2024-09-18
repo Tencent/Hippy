@@ -22,7 +22,6 @@
 
 #include <cmath>
 #include <map>
-#include <mutex>
 
 #include "footstone/logging.h"
 
@@ -31,79 +30,82 @@
 namespace hippy {
 inline namespace dom {
 
-static std::atomic<int64_t> global_measure_function_key{0};
-static std::map<int64_t, MeasureFunction> measure_function_map;
-static std::mutex mutex;
+class TaitankLayoutConsts {
+public:
+  const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OVERFLOW_VISIBLE},
+      {"hidden", OverflowType::OVERFLOW_HIDDEN},
+      {"scroll", OverflowType::OVERFLOW_SCROLL}};
+  
+  const std::map<std::string, FlexDirection> kFlexDirectionMap = {
+      {"row", FlexDirection::FLEX_DIRECTION_ROW},
+      {"row-reverse", FlexDirection::FLEX_DIRECTION_ROW_REVERSE},
+      {"column", FlexDirection::FLEX_DIRECTION_COLUMN},
+      {"column-reverse", FlexDirection::FLEX_DIRECTION_COLUNM_REVERSE}};
+  
+  const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FLEX_NO_WRAP},
+      {"wrap", FlexWrapMode::FLEX_WRAP},
+      {"wrap-reverse", FlexWrapMode::FLEX_WRAP_REVERSE}};
+  
+  const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FLEX_ALIGN_START},
+      {"center", FlexAlign::FLEX_ALIGN_CENTER},
+      {"flex-end", FlexAlign::FLEX_ALIGN_END},
+      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
+      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND},
+      {"space-evenly", FlexAlign::FLEX_ALIGN_SPACE_EVENLY}};
+  
+  const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FLEX_ALIGN_AUTO},
+      {"flex-start", FlexAlign::FLEX_ALIGN_START},
+      {"center", FlexAlign::FLEX_ALIGN_CENTER},
+      {"flex-end", FlexAlign::FLEX_ALIGN_END},
+      {"stretch", FlexAlign::FLEX_ALIGN_STRETCH},
+      {"baseline", FlexAlign::FLEX_ALIGN_BASE_LINE},
+      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
+      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND}};
+  
+  const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSS_ALL},
+      {kMarginVertical, CSSDirection::CSS_VERTICAL},
+      {kMarginHorizontal, CSSDirection::CSS_HORIZONTAL},
+      {kMarginLeft, CSSDirection::CSS_LEFT},
+      {kMarginRight, CSSDirection::CSS_RIGHT},
+      {kMarginTop, CSSDirection::CSS_TOP},
+      {kMarginBottom, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSS_ALL},
+      {kPaddingVertical, CSSDirection::CSS_VERTICAL},
+      {kPaddingHorizontal, CSSDirection::CSS_HORIZONTAL},
+      {kPaddingLeft, CSSDirection::CSS_LEFT},
+      {kPaddingRight, CSSDirection::CSS_RIGHT},
+      {kPaddingTop, CSSDirection::CSS_TOP},
+      {kPaddingBottom, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSS_LEFT},
+      {kRight, CSSDirection::CSS_RIGHT},
+      {kTop, CSSDirection::CSS_TOP},
+      {kBottom, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_ALL},
+      {kBorderLeftWidth, CSSDirection::CSS_LEFT},
+      {kBorderTopWidth, CSSDirection::CSS_TOP},
+      {kBorderRightWidth, CSSDirection::CSS_RIGHT},
+      {kBorderBottomWidth, CSSDirection::CSS_BOTTOM}};
+  
+  const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::POSITION_TYPE_RELATIVE},
+      {"absolute", PositionType::POSITION_TYPE_ABSOLUTE}};
+  
+  const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DISPLAY_TYPE_NONE}};
+  
+  const std::map<std::string, TaitankDirection> kDirectionMap = {
+      {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
+};
 
-const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OVERFLOW_VISIBLE},
-                                                          {"hidden", OverflowType::OVERFLOW_HIDDEN},
-                                                          {"scroll", OverflowType::OVERFLOW_SCROLL}};
-
-const std::map<std::string, FlexDirection> kFlexDirectionMap = {
-    {"row", FlexDirection::FLEX_DIRECTION_ROW},
-    {"row-reverse", FlexDirection::FLEX_DIRECTION_ROW_REVERSE},
-    {"column", FlexDirection::FLEX_DIRECTION_COLUMN},
-    {"column-reverse", FlexDirection::FLEX_DIRECTION_COLUNM_REVERSE}};
-
-const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FLEX_NO_WRAP},
-                                                          {"wrap", FlexWrapMode::FLEX_WRAP},
-                                                          {"wrap-reverse", FlexWrapMode::FLEX_WRAP_REVERSE}};
-
-const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FLEX_ALIGN_START},
-                                                      {"center", FlexAlign::FLEX_ALIGN_CENTER},
-                                                      {"flex-end", FlexAlign::FLEX_ALIGN_END},
-                                                      {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
-                                                      {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND},
-                                                      {"space-evenly", FlexAlign::FLEX_ALIGN_SPACE_EVENLY}};
-
-const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FLEX_ALIGN_AUTO},
-                                                    {"flex-start", FlexAlign::FLEX_ALIGN_START},
-                                                    {"center", FlexAlign::FLEX_ALIGN_CENTER},
-                                                    {"flex-end", FlexAlign::FLEX_ALIGN_END},
-                                                    {"stretch", FlexAlign::FLEX_ALIGN_STRETCH},
-                                                    {"baseline", FlexAlign::FLEX_ALIGN_BASE_LINE},
-                                                    {"space-between", FlexAlign::FLEX_ALIGN_SPACE_BETWEEN},
-                                                    {"space-around", FlexAlign::FLEX_ALIGN_SPACE_AROUND}};
-
-const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSS_ALL},
-                                                        {kMarginVertical, CSSDirection::CSS_VERTICAL},
-                                                        {kMarginHorizontal, CSSDirection::CSS_HORIZONTAL},
-                                                        {kMarginLeft, CSSDirection::CSS_LEFT},
-                                                        {kMarginRight, CSSDirection::CSS_RIGHT},
-                                                        {kMarginTop, CSSDirection::CSS_TOP},
-                                                        {kMarginBottom, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSS_ALL},
-                                                         {kPaddingVertical, CSSDirection::CSS_VERTICAL},
-                                                         {kPaddingHorizontal, CSSDirection::CSS_HORIZONTAL},
-                                                         {kPaddingLeft, CSSDirection::CSS_LEFT},
-                                                         {kPaddingRight, CSSDirection::CSS_RIGHT},
-                                                         {kPaddingTop, CSSDirection::CSS_TOP},
-                                                         {kPaddingBottom, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSS_LEFT},
-                                                          {kRight, CSSDirection::CSS_RIGHT},
-                                                          {kTop, CSSDirection::CSS_TOP},
-                                                          {kBottom, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSS_LEFT},
-                                                        {kBorderLeftWidth, CSSDirection::CSS_LEFT},
-                                                        {kBorderTopWidth, CSSDirection::CSS_TOP},
-                                                        {kBorderRightWidth, CSSDirection::CSS_RIGHT},
-                                                        {kBorderBottomWidth, CSSDirection::CSS_BOTTOM}};
-
-const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::POSITION_TYPE_RELATIVE},
-                                                              {"absolute", PositionType::POSITION_TYPE_ABSOLUTE}};
-
-const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DISPLAY_TYPE_NONE}};
-
-const std::map<std::string, TaitankDirection> kDirectionMap = {
-    {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
+static std::shared_ptr<TaitankLayoutConsts> global_layout_consts = nullptr;
 
 #define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
   static TYPE GetStyle##NAME(const std::string& key) {   \
-    auto iter = k##NAME##Map.find(key);                  \
-    if (iter != k##NAME##Map.end()) return iter->second; \
+    if (global_layout_consts == nullptr) return DEFAULT; \
+    auto &map = global_layout_consts->k##NAME##Map;      \
+    auto iter = map.find(key);                           \
+    if (iter != map.end()) return iter->second;          \
     return DEFAULT;                                      \
   }
 
@@ -162,7 +164,7 @@ TAITANK_GET_STYLE_DECL(Direction, TaitankDirection, TaitankDirection::DIRECTION_
   }
 
 static void CheckValueType(footstone::value::HippyValue::Type type) {
-  if (type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject)
+  if (type == footstone::value::HippyValue::Type::kString || type == footstone::value::HippyValue::Type::kObject)
     FOOTSTONE_DLOG(WARNING) << "Taitank Layout Node Value Type Error";
 }
 
@@ -208,17 +210,11 @@ static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   }
 }
 
-TaitankLayoutNode::TaitankLayoutNode() : key_(global_measure_function_key.fetch_add(1)) { Allocate(); }
+TaitankLayoutNode::TaitankLayoutNode() { Allocate(); }
 
-TaitankLayoutNode::TaitankLayoutNode(TaitankNodeRef engine_node_)
-    : engine_node_(engine_node_), key_(global_measure_function_key.fetch_add(1)) {}
+TaitankLayoutNode::TaitankLayoutNode(TaitankNodeRef engine_node_) : engine_node_(engine_node_) {}
 
-TaitankLayoutNode::~TaitankLayoutNode() {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = measure_function_map.find(key_);
-  if (it != measure_function_map.end()) measure_function_map.erase(it);
-  Deallocate();
-}
+TaitankLayoutNode::~TaitankLayoutNode() { Deallocate(); }
 
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                         void* layout_context) {
@@ -469,32 +465,30 @@ void TaitankLayoutNode::Parser(
   }
 }
 
-static TaitankSize TaitankMeasureFunction(TaitankNodeRef node, float width, MeasureMode width_measrue_mode,
-                                          float height, MeasureMode height_measure_mode, void* context) {
-  auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->GetContext());
-  int64_t key = taitank_node->GetKey();
-  auto iter = measure_function_map.find(key);
-  if (iter != measure_function_map.end()) {
-    auto size = iter->second(width, ToLayoutMeasureMode(width_measrue_mode), height,
-                             ToLayoutMeasureMode(height_measure_mode), context);
-    TaitankSize result;
-    result.width = size.width;
-    result.height = size.height;
-    return result;
-  }
-  return TaitankSize{0, 0};
-}
-
 void TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   assert(engine_node_ != nullptr);
-  measure_function_map[key_] = measure_function;
+  measure_function_ = measure_function;
   engine_node_->SetContext(reinterpret_cast<void*>(this));
-  engine_node_->SetMeasureFunction(TaitankMeasureFunction);
+  auto func = [](TaitankNodeRef node, float width, MeasureMode width_measrue_mode, float height,
+                 MeasureMode height_measure_mode, void* context) -> TaitankSize {
+    auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->GetContext());
+    if (taitank_node->measure_function_) {
+      auto size = taitank_node->measure_function_(width, ToLayoutMeasureMode(width_measrue_mode), height,
+                                                  ToLayoutMeasureMode(height_measure_mode), context);
+      TaitankSize result;
+      result.width = size.width;
+      result.height = size.height;
+      return result;
+    }
+    return TaitankSize{0, 0};
+  };
+  TaitankMeasureFunction taitank_measure_function = func;
+  engine_node_->SetMeasureFunction(taitank_measure_function);
 }
 
 bool TaitankLayoutNode::HasMeasureFunction() {
   assert(engine_node_ != nullptr);
-  return measure_function_map.find(key_) != measure_function_map.end();
+  return measure_function_ != nullptr;
 }
 
 float TaitankLayoutNode::GetLeft() {
@@ -649,7 +643,9 @@ void TaitankLayoutNode::SetPosition(Edge edge, float position) {
 void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
   assert(engine_node_ != nullptr);
   TaitankConfigRef config = engine_node_->GetConfig();
-  config->SetScaleFactor(sacle_factor);
+  if (config) {
+    config->SetScaleFactor(sacle_factor);
+  }
 }
 
 void TaitankLayoutNode::SetMaxWidth(float max_width) {
@@ -822,6 +818,13 @@ void TaitankLayoutNode::Allocate() { engine_node_ = new TaitankNode(); }
 void TaitankLayoutNode::Deallocate() {
   if (engine_node_ == nullptr) return;
   delete engine_node_;
+  engine_node_ = nullptr;
+}
+
+void InitLayoutConsts() {
+  if (global_layout_consts == nullptr) {
+    global_layout_consts = std::make_shared<TaitankLayoutConsts>();
+  }
 }
 
 std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<TaitankLayoutNode>(); }

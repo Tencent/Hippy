@@ -78,6 +78,7 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
         std::vector<int32_t> moved_ids;
         moved_ids.reserve(moved_children.size());
         for (const auto& moved_node : moved_children) {
+          UpdateRenderInfo(moved_node);
           moved_ids.push_back(footstone::check::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
         }
         MoveRenderNode(root_node, std::move(moved_ids),
@@ -112,7 +113,7 @@ void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_no
   }
   FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] move node size before optimize = " << nodes.size()
                        << ", move node size after optimize  = " << nodes_to_move.size();
-  render_manager_->MoveRenderNode(root_node, std::move(nodes));
+  render_manager_->MoveRenderNode(root_node, std::move(nodes_to_move));
 }
 
 void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
@@ -128,19 +129,6 @@ void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_
   FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] delete node size before optimize = " << nodes.size()
                        << ", delete node size after optimize  = " << nodes_to_delete.size();
   if (!nodes_to_delete.empty()) {
-    for (auto& node : nodes_to_delete) {
-      // Recursively delete all ids on the node tree.
-      std::vector<std::shared_ptr<DomNode>> node_stack;
-      node_stack.push_back(node);
-      while (!node_stack.empty()) {
-        auto back_node = node_stack.back();
-        node_stack.pop_back();
-        not_eliminated_node_ids_.erase(back_node->GetId());
-        for (auto& child : back_node->GetChildren()) {
-          node_stack.push_back(child);
-        }
-      }
-    }
     render_manager_->DeleteRenderNode(root_node, std::move(nodes_to_delete));
   }
 }
@@ -289,10 +277,9 @@ bool LayerOptimizedRenderManager::IsJustLayoutProp(const char *prop_name) const 
 }
 
 bool LayerOptimizedRenderManager::CanBeEliminated(const std::shared_ptr<DomNode>& node) {
-  bool eliminated = (node->IsLayoutOnly() || node->IsVirtual()) &&
-                    (not_eliminated_node_ids_.find(node->GetId()) == not_eliminated_node_ids_.end());
+  bool eliminated = (node->IsLayoutOnly() || node->IsVirtual()) && node->IsEnableEliminated();
   if (!eliminated) {
-    not_eliminated_node_ids_.insert(node->GetId());
+    node->SetEnableEliminated(false);
   }
   return eliminated;
 }

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -62,15 +62,7 @@ static bool memcontains(const void *s, const void *t, size_t sl, size_t tl) {
 }
 
 - (BOOL)datatype_isAnimatedImage {
-    do {
-        if ([self datatype_isGif]) {
-            return YES;
-        }
-        if ([self datatype_isAPNG]) {
-            return YES;
-        }
-    } while (0);
-    return NO;
+    return [self datatype_isGif] || [self datatype_isAPNG];
 }
 
 @end

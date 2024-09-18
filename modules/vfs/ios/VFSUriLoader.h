@@ -21,8 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#include "VFSDefines.h"
+#include "HippyVFSDefines.h"
 #include "vfs/uri_loader.h"
 
 extern NSString *const VFSErrorDomain;
@@ -39,20 +38,20 @@ class VFSUriLoader : public hippy::vfs::UriLoader {
     VFSUriLoader() = default;
     ~VFSUriLoader() = default;
 
-    virtual void RequestUntrustedContent(
-        const string_view& uri,
-        const std::unordered_map<std::string, std::string>& meta,
-        std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) override;
+    virtual void RequestUntrustedContent(const string_view& uri,
+                                         const std::unordered_map<std::string, std::string>& meta,
+                                         std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) override;
 
-    virtual void RequestUntrustedContent(
-        const string_view& uri,
-        const std::unordered_map<std::string, std::string>& req_meta,
-        RetCode& code,
-        std::unordered_map<std::string, std::string>& rsp_meta,
-        bytes& content) override;
+    virtual void RequestUntrustedContent(const string_view& uri,
+                                         const std::unordered_map<std::string, std::string>& req_meta,
+                                         RetCode& code,
+                                         std::unordered_map<std::string, std::string>& rsp_meta,
+                                         bytes& content) override;
 
-    virtual void RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request, std::shared_ptr<hippy::JobResponse> response) override;
-    virtual void RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request, const std::function<void(std::shared_ptr<hippy::JobResponse>)>& cb) override;
+    virtual void RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request, 
+                                         std::shared_ptr<hippy::JobResponse> response) override;
+    virtual void RequestUntrustedContent(const std::shared_ptr<hippy::RequestJob>& request, 
+                                         const std::function<void(std::shared_ptr<hippy::JobResponse>)>& cb) override;
 
     //Foundation API convenient methods
     virtual void RegisterConvenientUriHandler(NSString *scheme,
@@ -60,9 +59,18 @@ class VFSUriLoader : public hippy::vfs::UriLoader {
 
     virtual void AddConvenientDefaultHandler(const std::shared_ptr<VFSUriHandler>& handler);
     virtual const std::list<std::shared_ptr<VFSUriHandler>> &GetConvenientDefaultHandlers();
-    virtual void RequestUntrustedContent(NSString *urlString, NSOperationQueue *operationQueue, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
-    virtual void RequestUntrustedContent(NSString *urlString, NSString *method, NSOperationQueue *operationQueue, NSDictionary<NSString *, NSString *> *httpHeader, NSData *body, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
-    virtual void RequestUntrustedContent(NSURLRequest *request, NSOperationQueue *operationQueue, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion);
+    
+    virtual void RequestUntrustedContent(NSString *urlString,
+                                         NSDictionary *extraInfo,
+                                         NSOperationQueue *operationQueue,
+                                         VFSHandlerProgressBlock progress,
+                                         VFSHandlerCompletionBlock completion);
+    virtual void RequestUntrustedContent(NSURLRequest *request,
+                                         NSDictionary *extraInfo,
+                                         NSOperationQueue *operationQueue,
+                                         VFSHandlerProgressBlock progress,
+                                         VFSHandlerCompletionBlock completion);
+    
   private:
     std::shared_ptr<VFSUriHandler> GetNextConvinentHandler(std::list<std::shared_ptr<VFSUriHandler>>::iterator &cur_con_handler_it,
                                                            const std::list<std::shared_ptr<VFSUriHandler>>::iterator &end_con_handler_it);

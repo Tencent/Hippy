@@ -61,6 +61,7 @@ class AnimationManager
   }
 
   void RemoveVSyncEventListener();
+
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;

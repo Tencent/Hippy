@@ -18,5 +18,11 @@
  * limitations under the License.
  */
 
+/**
+ * @public
+ */
+export type NeedToTyped = any;
+
 export * from './style-parser/css-parser';
 export { translateColor } from './style-parser/color-parser';
+export * from './style-match';

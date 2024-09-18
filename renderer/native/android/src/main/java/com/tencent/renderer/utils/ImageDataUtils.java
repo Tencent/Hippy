@@ -19,6 +19,7 @@ package com.tencent.renderer.utils;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class ImageDataUtils {
 
@@ -36,23 +37,23 @@ public class ImageDataUtils {
         return options;
     }
 
-    public static boolean isWebp(@NonNull BitmapFactory.Options options) {
-        return !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
+    public static boolean isWebp(@Nullable BitmapFactory.Options options) {
+        return options != null && !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
                 IMAGE_TYPE_WEBP);
     }
 
-    public static boolean isJpeg(@NonNull BitmapFactory.Options options) {
-        return !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
+    public static boolean isJpeg(@Nullable BitmapFactory.Options options) {
+        return options != null && !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
                 IMAGE_TYPE_JPEG);
     }
 
-    public static boolean isPng(@NonNull BitmapFactory.Options options) {
-        return !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
+    public static boolean isPng(@Nullable BitmapFactory.Options options) {
+        return options != null && !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
                 IMAGE_TYPE_PNG);
     }
 
-    public static boolean isGif(@NonNull BitmapFactory.Options options) {
-        return !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
+    public static boolean isGif(@Nullable BitmapFactory.Options options) {
+        return options != null && !TextUtils.isEmpty(options.outMimeType) && options.outMimeType.equalsIgnoreCase(
                 IMAGE_TYPE_GIF);
     }
 

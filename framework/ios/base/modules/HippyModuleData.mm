@@ -23,9 +23,9 @@
 #import "HippyModuleData.h"
 #import "HippyBridge.h"
 #import "HippyModuleMethod.h"
-#import "HPAsserts.h"
-#import "HPLog.h"
-#import "HPToolUtils.h"
+#import "HippyAssert.h"
+#import "HippyLog.h"
+#import "HippyUtils.h"
 
 #import <objc/runtime.h>
 
@@ -59,7 +59,7 @@
 
     // If a module overrides `constantsToExport` then we must assume that it
     // must be called on the main thread, because it may need to access UIKit.
-    _hasConstantsToExport = HPClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
+    _hasConstantsToExport = HippyClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
     
     _instanceSem = dispatch_semaphore_create(1);
 }
@@ -93,8 +93,8 @@
         // so ModuleData needs to be valid
         if (!_setupComplete) {
             if (!_instance) {
-                if (HP_DEBUG && _requiresMainQueueSetup) {
-                    HPAssertMainQueue();
+                if (HIPPY_DEBUG && _requiresMainQueueSetup) {
+                    HippyAssertMainQueue();
                 }
                 _instance = [_moduleClass new];
                 if (!_instance) {
@@ -102,7 +102,7 @@
                     // of the module is not supported, and it is supposed to be passed in to
                     // the bridge constructor. Mark setup complete to avoid doing more work.
                     _setupComplete = YES;
-                    HPLogWarn(@"The module %@ is returning nil from its constructor. You "
+                    HippyLogWarn(@"The module %@ is returning nil from its constructor. You "
                                   "may need to instantiate it yourself and pass it into the "
                                   "bridge.",
                         _moduleClass);
@@ -142,7 +142,7 @@
         @try {
             [(id)_instance setValue:_bridge forKey:@"bridge"];
         } @catch (NSException *exception) {
-            HPLogError(@"%@ has no setter or ivar for its bridge, which is not "
+            HippyLogError(@"%@ has no setter or ivar for its bridge, which is not "
                            "permitted. You must either @synthesize the bridge property, "
                            "or provide your own setter method.",
                 self.name);
@@ -180,7 +180,7 @@
                 @try {
                     [(id)_instance setValue:[self methodQueueWithoutInstance] forKey:@"methodQueue"];
                 } @catch (NSException *exception) {
-                    HPLogError(@"%@ is returning nil for its methodQueue, which is not "
+                    HippyLogError(@"%@ is returning nil for its methodQueue, which is not "
                                    "permitted. You must either return a pre-initialized "
                                    "queue, or @synthesize the methodQueue to let the bridge "
                                    "create a queue for you.",
@@ -204,10 +204,10 @@
             // calls out to other threads, however we can't control when a module might
             // get accessed by client code during bridge setup, and a very low risk of
             // deadlock is better than a fairly high risk of an assertion being thrown.
-            if (!HPIsMainQueue()) {
-                HPLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
+            if (!HippyIsMainQueue()) {
+                HippyLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
             }
-            HPExecuteOnMainQueue(^{
+            HippyExecuteOnMainQueue(^{
                 [self setUpInstanceAndBridge];
             });
         } else {
@@ -221,48 +221,65 @@
     return HippyBridgeModuleNameForClass(_moduleClass);
 }
 
+- (void)collectAllModuleMethods {
+    NSMutableArray<id<HippyBridgeMethod>> *moduleMethods = [NSMutableArray new];
+    NSMutableDictionary<NSString *, id<HippyBridgeMethod>> *moduleMethodsByName = [NSMutableDictionary new];
+    
+    if ([_moduleClass instancesRespondToSelector:@selector(methodsToExport)]) {
+        NSArray<id<HippyBridgeMethod>> *exportMethods = [self.instance methodsToExport];
+        [moduleMethods addObjectsFromArray:exportMethods];
+        for (id<HippyBridgeMethod> method in exportMethods) {
+            moduleMethodsByName[method.JSMethodName] = method;
+        }
+    }
+    
+    unsigned int methodCount;
+    Class cls = _moduleClass;
+    while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
+        Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
+        
+        for (unsigned int i = 0; i < methodCount; i++) {
+            Method method = methods[i];
+            SEL selector = method_getName(method);
+            if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
+                IMP imp = method_getImplementation(method);
+                NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_moduleClass, selector);
+                id<HippyBridgeMethod> moduleMethod = [[HippyModuleMethod alloc] initWithMethodSignature:entries[1] JSMethodName:entries[0]
+                                                                                            moduleClass:_moduleClass];
+                [moduleMethods addObject:moduleMethod];
+                moduleMethodsByName[moduleMethod.JSMethodName] = moduleMethod;
+            }
+        }
+        
+        free(methods);
+        cls = class_getSuperclass(cls);
+    }
+    _methods = moduleMethods;
+    _methodsByName = moduleMethodsByName;
+}
+
 - (NSArray<id<HippyBridgeMethod>> *)methods {
     if (!_methods) {
-        NSMutableArray<id<HippyBridgeMethod>> *moduleMethods = [NSMutableArray new];
-
-        if ([_moduleClass instancesRespondToSelector:@selector(methodsToExport)]) {
-            [moduleMethods addObjectsFromArray:[self.instance methodsToExport]];
-        }
-
-        unsigned int methodCount;
-        Class cls = _moduleClass;
-        while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
-            Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
-
-            for (unsigned int i = 0; i < methodCount; i++) {
-                Method method = methods[i];
-                SEL selector = method_getName(method);
-                if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
-                    IMP imp = method_getImplementation(method);
-                    NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_moduleClass, selector);
-                    id<HippyBridgeMethod> moduleMethod = [[HippyModuleMethod alloc] initWithMethodSignature:entries[1] JSMethodName:entries[0]
-                                                                                                moduleClass:_moduleClass];
-
-                    [moduleMethods addObject:moduleMethod];
-                }
-            }
-
-            free(methods);
-            cls = class_getSuperclass(cls);
-        }
-
-        _methods = [moduleMethods copy];
+        [self collectAllModuleMethods];
     }
     return _methods;
 }
 
+- (NSDictionary<NSString *,id<HippyBridgeMethod>> *)methodsByName {
+    if (!_methodsByName) {
+        [self collectAllModuleMethods];
+    }
+    return _methodsByName;
+}
+
+
 - (void)gatherConstants {
     if (_hasConstantsToExport && !_constantsToExport) {
         (void)[self instance];
-        if (!HPIsMainQueue()) {
-            HPLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
+        if (!HippyIsMainQueue()) {
+            HippyLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
         }
-        HPExecuteOnMainQueue(^{
+        HippyExecuteOnMainQueue(^{
             self->_constantsToExport = [self->_instance constantsToExport] ?: @ {};
         });
     }
@@ -295,7 +312,13 @@
         [methods addObject:method.JSMethodName];
     }
 
-    NSArray *config = @[self.name, HPNullIfNil(constants), HPNullIfNil(methods), HPNullIfNil(promiseMethods), HPNullIfNil(syncMethods)];
+    NSArray *config = @[
+        self.name,
+        HippyNullIfNil(constants),
+        HippyNullIfNil(methods),
+        HippyNullIfNil(promiseMethods),
+        HippyNullIfNil(syncMethods)
+    ];
     return config;
 }
 

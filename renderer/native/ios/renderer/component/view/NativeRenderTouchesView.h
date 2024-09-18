@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "NativeRenderTouchesProtocol.h"
-#import "HPConvert+NativeRender.h"
+#import "HippyConvert+NativeRender.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Used to control how touch events are processed.
  */
-@property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
+@property (nonatomic, assign) HippyPointerEvents pointerEvents;
 
 @end
 

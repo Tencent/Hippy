@@ -37,7 +37,9 @@ class Deserializer {
   Deserializer(const Deserializer&) = delete;
   Deserializer& operator=(const Deserializer&) = delete;
 
-  void ReadHeader();
+  bool ReadHeader();
+
+  void ReadHeaderChecked();
 
   bool ReadValue(HippyValue& value);
 

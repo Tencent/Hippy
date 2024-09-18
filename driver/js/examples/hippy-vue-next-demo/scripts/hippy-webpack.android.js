@@ -35,6 +35,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
       __PLATFORM__: JSON.stringify(platform),
+      __VUE_PROD_DEVTOOLS__: false,
     }),
     new CaseSensitivePathsPlugin(),
     new VueLoaderPlugin(),
@@ -141,6 +142,8 @@ module.exports = {
     alias: (() => {
       const aliases = {
         src: path.resolve('./src'),
+        // hippy 仅需要运行时的 Vue，在这里指定
+        vue$: 'vue/dist/vue.runtime.esm-bundler.js',
       };
 
       // If @vue/runtime-core was built exist in packages directory then make an alias

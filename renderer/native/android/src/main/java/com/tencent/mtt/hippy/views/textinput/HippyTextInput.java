@@ -16,64 +16,87 @@
 
 package com.tencent.mtt.hippy.views.textinput;
 
+import static com.tencent.mtt.hippy.views.textinput.HippyTextInputController.UNSET;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
-
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.uimanager.HippyViewBase;
-import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
-import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.renderer.node.RenderNode;
-import com.tencent.mtt.hippy.utils.ContextHolder;
-import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.utils.PixelUtil;
-
-import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
-
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.uimanager.HippyViewBase;
+import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.component.Component;
-import com.tencent.renderer.component.FlatViewGroup;
+import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.TypeFaceUtil;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.utils.EventUtils;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
+    private static final String TAG = "HippyTextInput";
+    static final int EVENT_FOCUS = 1;
+    static final int EVENT_BLUR = 1 << 1;
+    static final int EVENT_KEYBOARD_SHOW = 1 << 2;
+    static final int EVENT_KEYBOARD_HIDE = 1 << 3;
+    static final int MASK_FOCUS = EVENT_FOCUS | EVENT_BLUR | EVENT_KEYBOARD_SHOW;
+    static final int MASK_KEYBOARD = EVENT_KEYBOARD_SHOW | EVENT_KEYBOARD_HIDE;
     boolean mHasAddWatcher = false;
-    private String mPreviousText;
+    private String mPreviousText = "";
     TextWatcher mTextWatcher = null;
     boolean mHasSetOnSelectListener = false;
 
     private final int mDefaultGravityHorizontal;
     private final int mDefaultGravityVertical;
-    //输入法键盘的相关方法
-    private final Rect mRect = new Rect();  //获取当前RootView的大小位置信息
-    private int mLastRootViewVisibleHeight = -1;      //当前RootView的上一次大小
+    private final ViewTreeObserver.OnGlobalLayoutListener mKeyboardEventObserver = this::checkSendKeyboardEvent;
     private boolean mIsKeyBoardShow = false;    //键盘是否在显示
+    private boolean mIsKeyBoardShowBySelf = false;
+    private boolean mShouldUpdateTypeface = false;
+    private boolean mShouldUpdateLineHeight = false;
+    private int mListenerFlag = 0;
     private ReactContentSizeWatcher mReactContentSizeWatcher = null;
+    private boolean mItalic = false;
+    private String mFontWeight = TypeFaceUtil.TEXT_FONT_STYLE_NORMAL;
+    private float mLineSpacingMultiplier = 1.0f;
+    private float mLineSpacingExtra = 0.0f;
+    private int mLineHeight = 0;
+    @Nullable
+    private String mFontFamily;
+    private Paint mTextPaint;
 
     public HippyTextInput(Context context) {
         super(context);
@@ -90,6 +113,9 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         setPadding(0, 0, 0, 0);
         setGravityVertical(Gravity.CENTER_VERTICAL);
+        setHintTextColor(HippyTextInputController.DEFAULT_PLACEHOLDER_TEXT_COLOR);
+        setTextColor(HippyTextInputController.DEFAULT_TEXT_COLOR);
+        setBackground(null);
     }
 
     @Override
@@ -131,7 +157,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (getRootView() != null) {
-            getRootView().getViewTreeObserver().addOnGlobalLayoutListener(globaListener);
+            getRootView().getViewTreeObserver().addOnGlobalLayoutListener(mKeyboardEventObserver);
         }
     }
 
@@ -139,7 +165,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (getRootView() != null) {
-            getRootView().getViewTreeObserver().removeOnGlobalLayoutListener(globaListener);
+            getRootView().getViewTreeObserver().removeOnGlobalLayoutListener(mKeyboardEventObserver);
         }
     }
 
@@ -156,6 +182,48 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             gravityVertical = mDefaultGravityVertical;
         }
         setGravity((getGravity() & ~Gravity.VERTICAL_GRAVITY_MASK) | gravityVertical);
+    }
+
+    public void setLineSpacingMultiplier(float spacingMultiplier) {
+        if (Float.compare(spacingMultiplier, mLineSpacingMultiplier) != 0) {
+            mLineSpacingMultiplier = spacingMultiplier;
+            mShouldUpdateLineHeight = true;
+        }
+    }
+
+    public void setLineSpacingExtra(float spacingExtra) {
+        if (Float.compare(spacingExtra, mLineSpacingExtra) != 0) {
+            mLineSpacingExtra = spacingExtra;
+            mShouldUpdateLineHeight = true;
+        }
+    }
+
+    public void setTextLineHeight(int lineHeight) {
+        if (Float.compare(lineHeight, mLineHeight) != 0) {
+            mLineHeight = lineHeight;
+            mShouldUpdateLineHeight = true;
+        }
+    }
+
+    public void onBatchComplete() {
+        if (mShouldUpdateTypeface) {
+            updateTypeface();
+            mShouldUpdateTypeface = false;
+        }
+        if (!mShouldUpdateLineHeight) {
+            return;
+        }
+        if (mLineHeight > 0) {
+            final int fontHeight = getPaint().getFontMetricsInt(null);
+            // Make sure we don't setLineSpacing if it's not needed to avoid unnecessary redraw.
+            if (mLineHeight != fontHeight) {
+                // Set lineSpacingExtra by the difference of lineSpacing with lineHeight
+                setLineSpacing(mLineHeight - fontHeight, 1f);
+            }
+        } else {
+            setLineSpacing(mLineSpacingExtra, mLineSpacingMultiplier);
+        }
+        mShouldUpdateLineHeight = false;
     }
 
     @Override
@@ -247,7 +315,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
 
     public void hideInputMethod() {
         InputMethodManager imm = this.getInputMethodManager();
-        if (imm != null && imm.isActive(this)) {
+        if (imm != null && imm.isActive()) {
             try {
                 imm.hideSoftInputFromWindow(this.getWindowToken(), 0);
             } catch (Exception e) {
@@ -257,97 +325,142 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
 
     }
 
-    //成功的話返回手機屏幕的高度,失敗返回-1
-    private int getScreenHeight() {
+    private static boolean sVisibleRectReflectionFetched = false;
+    private static Method sGetViewRootImplMethod;
+    private static Field sVisibleInsetsField;
+    private static Field sAttachInfoField;
+
+    private static Field sViewAttachInfoField;
+    private static Field sStableInsets;
+    private static Field sContentInsets;
+
+    @SuppressLint({ "PrivateApi", "SoonBlockedPrivateApi" }) // PrivateApi is only accessed below SDK 30
+    private static void loadReflectionField() {
         try {
-            Context context = ContextHolder.getAppContext();
-            android.view.WindowManager manager = (android.view.WindowManager) context
-                    .getSystemService(Context.WINDOW_SERVICE);
-            Display display = manager.getDefaultDisplay();
-
-            if (display != null) {
-                int width = manager.getDefaultDisplay().getWidth();
-                int height = manager.getDefaultDisplay().getHeight();
-                return Math.max(width, height);
-            }
-
-        } catch (SecurityException e) {
-            LogUtils.d("HippyTextInput", "getScreenHeight: " + e.getMessage());
+            sGetViewRootImplMethod = View.class.getDeclaredMethod("getViewRootImpl");
+            Class<?> sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
+            sVisibleInsetsField = sAttachInfoClass.getDeclaredField("mVisibleInsets");
+            Class<?> viewRootImplClass = Class.forName("android.view.ViewRootImpl");
+            sAttachInfoField = viewRootImplClass.getDeclaredField("mAttachInfo");
+            sVisibleInsetsField.setAccessible(true);
+            sAttachInfoField.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            LogUtils.e(TAG, "Failed to get visible insets. (Reflection error). " + e.getMessage(), e);
         }
-        return -1;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            try {
+                sViewAttachInfoField = View.class.getDeclaredField("mAttachInfo");
+                sViewAttachInfoField.setAccessible(true);
+                Class<?> sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
+                sStableInsets = sAttachInfoClass.getDeclaredField("mStableInsets");
+                sStableInsets.setAccessible(true);
+                sContentInsets = sAttachInfoClass.getDeclaredField("mContentInsets");
+                sContentInsets.setAccessible(true);
+            } catch (ReflectiveOperationException e) {
+                LogUtils.w(TAG, "Failed to get visible insets from AttachInfo " + e.getMessage());
+            }
+        }
+
+        sVisibleRectReflectionFetched = true;
     }
 
     /**
-     * 返回RootView的高度,要注意即使全屏,他應該也少了一個狀態欄的高度
+     * Get the software keyboard height. This code is migrated from androidx, in case we are running in a lower version
+     * androidx library, feel free to use androidx directly in the future.
+     *
+     * @see androidx.core.view.ViewCompat#getRootWindowInsets(View)
+     * @see androidx.core.view.WindowInsetsCompat#isVisible(int)
+     * @see androidx.core.view.WindowInsetsCompat#getInsets(int)
+     * @see androidx.core.view.WindowInsetsCompat.Type#ime()
      */
-    private int getRootViewHeight() {
-        int height = -1;
-        View rootView = getRootView();
-        if (rootView == null) {
-            return height;
-        }
-        // 问题ID： 106874510 某些奇葩手机ROM调用此方法会报错，做下捕获吧
-        try {
-            rootView.getWindowVisibleDisplayFrame(mRect);
-        } catch (Throwable e) {
-            LogUtils.d("InputMethodStatusMonitor:", "getWindowVisibleDisplayFrame failed !" + e);
-            e.printStackTrace();
+    private int getImeHeight(View view) {
+        final WindowInsets insets = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? getRootWindowInsets() : null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return insets == null ? 0 : insets.getInsets(WindowInsets.Type.ime()).bottom;
         }
 
-        int visibleHeight = mRect.bottom - mRect.top;
-        if (visibleHeight < 0) {
-            return -1;
+        final View rootView = getRootView();
+        int systemWindowBottom = 0;
+        int rootStableBottom = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (insets == null) {
+                return 0;
+            }
+            systemWindowBottom = insets.getSystemWindowInsetBottom();
+            rootStableBottom = insets.getStableInsetBottom();
+        } else {
+            if (!rootView.isAttachedToWindow()) {
+                return 0;
+            }
+            if (!sVisibleRectReflectionFetched) {
+                loadReflectionField();
+            }
+            if (sViewAttachInfoField != null && sStableInsets != null && sContentInsets != null) {
+                try {
+                    Object attachInfo = sViewAttachInfoField.get(rootView);
+                    if (attachInfo != null) {
+                        Rect stableInsets = (Rect) sStableInsets.get(attachInfo);
+                        Rect visibleInsets = (Rect) sContentInsets.get(attachInfo);
+                        if (stableInsets != null && visibleInsets != null) {
+                            systemWindowBottom = visibleInsets.bottom;
+                            rootStableBottom = stableInsets.bottom;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    LogUtils.w(TAG, "Failed to get insets from AttachInfo. " + e.getMessage());
+                }
+            }
         }
-        return visibleHeight;
+        if (systemWindowBottom > rootStableBottom) {
+            return systemWindowBottom;
+        }
+
+        if (!sVisibleRectReflectionFetched) {
+            loadReflectionField();
+        }
+        if (sGetViewRootImplMethod != null && sAttachInfoField != null && sVisibleInsetsField != null) {
+            try {
+                Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);
+                if (viewRootImpl != null) {
+                    Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
+                    Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
+                    int visibleRectBottom = visibleRect != null ? visibleRect.bottom : 0;
+                    if (visibleRectBottom > rootStableBottom) {
+                        return visibleRectBottom;
+                    }
+                }
+            } catch (ReflectiveOperationException e) {
+                LogUtils.e(TAG,
+                        "Failed to get visible insets. (Reflection error). " + e.getMessage(), e);
+            }
+        }
+        return 0;
     }
 
-    //监听RootView布局变化的listener
-    final ViewTreeObserver.OnGlobalLayoutListener globaListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-            int rootViewVisibleHeight = getRootViewHeight(); //RootView的高度
-            int screenHeight = getScreenHeight(); //屏幕高度
-            if (rootViewVisibleHeight == -1 || screenHeight == -1) //如果有失败直接返回 //TODO...仔细检查下这里的逻辑
-            {
-                mLastRootViewVisibleHeight = rootViewVisibleHeight;
-                return;
-            }
-            if (mLastRootViewVisibleHeight == -1) // 首次
-            {
-                //假设输入键盘的高度位屏幕高度20%
-                if (rootViewVisibleHeight > screenHeight * 0.8f) {
-
-                    mIsKeyBoardShow = false; //键盘没有显示
-                } else {
-                    if (!mIsKeyBoardShow) {
-                        Map<String, Object> keyboardHeightMap = new HashMap<>();
-                        int height = Math.abs(screenHeight - rootViewVisibleHeight);
-                        keyboardHeightMap.put("keyboardHeight", Math.round(PixelUtil.px2dp(height)));
-                        EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillShow", keyboardHeightMap);
-                    }
-                    mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
-                }
-            } else {
-                //假设输入键盘的高度位屏幕高度20%
-                if (rootViewVisibleHeight > screenHeight * 0.8f) {
-                    if (mIsKeyBoardShow) {
-                        EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillHide", null);
-                    }
-                    mIsKeyBoardShow = false; //键盘没有显示
-                } else {
-                    if (!mIsKeyBoardShow) {
-                        HippyMap hippyMap = new HippyMap();
-                        hippyMap.pushInt("keyboardHeight",
-                                Math.abs(mLastRootViewVisibleHeight - rootViewVisibleHeight));
-                        EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillShow", hippyMap);
-                    }
-                    mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
-                }
-            }
-
-            mLastRootViewVisibleHeight = rootViewVisibleHeight;
+    private void checkSendKeyboardEvent() {
+        if ((mListenerFlag & MASK_KEYBOARD) == 0) {
+            return;
         }
-    };
+        final int imeHeight = getImeHeight(this);
+        if (imeHeight > 0) {
+            mIsKeyBoardShow = true;
+            boolean bySelf = hasFocus();
+            if (bySelf != mIsKeyBoardShowBySelf) {
+                mIsKeyBoardShowBySelf = bySelf;
+                if (bySelf && (mListenerFlag & EVENT_KEYBOARD_SHOW) != 0) {
+                    Map<String, Object> keyboardHeightMap = new HashMap<>();
+                    keyboardHeightMap.put("keyboardHeight", Math.round(PixelUtil.px2dp(imeHeight)));
+                    EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillShow", keyboardHeightMap);
+                }
+            }
+        } else if (mIsKeyBoardShow) {
+            mIsKeyBoardShow = mIsKeyBoardShowBySelf = false;
+            if ((mListenerFlag & EVENT_KEYBOARD_HIDE) != 0) {
+                EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillHide", null);
+            }
+        }
+    }
 
     public void showInputMethodManager() {
 
@@ -365,7 +478,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private String mValidator = "";    //这则表达式,前端传入,要比较小心导致的crash
     private String sRegrexValidBefore = "";
     private String sRegrexValidRepeat = "";    //如果有无效的正则输入,会设置.
-    private boolean mTextInputed = false;  //文本是否输入过
 
     public void setValidator(String validator) {
         mValidator = validator;
@@ -402,12 +514,11 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                     if (TextUtils.isEmpty((mValidator))) //如果没有正则匹配
                     {
                         //如果文本输入过,判断是否两次相同
-                        if (mTextInputed && TextUtils.equals(s.toString(), mPreviousText)) {
+                        if (TextUtils.equals(s.toString(), mPreviousText)) {
                             return;
                         }
                         //这里为什么不用sRegrexValidBefore,sRegrexValidBefore是每次有词汇变化就会被回调设置.
                         mPreviousText = s.toString();
-                        mTextInputed = true;
                         if (!bUserSetValue) //如果是前端设置下来的值,不再需要回调给前端.
                         {
                             HippyMap hippyMap = new HippyMap();
@@ -425,13 +536,11 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                                 //为了避免前端收到两次内容同样的通知.记录一下正则匹配设置回去的值.
                                 sRegrexValidRepeat = sRegrexValidBefore;
                                 setSelection(getText().toString().length()); // TODO这里不应该通知
-                                mTextInputed = true;
                             } else {
                                 //如果文本输入过,判断是否两次相同
-                                if (mTextInputed && TextUtils.equals(s.toString(), mPreviousText)) {
+                                if (TextUtils.equals(s.toString(), mPreviousText)) {
                                     return;
                                 }
-                                mTextInputed = true;
                                 mPreviousText = s.toString();
                                 if (!bUserSetValue //如果是前端设置的一定不通知
                                         && (TextUtils.isEmpty(sRegrexValidRepeat) //如果没有,输入过无效的内容
@@ -460,16 +569,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             mHasAddWatcher = false;
             removeTextChangedListener(mTextWatcher);
         }
-    }
-
-    @Override
-    public void setBackgroundColor(int color) {
-        int paddingBottom = getPaddingBottom();
-        int paddingTop = getPaddingTop();
-        int paddingLeft = getPaddingLeft();
-        int paddingRight = getPaddingRight();
-        // Android这个EditText控件默认带有内边距，设置背景时系统也可能会再把它默认的内边距给加上去。这里强制去掉内边距
-        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
     @Override
@@ -507,23 +606,29 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         return result;
     }
 
-    public void setBlurOrOnFocus(boolean blur) {
-        if (blur) {
-            setOnFocusChangeListener(this);
+    public void setEventListener(boolean enable, int flag) {
+        final boolean oldHasFocusListener = (mListenerFlag & MASK_FOCUS) != 0;
+        if (enable) {
+            mListenerFlag |= flag;
         } else {
-            setOnFocusChangeListener(null);
+            mListenerFlag &= ~flag;
+        }
+        boolean newHasFocusListener = (mListenerFlag & MASK_FOCUS) != 0;
+        if (oldHasFocusListener != newHasFocusListener) {
+            setOnFocusChangeListener(newHasFocusListener ? this : null);
         }
     }
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-
         HippyMap hippyMap = new HippyMap();
         hippyMap.pushString("text", getText().toString());
         if (hasFocus) {
             EventUtils.sendComponentEvent(v, "focus", hippyMap);
+            checkSendKeyboardEvent();
         } else {
             EventUtils.sendComponentEvent(v, "blur", hippyMap);
+            mIsKeyBoardShowBySelf = false;
         }
     }
 
@@ -620,13 +725,60 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                         }
                         break;
                     } catch (Throwable e) {
-                        LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
+                        LogUtils.d(TAG, "setCursorColor: " + e.getMessage());
                     }
                     editorClass = editorClass.getSuperclass(); //继续往上反射父亲
                 }
             } catch (Throwable e) {
-                LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
+                LogUtils.d(TAG, "setCursorColor: " + e.getMessage());
             }
         }
     }
+
+    public void refreshSoftInput() {
+        InputMethodManager imm = getInputMethodManager();
+        if (imm.isActive(this)) { // refresh the showing soft keyboard
+            try {
+                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                imm.restartInput(this);
+                imm.showSoftInput(this, 0, null);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "refreshSoftInput error", e);
+            }
+        }
+    }
+
+    public void setFontStyle(String style) {
+        if (TypeFaceUtil.TEXT_FONT_STYLE_ITALIC.equals(style) != mItalic) {
+            mItalic = !mItalic;
+            mShouldUpdateTypeface = true;
+        }
+    }
+
+    public void setFontFamily(String family) {
+        if (!Objects.equals(mFontFamily, family)) {
+            mFontFamily = family;
+            mShouldUpdateTypeface = true;
+        }
+    }
+
+    public void setFontWeight(String weight) {
+        if (!mFontWeight.equals(weight)) {
+            mFontWeight = weight;
+            mShouldUpdateTypeface = true;
+        }
+    }
+
+    private void updateTypeface() {
+        if (mTextPaint == null) {
+            mTextPaint = new Paint();
+        } else {
+            mTextPaint.reset();
+        }
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
+        FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();
+        TypeFaceUtil.apply(mTextPaint, mItalic, mFontWeight, mFontFamily, fontAdapter);
+        setTypeface(mTextPaint.getTypeface(), mTextPaint.isFakeBoldText() ? Typeface.BOLD : Typeface.NORMAL);
+    }
+
 }

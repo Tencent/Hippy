@@ -20,10 +20,13 @@
 
 #pragma once
 
+#if defined(__cplusplus)
+
 #include <cassert>
 #include <codecvt>
 #include <mutex>
 #include <sstream>
+#include <functional>
 
 #include "footstone/log_level.h"
 #include "footstone/macros.h"
@@ -54,15 +57,21 @@ inline std::ostream& operator<<(std::ostream& stream, const string_view& str_vie
     }
     case string_view::Encoding::Utf16: {
       const std::u16string& str = str_view.utf16_value();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
       std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
           kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
+#pragma clang diagnostic pop
       stream << convert.to_bytes(str);
       break;
     }
     case string_view::Encoding::Utf32: {
       const std::u32string& str = str_view.utf32_value();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
       std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
           kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
+#pragma clang diagnostic pop
       stream << convert.to_bytes(str);
       break;
     }
@@ -106,6 +115,30 @@ class LogMessage {
     delegate_ = delegate;
   }
 
+  inline static void LogWithFormat(const char * file, int line, const char *format, ...){
+    char *log_msg = NULL;
+    va_list args;
+    va_start(args, format);
+    int ret = vasprintf(&log_msg, format, args);
+    va_end(args);
+    
+    if (ret <= 0 && log_msg == NULL) {
+        return;
+    }
+    
+    std::ostringstream s;
+    s<<"["<<file<<":"<<line<<"]"
+     <<"[thread:"<<pthread_self()<<"], "<<log_msg<<std::endl;
+    
+    if (LogMessage::delegate_) {
+      delegate_(s, TDF_LOG_INFO);
+    } else {
+      default_delegate_(s, TDF_LOG_INFO);
+    }
+    
+    free(log_msg);
+  }
+    
   std::ostringstream& stream() { return stream_; }
 
  private:
@@ -186,3 +219,26 @@ bool ShouldCreateLogMessage(LogSeverity severity);
   do {                      \
     (void)(expr);           \
   } while (0)
+
+#endif
+
+
+#define HP_CSTR_NOT_NULL( p ) (p ? p : "")
+
+#ifdef DEBUG
+
+// enable perf log output in debug mode only
+#define TDF_PERF_LOG(format, ...) \
+footstone::LogMessage::LogWithFormat(__FILE_NAME__, __LINE__, "[HP PERF] " format,                                    \
+         ##__VA_ARGS__)
+
+#define TDF_PERF_DO_STMT_AND_LOG( STMT , format , ...)  STMT \
+footstone::LogMessage::LogWithFormat(__FILE_NAME__, __LINE__, "[HP PERF] " format,                                    \
+         ##__VA_ARGS__)
+
+#else
+
+#define TDF_PERF_LOG(format, ...)
+#define TDF_PERF_DO_STMT_AND_LOG(STMT , format, ...)
+
+#endif

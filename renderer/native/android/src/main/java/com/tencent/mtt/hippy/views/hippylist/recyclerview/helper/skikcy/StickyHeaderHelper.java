@@ -39,17 +39,18 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 public class StickyHeaderHelper extends OnScrollListener implements
         ViewTreeObserver.OnGlobalLayoutListener {
 
+    private static final String TAG = "StickyHeaderHelper";
     private static final int INVALID_POSITION = -1;
-    private final com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener headerAttachListener;
+    private IHeaderAttachListener headerAttachListener;
     private RecyclerViewBase recyclerView;
-    private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider stickyItemsProvider;
-    private StickyViewFactory stickyViewFactory;
+    private IHeaderHost headerHost;
+    private IStickyItemsProvider stickyItemsProvider;
+    private final StickyViewFactory stickyViewFactory;
     private ViewHolder headerOrgViewHolder;
     private boolean orgViewHolderCanRecyclable = false;
     private View currentHeaderView;
     private int orientation;
     private int currentStickPos = -1;
-    private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost headerHost;
     private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickViewListener stickViewListener;
     private boolean isUpdateStickyHolderWhenLayout;
 
@@ -58,9 +59,9 @@ public class StickyHeaderHelper extends OnScrollListener implements
             IHeaderAttachListener headerAttachListener, IHeaderHost headerHost) {
         this.recyclerView = recyclerView;
         this.headerAttachListener = headerAttachListener;
+        this.headerHost = headerHost;
         this.stickyItemsProvider = stickyItemsProvider;
         stickyViewFactory = new StickyViewFactory(recyclerView);
-        this.headerHost = headerHost;
         orientation = recyclerView.getLayoutManager().canScrollVertically() ? VERTICAL : HORIZONTAL;
     }
 
@@ -75,8 +76,12 @@ public class StickyHeaderHelper extends OnScrollListener implements
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         int newStickyPosition = getStickyItemPosition();
         if (currentStickPos != newStickyPosition) {
-            detachSticky();
-            attachSticky(newStickyPosition);
+            try {
+                detachSticky();
+                attachSticky(newStickyPosition);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "sticky handle error: " + e.getMessage());
+            }
         }
         offsetSticky();
     }
@@ -89,16 +94,26 @@ public class StickyHeaderHelper extends OnScrollListener implements
         isUpdateStickyHolderWhenLayout = bindStickyHolderWhenLayout;
     }
 
+    public void onDestroy() {
+        recyclerView = null;
+        headerAttachListener = null;
+        headerHost = null;
+        stickyItemsProvider = null;
+        currentHeaderView = null;
+    }
+
     /**
      * 如果当前stickHolder和新的stickyHolder 不一样，那么把当前的stickyHolder删除掉，并还原HeaderView的Translation
      */
     public void detachSticky() {
-        if (headerOrgViewHolder != null) {
+        if (headerOrgViewHolder != null && this.currentHeaderView != null) {
             removeViewFromParent(this.currentHeaderView);
             currentHeaderView.setTranslationY(0);
             currentHeaderView.setTranslationX(0);
             returnHeaderBackToList();
-            headerHost.removeOnLayoutListener(this);
+            if (headerHost != null) {
+                headerHost.removeOnLayoutListener(this);
+            }
             notifyStickDetached();
         }
         currentStickPos = -1;
@@ -118,16 +133,16 @@ public class StickyHeaderHelper extends OnScrollListener implements
      */
     private void returnHeaderBackToList() {
         headerOrgViewHolder.setIsRecyclable(orgViewHolderCanRecyclable);
-        if (headerAttachListener != null) {
+        if (headerAttachListener != null && currentHeaderView != null) {
             headerAttachListener.onHeaderDetached(headerOrgViewHolder, currentHeaderView);
-        } else {
+        } else if (recyclerView != null) {
             ViewHolder viewHolderToReturn = recyclerView
                     .findViewHolderForAdapterPosition(headerOrgViewHolder.getAdapterPosition());
             if (viewHolderToReturn != null && viewHolderToReturn.itemView instanceof ViewGroup) {
                 ViewGroup itemView = (ViewGroup) viewHolderToReturn.itemView;
                 //已经有孩子了，就不要加了，这个可能是新创建的ViewHolder已经有了内容
-                if (itemView.getChildCount() <= 0) {
-                    itemView.addView(this.currentHeaderView);
+                if (itemView.getChildCount() <= 0 && currentHeaderView != null) {
+                    itemView.addView(currentHeaderView);
                 }
             }
         }
@@ -137,7 +152,7 @@ public class StickyHeaderHelper extends OnScrollListener implements
      * 将stickyItemPosition对应的View挂载到RecyclerView的父亲上面
      */
     private void attachSticky(int newStickyPosition) {
-        if (newStickyPosition != INVALID_POSITION) {
+        if (newStickyPosition != INVALID_POSITION && headerHost != null) {
             headerOrgViewHolder = stickyViewFactory.getHeaderForPosition(newStickyPosition);
             currentStickPos = newStickyPosition;
             Log.d("returnHeader", "attachSticky:" + headerOrgViewHolder);
@@ -167,7 +182,7 @@ public class StickyHeaderHelper extends OnScrollListener implements
      * 设置吸顶的View的偏移 在下一个吸顶view和当前吸顶的view交汇的时候，需要把当前吸顶view往上面移动，慢慢会把当前的吸顶view顶出屏幕
      */
     private void offsetSticky() {
-        if (headerOrgViewHolder != null) {
+        if (headerOrgViewHolder != null && currentHeaderView != null) {
             float offset = getOffset(findNextSticky(currentStickPos));
             if (orientation == VERTICAL) {
                 currentHeaderView.setTranslationY(offset);
@@ -181,6 +196,9 @@ public class StickyHeaderHelper extends OnScrollListener implements
      * 找到屏幕中，下一个即将吸顶的view,主要用于计算当前吸顶的HeaderView的Offset， 下一个即将吸顶的View会慢慢把当前正在吸顶的HeaderView慢慢顶出屏幕外
      */
     private View findNextSticky(int currentStickyPos) {
+        if (recyclerView == null || stickyItemsProvider == null) {
+            return null;
+        }
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View nextStickyView = recyclerView.getChildAt(i);
             int nextStickyPos = recyclerView.getChildLayoutPosition(nextStickyView);
@@ -234,7 +252,7 @@ public class StickyHeaderHelper extends OnScrollListener implements
      * @return INVALID_POSITION，没有找到stickyItem
      */
     public int getStickyItemPosition() {
-        if (recyclerView.getChildCount() <= 0) {
+        if (recyclerView == null || stickyItemsProvider == null || recyclerView.getChildCount() <= 0) {
             return INVALID_POSITION;
         }
         int positionToSticky = INVALID_POSITION;
@@ -280,7 +298,7 @@ public class StickyHeaderHelper extends OnScrollListener implements
     }
 
     private void updateStickHolder() {
-        if (headerOrgViewHolder != null) {
+        if (headerOrgViewHolder != null && recyclerView != null) {
             recyclerView.getAdapter().onBindViewHolder(headerOrgViewHolder, currentStickPos);
         }
     }

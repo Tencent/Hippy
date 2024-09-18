@@ -18,8 +18,11 @@ package com.tencent.renderer.component.text;
 
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 
+import android.util.SparseArray;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -30,97 +33,162 @@ import java.util.Map;
 
 public class TypeFaceUtil {
 
+    public static final int WEIGHT_NORMAL = 400;
+    public static final int WEIGHT_BOLE = 700;
+    public static final String TEXT_FONT_STYLE_ITALIC = "italic";
+    public static final String TEXT_FONT_STYLE_BOLD = "bold";
+    public static final String TEXT_FONT_STYLE_NORMAL = "normal";
     private static final String TAG = "TypeFaceUtil";
     private static final String[] EXTENSIONS = {"", "_bold", "_italic", "_bold_italic"};
     private static final String[] FONT_EXTENSIONS = {".ttf", ".otf"};
     private static final String FONTS_PATH = "fonts/";
-    private static final Map<String, Typeface> sFontCache = new HashMap<>();
+    private static final Map<String, SparseArray<Typeface>> sFontCache = new HashMap<>();
 
+    /**
+     * @deprecated use {@link #getTypeface(String, String, boolean, FontAdapter)} instead
+     */
+    @Deprecated
     public static Typeface getTypeface(String fontFamilyName, int style,
             @Nullable FontAdapter fontAdapter) {
-        String cache = fontFamilyName + style;
-        Typeface typeface = sFontCache.get(cache);
+        boolean italic = (style & Typeface.ITALIC) != 0;
+        String weight = (style & Typeface.BOLD) != 0 ? TEXT_FONT_STYLE_BOLD : TEXT_FONT_STYLE_NORMAL;
+        return getTypeface(fontFamilyName, weight, italic, fontAdapter);
+    }
+
+    public static Typeface getTypeface(String fontFamilyName, String weight, boolean italic,
+            @Nullable FontAdapter fontAdapter) {
+        int weightNumber = getWeightNumber(weight);
+        final int style = toStyle(weight, weightNumber, italic);
+        Typeface typeface = (fontAdapter != null) ? fontAdapter.getCustomTypeface(fontFamilyName, style) : null;
         if (typeface == null) {
-            typeface = createTypeface(fontFamilyName, style, fontAdapter);
-        }
-        if (typeface != null) {
-            sFontCache.put(cache, typeface);
+            final int key = (weightNumber > 0) ? ((weightNumber << 1) | (italic ? 1 : 0)) : style;
+            SparseArray<Typeface> cache = sFontCache.get(fontFamilyName);
+            if (cache == null) {
+                cache = new SparseArray<>(4);
+                sFontCache.put(fontFamilyName, cache);
+            } else {
+                typeface = cache.get(key);
+            }
+            if (typeface == null) {
+                typeface = createTypeface(fontFamilyName, weightNumber, style, italic, fontAdapter);
+                if (typeface != null) {
+                    cache.put(key, typeface);
+                }
+            }
         }
         return typeface;
     }
 
-    private static Typeface createTypeface(String fontFamilyName, int style,
+    private static Typeface createTypeface(String fontFamilyName, int weightNumber, int style, boolean italic,
             @Nullable FontAdapter fontAdapter) {
-        Typeface typeface = null;
         final String extension = EXTENSIONS[style];
-        for (String fileExtension : FONT_EXTENSIONS) {
-            String fileName = FONTS_PATH + fontFamilyName + extension + fileExtension;
-            try {
-                typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
-                if (typeface != null) {
-                    return typeface;
-                }
-            } catch (Exception e) {
-                // If create type face from asset failed, other builder can also be used
-                LogUtils.w(TAG, e.getMessage());
-            }
-            if (style == Typeface.NORMAL) {
+        final String[] familyNameList;
+        if (fontFamilyName.indexOf(',') == -1) {
+            familyNameList = new String[]{fontFamilyName};
+        } else {
+            familyNameList = fontFamilyName.split("\\s*,\\s*");
+        }
+        for (String splitName : familyNameList) {
+            if (TextUtils.isEmpty(splitName)) {
                 continue;
             }
-            // try to load font file without extension
-            fileName = FONTS_PATH + fontFamilyName + fileExtension;
-            try {
-                typeface = Typeface.create(
-                        Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName), style);
-                if (typeface != null) {
-                    return typeface;
-                }
-            } catch (Exception e) {
-                LogUtils.w(TAG, e.getMessage());
-            }
-        }
-        if (typeface == null && fontAdapter != null) {
-            final String filePath = fontAdapter.getCustomFontFilePath(fontFamilyName, style);
-            if (!TextUtils.isEmpty(filePath)) {
+            for (String fileExtension : FONT_EXTENSIONS) {
+                String fileName = FONTS_PATH + splitName + extension + fileExtension;
                 try {
-                    typeface = Typeface.createFromFile(filePath);
+                    Typeface typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+                    if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
+                        return typeface;
+                    }
                 } catch (Exception e) {
-                    // If create type face from asset file, other builder can also be used
+                    // If create type face from asset failed, other builder can also be used
+                    LogUtils.w(TAG, e.getMessage());
+                }
+                if (style == Typeface.NORMAL) {
+                    continue;
+                }
+                // try to load font file without extension
+                fileName = FONTS_PATH + splitName + fileExtension;
+                try {
+                    Typeface typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+                    if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
+                        if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
+                            return Typeface.create(typeface, weightNumber, italic);
+                        }
+                        // "bold" has no effect on api level < P, prefer to use `Paint.setFakeBoldText(boolean)`
+                        return italic ? Typeface.create(typeface, Typeface.ITALIC) : typeface;
+                    }
+                } catch (Exception e) {
                     LogUtils.w(TAG, e.getMessage());
                 }
             }
+            if (fontAdapter != null) {
+                final String filePath = fontAdapter.getCustomFontFilePath(splitName, style);
+                if (!TextUtils.isEmpty(filePath)) {
+                    try {
+                        Typeface typeface = Typeface.createFromFile(filePath);
+                        if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
+                            return typeface;
+                        }
+                    } catch (Exception e) {
+                        // If create type face from asset file, other builder can also be used
+                        LogUtils.w(TAG, e.getMessage());
+                    }
+                }
+            }
         }
-        if (typeface == null) {
-            typeface = Typeface.create(fontFamilyName, style);
+        final Typeface systemDefault = Typeface.create(Typeface.DEFAULT, style);
+        for (String splitName : familyNameList) {
+            Typeface typeface = Typeface.create(splitName, style);
+            if (typeface != null && !typeface.equals(systemDefault)) {
+                if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
+                    return Typeface.create(typeface, weightNumber, italic);
+                }
+                return typeface;
+            }
         }
-        return typeface;
+        return (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) ?
+                Typeface.create(systemDefault, weightNumber, italic) : systemDefault;
     }
 
-    public static void apply(Paint paint, int style, int weight, String family,
+    private static int getWeightNumber(String weight) {
+        int weightNumber = 0;
+        try {
+            weightNumber = Math.min(Math.max(1, Integer.parseInt(weight)), 1000);
+        } catch (NumberFormatException ignored) {
+            // Weight supports setting non numeric strings
+        }
+        return weightNumber;
+    }
+
+    private static int toStyle(String weight, int weightNumber, boolean italic) {
+        if (weight.equals(TEXT_FONT_STYLE_NORMAL)) {
+            return italic ? Typeface.ITALIC : Typeface.NORMAL;
+        } else if (weight.equals(TEXT_FONT_STYLE_BOLD)) {
+            return italic ? Typeface.BOLD_ITALIC : Typeface.BOLD;
+        } else {
+            return weightNumber < WEIGHT_BOLE ?
+                    (italic ? Typeface.ITALIC : Typeface.NORMAL) :
+                    (italic ? Typeface.BOLD_ITALIC : Typeface.BOLD);
+        }
+    }
+
+    public static void apply(Paint paint, boolean italic, String weight, String familyName,
             @Nullable FontAdapter fontAdapter) {
-        int oldStyle;
-        Typeface typeface = paint.getTypeface();
-        if (typeface == null) {
-            oldStyle = 0;
+        Typeface typeface;
+        int weightNumber = getWeightNumber(weight);
+        if (TextUtils.isEmpty(familyName)) {
+            final Typeface base = paint.getTypeface();
+            if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
+                typeface = Typeface.create(base, weightNumber, italic);
+            } else {
+                typeface = Typeface.create(base, toStyle(weight, weightNumber, italic));
+            }
         } else {
-            oldStyle = typeface.getStyle();
+            typeface = getTypeface(familyName, weight, italic, fontAdapter);
         }
-        int want = 0;
-        if ((weight == Typeface.BOLD) || ((oldStyle & Typeface.BOLD) != 0)) {
-            want |= Typeface.BOLD;
+        if (weightNumber >= WEIGHT_BOLE && typeface != null && !typeface.isBold()) {
+            paint.setFakeBoldText(true);
         }
-        if ((style == Typeface.ITALIC) || ((oldStyle & Typeface.ITALIC) != 0)) {
-            want |= Typeface.ITALIC;
-        }
-        if (family != null) {
-            typeface = TypeFaceUtil.getTypeface(family, want, fontAdapter);
-        } else if (typeface != null) {
-            typeface = Typeface.create(typeface, want);
-        }
-        if (typeface != null) {
-            paint.setTypeface(typeface);
-        } else {
-            paint.setTypeface(Typeface.defaultFromStyle(want));
-        }
+        paint.setTypeface(typeface);
     }
 }

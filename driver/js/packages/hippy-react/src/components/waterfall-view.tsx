@@ -24,6 +24,7 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
+import { Device } from '../native';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import View from './view';
@@ -292,12 +293,25 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     if (typeof renderBanner === 'function') {
       const banner = renderBanner();
       if (banner) {
-        itemList.push((
-          <View key="bannerView">
-            {React.cloneElement(banner)}
-          </View>
-        ));
-        nativeProps.containBannerView = true;
+        if (Device.platform.OS === 'ios' || Device.platform.OS === 'ohos') {
+          itemList.push((
+            <View key="bannerView">
+              {React.cloneElement(banner)}
+            </View>
+          ));
+          nativeProps.containBannerView = true;
+        } else if (Device.platform.OS === 'android') {
+          const itemProps = {
+            key: 'bannerView',
+            fullSpan: true,
+            style: {},
+          };
+          itemList.push((
+            <WaterfallViewItem{...itemProps}>
+              {React.cloneElement(banner)}
+            </WaterfallViewItem>
+          ));
+        }
       }
     }
 

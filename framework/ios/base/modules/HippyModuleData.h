@@ -22,13 +22,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HPInvalidating.h"
+#import "HippyInvalidating.h"
 
 @protocol HippyBridgeMethod;
 @protocol HippyBridgeModule;
 @class HippyBridge;
 
-@interface HippyModuleData : NSObject <HPInvalidating>
+@interface HippyModuleData : NSObject <HippyInvalidating>
 
 - (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge;
 
@@ -49,9 +49,11 @@
  * Returns the module methods. Note that this will gather the methods the first
  * time it is called and then memoize the results.
  */
-@property (nonatomic, copy, readonly) NSArray<id<HippyBridgeMethod>> *methods;
+@property (nonatomic, readonly) NSArray<id<HippyBridgeMethod>> *methods;
 
-@property (nonatomic, copy, readonly) NSDictionary<NSString *, id<HippyBridgeMethod>> *methodsByName;
+///  Returns the module methods by name. Note that this will gather the methods the first
+///  time it is called and then memoize the results.
+@property (nonatomic, readonly) NSDictionary<NSString *, id<HippyBridgeMethod>> *methodsByName;
 
 /**
  * Returns YES if module instance has already been initialized; NO otherwise.

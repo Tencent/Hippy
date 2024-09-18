@@ -31,6 +31,8 @@ export function registerDialog(): void {
         transparent: true,
         immersionStatusBar: true,
         collapsable: false,
+        autoHideStatusBar: false,
+        autoHideNavigationBar: false,
       },
       defaultNativeStyle: {
         position: 'absolute',

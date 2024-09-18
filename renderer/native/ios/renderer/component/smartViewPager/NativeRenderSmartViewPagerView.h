@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,24 +21,24 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderComponentProtocol.h"
-#import "NativeRenderListTableView.h"
-#import "NativeRenderWaterfallView.h"
+#import "HippyComponent.h"
+#import "HippyNextListTableView.h"
+#import "HippyWaterfallView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class NativeRenderBaseListViewCell;
+@class HippyNextBaseListViewCell;
 
-@interface NativeRenderSmartViewPagerView : NativeRenderWaterfallView <NativeRenderListTableViewLayoutProtocol>
+@interface NativeRenderSmartViewPagerView : HippyWaterfallView <HippyNextListTableViewLayoutProtocol>
 
 /**
- * NativeRender events
+ * Hippy events
  */
-@property(nonatomic, copy) NativeRenderDirectEventBlock initialListReady;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onScrollBeginDrag;
-@property(nonatomic, copy) NativeRenderDirectEventBlock onScrollEndDrag;
-@property(nonatomic, strong) NativeRenderDirectEventBlock onPageSelected;
-@property(nonatomic, strong) NativeRenderDirectEventBlock onPageScrollStateChanged;
+@property(nonatomic, copy) HippyDirectEventBlock initialListReady;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
+@property(nonatomic, strong) HippyDirectEventBlock onPageSelected;
+@property(nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
 
 /**
  *  Indicate view pager view scroll circule, default is NO

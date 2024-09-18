@@ -28,10 +28,8 @@ import type {
   CallbackType,
   NativeNodeProps,
 } from '../types';
-import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
+import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD, HIPPY_UNIQUE_ID_KEY } from '../config';
 import { type HippyElement } from '../runtime/element/hippy-element';
-
-let uniqueId = 0;
 
 let isSilent = false;
 let isNeedTrimWhitespace = true;
@@ -40,13 +38,18 @@ let isNeedTrimWhitespace = true;
 export const DEFAULT_ROOT_ID = 1;
 
 export function getUniqueId(): number {
-  uniqueId += 1;
+  if (!global[HIPPY_UNIQUE_ID_KEY]) global[HIPPY_UNIQUE_ID_KEY] = 0;
+  global[HIPPY_UNIQUE_ID_KEY] += 1;
+
   // The id does not use numbers that are multiples of 10
   // because id multiples of 10 is used by native
-  if (uniqueId % 10 === 0) {
-    uniqueId += 1;
+  if (global[HIPPY_UNIQUE_ID_KEY] % 10 === 0) {
+    global[HIPPY_UNIQUE_ID_KEY] += 1;
   }
-  return uniqueId;
+  // Because of the existence of SSR nodes, the unique ID needs to take into account
+  // the unique node id that SSR has created. Subsequent unique IDs should be added
+  // on this basis, so global IDs are used for management
+  return global[HIPPY_UNIQUE_ID_KEY];
 }
 
 export function isTraceEnabled() {
@@ -409,3 +412,11 @@ export function whitespaceFilter(str: string | any): string {
   return str;
 }
 
+/**
+ * transform css class string to class array
+ *
+ * @param className
+ */
+export function getStyleClassList(className: string): Array<string> {
+  return className.split(' ').filter(c => c.trim());
+}

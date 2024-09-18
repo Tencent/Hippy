@@ -22,8 +22,8 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "HPAsserts.h"
-#import "HPLog.h"
+#import "HippyAssert.h"
+#import "HippyLog.h"
 #import "HippySRSIMDHelpers.h"
 
 typedef NS_ENUM(NSInteger, HippySROpCode) {
@@ -50,7 +50,7 @@ static NSString *const HippySRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47
 
 //#define HippySR_ENABLE_LOG
 #ifdef HippySR_ENABLE_LOG
-#define HippySRLog(format...) HPLogInfo(format)
+#define HippySRLog(format...) HippyLogInfo(format)
 #else
 #define HippySRLog(...) \
     do {                \
@@ -111,14 +111,14 @@ static NSString *newSHA1String(const char *bytes, size_t length) {
 
 @implementation NSData (HippySRWebSocket)
 
-- (NSString *)stringBySHA1ThenBase64Encoding;
+- (NSString *)stringBySHA1ThenBase64Encoding
 { return newSHA1String(self.bytes, self.length); }
 
 @end
 
 @implementation NSString (HippySRWebSocket)
 
-- (NSString *)stringBySHA1ThenBase64Encoding;
+- (NSString *)stringBySHA1ThenBase64Encoding
 { return newSHA1String(self.UTF8String, self.length); }
 
 @end
@@ -253,11 +253,11 @@ typedef void (^data_callback)(HippySRWebSocket *webSocket, NSData *data);
 
 static __strong NSData *CRLFCRLF;
 
-+ (void)initialize;
++ (void)initialize
 { CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4]; }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols {
-    HPAssertParam(request);
+    HippyAssertParam(request);
 
     if ((self = [super init])) {
         _url = request.URL;
@@ -270,13 +270,13 @@ static __strong NSData *CRLFCRLF;
     return self;
 }
 
-- (instancetype)initWithURLRequest:(NSURLRequest *)request;
+- (instancetype)initWithURLRequest:(NSURLRequest *)request
 { return [self initWithURLRequest:request protocols:nil]; }
 
-- (instancetype)initWithURL:(NSURL *)URL;
+- (instancetype)initWithURL:(NSURL *)URL
 { return [self initWithURL:URL protocols:nil]; }
 
-- (instancetype)initWithURL:(NSURL *)URL protocols:(NSArray<NSString *> *)protocols;
+- (instancetype)initWithURL:(NSURL *)URL protocols:(NSArray<NSString *> *)protocols
 {
     NSMutableURLRequest *request;
     if (URL) {
@@ -298,7 +298,7 @@ static __strong NSData *CRLFCRLF;
     return [self initWithURLRequest:request protocols:protocols];
 }
 
-- (void)_HippySR_commonInit;
+- (void)_HippySR_commonInit
 {
     NSString *scheme = _url.scheme.lowercaseString;
     assert(
@@ -334,7 +334,7 @@ static __strong NSData *CRLFCRLF;
     // default handlers
 }
 
-- (void)assertOnWorkQueue;
+- (void)assertOnWorkQueue
 { assert(dispatch_get_specific((__bridge void *)self) == (__bridge void *)_workQueue); }
 
 - (void)dealloc {
@@ -358,7 +358,7 @@ static __strong NSData *CRLFCRLF;
 
 #ifndef NDEBUG
 
-- (void)setReadyState:(HippySRReadyState)aReadyState;
+- (void)setReadyState:(HippySRReadyState)aReadyState
 {
     [self willChangeValueForKey:@"readyState"];
     assert(aReadyState > _readyState);
@@ -368,10 +368,10 @@ static __strong NSData *CRLFCRLF;
 
 #endif
 
-- (void)open;
+- (void)open
 {
     assert(_url);
-    HPAssert(_readyState == HippySR_CONNECTING, @"Cannot call -(void)open on HippySRWebSocket more than once");
+    HippyAssert(_readyState == HippySR_CONNECTING, @"Cannot call -(void)open on HippySRWebSocket more than once");
 
     _selfRetain = self;
 
@@ -379,7 +379,7 @@ static __strong NSData *CRLFCRLF;
 }
 
 // Calls block on delegate queue
-- (void)_performDelegateBlock:(dispatch_block_t)block;
+- (void)_performDelegateBlock:(dispatch_block_t)block
 {
     if (_delegateOperationQueue) {
         [_delegateOperationQueue addOperationWithBlock:block];
@@ -389,10 +389,10 @@ static __strong NSData *CRLFCRLF;
     }
 }
 
-- (void)setDelegateDispatchQueue:(dispatch_queue_t)queue;
+- (void)setDelegateDispatchQueue:(dispatch_queue_t)queue
 { _delegateDispatchQueue = queue; }
 
-- (BOOL)_checkHandshake:(CFHTTPMessageRef)httpMessage;
+- (BOOL)_checkHandshake:(CFHTTPMessageRef)httpMessage
 {
     NSString *acceptHeader = CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(httpMessage, CFSTR("Sec-WebSocket-Accept")));
 
@@ -406,7 +406,7 @@ static __strong NSData *CRLFCRLF;
     return [acceptHeader isEqualToString:expectedAccept];
 }
 
-- (void)_HTTPHeadersDidFinish;
+- (void)_HTTPHeadersDidFinish
 {
     NSInteger responseCode = CFHTTPMessageGetResponseStatusCode(_receivedHTTPHeaders);
 
@@ -454,7 +454,7 @@ static __strong NSData *CRLFCRLF;
     }];
 }
 
-- (void)_readHTTPHeader;
+- (void)_readHTTPHeader
 {
     if (_receivedHTTPHeaders == NULL) {
         _receivedHTTPHeaders = CFHTTPMessageCreateEmpty(NULL, NO);
@@ -481,7 +481,7 @@ static __strong NSData *CRLFCRLF;
         request, CFSTR("Host"), (__bridge CFStringRef)(_url.port ? [NSString stringWithFormat:@"%@:%@", _url.host, _url.port] : _url.host));
 
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+    __unused int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
     assert(result == 0);
     _secKey = [keyBytes base64EncodedStringWithOptions:0];
     assert([_secKey length] == 24);
@@ -511,7 +511,7 @@ static __strong NSData *CRLFCRLF;
     [self _readHTTPHeader];
 }
 
-- (void)_initializeStreams;
+- (void)_initializeStreams
 {
     assert(_url.port.unsignedIntValue <= UINT32_MAX);
     uint32_t port = _url.port.unsignedIntValue;
@@ -553,7 +553,7 @@ static __strong NSData *CRLFCRLF;
     _outputStream.delegate = self;
 }
 
-- (void)_connect;
+- (void)_connect
 {
     if (!_scheduledRunloops.count) {
         [self scheduleInRunLoop:[NSRunLoop HippySR_networkRunLoop] forMode:NSDefaultRunLoopMode];
@@ -563,7 +563,7 @@ static __strong NSData *CRLFCRLF;
     [_inputStream open];
 }
 
-- (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
+- (void)scheduleInRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode
 {
     [_outputStream scheduleInRunLoop:aRunLoop forMode:mode];
     [_inputStream scheduleInRunLoop:aRunLoop forMode:mode];
@@ -571,7 +571,7 @@ static __strong NSData *CRLFCRLF;
     [_scheduledRunloops addObject:@[aRunLoop, mode]];
 }
 
-- (void)unscheduleFromRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode;
+- (void)unscheduleFromRunLoop:(NSRunLoop *)aRunLoop forMode:(NSString *)mode
 {
     [_outputStream removeFromRunLoop:aRunLoop forMode:mode];
     [_inputStream removeFromRunLoop:aRunLoop forMode:mode];
@@ -583,7 +583,7 @@ static __strong NSData *CRLFCRLF;
     [self closeWithCode:HippySRStatusCodeNormal reason:nil];
 }
 
-- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason
 {
     dispatch_async(_workQueue, ^{
         if (self.readyState == HippySR_CLOSING || self.readyState == HippySR_CLOSED) {
@@ -611,13 +611,13 @@ static __strong NSData *CRLFCRLF;
             NSRange remainingRange = { 0 };
 
             NSUInteger usedLength = 0;
-
-            BOOL success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t)
-                                 usedLength:&usedLength
-                                   encoding:NSUTF8StringEncoding
-                                    options:NSStringEncodingConversionExternalRepresentation
-                                      range:NSMakeRange(0, reason.length)
-                             remainingRange:&remainingRange];
+            __unused BOOL success;
+            success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t)
+                            usedLength:&usedLength
+                              encoding:NSUTF8StringEncoding
+                               options:NSStringEncodingConversionExternalRepresentation
+                                 range:NSMakeRange(0, reason.length)
+                        remainingRange:&remainingRange];
 
             assert(success);
             assert(remainingRange.length == 0);
@@ -631,7 +631,7 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
-- (void)_closeWithProtocolError:(NSString *)message;
+- (void)_closeWithProtocolError:(NSString *)message
 {
     // Need to shunt this on the _callbackQueue first to see if they received any messages
     [self _performDelegateBlock:^{
@@ -642,7 +642,7 @@ static __strong NSData *CRLFCRLF;
     }];
 }
 
-- (void)_failWithError:(NSError *)error;
+- (void)_failWithError:(NSError *)error
 {
     dispatch_async(_workQueue, ^{
         if (self.readyState != HippySR_CLOSED) {
@@ -663,7 +663,7 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
-- (void)_writeData:(NSData *)data;
+- (void)_writeData:(NSData *)data
 {
     [self assertOnWorkQueue];
 
@@ -674,9 +674,9 @@ static __strong NSData *CRLFCRLF;
     [self _pumpWriting];
 }
 
-- (void)send:(id)data;
+- (void)send:(id)data
 {
-    HPAssert(self.readyState != HippySR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    HippyAssert(self.readyState != HippySR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy];
     dispatch_async(_workQueue, ^{
@@ -692,9 +692,9 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
-- (void)sendPing:(NSData *)data;
+- (void)sendPing:(NSData *)data
 {
-    HPAssert(self.readyState == HippySR_OPEN, @"Invalid State: Cannot call send: until connection is open");
+    HippyAssert(self.readyState == HippySR_OPEN, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy] ?: [NSData data];  // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{
@@ -702,7 +702,7 @@ static __strong NSData *CRLFCRLF;
     });
 }
 
-- (void)handlePing:(NSData *)pingData;
+- (void)handlePing:(NSData *)pingData
 {
     // Need to pingpong this off _callbackQueue first to make sure messages happen in order
     [self _performDelegateBlock:^{
@@ -712,7 +712,7 @@ static __strong NSData *CRLFCRLF;
     }];
 }
 
-- (void)handlePong:(NSData *)pongData;
+- (void)handlePong:(NSData *)pongData
 {
     HippySRLog(@"Received pong");
     [self _performDelegateBlock:^{
@@ -761,7 +761,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 //  encoded data with value /reason/, the interpretation of which is not
 //  defined by this specification.
 
-- (void)handleCloseWithData:(NSData *)data;
+- (void)handleCloseWithData:(NSData *)data
 {
     size_t dataSize = data.length;
     __block uint16_t closeCode = 0;
@@ -800,7 +800,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     });
 }
 
-- (void)_disconnect;
+- (void)_disconnect
 {
     [self assertOnWorkQueue];
     HippySRLog(@"Trying to disconnect");
@@ -808,7 +808,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     [self _pumpWriting];
 }
 
-- (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode;
+- (void)_handleFrameWithData:(NSData *)frameData opCode:(NSInteger)opcode
 {
     // Check that the current data is valid UTF8
 
@@ -854,7 +854,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     }
 }
 
-- (void)_handleFrameHeader:(frame_header)frame_header curData:(NSData *)curData;
+- (void)_handleFrameHeader:(frame_header)frame_header curData:(NSData *)curData
 {
     assert(frame_header.opcode != 0);
 
@@ -936,7 +936,7 @@ static const uint8_t HippySRRsvMask = 0x70;
 static const uint8_t HippySRMaskMask = 0x80;
 static const uint8_t HippySRPayloadLenMask = 0x7F;
 
-- (void)_readFrameContinue;
+- (void)_readFrameContinue
 {
     assert((_currentFrameCount == 0 && _currentFrameOpcode == 0) || (_currentFrameCount > 0 && _currentFrameOpcode > 0));
 
@@ -991,7 +991,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
             [socket _handleFrameHeader:header curData:socket->_currentFrameData];
         } else {
             [socket _addConsumerWithDataLength:extra_bytes_needed callback:^(HippySRWebSocket *_socket, NSData *_data) {
-                size_t mapped_size = _data.length;
+                __unused size_t mapped_size = _data.length;
                 const void *mapped_buffer = _data.bytes;
                 size_t offset = 0;
 
@@ -1019,7 +1019,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
     } readToCurrentFrame:NO unmaskBytes:NO];
 }
 
-- (void)_readFrameNew;
+- (void)_readFrameNew
 {
     dispatch_async(_workQueue, ^{
         self->_currentFrameData.length = 0;
@@ -1033,7 +1033,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
     });
 }
 
-- (void)_pumpWriting;
+- (void)_pumpWriting
 {
     [self assertOnWorkQueue];
 
@@ -1078,7 +1078,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
     }
 }
 
-- (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback;
+- (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback
 {
     [self assertOnWorkQueue];
     [self _addConsumerWithScanner:consumer callback:callback dataLength:0];
@@ -1087,7 +1087,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
 - (void)_addConsumerWithDataLength:(size_t)dataLength
                           callback:(data_callback)callback
                 readToCurrentFrame:(BOOL)readToCurrentFrame
-                       unmaskBytes:(BOOL)unmaskBytes;
+                       unmaskBytes:(BOOL)unmaskBytes
 {
     [self assertOnWorkQueue];
     assert(dataLength);
@@ -1097,7 +1097,7 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
     [self _pumpScanner];
 }
 
-- (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback dataLength:(size_t)dataLength;
+- (void)_addConsumerWithScanner:(stream_scanner)consumer callback:(data_callback)callback dataLength:(size_t)dataLength
 {
     [self assertOnWorkQueue];
     [_consumers addObject:[_consumerPool consumerWithScanner:consumer handler:callback bytesNeeded:dataLength readToCurrentFrame:NO unmaskBytes:NO]];
@@ -1106,10 +1106,10 @@ static const uint8_t HippySRPayloadLenMask = 0x7F;
 
 static const char CRLFCRLFBytes[] = { '\r', '\n', '\r', '\n' };
 
-- (void)_readUntilHeaderCompleteWithCallback:(data_callback)dataHandler;
+- (void)_readUntilHeaderCompleteWithCallback:(data_callback)dataHandler
 { [self _readUntilBytes:CRLFCRLFBytes length:sizeof(CRLFCRLFBytes) callback:dataHandler]; }
 
-- (void)_readUntilBytes:(const void *)bytes length:(size_t)length callback:(data_callback)dataHandler;
+- (void)_readUntilBytes:(const void *)bytes length:(size_t)length callback:(data_callback)dataHandler
 {
     // TODO: optimize so this can continue from where we last searched
     stream_scanner consumer = ^size_t(NSData *data) {
@@ -1242,7 +1242,7 @@ static const char CRLFCRLFBytes[] = { '\r', '\n', '\r', '\n' };
     return didWork;
 }
 
-- (void)_pumpScanner;
+- (void)_pumpScanner
 {
     [self assertOnWorkQueue];
 
@@ -1262,7 +1262,7 @@ static const char CRLFCRLFBytes[] = { '\r', '\n', '\r', '\n' };
 
 static const size_t HippySRFrameHeaderOverhead = 32;
 
-- (void)_sendFrameWithOpcode:(HippySROpCode)opCode data:(id)data;
+- (void)_sendFrameWithOpcode:(HippySROpCode)opCode data:(id)data
 {
     [self assertOnWorkQueue];
 
@@ -1333,7 +1333,7 @@ static const size_t HippySRFrameHeaderOverhead = 32;
     [self _writeData:frameData];
 }
 
-- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
+- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode
 {
     if (_secure && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
         NSArray *sslCerts = _urlRequest.HippySR_SSLPinnedCertificates;
@@ -1466,7 +1466,7 @@ static const size_t HippySRFrameHeaderOverhead = 32;
                  handler:(data_callback)handler
              bytesNeeded:(size_t)bytesNeeded
       readToCurrentFrame:(BOOL)readToCurrentFrame
-             unmaskBytes:(BOOL)unmaskBytes;
+             unmaskBytes:(BOOL)unmaskBytes
 {
     _consumer = [scanner copy];
     _handler = [handler copy];
@@ -1483,7 +1483,7 @@ static const size_t HippySRFrameHeaderOverhead = 32;
     NSMutableArray<HippySRIOConsumer *> *_bufferedConsumers;
 }
 
-- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize
 {
     if ((self = [super init])) {
         _poolSize = poolSize;
@@ -1500,7 +1500,7 @@ static const size_t HippySRFrameHeaderOverhead = 32;
                                    handler:(data_callback)handler
                                bytesNeeded:(size_t)bytesNeeded
                         readToCurrentFrame:(BOOL)readToCurrentFrame
-                               unmaskBytes:(BOOL)unmaskBytes;
+                               unmaskBytes:(BOOL)unmaskBytes
 {
     HippySRIOConsumer *consumer = nil;
     if (_bufferedConsumers.count) {
@@ -1515,7 +1515,7 @@ static const size_t HippySRFrameHeaderOverhead = 32;
     return consumer;
 }
 
-- (void)returnConsumer:(HippySRIOConsumer *)consumer;
+- (void)returnConsumer:(HippySRIOConsumer *)consumer
 {
     if (_bufferedConsumers.count < _poolSize) {
         [_bufferedConsumers addObject:consumer];
@@ -1526,24 +1526,24 @@ static const size_t HippySRFrameHeaderOverhead = 32;
 
 @implementation NSURLRequest (CertificateAdditions)
 
-- (NSArray *)HippySR_SSLPinnedCertificates;
+- (NSArray *)HippySR_SSLPinnedCertificates
 { return [NSURLProtocol propertyForKey:@"HippySR_SSLPinnedCertificates" inRequest:self]; }
 
 @end
 
 @implementation NSMutableURLRequest (CertificateAdditions)
 
-- (NSArray *)HippySR_SSLPinnedCertificates;
+- (NSArray *)HippySR_SSLPinnedCertificates
 { return [NSURLProtocol propertyForKey:@"HippySR_SSLPinnedCertificates" inRequest:self]; }
 
-- (void)setHippySR_SSLPinnedCertificates:(NSArray *)HippySR_SSLPinnedCertificates;
+- (void)setHippySR_SSLPinnedCertificates:(NSArray *)HippySR_SSLPinnedCertificates
 { [NSURLProtocol setProperty:HippySR_SSLPinnedCertificates forKey:@"HippySR_SSLPinnedCertificates" inRequest:self]; }
 
 @end
 
 @implementation NSURL (HippySRWebSocket)
 
-- (NSString *)HippySR_origin;
+- (NSString *)HippySR_origin
 {
     NSString *scheme = self.scheme.lowercaseString;
 
@@ -1597,7 +1597,7 @@ static NSRunLoop *networkRunLoop = nil;
     return self;
 }
 
-- (void)main;
+- (void)main
 {
     @autoreleasepool {
         _runLoop = [NSRunLoop currentRunLoop];
@@ -1617,7 +1617,7 @@ static NSRunLoop *networkRunLoop = nil;
     // Does nothing
 }
 
-- (NSRunLoop *)runLoop;
+- (NSRunLoop *)runLoop
 {
     dispatch_group_wait(_waitGroup, DISPATCH_TIME_FOREVER);
     return _runLoop;

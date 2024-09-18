@@ -16,7 +16,10 @@
 
 package com.tencent.renderer.component.text;
 
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_END;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_ERROR;
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_PROGRESS;
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_START;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_ON_LOAD;
 
 import android.annotation.SuppressLint;
@@ -48,11 +51,11 @@ import com.tencent.renderer.component.image.ImageDataSupplier;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.image.ImageRequestListener;
 import com.tencent.renderer.node.ImageVirtualNode;
-import com.tencent.renderer.node.TextVirtualNode;
+import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.utils.EventUtils.EventType;
-import com.tencent.vfs.UrlUtils;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 public class TextImageSpan extends ImageSpan {
 
@@ -88,13 +91,14 @@ public class TextImageSpan extends ImageSpan {
     private Movie mGifMovie;
     @Deprecated
     @Nullable
-    private LegacyIAlignConfig mAlignConfig;
+    private final LegacyIAlignConfig mAlignConfig;
     @Nullable
     private Paint mGifPaint;
     private float mHeightRate = 0;
     @Nullable
     private Paint mBackgroundPaint = null;
     private int mTintColor;
+    private final int mAlpha;
 
     public TextImageSpan(Drawable drawable, String source, @NonNull ImageVirtualNode node,
             @NonNull NativeRender nativeRenderer) {
@@ -120,12 +124,24 @@ public class TextImageSpan extends ImageSpan {
             mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mBackgroundPaint.setColor(node.getBackgroundColor());
         }
+        // multiple alpha bits (0xFF) to convert opacity into alpha
+        mAlpha = Math.round(node.getFinalOpacity() * 255);
         setUrl(source);
     }
 
     public void setUrl(@Nullable final String url) {
-        if (!TextUtils.isEmpty(url)) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        if (UIThreadUtils.isOnUiThread()) {
             loadImageWithUrl(url);
+        } else {
+            UIThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadImageWithUrl(url);
+                }
+            });
         }
     }
 
@@ -161,11 +177,12 @@ public class TextImageSpan extends ImageSpan {
             return super.getSize(paint, text, start, end, fm);
         }
         Drawable drawable = getDrawable();
+        assert mAlignConfig != null;
         return mAlignConfig.getSize(paint, text, start, end, fm, drawable);
     }
 
-    public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
-            int bottom, Paint paint) {
+    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
+            int bottom, @NonNull Paint paint) {
         if (mUseLegacy) {
             legacyDraw(canvas, text, start, end, x, top, y, bottom, paint);
             return;
@@ -173,26 +190,29 @@ public class TextImageSpan extends ImageSpan {
         if (mMeasuredWidth == 0 || mMeasuredHeight == 0) {
             return;
         }
-        canvas.save();
+        int count = canvas.save();
         int transY;
         assert mVerticalAlign != null;
         switch (mVerticalAlign) {
-            case TextVirtualNode.V_ALIGN_TOP:
+            case VirtualNode.V_ALIGN_TOP:
                 transY = top + mMarginTop;
                 break;
-            case TextVirtualNode.V_ALIGN_MIDDLE:
+            case VirtualNode.V_ALIGN_MIDDLE:
                 transY = top + (bottom - top) / 2 - mMeasuredHeight / 2;
                 break;
-            case TextVirtualNode.V_ALIGN_BOTTOM:
+            case VirtualNode.V_ALIGN_BOTTOM:
                 transY = bottom - mMeasuredHeight - mMarginBottom;
                 break;
-            case TextVirtualNode.V_ALIGN_BASELINE:
+            case VirtualNode.V_ALIGN_BASELINE:
             default:
                 transY = y - mMeasuredHeight - mMarginBottom;
                 break;
         }
 
         canvas.translate(x + mMarginLeft, transY);
+        if (mAlpha < 255) {
+            canvas.saveLayerAlpha(0, 0, mMeasuredWidth, mMeasuredHeight, mAlpha);
+        }
         if (mBackgroundPaint != null) {
             canvas.drawRect(0, 0, mMeasuredWidth, mMeasuredHeight, mBackgroundPaint);
         }
@@ -211,7 +231,7 @@ public class TextImageSpan extends ImageSpan {
             canvas.scale(scaleX, scaleY, 0, 0);
             drawable.draw(canvas);
         }
-        canvas.restore();
+        canvas.restoreToCount(count);
     }
 
     private void legacyDraw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
@@ -225,6 +245,7 @@ public class TextImageSpan extends ImageSpan {
             legacyDrawGIF(canvas, x + mLeft, transY + mTop, width, height);
         } else {
             Drawable drawable = getDrawable();
+            assert mAlignConfig != null;
             mAlignConfig.draw(canvas, text, start, end, x, top, y, bottom, paint, drawable, mBackgroundPaint);
         }
     }
@@ -233,6 +254,7 @@ public class TextImageSpan extends ImageSpan {
     @SuppressWarnings("unused")
     public void setDesiredSize(int width, int height) {
         if (mUseLegacy) {
+            assert mAlignConfig != null;
             mAlignConfig.setDesiredSize(width, height);
         }
     }
@@ -241,6 +263,7 @@ public class TextImageSpan extends ImageSpan {
     public void setActiveSizeWithRate(float heightRate) {
         mHeightRate = heightRate;
         if (mUseLegacy) {
+            assert mAlignConfig != null;
             mAlignConfig.setActiveSizeWithRate(heightRate);
         }
     }
@@ -249,39 +272,40 @@ public class TextImageSpan extends ImageSpan {
     @SuppressWarnings("unused")
     public void setMargin(int marginLeft, int marginRight) {
         if (mUseLegacy) {
+            assert mAlignConfig != null;
             mAlignConfig.setMargin(marginLeft, marginRight);
         }
     }
 
-    protected boolean shouldUseFetchImageMode(String url) {
-        return UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url);
-    }
-
     @MainThread
     private void loadImageWithUrl(@NonNull final String url) {
-        NativeRender nativeRender = mNativeRendererRef.get();
-        ImageLoaderAdapter imageLoader = nativeRender != null ? nativeRender.getImageLoader() : null;
+        final NativeRender nativeRenderer = mNativeRendererRef.get();
+        final ImageLoaderAdapter imageLoader = nativeRenderer != null ? nativeRenderer.getImageLoader() : null;
         if (mImageLoadState == STATE_LOADING || imageLoader == null) {
             return;
         }
+        nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_START, null, false, false,
+                EventType.EVENT_TYPE_COMPONENT);
         mImageLoadState = STATE_LOADING;
         imageLoader.fetchImageAsync(url, new ImageRequestListener() {
             @Override
             public void onRequestStart(ImageDataSupplier imageData) {
+                handleFetchImageStart();
             }
 
             @Override
             public void onRequestProgress(long total, long loaded) {
+                handleFetchImageProgress(total, loaded);
             }
 
             @Override
             public void onRequestSuccess(final ImageDataSupplier imageData) {
-                handleFetchImageResult(imageData);
+                handleFetchImageResult(url, imageData, null);
             }
 
             @Override
             public void onRequestFail(Throwable throwable) {
-                handleFetchImageResult(null);
+                handleFetchImageResult(url, null, throwable);
             }
         }, null, mWidth, mHeight);
     }
@@ -405,23 +429,74 @@ public class TextImageSpan extends ImageSpan {
         postInvalidateDelayed(0);
     }
 
-    private void handleFetchImageResult(@Nullable final ImageDataSupplier imageHolder) {
-        String eventName;
+    private void handleFetchImageStart() {
+        NativeRender nativeRenderer = mNativeRendererRef.get();
+        if (nativeRenderer != null) {
+            // send onLoadStart event
+            nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_START, null, false, false,
+                    EventType.EVENT_TYPE_COMPONENT);
+        }
+    }
+
+    private void handleFetchImageProgress(float total, float loaded) {
+        NativeRender nativeRenderer = mNativeRendererRef.get();
+        if (nativeRenderer != null) {
+            // send onProgress event
+            HashMap<String, Object> onProgress = new HashMap<>();
+            onProgress.put("loaded", loaded);
+            onProgress.put("total", total);
+            nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_PROGRESS, onProgress, false, false,
+                    EventType.EVENT_TYPE_COMPONENT);
+        }
+    }
+
+    private void handleFetchImageResult(@NonNull final String url, @Nullable final ImageDataSupplier imageHolder,
+            final @Nullable Throwable throwable) {
+        NativeRender nativeRenderer = mNativeRendererRef.get();
         if (imageHolder == null || !imageHolder.checkImageData()) {
             mImageLoadState = STATE_UNLOAD;
-            eventName = EVENT_IMAGE_LOAD_ERROR;
+            if (nativeRenderer != null) {
+                // send onError event
+                HashMap<String, Object> onError = new HashMap<>();
+                onError.put("error", String.valueOf(throwable));
+                onError.put("errorCode", -1);
+                onError.put("errorURL", url);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_ERROR, onError, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+                // send onLoadEnd event
+                HashMap<String, Object> onLoadEnd = new HashMap<>();
+                onLoadEnd.put("url", url);
+                onLoadEnd.put("success", 0);
+                onLoadEnd.put("error", String.valueOf(throwable));
+                onLoadEnd.put("errorCode", -1);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_END, onLoadEnd, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+            }
         } else {
             if (imageHolder instanceof ImageDataHolder) {
                 shouldReplaceDrawable((ImageDataHolder) imageHolder);
             }
             mImageLoadState = STATE_LOADED;
-            eventName = EVENT_IMAGE_ON_LOAD;
-        }
-        NativeRender nativeRender = mNativeRendererRef.get();
-        if (nativeRender != null) {
-            nativeRender.dispatchEvent(mRootId, mId, eventName, null, false, false,
-                    EventType.EVENT_TYPE_COMPONENT);
-        }
+            if (nativeRenderer != null) {
+                int width = imageHolder.getImageWidth();
+                int height = imageHolder.getImageHeight();
+                // send onLoad event
+                HashMap<String, Object> onLoad = new HashMap<>();
+                onLoad.put("width", width);
+                onLoad.put("height", height);
+                onLoad.put("url", url);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_ON_LOAD, onLoad, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+                // send onLoadEnd event
+                HashMap<String, Object> onLoadEnd = new HashMap<>();
+                onLoadEnd.put("success", 1);
+                onLoadEnd.put("width", width);
+                onLoadEnd.put("height", height);
+                onLoadEnd.put("url", url);
+                nativeRenderer.dispatchEvent(mRootId, mId, EVENT_IMAGE_LOAD_END, onLoadEnd, false, false,
+                        EventType.EVENT_TYPE_COMPONENT);
+                }
+            }
     }
 
     public void setTintColor(final int tintColor) {

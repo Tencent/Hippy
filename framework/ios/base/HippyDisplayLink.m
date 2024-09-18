@@ -23,14 +23,15 @@
 #import "HippyDisplayLink.h"
 
 #import <Foundation/Foundation.h>
-#import <QuartzCore/CADisplayLink.h>
+#import <QuartzCore/QuartzCore.h>
 
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 #import "HippyBridgeModule.h"
 #import "HippyFrameUpdate.h"
 #import "HippyModuleData.h"
+#import "HippyWeakProxy.h"
 
-#define HPAssertRunLoop() HPAssert(_runLoop == [NSRunLoop currentRunLoop], @"This method must be called on the CADisplayLink run loop")
+#define HippyAssertRunLoop() HippyAssert(_runLoop == [NSRunLoop currentRunLoop], @"This method must be called on the CADisplayLink run loop")
 
 @implementation HippyDisplayLink {
     CADisplayLink *_jsDisplayLink;
@@ -41,7 +42,8 @@
 - (instancetype)init {
     if ((self = [super init])) {
         _frameUpdateObservers = [NSMutableSet new];
-        _jsDisplayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(_jsThreadUpdate:)];
+        HippyWeakProxy *weakProxy = [HippyWeakProxy weakProxyForObject:self];
+        _jsDisplayLink = [CADisplayLink displayLinkWithTarget:weakProxy selector:@selector(_jsThreadUpdate:)];
     }
 
     return self;
@@ -107,7 +109,7 @@
 }
 
 - (void)_jsThreadUpdate:(CADisplayLink *)displayLink {
-    HPAssertRunLoop();
+    HippyAssertRunLoop();
 
     HippyFrameUpdate *frameUpdate = [[HippyFrameUpdate alloc] initWithDisplayLink:displayLink];
     for (HippyModuleData *moduleData in _frameUpdateObservers) {
@@ -123,7 +125,7 @@
 }
 
 - (void)updateJSDisplayLinkState {
-    HPAssertRunLoop();
+    HippyAssertRunLoop();
 
     BOOL pauseDisplayLink = YES;
     for (HippyModuleData *moduleData in _frameUpdateObservers) {

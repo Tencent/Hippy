@@ -27,6 +27,8 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -125,8 +127,12 @@ public class ArgumentUtils {
       array.pushBoolean((Boolean) obj);
     } else if (cls == HippyArray.class) {
       array.pushArray((HippyArray) obj);
+    } else if (cls == ArrayList.class || cls == List.class) {
+      array.pushArray(new HippyArray((List) obj));
     } else if (cls == HippyMap.class) {
       array.pushMap((HippyMap) obj);
+    } else if (cls == HashMap.class || cls == Map.class) {
+      array.pushMap(new HippyMap((Map) obj));
     } else if (cls == JSONArray.class) {
       HippyArray arr = new HippyArray();
       JSONArray jsonArr = (JSONArray) obj;
@@ -228,9 +234,9 @@ public class ArgumentUtils {
       builder.append(obj);
     } else if (obj.getClass().isAssignableFrom(float.class) || obj instanceof Float) {
       builder.append(Float.isNaN((float) obj) ? 0 : obj);
-    } else if (obj instanceof HippyArray) {
+    } else if (obj instanceof HippyArray || obj instanceof ArrayList) {
       builder.append("[");
-      HippyArray array = (HippyArray) obj;
+      HippyArray array = (obj instanceof HippyArray) ? (HippyArray) obj : new HippyArray((ArrayList) obj);
       int length = array.size();
       for (int i = 0; i < length; i++) {
         objectToJson(builder, array.getObject(i));
@@ -239,9 +245,9 @@ public class ArgumentUtils {
         }
       }
       builder.append("]");
-    } else if (obj instanceof HippyMap) {
+    } else if (obj instanceof HippyMap || obj instanceof HashMap) {
       builder.append("{");
-      HippyMap map = (HippyMap) obj;
+      HippyMap map = (obj instanceof HippyMap) ? (HippyMap) obj : new HippyMap((HashMap) obj);;
       Set<String> keys = map.keySet();
       boolean hasComma = false;
       for (String key : keys) {
@@ -285,11 +291,11 @@ public class ArgumentUtils {
       return (float) array.getDouble(index);
     }
 
-    if (paramCls == HippyArray.class) {
+    if (paramCls == HippyArray.class || paramCls == ArrayList.class || paramCls == List.class) {
       return array.getArray(index);
     }
 
-    if (paramCls == HippyMap.class) {
+    if (paramCls == HippyMap.class || paramCls == HashMap.class || paramCls == Map.class) {
       return array.getMap(index);
     }
 
@@ -321,11 +327,11 @@ public class ArgumentUtils {
       return map.getBoolean(key);
     }
 
-    if (paramCls == HippyArray.class) {
+    if (paramCls == HippyArray.class || paramCls == ArrayList.class || paramCls == List.class) {
       return map.getArray(key);
     }
 
-    if (paramCls == HippyMap.class) {
+    if (paramCls == HippyMap.class || paramCls == HashMap.class || paramCls == Map.class) {
       return map.getMap(key);
     }
 
@@ -541,6 +547,8 @@ public class ArgumentUtils {
       || clazz == String.class
       || clazz == HippyArray.class
       || clazz == HippyMap.class
+      || clazz == ArrayList.class
+      || clazz == HashMap.class
       || clazz == Promise.class
       || clazz.getAnnotation(HippyTurboObj.class) != null) {
       return true;

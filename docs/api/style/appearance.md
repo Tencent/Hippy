@@ -174,6 +174,8 @@
 | ------ | -------- | --- |
 | number \| string | 否 | Android、iOS
 
+> Android API 28 以下仅支持 `normal`和 `bold` 两种字重，其它字重效果需配合 `fontFamily` 实现，Android API 28 及以上可以支持设置`1` - `1000`的字重值。
+
 # letterSpacing
 
 文本字符间距

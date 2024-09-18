@@ -55,6 +55,14 @@ enum RelativeType {
   kBack = 1,
 };
 
+struct DiffInfo {
+  bool skip_style_diff;
+  DiffInfo(bool skip_style_diff) : skip_style_diff(skip_style_diff) {}
+
+ private:
+  friend std::ostream& operator<<(std::ostream& os, const DiffInfo& diff_info);
+};
+
 struct RefInfo {
   uint32_t ref_id;
   int32_t relative_to_ref = RelativeType::kDefault;
@@ -67,7 +75,8 @@ struct RefInfo {
 struct DomInfo {
   std::shared_ptr<DomNode> dom_node;
   std::shared_ptr<RefInfo> ref_info;
-  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref) : dom_node(node), ref_info(ref) {}
+  std::shared_ptr<DiffInfo> diff_info;
+  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref, std::shared_ptr<DiffInfo> diff) : dom_node(node), ref_info(ref), diff_info(diff) {}
 
  private:
   friend std::ostream& operator<<(std::ostream& os, const DomInfo& dom_info);
@@ -97,6 +106,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
     uint32_t id = kInvalidId;       // RenderNode的id
     uint32_t pid = kInvalidId;      // 父RenderNode的id
     int32_t index = kInvalidIndex;  // 本节点在父RenderNode上的索引
+    int32_t depth = kInvalidIndex;  // 本节点在父RenderNode上的深度
   };
 
   inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
@@ -119,6 +129,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline void SetLayoutOnly(bool layout_only) { layout_only_ = layout_only; }
   inline bool IsVirtual() { return is_virtual_; }
   inline void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
+  inline bool IsEnableEliminated() { return enable_eliminated_; }
+  inline void SetEnableEliminated(bool enable_eliminated) { enable_eliminated_ = enable_eliminated; }
   inline void SetIndex(int32_t index) { index_ = index; }
   inline int32_t GetIndex() const { return index_; }
   inline void SetRootNode(std::weak_ptr<RootNode> root_node) { root_node_ = root_node; }
@@ -131,6 +143,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void MarkWillChange(bool flag);
   int32_t GetSelfIndex();
   int32_t GetChildIndex(uint32_t id);
+  int32_t GetSelfDepth();
 
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(size_t index);
@@ -229,6 +242,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   LayoutResult render_layout_;  // 层级优化后的Layout 结果
   bool is_virtual_{};
   bool layout_only_ = false;
+
+  // Node can only be eliminated for the first time,
+  // and if they cannot be eliminated for the first time, they cannot be eliminated at all times.
+  bool enable_eliminated_ = true;
 
   std::weak_ptr<DomNode> parent_;
   std::vector<std::shared_ptr<DomNode>> children_;

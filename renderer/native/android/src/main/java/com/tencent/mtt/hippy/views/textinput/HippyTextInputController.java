@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.textinput;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Looper;
@@ -35,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
+import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 
 import androidx.annotation.Nullable;
@@ -43,18 +43,24 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.hippypager.HippyPager;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.component.text.TextRenderSupplier;
+import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.TextInputRenderNode;
 import com.tencent.renderer.node.TextVirtualNode;
+import com.tencent.renderer.node.ViewPagerRenderNode;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CALL_UI_FUNCTION_ERR;
 
@@ -62,6 +68,9 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CA
 public class HippyTextInputController extends HippyViewController<HippyTextInput> {
 
     public static final String CLASS_NAME = "TextInput";
+    public final static int UNSET = -1;
+    public static final int DEFAULT_TEXT_COLOR = Color.BLACK;
+    public static final int DEFAULT_PLACEHOLDER_TEXT_COLOR = Color.GRAY;
     private static final String TAG = "HippyTextInputControlle";
     private static final int INPUT_TYPE_KEYBOARD_NUMBERED =
             InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -76,7 +85,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     private static final String FUNC_IS_FOCUSED = "isFocused";
     private static final String FUNC_GET_VALUE = "getValue";
     private static final String FUNC_SET_VALUE = "setValue";
-    private static final String FUNC_KEYBOARD_DISMISS = "dissmiss";
+    private static final String FUNC_KEYBOARD_DISMISS = "dismiss";
 
     @Override
     protected View createViewImpl(Context context) {
@@ -84,17 +93,28 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @Override
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazy) {
+        return new TextInputRenderNode(rootId, id, props, className, controllerManager, isLazy);
+    }
+
+    @Override
+    public void onBatchComplete(@NonNull HippyTextInput textInput) {
+        textInput.onBatchComplete();
+    }
+
+    @Override
     protected void updateExtra(@NonNull View view, Object object) {
         super.updateExtra(view, object);
 
-//        if (object instanceof TextExtra) {
-//            TextExtra textExtra = (TextExtra) object;
-//            HippyTextInput hippyTextInput = (HippyTextInput) view;
-//            hippyTextInput.setPadding((int) Math.ceil(textExtra.mLeftPadding),
-//                    (int) Math.ceil(textExtra.mTopPadding),
-//                    (int) Math.ceil(textExtra.mRightPadding),
-//                    (int) Math.ceil(textExtra.mBottomPadding));
-//        }
+        if (object instanceof TextRenderSupplier) {
+            TextRenderSupplier supplier = (TextRenderSupplier) object;
+            HippyTextInput hippyTextInput = (HippyTextInput) view;
+            hippyTextInput.setPadding((int) Math.ceil(supplier.leftPadding),
+                    (int) Math.ceil(supplier.topPadding),
+                    (int) Math.ceil(supplier.rightPadding),
+                    (int) Math.ceil(supplier.bottomPadding));
+        }
     }
 
     @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = 14)
@@ -161,30 +181,26 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
                     break;
                 case "next":
                     returnKeyFlag = EditorInfo.IME_ACTION_NEXT;
-                    view.setSingleLine(true);
                     break;
                 case "none":
                     returnKeyFlag = EditorInfo.IME_ACTION_NONE;
                     break;
                 case "previous":
                     returnKeyFlag = EditorInfo.IME_ACTION_PREVIOUS;
-                    view.setSingleLine(true);
                     break;
                 case "search":
                     returnKeyFlag = EditorInfo.IME_ACTION_SEARCH;
-                    view.setSingleLine(true);
                     break;
                 case "send":
                     returnKeyFlag = EditorInfo.IME_ACTION_SEND;
-                    view.setSingleLine(true);
                     break;
                 case "done":
                     returnKeyFlag = EditorInfo.IME_ACTION_DONE;
-                    view.setSingleLine(true);
                     break;
             }
         }
         view.setImeOptions(returnKeyFlag | EditorInfo.IME_FLAG_NO_FULLSCREEN);
+        view.refreshSoftInput();
     }
 
     @HippyControllerProps(name = "keyboardType", defaultType = HippyControllerProps.STRING)
@@ -200,70 +216,29 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
             flagsToSet = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
             hippyTextInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
         }
-
+        boolean multiline = (hippyTextInput.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0;
+        if (multiline) {
+            flagsToSet |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        } else {
+            flagsToSet &= ~InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        }
         hippyTextInput.setInputType(flagsToSet);
+        hippyTextInput.refreshSoftInput();
     }
 
-    private static int parseFontWeight(String fontWeightString) {
-        // This should be much faster than using regex to verify input and Integer.parseInt
-        return fontWeightString.length() == 3 && fontWeightString.endsWith("00")
-                && fontWeightString.charAt(0) <= '9'
-                && fontWeightString.charAt(0) >= '1' ? 100 * (fontWeightString.charAt(0) - '0')
-                : -1;
-    }
-
-    @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING, defaultString = "normal")
+    @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING)
     public void setFontStyle(HippyTextInput view, String fontStyleString) {
-        if (TextUtils.isEmpty(fontStyleString)) {
-            return;
-        }
-        int fontStyle = -1;
-        if ("italic".equals(fontStyleString)) {
-            fontStyle = Typeface.ITALIC;
-        } else if ("normal".equals(fontStyleString)) {
-            fontStyle = Typeface.NORMAL;
-        }
-
-        Typeface currentTypeface = view.getTypeface();
-        if (currentTypeface == null) {
-            currentTypeface = Typeface.DEFAULT;
-        }
-        if (fontStyle != currentTypeface.getStyle()) {
-            view.setTypeface(currentTypeface, fontStyle);
-        }
+        view.setFontStyle(fontStyleString);
     }
 
-    @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING, defaultString = "normal")
+    @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
     public void setFontWeight(HippyTextInput view, String fontWeightString) {
-        int fontWeightNumeric = fontWeightString != null ? parseFontWeight(fontWeightString) : -1;
-        int fontWeight = -1;
-        if (fontWeightNumeric >= 500 || "bold".equals(fontWeightString)) {
-            fontWeight = Typeface.BOLD;
-        } else //noinspection ConstantConditions
-            if ("normal".equals(fontWeightString) || (fontWeightNumeric != -1
-                    && fontWeightNumeric < 500)) {
-                fontWeight = Typeface.NORMAL;
-            }
-        Typeface currentTypeface = view.getTypeface();
-        if (currentTypeface == null) {
-            currentTypeface = Typeface.DEFAULT;
-        }
-        if (fontWeight != currentTypeface.getStyle()) {
-            view.setTypeface(currentTypeface, fontWeight);
-        }
+        view.setFontWeight(fontWeightString);
     }
 
-    @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING, defaultString = "normal")
+    @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING)
     public void setFontFamily(HippyTextInput view, String fontFamily) {
-        if (TextUtils.isEmpty(fontFamily)) {
-            return;
-        }
-        int style = Typeface.NORMAL;
-        if (view.getTypeface() != null) {
-            style = view.getTypeface().getStyle();
-        }
-        Typeface newTypeface = Typeface.create(fontFamily, style);
-        view.setTypeface(newTypeface);
+        view.setFontFamily(fontFamily);
     }
 
     private static final InputFilter[] EMPTY_FILTERS = new InputFilter[0];
@@ -320,6 +295,24 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         view.setLetterSpacing(PixelUtil.dp2px(letterSpacing));
     }
 
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_HEIGHT, defaultType = HippyControllerProps.NUMBER)
+    public void setLineHeight(HippyTextInput view, int lineHeight) {
+        view.setTextLineHeight(Math.round(PixelUtil.dp2px(lineHeight)));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER, defaultNumber = UNSET)
+    public void setLineSpacingMultiplier(HippyTextInput view, float lineSpacingMultiplier) {
+        view.setLineSpacingMultiplier(lineSpacingMultiplier);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0.0f)
+    public void setLineSpacingExtra(HippyTextInput view, float lineSpacingExtra) {
+        view.setLineSpacingExtra(PixelUtil.dp2px(lineSpacingExtra));
+    }
+
     @HippyControllerProps(name = "value", defaultType = HippyControllerProps.STRING)
     public void value(HippyTextInput view, String value) {
         int selectionStart = view.getSelectionStart();
@@ -367,7 +360,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         view.setHint(placeholder);
     }
 
-    @HippyControllerProps(name = "placeholderTextColor", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.GRAY)
+    @HippyControllerProps(name = "placeholderTextColor", defaultType = HippyControllerProps.NUMBER, defaultNumber =
+            DEFAULT_PLACEHOLDER_TEXT_COLOR)
     public void setTextHitColor(HippyTextInput input, int color) {
         input.setHintTextColor(color);
     }
@@ -375,12 +369,6 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     @HippyControllerProps(name = "numberOfLines", defaultType = HippyControllerProps.NUMBER, defaultNumber = Integer.MAX_VALUE)
     public void setMaxLines(HippyTextInput input, int numberOfLine) {
         input.setMaxLines(numberOfLine);
-    }
-
-
-    @HippyControllerProps(name = "underlineColorAndroid", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
-    public void setUnderlineColor(HippyTextInput hippyTextInput, int underlineColor) {
-        //hippyTextInput.setUnderlineColor(underlineColor);
     }
 
     @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)
@@ -394,13 +382,23 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @HippyControllerProps(name = "focus", defaultType = HippyControllerProps.BOOLEAN)
-    public void setOnFocus(HippyTextInput hippyTextInput, boolean change) {
-        hippyTextInput.setBlurOrOnFocus(change);
+    public void setOnFocus(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_FOCUS);
     }
 
     @HippyControllerProps(name = "blur", defaultType = HippyControllerProps.BOOLEAN)
-    public void setBlur(HippyTextInput hippyTextInput, boolean change) {
-        hippyTextInput.setBlurOrOnFocus(change);
+    public void setBlur(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_BLUR);
+    }
+
+    @HippyControllerProps(name = "keyboardwillshow", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnKeyboardWillShow(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_SHOW);
+    }
+
+    @HippyControllerProps(name = "keyboardwillhide", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnKeyboardWillHide(HippyTextInput hippyTextInput, boolean enable) {
+        hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_HIDE);
     }
 
     @HippyControllerProps(name = "contentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
@@ -409,11 +407,10 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber =
-            Color.BLACK)
+            DEFAULT_TEXT_COLOR)
     public void setColor(HippyTextInput hippyTextInput, int change) {
         hippyTextInput.setTextColor(change);
     }
-
 
     @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING)
     public void setTextAlign(HippyTextInput view, String textAlign) {

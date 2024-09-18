@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,15 +22,30 @@
 
 #import "UIView+MountEvent.h"
 #import "objc/runtime.h"
+#import "UIView+Hippy.h"
+#import "HippyRootView.h"
+#import "HippyBridge+PerformanceAPI.h"
+
+/// The FCP Notification Imp
+const NSNotificationName HippyFirstContentfulPaintEndNotification = @"HippyFirstContentfulPaintEndNotification";
+
+@interface HippyRootView (PaintEventSupport)
+
+/// Send FCP Notification only for the first time
+/// - Parameter fcpView: fcp view
+- (void)sendFCPNotiIfNeeded:(UIView *)fcpView;
+
+@end
+
 
 @implementation UIView (MountEvent)
 
 #define MountEvent(setter, getter)                                                      \
-    - (void)setter:(NativeRenderDirectEventBlock)getter {                                          \
+    - (void)setter:(HippyDirectEventBlock)getter {                                          \
         objc_setAssociatedObject(self, @selector(getter), getter, OBJC_ASSOCIATION_COPY);   \
     }                                                                                       \
                                                                                             \
-    - (NativeRenderDirectEventBlock)getter {                                                       \
+    - (HippyDirectEventBlock)getter {                                                       \
         return objc_getAssociatedObject(self, @selector(getter));                           \
     }
 
@@ -79,6 +94,10 @@ MountEvent(setOnDetachedFromWindow, onDetachedFromWindow)
 }
 
 - (void)sendAttachedToWindowEvent {
+    if (HippyPaintTypeFCP == self.paintType) {
+        HippyRootView *rootView = (HippyRootView *)[self hippyRootView];
+        [rootView sendFCPNotiIfNeeded:self];
+    }
     if (self.onAttachedToWindow) {
         self.onAttachedToWindow(nil);
     }
@@ -87,6 +106,30 @@ MountEvent(setOnDetachedFromWindow, onDetachedFromWindow)
 - (void)sendDetachedFromWindowEvent {
     if (self.onDetachedFromWindow) {
         self.onDetachedFromWindow(nil);
+    }
+}
+
+#pragma mark -
+
+- (HippyPaintType)paintType {
+    return [objc_getAssociatedObject(self, @selector(paintType)) integerValue];
+}
+
+- (void)setPaintType:(HippyPaintType)paintType {
+    objc_setAssociatedObject(self, @selector(paintType), @(paintType), OBJC_ASSOCIATION_RETAIN);
+}
+
+
+@end
+
+
+@implementation HippyRootView (PaintEventSupport)
+
+- (void)sendFCPNotiIfNeeded:(UIView *)fcpView {
+    if (nil == objc_getAssociatedObject(self, @selector(sendFCPNotiIfNeeded:))) {
+        objc_setAssociatedObject(self, @selector(sendFCPNotiIfNeeded:), @(YES), OBJC_ASSOCIATION_RETAIN);
+        [self.bridge updatePerfRecordOnFirstContentfulPaintEnd];
+        [NSNotificationCenter.defaultCenter postNotificationName:HippyFirstContentfulPaintEndNotification object:fcpView];
     }
 }
 

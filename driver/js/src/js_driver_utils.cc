@@ -103,7 +103,7 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
       auto scope = scope_wrapper->scope.lock();
       FOOTSTONE_CHECK(scope);
       auto exception = info[0];
-      V8VM::HandleUncaughtException(scope->GetContext(), exception);
+      V8VM::HandleException(scope->GetContext(), "uncaughtException", exception);
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
       auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
@@ -133,13 +133,17 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
 
 std::shared_ptr<Engine> JsDriverUtils::CreateEngineAndAsyncInitialize(const std::shared_ptr<TaskRunner>& task_runner,
                                                                       const std::shared_ptr<VMInitParam>& param,
-                                                                      int64_t group_id) {
+                                                                      int64_t group_id,
+                                                                      bool is_reload) {
   FOOTSTONE_DCHECK(group_id >= -1) << "group_id must be greater than or equal to -1";
   std::shared_ptr<Engine> engine = nullptr;
   auto group = group_id;
   if (param->is_debug) {
     group = VM::kDebuggerGroupId;
   }
+  // 1. 调试模式启动新实例不复用V8 context, 调试模式 reload 场景复用 V8 context
+  // 2. Demo 场景， group_id 为 -1，不复用 V8 context
+  if ((group == VM::kDebuggerGroupId && is_reload) || (group != VM::kDebuggerGroupId && group != VM::kDefaultGroupId))
   {
     std::lock_guard<std::mutex> lock(engine_mutex);
     auto it = reuse_engine_map.find(group);
@@ -278,25 +282,35 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                       << ", is_local_file = " << is_local_file;
   string_view code_cache_content;
   uint64_t modify_time = 0;
-  std::future<std::string> read_file_future;
   string_view code_cache_path;
+  std::future<u8string> read_file_future;
   auto loader = scope->GetUriLoader().lock();
   FOOTSTONE_CHECK(loader);
+  auto& worker_manager = loader->GetWorkerManager();
+  auto worker_task_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
   if (is_use_code_cache) {
     if (is_local_file) {
       modify_time = HippyFile::GetFileModifyTime(uri);
     }
     code_cache_path = code_cache_dir + file_name + string_view("_") + string_view(std::to_string(modify_time));
-    std::promise<std::string> read_file_promise;
+    std::promise<u8string> read_file_promise;
     read_file_future = read_file_promise.get_future();
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
-    loader->RequestUntrustedContent(file_name, {}, MakeCopyable([p = std::move(read_file_promise)](
-        UriLoader::RetCode ret_code,
-        const std::unordered_map<std::string, std::string>& meta,
-        UriLoader::bytes content) mutable {
+    auto func = hippy::base::MakeCopyable([p = std::move(read_file_promise), code_cache_path, code_cache_dir]() mutable {
+      u8string content;
+      HippyFile::ReadFile(code_cache_path, content, true);
+      if (content.empty()) {
+        FOOTSTONE_DLOG(INFO) << "Read code cache failed";
+        int ret = HippyFile::RmFullPath(code_cache_dir);
+        FOOTSTONE_DLOG(INFO) << "RmFullPath ret = " << ret;
+        FOOTSTONE_USE(ret);
+      } else {
+        FOOTSTONE_DLOG(INFO) << "Read code cache succ";
+      }
       p.set_value(std::move(content));
-    }));
+    });
+    worker_task_runner->PostTask(std::move(func));
   }
   UriLoader::RetCode code;
   std::unordered_map<std::string, std::string> meta;
@@ -322,7 +336,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   }
 
   // perfromance start time
-  auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+  auto entry = scope->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
   entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
 
 #ifdef JS_V8
@@ -353,8 +367,6 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
       };
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
-      auto& worker_manager = loader->GetWorkerManager();
-      auto worker_task_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
       worker_task_runner->PostTask(std::move(func));
     }
   }
@@ -371,28 +383,10 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   return flag;
 }
 
-void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
-                                    const std::shared_ptr<Scope>& scope,
+void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
+                                    std::shared_ptr<Scope>&& scope,
                                     const std::function<void(bool)>& callback,
                                     bool is_reload) {
-  auto scope_destroy_callback = [engine, scope, is_reload, callback] {
-#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-    auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-    if (v8_vm->IsDebug()) {
-      auto inspector_client = v8_vm->GetInspectorClient();
-      if (inspector_client) {
-        auto inspector_context = scope->GetInspectorContext();
-        inspector_client->DestroyInspectorContext(is_reload, inspector_context);
-      }
-    } else {
-      scope->WillExit();
-    }
-#else
-    scope->WillExit();
-#endif
-    FOOTSTONE_LOG(INFO) << "js destroy end";
-    callback(true);
-  };
   auto vm = engine->GetVM();
   auto group = vm->GetGroupId();
   if (vm->IsDebug()) {
@@ -415,6 +409,33 @@ void JsDriverUtils::DestroyInstance(const std::shared_ptr<Engine>& engine,
     }
   }
   auto runner = engine->GetJsTaskRunner();
+
+  // DestroyInstance is called in the bridge thread, while the
+  // scope_destroy_callback is pushed into the task_runner to run in the DOM
+  // thread. When DestroyInstance is called, it holds the scope and engine.
+  // However, executing scope_destroy_callback may add tasks (e.g., setTimeout)
+  // holding the scope, even when the engine is destroyed. To prevent this, move
+  // the scope and engine into the scope_destroy_callback, which will be released
+  // when the callback is executed, ensuring no other tasks can be added to the
+  // task runner.
+  auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), is_reload, callback] {
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+    auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
+    if (v8_vm->IsDebug()) {
+      auto inspector_client = v8_vm->GetInspectorClient();
+      if (inspector_client) {
+        auto inspector_context = scope->GetInspectorContext();
+        inspector_client->DestroyInspectorContext(is_reload, inspector_context);
+      }
+    } else {
+      scope->WillExit();
+    }
+#else
+    scope->WillExit();
+#endif
+    FOOTSTONE_LOG(INFO) << "js destroy end";
+    callback(true);
+  };
   runner->PostTask(std::move(scope_destroy_callback));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
 }

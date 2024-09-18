@@ -17,6 +17,7 @@
 package com.openhippy.pool;
 
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pools;
@@ -51,6 +52,10 @@ public class RecycleViewPool extends BasePool<String, View> {
 
     @Override
     public void release(@NonNull View instance) {
+        if (instance.getParent() instanceof ViewGroup) {
+            ViewGroup parent = (ViewGroup) instance.getParent();
+            parent.removeView(instance);
+        }
         String className = instance.getClass().getName();
         release(className, instance);
     }

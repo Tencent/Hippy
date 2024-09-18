@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 #include "footstone/hippy_value.h"
 
@@ -93,14 +94,14 @@ class LayoutNode {
 
   /**
    * @brief 插入子节点
-   * @param child
-   * @param index
+   * @param child LayoutNode ptr
+   * @param index int32
    */
   virtual void InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) = 0;
 
   /**
    * @brief 删除子节点
-   * @param child
+   * @param child LayoutNode ptr
    */
   virtual void RemoveChild(const std::shared_ptr<LayoutNode> child) = 0;
 
@@ -116,13 +117,14 @@ class LayoutNode {
 
   /**
    * @brief 设置属性
-   * @param style_map 属性的map
+   * @param style_update 属性的map
    */
   virtual void SetLayoutStyles(
       const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
       const std::vector<std::string>& style_delete) = 0;
 };
 
+void InitLayoutConsts();
 std::shared_ptr<LayoutNode> CreateLayoutNode();
 
 }  // namespace dom

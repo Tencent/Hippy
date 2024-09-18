@@ -35,7 +35,9 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.common.BaseEngineContext;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
@@ -59,11 +61,13 @@ import com.tencent.renderer.node.VirtualNodeManager;
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
 import com.tencent.renderer.utils.ArrayUtils;
+import com.tencent.renderer.utils.ChoreographerUtils;
 import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
 
 import com.tencent.renderer.utils.MapUtils;
 import com.tencent.vfs.VfsManager;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,6 +110,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String EVENT_PREFIX = "on";
     private static final String SNAPSHOT_CREATE_NODE = "createNode";
     private static final String SNAPSHOT_UPDATE_LAYOUT = "updateLayout";
+    private static final String PAINT_TYPE_KEY = "paintType";
+    private static final String FCP_VALUE = "fcp";
     /**
      * The max capacity of UI task queue
      */
@@ -113,8 +119,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final int INVALID_NODE_ID = -1;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
+    private FCPBatchState mFcpBatchState = FCPBatchState.WATCHING;
     @Nullable
-    private FrameworkProxy mFrameworkProxy;
+    private WeakReference<FrameworkProxy> mFrameworkProxyWeakRef;
     @Nullable
     private List<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
     @NonNull
@@ -129,6 +136,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private ExecutorService mBackgroundExecutor;
     @Nullable
     private ImageLoaderAdapter mImageLoader;
+
+    public enum FCPBatchState {
+        WATCHING,
+        DETECTED,
+        MARKED,
+    }
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
@@ -182,16 +195,23 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return mRenderProvider.getInstanceId();
     }
 
+    @Nullable
+    private FrameworkProxy getFrameworkProxy() {
+        return (mFrameworkProxyWeakRef != null) ? mFrameworkProxyWeakRef.get() : null;
+    }
+
     @Override
     @Nullable
     public Object getCustomViewCreator() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getCustomViewCreator() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getCustomViewCreator() : null;
     }
 
     @Override
     @Nullable
     public String getBundlePath() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getBundlePath() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getBundlePath() : null;
     }
 
     @Override
@@ -206,26 +226,36 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     @Nullable
     public VfsManager getVfsManager() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getVfsManager() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getVfsManager() : null;
     }
 
     @Override
     @Nullable
     public ImageDecoderAdapter getImageDecoderAdapter() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getImageDecoderAdapter() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getImageDecoderAdapter() : null;
     }
 
     @Override
     @Nullable
     public FontAdapter getFontAdapter() {
-        return (mFrameworkProxy != null) ? mFrameworkProxy.getFontAdapter() : null;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getFontAdapter() : null;
+    }
+
+    @Nullable
+    public LogAdapter getLogAdapter() {
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getLogAdapter() : null;
     }
 
     @Override
     @Nullable
     public Executor getBackgroundExecutor() {
-        if (mFrameworkProxy != null && mFrameworkProxy.getBackgroundExecutor() != null) {
-            return mFrameworkProxy.getBackgroundExecutor();
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null && frameworkProxy.getBackgroundExecutor() != null) {
+            return frameworkProxy.getBackgroundExecutor();
         }
         if (mBackgroundExecutor == null) {
             mBackgroundExecutor = Executors.newFixedThreadPool(4);
@@ -251,22 +281,36 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             msg = exception.getMessage();
         }
         LogUtils.e(TAG, msg);
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.handleNativeException(exception);
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.handleNativeException(exception);
         }
+    }
+
+    @Override
+    public void onReceiveRenderLogMessage(int level, @NonNull String tag, @NonNull String msg) {
+        LogAdapter logAdapter = getLogAdapter();
+        if (logAdapter != null) {
+            logAdapter.onReceiveLogMessage(level, tag, msg);
+        }
+    }
+
+    @Override
+    @Nullable
+    public BaseEngineContext getEngineContext() {
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getEngineContext() : null;
     }
 
     @Override
     public int getEngineId() {
-        if (mFrameworkProxy != null) {
-            return mFrameworkProxy.getEngineId();
-        }
-        return -1;
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        return (frameworkProxy != null) ? frameworkProxy.getEngineId() : -1;
     }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
-        mFrameworkProxy = proxy;
+        mFrameworkProxyWeakRef = new WeakReference<>(proxy);
     }
 
     @Override
@@ -285,7 +329,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (mImageLoader != null) {
             mImageLoader.destroy();
         }
-        mFrameworkProxy = null;
         NativeRendererManager.removeNativeRendererInstance(mRenderProvider.getInstanceId());
     }
 
@@ -330,32 +373,46 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void onFirstViewAdded() {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.onFirstViewAdded();
+    public void onFirstPaint() {
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.onFirstPaint();
+        }
+    }
+
+    @Override
+    public void onFirstContentfulPaint() {
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.onFirstContentfulPaint();
         }
     }
 
     @Override
     public void onRuntimeInitialized(final int rootId) {
-        UIThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                View rootView = getRootView(rootId);
-                if (rootView != null) {
-                    final int width = rootView.getWidth();
-                    final int height = rootView.getHeight();
-                    if (width > 0 && height > 0) {
-                        onSizeChanged(rootId, width, height);
-                    }
+        UIThreadUtils.runOnUiThread(() -> {
+            View rootView = getRootView(rootId);
+            if (rootView != null) {
+                final int width = rootView.getWidth();
+                final int height = rootView.getHeight();
+                if (width > 0 && height > 0) {
+                    onSizeChanged(rootId, width, height);
                 }
             }
         });
     }
 
-    @Override
-    public void onSizeChanged(int rootId, int w, int h) {
+    private void onSizeChanged(int rootId, int w, int h) {
         mRenderProvider.onSizeChanged(rootId, w, h);
+    }
+
+    @Override
+    public void onSizeChanged(int rootId, int w, int h, int ow, int oh) {
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.onSizeChanged(rootId, w, h, ow, oh);
+        }
+        onSizeChanged(rootId, w, h);
     }
 
     @Override
@@ -364,11 +421,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged) {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.updateDimension(width, height, shouldUseScreenDisplay,
-                    systemUiVisibilityChanged);
+    public void updateDimension(int width, int height) {
+        FrameworkProxy frameworkProxy = getFrameworkProxy();
+        if (frameworkProxy != null) {
+            frameworkProxy.updateDimension(width, height);
         }
     }
 
@@ -390,12 +446,15 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (lowerCaseEventName.startsWith(EVENT_PREFIX)) {
             lowerCaseEventName = lowerCaseEventName.substring(EVENT_PREFIX.length());
         }
-        if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(
-                rootId, nodeId, lowerCaseEventName)) {
+        if (eventType != EventType.EVENT_TYPE_GESTURE
+                && !mRenderManager.checkRegisteredEvent(rootId, nodeId, lowerCaseEventName)
+                && !mVirtualNodeManager.checkRegisteredEvent(rootId, nodeId, lowerCaseEventName)) {
             return;
         }
-        LogUtils.d(TAG, "dispatchEvent: id " + nodeId + ", eventName " + eventName
-                + ", eventType " + eventType + ", params " + params + "\n ");
+        if (LogUtils.isDebugMode() && !eventName.equals(ChoreographerUtils.DO_FRAME)) {
+            LogUtils.d(TAG, "dispatchEvent: id " + nodeId + ", eventName " + eventName
+                    + ", eventType " + eventType + ", params " + params + "\n ");
+        }
         mRenderProvider.dispatchEvent(rootId, nodeId, lowerCaseEventName, params, useCapture,
                 useBubble);
     }
@@ -426,6 +485,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstanceDestroy(rootId);
             }
         }
+        ChoreographerUtils.unregisterDoFrameListener(getInstanceId(), rootId);
         mRenderManager.deleteNode(rootId, rootId);
         mRenderManager.batch(rootId);
     }
@@ -446,14 +506,19 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     private UITaskExecutor getMassTaskExecutor(@NonNull final List<UITaskExecutor> taskList) {
-        return new UITaskExecutor() {
-            @Override
-            public void exec() {
-                for (UITaskExecutor task : taskList) {
-                    task.exec();
-                }
+        return () -> {
+            for (UITaskExecutor task : taskList) {
+                task.exec();
             }
         };
+    }
+
+    private void updateFcpStateIfNeeded(int rootId, @Nullable Map<String, Object> props) {
+        if (mFcpBatchState == FCPBatchState.WATCHING && props != null && rootId != SCREEN_SNAPSHOT_ROOT_ID) {
+            if (MapUtils.getStringValue(props, PAINT_TYPE_KEY, "").equalsIgnoreCase(FCP_VALUE)) {
+                mFcpBatchState = FCPBatchState.DETECTED;
+            }
+        }
     }
 
     @SuppressWarnings({"unchecked"})
@@ -466,7 +531,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final Map<String, Object> node = ArrayUtils.getMapValue(nodeList, i);
             if (node == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateNode: invalid node object");
+                        TAG + ": createNode: invalid node object");
             }
             final int nodeId = MapUtils.getIntValue(node, NODE_ID, INVALID_NODE_ID);
             final int nodePid = MapUtils.getIntValue(node, NODE_PID, INVALID_NODE_ID);
@@ -479,9 +544,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                                 + nodeIndex + ", className " + className);
             }
             final Map<String, Object> props = MapUtils.getMapValue(node, NODE_PROPS);
-            LogUtils.d(TAG, "createNode: id " + nodeId + ", pid " + nodePid
-                    + ", index " + nodeIndex + ", name " + className + "\n  props " + props
-                    + "\n ");
+            if (LogUtils.isDebugMode()) {
+                LogUtils.d(TAG, "createNode: id " + nodeId + ", pid " + nodePid
+                        + ", index " + nodeIndex + ", name " + className + "\n  props " + props
+                        + "\n ");
+            }
+            updateFcpStateIfNeeded(rootId, props);
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
@@ -497,29 +565,20 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 final int pid = parent.getId();
                 // If the node has a virtual parent, no need to create corresponding render node,
                 // but need set the node data to the parent, for render node snapshot.
-                createNodeTaskList.add(new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.onCreateVirtualNode(rootId, nodeId, pid, nodeIndex, node);
-                    }
-                });
+                createNodeTaskList.add(
+                        () -> mRenderManager.onCreateVirtualNode(rootId, nodeId, pid, nodeIndex,
+                                node));
             } else {
-                createNodeTaskList.add(new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.createNode(rootId, nodeId, nodePid, nodeIndex, className,
-                                props);
-                    }
-                });
+                createNodeTaskList.add(
+                        () -> mRenderManager.createNode(rootId, nodeId, nodePid, nodeIndex,
+                                className,
+                                props));
                 // Because image and text may be rendered flat, it is not necessary to pre create a view.
                 if (!className.equals(HippyImageViewController.CLASS_NAME) && !className.equals(
                         HippyTextViewController.CLASS_NAME)) {
-                    createViewTaskList.add(new UITaskExecutor() {
-                        @Override
-                        public void exec() {
-                            mRenderManager.preCreateView(rootId, nodeId, nodePid, className, props);
-                        }
-                    });
+                    createViewTaskList.add(
+                            () -> mRenderManager.preCreateView(rootId, nodeId, nodePid, className,
+                                    props));
                 }
             }
         }
@@ -530,12 +589,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             // The task of creating render nodes will not be executed until batch end,
             // so we can pre create view, reduce render time by creating in parallel.
             final UITaskExecutor task = getMassTaskExecutor(createViewTaskList);
-            UIThreadUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    task.exec();
-                }
-            });
+            UIThreadUtils.runOnUiThread(task::exec);
         }
     }
 
@@ -558,28 +612,22 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             }
             final Map<String, Object> diffProps = MapUtils.getMapValue(node, NODE_PROPS);
             final List<Object> delProps = MapUtils.getListValue(node, NODE_DELETE_PROPS);
-            LogUtils.d(TAG,
-                    "updateNode: id " + nodeId + ", diff " + diffProps + ", delete " + delProps
-                            + "\n ");
+            if (LogUtils.isDebugMode()) {
+                LogUtils.d(TAG,
+                        "updateNode: id " + nodeId + ", diff " + diffProps + ", delete " + delProps
+                                + "\n ");
+            }
+            updateFcpStateIfNeeded(rootId, diffProps);
             mVirtualNodeManager.updateNode(rootId, nodeId, diffProps, delProps);
             // If multiple level are nested, the parent is outermost text node.
             VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
             if (parent != null) {
                 final int pid = parent.getId();
-                taskList.add(new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.onUpdateVirtualNode(rootId, nodeId, pid, diffProps,
-                                delProps);
-                    }
-                });
+                taskList.add(
+                        () -> mRenderManager.onUpdateVirtualNode(rootId, nodeId, pid, diffProps,
+                                delProps));
             } else {
-                taskList.add(new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.updateNode(rootId, nodeId, diffProps, delProps);
-                    }
-                });
+                taskList.add(() -> mRenderManager.updateNode(rootId, nodeId, diffProps, delProps));
             }
         }
         if (!taskList.isEmpty()) {
@@ -588,9 +636,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
+    public void deleteVirtualChildNode(int rootId, int nodeId) {
+        mVirtualNodeManager.deleteNode(rootId, nodeId);
+    }
+
+    @Override
     public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
         final List<UITaskExecutor> taskList = new ArrayList<>(ids.length);
-        LogUtils.d(TAG, "deleteNode " + Arrays.toString(ids) + "\n ");
+        if (LogUtils.isDebugMode()) {
+            LogUtils.d(TAG, "deleteNode " + Arrays.toString(ids) + "\n ");
+        }
         for (final int nodeId : ids) {
             // The node id should not be negative number.
             if (nodeId < 0) {
@@ -602,19 +657,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             mVirtualNodeManager.deleteNode(rootId, nodeId);
             if (parent != null) {
                 final int pid = parent.getId();
-                taskList.add(new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.onDeleteVirtualNode(rootId, nodeId, pid);
-                    }
-                });
+                taskList.add(() -> mRenderManager.onDeleteVirtualNode(rootId, nodeId, pid));
             } else {
-                taskList.add(new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.deleteNode(rootId, nodeId);
-                    }
-                });
+                taskList.add(() -> mRenderManager.deleteNode(rootId, nodeId));
             }
         }
         if (!taskList.isEmpty()) {
@@ -625,33 +670,47 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void moveNode(final int rootId, final int[] ids, final int newPid, final int oldPid,
             final int insertIndex) throws NativeRenderException {
-        addUITask(new UITaskExecutor() {
-            @Override
-            public void exec() {
-                mRenderManager.moveNode(rootId, ids, newPid, oldPid, insertIndex);
-            }
-        });
+        if (LogUtils.isDebugMode()) {
+            LogUtils.d(TAG, "moveNode: ids " + Arrays.toString(ids) + ", newPid " +
+                    newPid + ", oldPid " + oldPid + ", insertIndex " + insertIndex + "\n ");
+        }
+        addUITask(() -> mRenderManager.moveNode(rootId, ids, newPid, oldPid, insertIndex));
     }
 
     @Override
-    public void moveNode(final int rootId, final int pid, @NonNull final List<Object> list) {
-        LogUtils.d(TAG, "moveNode: pid " + pid + ", node list " + list + "\n ");
-        VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
-        if (parent == null) {
-            addUITask(new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.moveNode(rootId, pid, list);
-                }
-            });
-        } else {
-            mVirtualNodeManager.moveNode(rootId, parent, list);
-            addUITask(new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.onMoveVirtualNode(rootId, pid, list);
-                }
-            });
+    public void moveNode(final int rootId, @NonNull final List<Object> list) {
+        if (LogUtils.isDebugMode()) {
+            LogUtils.d(TAG, "moveNode: node list " + list + "\n ");
+        }
+        final Map<Integer, List<Object>> nodeMap = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            final Map<String, Object> moveNodeInfo = ArrayUtils.getMapValue(list, i);
+            if (moveNodeInfo == null) {
+                continue;
+            }
+            final Integer pid = MapUtils.getIntValue(moveNodeInfo, NODE_PID, INVALID_NODE_ID);
+            if (pid == INVALID_NODE_ID) {
+                continue;
+            }
+            List<Object> nodeList = nodeMap.get(pid);
+            if (nodeList == null) {
+                nodeList = new ArrayList<>();
+                nodeList.add(moveNodeInfo);
+                nodeMap.put(pid, nodeList);
+            } else {
+                nodeList.add(moveNodeInfo);
+            }
+        }
+        for (Entry<Integer, List<Object>> entry : nodeMap.entrySet()) {
+            final Integer pid = entry.getKey();
+            final List<Object> value = entry.getValue();
+            VirtualNode parent = mVirtualNodeManager.getVirtualNode(rootId, pid);
+            if (parent == null) {
+                addUITask(() -> mRenderManager.moveNode(rootId, pid, value));
+            } else {
+                mVirtualNodeManager.moveNode(rootId, parent, value);
+                addUITask(() -> mRenderManager.onMoveVirtualNode(rootId, pid, value));
+            }
         }
     }
 
@@ -664,7 +723,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final Map<String, Object> layoutInfo = ArrayUtils.getMapValue(nodeList, i);
             if (layoutInfo == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateNode: invalid node object");
+                        TAG + ": updateLayout: invalid node object");
             }
             final int nodeId = MapUtils.getIntValue(layoutInfo, NODE_ID, INVALID_NODE_ID);
             // The node id should not be negative number.
@@ -683,6 +742,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final int height = Math.round(MapUtils.getFloatValue(layoutInfo, LAYOUT_HEIGHT));
             final TextRenderSupplier supplier = mVirtualNodeManager
                     .updateLayout(rootId, nodeId, width, layoutInfo);
+            if (LogUtils.isDebugMode()) {
+//                LogUtils.d(TAG, "updateLayout: id " + nodeId + ", left " + left
+//                        + ", top " + top + ", width " + width + ", height " + height + "\n ");
+            }
             // If restoring snapshots, update layout is called directly on the UI thread,
             // and do not need to use the UI task
             if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
@@ -692,14 +755,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 mRenderManager.updateLayout(rootId, nodeId, left, top, width, height);
                 continue;
             }
-            UITaskExecutor task = new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    if (supplier != null) {
-                        mRenderManager.updateExtra(rootId, nodeId, supplier);
-                    }
-                    mRenderManager.updateLayout(rootId, nodeId, left, top, width, height);
+            UITaskExecutor task = () -> {
+                if (supplier != null) {
+                    mRenderManager.updateExtra(rootId, nodeId, supplier);
                 }
+                mRenderManager.updateLayout(rootId, nodeId, left, top, width, height);
             };
             taskList.add(task);
         }
@@ -717,7 +777,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final Map<String, Object> events = ArrayUtils.getMapValue(eventList, i);
             if (events == null) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateNode: invalid node object");
+                        TAG + ": updateEventListener: invalid node object");
             }
             final int nodeId = MapUtils.getIntValue(events, NODE_ID, INVALID_NODE_ID);
             final Map<String, Object> eventProps = MapUtils.getMapValue(events, NODE_PROPS);
@@ -726,13 +786,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateEventListener: invalid negative id=" + nodeId);
             }
+            if (LogUtils.isDebugMode()) {
+//                LogUtils.d(TAG,
+//                        "updateEventListener: id " + nodeId + ", eventProps " + eventProps + "\n ");
+            }
             mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
-            taskList.add(new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.updateEventListener(rootId, nodeId, eventProps);
-                }
-            });
+            taskList.add(() -> mRenderManager.updateEventListener(rootId, nodeId, eventProps));
         }
         if (!taskList.isEmpty()) {
             addUITask(getMassTaskExecutor(taskList));
@@ -761,21 +820,20 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                     TAG + ": callUIFunction: invalid negative id=" + nodeId);
         }
-        LogUtils.d(TAG,
-                "callUIFunction: id " + nodeId + ", functionName " + functionName + ", params"
-                        + params + "\n ");
+        if (LogUtils.isDebugMode()) {
+//            LogUtils.d(TAG,
+//                    "callUIFunction: id " + nodeId + ", functionName " + functionName + ", params"
+//                            + params + "\n ");
+        }
         // If callbackId equal to 0 mean this call does not need to callback.
         final UIPromise promise =
                 (callbackId == 0) ? null : new UIPromise(callbackId, functionName, rootId, nodeId,
                         mRenderProvider.getInstanceId());
         // Because call ui function will not follow with end batch,
         // can be directly post to the UI thread do execution.
-        UIThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mRenderManager.dispatchUIFunction(rootId, nodeId, functionName, params, promise);
-            }
-        });
+        UIThreadUtils.runOnUiThread(
+                () -> mRenderManager.dispatchUIFunction(rootId, nodeId, functionName, params,
+                        promise));
     }
 
     @Override
@@ -786,7 +844,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void endBatch(final int rootId) throws NativeRenderException {
-        LogUtils.d(TAG, "=============================endBatch " + rootId);
+        if (LogUtils.isDebugMode()) {
+            LogUtils.d(TAG, "=============================endBatch " + rootId);
+        }
         Map<Integer, Layout> layoutToUpdate = mVirtualNodeManager.endBatch(rootId);
         if (layoutToUpdate != null) {
             for (Entry<Integer, Layout> entry : layoutToUpdate.entrySet()) {
@@ -795,24 +855,23 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
                     mRenderManager.updateExtra(rootId, id, layout);
                 } else {
-                    addUITask(new UITaskExecutor() {
-                        @Override
-                        public void exec() {
-                            mRenderManager.updateExtra(rootId, id, layout);
-                        }
-                    });
+                    addUITask(() -> mRenderManager.updateExtra(rootId, id, layout));
                 }
             }
         }
         if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
             mRenderManager.batch(rootId);
         } else {
-            addUITask(new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.batch(rootId);
+            final boolean isFcp = (mFcpBatchState == FCPBatchState.DETECTED);
+            addUITask(() -> {
+                mRenderManager.batch(rootId);
+                if (isFcp) {
+                    onFirstContentfulPaint();
                 }
             });
+            if (isFcp) {
+                mFcpBatchState = FCPBatchState.MARKED;
+            }
             executeUITask();
         }
     }
@@ -841,22 +900,17 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     private void executeUITask() {
         final int size = mUITaskQueue.size();
-        UIThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                int count = size;
-                while (count > 0) {
-                    UITaskExecutor task = mUITaskQueue.poll();
-                    if (task != null) {
-                        task.exec();
-                    }
-                    count--;
+        UIThreadUtils.runOnUiThread(() -> {
+            //long start = System.currentTimeMillis();
+            int count = size;
+            while (count > 0) {
+                UITaskExecutor task = mUITaskQueue.poll();
+                if (task != null) {
+                    task.exec();
                 }
-                LogUtils.d(TAG,
-                        "executeUITask: size " + size + ", time " + (System.currentTimeMillis()
-                                - start));
+                count--;
             }
+            //LogUtils.d(TAG,"executeUITask: size " + size + ", time " + (System.currentTimeMillis() - start));
         });
     }
 

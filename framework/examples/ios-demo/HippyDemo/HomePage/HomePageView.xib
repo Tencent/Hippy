@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -24,36 +24,48 @@
             <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HW1-mo-1mA">
-                    <rect key="frame" x="76" y="170" width="240" height="67"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HW1-mo-1mA">
+                    <rect key="frame" x="76.666666666666686" y="170" width="240" height="68"/>
                     <accessibility key="accessibilityConfiguration">
                         <accessibilityTraits key="traits" image="YES" notEnabled="YES"/>
                     </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="240" id="0hC-bK-AQ4"/>
+                        <constraint firstAttribute="height" constant="68" id="3Ma-LQ-gQp"/>
+                    </constraints>
                 </imageView>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="This is Hippy Demo" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r7z-Cr-aKI">
-                    <rect key="frame" x="117" y="269" width="159" height="24"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is Hippy Demo" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r7z-Cr-aKI">
+                    <rect key="frame" x="76.666666666666686" y="269" width="240" height="24"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="240" id="SJm-ZD-0Q8"/>
+                        <constraint firstAttribute="height" constant="24" id="sUo-IN-lVG"/>
+                    </constraints>
                     <fontDescription key="fontDescription" name="PingFangSC-Semibold" family="PingFang SC" pointSize="17"/>
                     <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="ver:3.0.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9uc-aF-XIf">
-                    <rect key="frame" x="162" y="314" width="68" height="24"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ver:3.0.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9uc-aF-XIf">
+                    <rect key="frame" x="76.666666666666686" y="314" width="240" height="24"/>
                     <accessibility key="accessibilityConfiguration">
                         <accessibilityTraits key="traits" staticText="YES" notEnabled="YES"/>
                     </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="240" id="J2v-U6-2s2"/>
+                        <constraint firstAttribute="height" constant="24" id="leO-LW-5rG"/>
+                    </constraints>
                     <fontDescription key="fontDescription" name="PingFangSC-Regular" family="PingFang SC" pointSize="17"/>
                     <color key="textColor" red="0.63137254901960782" green="0.67450980392156867" blue="0.74117647058823533" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="提供极致流畅体验的可复用列表，通过binding模式实现高效的前端-终端通讯。" lineBreakMode="tailTruncation" numberOfLines="2" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4a-qT-dhe">
-                    <rect key="frame" x="75" y="375" width="256" height="53"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="提供极致流畅体验的可复用列表，通过binding模式实现高效的前端-终端通讯。" lineBreakMode="tailTruncation" numberOfLines="2" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4a-qT-dhe">
+                    <rect key="frame" x="68.666666666666686" y="375" width="256" height="53"/>
                     <accessibility key="accessibilityConfiguration">
                         <accessibilityTraits key="traits" staticText="YES" notEnabled="YES"/>
                     </accessibility>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="256" id="gKv-9S-ay4"/>
+                        <constraint firstAttribute="height" constant="53" id="lpe-Ef-aq1"/>
+                    </constraints>
                     <fontDescription key="fontDescription" name="PingFangSC-Regular" family="PingFang SC" pointSize="14"/>
                     <color key="textColor" red="0.63137254901960782" green="0.67450980392156867" blue="0.74117647058823533" alpha="0.84999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
@@ -98,6 +110,16 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" red="0.89803921568627454" green="0.89803921568627454" blue="0.89803921568627454" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="r7z-Cr-aKI" firstAttribute="top" secondItem="HW1-mo-1mA" secondAttribute="bottom" constant="31" id="0Xi-fo-MyK"/>
+                <constraint firstItem="HW1-mo-1mA" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="111" id="1rq-Kx-TPh"/>
+                <constraint firstItem="h4a-qT-dhe" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="ONl-sl-aG5"/>
+                <constraint firstItem="h4a-qT-dhe" firstAttribute="top" secondItem="9uc-aF-XIf" secondAttribute="bottom" constant="37" id="Svt-iG-bIZ"/>
+                <constraint firstItem="HW1-mo-1mA" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="XFK-Nk-jyd"/>
+                <constraint firstItem="9uc-aF-XIf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="gkF-KS-swA"/>
+                <constraint firstItem="9uc-aF-XIf" firstAttribute="top" secondItem="r7z-Cr-aKI" secondAttribute="bottom" constant="21" id="l3u-uN-SGU"/>
+                <constraint firstItem="r7z-Cr-aKI" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="qNW-yl-rE7"/>
+            </constraints>
             <point key="canvasLocation" x="130.53435114503816" y="-11.267605633802818"/>
         </view>
     </objects>

@@ -1,41 +1,26 @@
-ENV["layout_engine"]="Taitank"
-# ENV["js_engine"] = "v8"
-install! 'cocoapods',
-         :deterministic_uuids => false,
-         :generate_multiple_pod_projects => true
+#ENV["layout_engine"]="Taitank"
+#ENV["js_engine"] = "v8"
+
+install! 'cocoapods', :deterministic_uuids => false
+use_frameworks! :linkage => :static
 
 workspace 'HippyDemo.xcworkspace'
 
 target "HippyDemo" do
-    project './HippyDemo.xcodeproj'
-    pod 'hippy', :path => '../../..'
+  platform :ios, '11.0'
+  
+  # pod hippy,
+  # set modular_headers to true if you want to use modular import
+  # no need to set testspecs in your production app
+  pod 'hippy', :path => '../../..', :modular_headers => true, :testspecs => ['UnitTests']
+  
 end
 
-def rewriteConfigFile(path, originString, targetString)
-    File.open("#{path}", "r+") do |file|
-        originContents = file.read
-        if originContents.include?("#{originString}")
-            buffer = originContents.gsub("#{originString}", "#{targetString}")
-            File.open("#{path}", "w") do |line|
-                line.write(buffer)
-            end
-        end
-    end
-end
 
 post_install do |installer|
-    _base_dir_ = File.dirname(__FILE__)
-    _pod_debug_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "Pods-HippyDemo", "Pods-HippyDemo.debug.xcconfig")
-    _pod_release_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "Pods-HippyDemo", "Pods-HippyDemo.release.xcconfig")
-    _hippy_dir_ = File.expand_path("../../../.", "#{_base_dir_}")
-
-
-    _target_debug_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "Hippy", "Hippy.debug.xcconfig")
-    _target_release_config_dir_ = File.join("#{_base_dir_}", "Pods/Target Support Files", "Hippy", "Hippy.release.xcconfig")
-    rewriteConfigFile("#{_target_debug_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_target_release_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
-
-    #change search path for HippyDemo
-    rewriteConfigFile("#{_pod_debug_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
-    rewriteConfigFile("#{_pod_release_config_dir_}", "${PODS_ROOT}/hippy", "#{_hippy_dir_}")
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = "YES"
+    end
+  end
 end

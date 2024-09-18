@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,8 +21,8 @@
  */
 
 #import "UIView+DirectionalLayout.h"
-#import "UIView+NativeRender.h"
-#import "HPI18nUtils.h"
+#import "UIView+Hippy.h"
+#import "HippyI18nUtils.h"
 
 #include <objc/runtime.h>
 
@@ -57,7 +57,7 @@
 - (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(hippy::Direction *)direction{
     if (hippy::Direction::Inherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        [(UIView *)[self parentComponent] checkLayoutDirection:viewsSet direction:direction];
+        [(UIView *)[self parent] checkLayoutDirection:viewsSet direction:direction];
     }
     else if (direction) {
         *direction = self.confirmedLayoutDirection;
@@ -67,7 +67,7 @@
 - (void)superviewLayoutDirectionChangedTo:(hippy::Direction)direction {
     if (hippy::Direction::Inherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
-        for (UIView *subview in self.subcomponents) {
+        for (UIView *subview in self.hippySubviews) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

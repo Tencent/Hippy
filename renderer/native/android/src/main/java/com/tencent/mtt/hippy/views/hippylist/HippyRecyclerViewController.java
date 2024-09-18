@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.ControllerRegistry;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.node.ListViewRenderNode;
@@ -63,7 +64,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @Override
     public void onViewDestroy(HRW viewGroup) {
-        ((HRW) viewGroup).getRecyclerView().onDestroy();
+        ((HRW) viewGroup).onDestroy();
     }
 
     @Override
@@ -83,8 +84,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
      */
     @Override
     protected void deleteChild(ViewGroup parentView, View childView) {
-        super.deleteChild(parentView, childView);
-        ((HRW) parentView).getRecyclerView().disableRecycle(childView);
+        ((HRW) parentView).getRecyclerView().deleteChild(childView);
     }
 
     @Override
@@ -101,6 +101,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
+    public boolean isRecyclable() {
+        return false;
+    }
+
+    @Override
     protected View createViewImpl(Context context) {
         return createViewImpl(context, null);
     }
@@ -114,6 +119,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     protected HippyRecyclerView initDefault(@NonNull Context context,
             @Nullable Map<String, Object> props, HippyRecyclerView recyclerView) {
         LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
+        layoutManager.setItemPrefetchEnabled(false);
         recyclerView.setItemAnimator(null);
         boolean enableOverPull = true;
         boolean hasStableIds = true;
@@ -142,6 +148,17 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
         return new ListViewRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
+    }
+
+    @Override
+    public void updateLayout(int rootId, int id, int x, int y, int width, int height,
+            ControllerRegistry componentHolder) {
+        super.updateLayout(rootId, id, x, y, width, height, componentHolder);
+        // nested list may not receive onBatchComplete, so we have to call dispatchLayout here
+        View view = componentHolder.getView(rootId, id);
+        if (view instanceof HippyRecyclerViewWrapper) {
+            ((HippyRecyclerViewWrapper<?>) view).getRecyclerView().dispatchLayout();
+        }
     }
 
     @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
@@ -223,18 +240,14 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
     public void setOverScrollEnable(HRW viewWrapper, boolean flag) {
-        if (flag) {
-            viewWrapper.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-        } else {
-            viewWrapper.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        }
         setBounces(viewWrapper, flag);
     }
 
     @HippyControllerProps(name = OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void setBounces(HRW viewWrapper, boolean flag) {
-        HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
+        HippyRecyclerView<?> recyclerView = viewWrapper.getRecyclerView();
         if (recyclerView != null) {
+            recyclerView.setOverScrollMode(flag ? View.OVER_SCROLL_ALWAYS : View.OVER_SCROLL_NEVER);
             recyclerView.setEnableOverPull(flag);
         }
     }
@@ -247,6 +260,14 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     @HippyControllerProps(name = "itemViewCacheSize", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setItemViewCacheSize(HRW viewWrapper, int size) {
         viewWrapper.getRecyclerView().setItemViewCacheSize(Math.max(size, 2));
+    }
+
+    @HippyControllerProps(name = "enableScrollDirectionFix", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void setFixScrollDirection(HRW viewWrapper, boolean flag) {
+        HippyRecyclerView<?> recyclerView = viewWrapper.getRecyclerView();
+        if (recyclerView != null) {
+            recyclerView.setFixScrollDirection(flag);
+        }
     }
 
     @Override

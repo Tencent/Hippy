@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     color: 'black',
+    fontWeight: 'normal'
   },
   buttonBar: {
     flexDirection: 'row',
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     flexGrow: 1,
     flexShrink: 1,
+    justifyContent: 'center',
   },
   buttonText: {
     lineHeight: 24,
@@ -72,21 +74,48 @@ export default class TextExpo extends React.Component {
     super(props);
     this.state = {
       fontSize: 16,
+      fontWeight: '400',
       textShadowColor: 'grey',
       textShadowOffset: {
         x: 1,
         y: 1,
       },
+      scrollColor: 'gray',
       numberOfLines: 2,
       ellipsizeMode: undefined,
     };
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
+    this.incrementFontWeight = this.incrementFontWeight.bind(this);
+    this.decrementFontWeight = this.decrementFontWeight.bind(this);
     this.incrementLine = this.incrementLine.bind(this);
     this.decrementLine = this.decrementLine.bind(this);
     this.changeMode = this.changeMode.bind(this);
+    this.changeColor = this.changeColor.bind(this);
+  }
+  incrementFontWeight() {
+    const { fontWeight } = this.state;
+    if (fontWeight == '1000') {
+      return;
+    }
+    var weightNumber = parseInt(fontWeight, 10);
+    weightNumber += 100;
+    this.setState({
+      fontWeight: weightNumber.toString(),
+    });
   }
 
+  decrementFontWeight() {
+    const { fontWeight } = this.state;
+    if (fontWeight === '100') {
+      return;
+    }
+    var weightNumber = parseInt(fontWeight, 10);
+    weightNumber -= 100;
+    this.setState({
+      fontWeight: weightNumber.toString(),
+    });
+  }
   incrementFontSize() {
     const { fontSize } = this.state;
     if (fontSize === 24) {
@@ -129,19 +158,24 @@ export default class TextExpo extends React.Component {
     this.setState({ ellipsizeMode: mode });
   }
 
+  changeColor() {
+    this.setState({ scrollColor: 'red' });
+  }
+
   changeBreakStrategy(breakStrategy) {
     this.setState({ breakStrategy });
   }
 
   render() {
-    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy } = this.state;
+    const { fontSize, fontWeight, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy,
+      scrollColor } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
       </View>
     );
     return (
-      <ScrollView style={{ paddingHorizontal: 10 }}>
+      <ScrollView style={{ padding: 10, color: scrollColor, fontFamily: 'TTTGB' }}>
         {renderTitle('shadow')}
         <View style={[styles.itemContent, { height: 60 }]} onClick={() => {
           let textShadowColor = 'red';
@@ -173,15 +207,30 @@ export default class TextExpo extends React.Component {
           <Text style={[styles.normalText, { color: 'rgb(228,61,36)' }]}>This is red</Text>
         </View>
         {renderTitle('fontSize')}
-        <View style={[styles.itemContent, { height: 100 }]}>
+        <View style={[styles.itemContent, { height: 125, color: 'blue', fontFamily: 'not-support-fontstyle' }]}>
           <Text style={[styles.normalText, { fontSize }]}>
             { `Text fontSize is ${fontSize}` }
           </Text>
+          <View style={styles.button} onClick={this.changeColor}>
+            <Text style={styles.buttonText}>切换字体颜色</Text>
+          </View>
           <View style={styles.button} onClick={this.incrementFontSize}>
             <Text style={styles.buttonText}>放大字体</Text>
           </View>
           <View style={styles.button} onClick={this.decrementFontSize}>
             <Text style={styles.buttonText}>缩小字体</Text>
+          </View>
+        </View>
+        {renderTitle('fontWeight')}
+        <View style={[styles.itemContent, { height: 125, color: 'blue', fontFamily: 'not-support-fontstyle' }]}>
+          <Text style={[styles.normalText, { fontWeight }]}>
+            { `Text fontWeight is ${fontWeight}` }
+          </Text>
+          <View style={styles.button} onClick={this.incrementFontWeight}>
+            <Text style={styles.buttonText}>加粗字体</Text>
+          </View>
+          <View style={styles.button} onClick={this.decrementFontWeight}>
+            <Text style={styles.buttonText}>减细字体</Text>
           </View>
         </View>
         {renderTitle('fontStyle')}

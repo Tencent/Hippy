@@ -1,0 +1,564 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		16D159EB8DCA407DFE4008C8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D2EE3455BE6DD7D2ADA20093 /* main.m */; };
+		291382C2783D93A2C7BD4ACB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6094F1F80FD70F9F9853EE15 /* AppDelegate.m */; };
+		36842E3B36BB6E52267BED0F /* HomePageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = DC53FC9D9560D6AD989F8540 /* HomePageView.xib */; };
+		369577C613161936EE28F52E /* DebugCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54126F3E80B297E2109B40 /* DebugCell.m */; };
+		380469787621147052854E8F /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE0C5F943248577555BFB26 /* SettingsViewController.m */; };
+		4CBD515D378CB81C4C164353 /* DebugCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01F6A42F861E597779C10D09 /* DebugCell.xib */; };
+		5A5A9B087B27BD97E132C49E /* DemoBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4708C41E8571123282E2B806 /* DemoBaseViewController.m */; };
+		5A60628334CE16EA4F8B1329 /* DemoNavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */; };
+		719D92A12C2AF85E00E26339 /* HippyDemo.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 719D92A02C2AF85E00E26339 /* HippyDemo.xctestplan */; };
+		719D92A32C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 719D92A22C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan */; };
+		719D92A52C2AFC6300E26339 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 719D92A42C2AFC6300E26339 /* PrivacyInfo.xcprivacy */; };
+		72328C3389BA8DD5E54D7D5F /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 46034630F6D4A25199673157 /* TurboConfig.m */; };
+		74C51526435B1AB788CBF991 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8AEAE8BF116954FB41BDF9 /* TurboBaseModule.mm */; };
+		7C8A07982ADCEE2D7C9EAED8 /* Pods_HippyDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */; };
+		8C009766BC90CAF781042636 /* PageCreationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E734E5A93F5B92EA4149B8D /* PageCreationViewController.m */; };
+		8D5E861571620B4DA80254C2 /* TTTGB-Medium.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = B2FA2A97C78628634C6AFC9A /* TTTGB-Medium.otf */; };
+		994E84462AD481034728A29D /* HippyPageCacheView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82BFD15025A6217FEE93CC45 /* HippyPageCacheView.m */; };
+		9C99A05896359E49AE9A8352 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F34E176169143334EDFC28 /* MyView.m */; };
+		9CF888F990C83ECD4F6C78AA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */; };
+		A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */; };
+		BD5196B65EE0B712FDA2EB9B /* UIViewController+Title.m in Sources */ = {isa = PBXBuildFile; fileRef = C412B5D210F1E3359523628C /* UIViewController+Title.m */; };
+		C1A78F8868963E6C790472AA /* PageCreationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 25B65684EC9C9AF27BB04D21 /* PageCreationCell.xib */; };
+		C94B7BB8A618F36A1F58C270 /* HomePageViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90B5552FD45612EC5EC4CB45 /* HomePageViewController.mm */; };
+		D026B185E903AE8F958F8588 /* HippyPageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 27E7AA75BF1236A4328285E7 /* HippyPageCache.m */; };
+		DCCEB3FED1802C0D9C21AB11 /* PageManagerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CC425F89818837D6DA1053A /* PageManagerViewController.m */; };
+		DE19BAD300150C5D3D76D7F7 /* PageCreationCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 263EFA7461EF8C6CCDF67C66 /* PageCreationCell.m */; };
+		DF04004944D28CE1569D68EC /* HippyPageCacheContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = A066953E3614D26125F617EF /* HippyPageCacheContainerView.m */; };
+		EBC6C5A3C36A88BF4DAD00BE /* res in Resources */ = {isa = PBXBuildFile; fileRef = 1E1EECB72C2ACDCB192E6628 /* res */; };
+		F3F6D205C6FBA36CB262A28E /* SettingsInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = C6BAC7BC0021E9E21B04E496 /* SettingsInfo.m */; };
+		F67849BC0665859B70497D0E /* IconUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 17AB7FB6346FE861C9D953F5 /* IconUtils.m */; };
+		FD3BE72F8A086DC9A9484195 /* MyViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 834EC46509EC221C787A9F23 /* MyViewManager.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		171164B8638E25416B38386C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				8D5E861571620B4DA80254C2 /* TTTGB-Medium.otf in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		01F6A42F861E597779C10D09 /* DebugCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DebugCell.xib; sourceTree = "<group>"; };
+		041D598BDAC3735B5A06ECE7 /* TurboConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
+		078054D939523BD635AFFB94 /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoNavigationViewController.m; sourceTree = "<group>"; };
+		16E50FF2E97E0CF6CD4B1EE1 /* MyView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyView.h; sourceTree = "<group>"; };
+		177A9E8373F2682A9A831991 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		17AB7FB6346FE861C9D953F5 /* IconUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IconUtils.m; sourceTree = "<group>"; };
+		1E1EECB72C2ACDCB192E6628 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = SOURCE_ROOT; };
+		1E734E5A93F5B92EA4149B8D /* PageCreationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageCreationViewController.m; sourceTree = "<group>"; };
+		25B65684EC9C9AF27BB04D21 /* PageCreationCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PageCreationCell.xib; sourceTree = "<group>"; };
+		263EFA7461EF8C6CCDF67C66 /* PageCreationCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageCreationCell.m; sourceTree = "<group>"; };
+		27E7AA75BF1236A4328285E7 /* HippyPageCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPageCache.m; sourceTree = "<group>"; };
+		28C2DA6A96B596294158B364 /* HippyDemoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDemoViewController.h; sourceTree = "<group>"; };
+		331F0D867F0DF450A84E4587 /* Pods-HippyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.debug.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HippyDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A2AA203AF38A01360BEFB2A /* HippyDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HippyDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		427F60D1B98DA953328F4E71 /* DemoBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoBaseViewController.h; sourceTree = "<group>"; };
+		46034630F6D4A25199673157 /* TurboConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
+		4708C41E8571123282E2B806 /* DemoBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoBaseViewController.m; sourceTree = "<group>"; };
+		53A0957F7CC6967C8F70403A /* PageManagerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageManagerViewController.h; sourceTree = "<group>"; };
+		5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6045C301C6CFDC6C2E87AA66 /* IconUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IconUtils.h; sourceTree = "<group>"; };
+		6094F1F80FD70F9F9853EE15 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		6C482239432657812B25A59A /* SettingsInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsInfo.h; sourceTree = "<group>"; };
+		719D92A02C2AF85E00E26339 /* HippyDemo.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HippyDemo.xctestplan; sourceTree = "<group>"; };
+		719D92A22C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "hippy-Unit-UnitTests.xctestplan"; sourceTree = "<group>"; };
+		719D92A42C2AFC6300E26339 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../../../PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		73A859BDC9C3189E38FD082F /* MyViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
+		7CC425F89818837D6DA1053A /* PageManagerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageManagerViewController.m; sourceTree = "<group>"; };
+		7DB34DDF95B8E9C9AD87FFE4 /* Pods-HippyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.release.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.release.xcconfig"; sourceTree = "<group>"; };
+		80D715362B1A0B0DCEAA813D /* DemoNavigationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoNavigationViewController.h; sourceTree = "<group>"; };
+		82BFD15025A6217FEE93CC45 /* HippyPageCacheView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPageCacheView.m; sourceTree = "<group>"; };
+		834EC46509EC221C787A9F23 /* MyViewManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MyViewManager.mm; sourceTree = "<group>"; };
+		8C70B069BA7C4A351FD26D60 /* HippyPageCacheView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPageCacheView.h; sourceTree = "<group>"; };
+		90B5552FD45612EC5EC4CB45 /* HomePageViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HomePageViewController.mm; sourceTree = "<group>"; };
+		90F34E176169143334EDFC28 /* MyView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
+		91861A8DD9D692FEDF657D34 /* HomePageViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HomePageViewController.h; sourceTree = "<group>"; };
+		9ABAD8FCDB669A1A6F327CDB /* DebugCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DebugCell.h; sourceTree = "<group>"; };
+		9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDemoViewController.m; sourceTree = "<group>"; };
+		A066953E3614D26125F617EF /* HippyPageCacheContainerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyPageCacheContainerView.m; sourceTree = "<group>"; };
+		B2FA2A97C78628634C6AFC9A /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
+		BD54126F3E80B297E2109B40 /* DebugCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DebugCell.m; sourceTree = "<group>"; };
+		BF84819C1E7CCD88BCBEA4D7 /* HippyPageCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPageCache.h; sourceTree = "<group>"; };
+		C412B5D210F1E3359523628C /* UIViewController+Title.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Title.m"; sourceTree = "<group>"; };
+		C629FDE26F7B6DBC976FB63A /* TurboBaseModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
+		C6BAC7BC0021E9E21B04E496 /* SettingsInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsInfo.m; sourceTree = "<group>"; };
+		C7504BC18486120B29F3D9FA /* PageCreationCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageCreationCell.h; sourceTree = "<group>"; };
+		CC8AEAE8BF116954FB41BDF9 /* TurboBaseModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TurboBaseModule.mm; sourceTree = "<group>"; };
+		D2EE3455BE6DD7D2ADA20093 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DC53FC9D9560D6AD989F8540 /* HomePageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HomePageView.xib; sourceTree = "<group>"; };
+		DDD052D2760E830B1E0095EA /* UIViewController+Title.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Title.h"; sourceTree = "<group>"; };
+		E54E76502FD6AF687683BA8A /* HippyPageCacheContainerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyPageCacheContainerView.h; sourceTree = "<group>"; };
+		EEE0C5F943248577555BFB26 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		EF558AABDC113B410B8ED69C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		FBB045A62B4E511674BF590C /* PageCreationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageCreationViewController.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		188D3F897881826DDEBE243C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C8A07982ADCEE2D7C9EAED8 /* Pods_HippyDemo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0632A691275B124491E38EA7 /* HippyDemo */ = {
+			isa = PBXGroup;
+			children = (
+				EF558AABDC113B410B8ED69C /* AppDelegate.h */,
+				6094F1F80FD70F9F9853EE15 /* AppDelegate.m */,
+				427F60D1B98DA953328F4E71 /* DemoBaseViewController.h */,
+				4708C41E8571123282E2B806 /* DemoBaseViewController.m */,
+				80D715362B1A0B0DCEAA813D /* DemoNavigationViewController.h */,
+				16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */,
+				6045C301C6CFDC6C2E87AA66 /* IconUtils.h */,
+				17AB7FB6346FE861C9D953F5 /* IconUtils.m */,
+				177A9E8373F2682A9A831991 /* Info.plist */,
+				D2EE3455BE6DD7D2ADA20093 /* main.m */,
+				DDD052D2760E830B1E0095EA /* UIViewController+Title.h */,
+				C412B5D210F1E3359523628C /* UIViewController+Title.m */,
+				4CF6648308C60D57DD274D30 /* HomePage */,
+				DE44248AB3BFFAAE044EAB9E /* myview */,
+				73EF815F203E15B86205DFC3 /* PageManager */,
+				57D9249C5EA211061816F73B /* RenderPage */,
+				09FA8898DDD429EC19584446 /* SettingsPage */,
+				529ECDFF8342B9C9D950B1FA /* turbomodule */,
+			);
+			path = HippyDemo;
+			sourceTree = "<group>";
+		};
+		09FA8898DDD429EC19584446 /* SettingsPage */ = {
+			isa = PBXGroup;
+			children = (
+				6C482239432657812B25A59A /* SettingsInfo.h */,
+				C6BAC7BC0021E9E21B04E496 /* SettingsInfo.m */,
+				078054D939523BD635AFFB94 /* SettingsViewController.h */,
+				EEE0C5F943248577555BFB26 /* SettingsViewController.m */,
+			);
+			path = SettingsPage;
+			sourceTree = "<group>";
+		};
+		37AC1BAC994661BA846D4236 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3A2AA203AF38A01360BEFB2A /* HippyDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3F4F18D890009F63DB0F22D2 = {
+			isa = PBXGroup;
+			children = (
+				5EF877A8CB4B2AD68A780A12 /* Assets.xcassets */,
+				719D92A02C2AF85E00E26339 /* HippyDemo.xctestplan */,
+				719D92A22C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan */,
+				719D92A42C2AFC6300E26339 /* PrivacyInfo.xcprivacy */,
+				1E1EECB72C2ACDCB192E6628 /* res */,
+				F3C07E1B41FBB8BA0834C6BC /* fonts */,
+				0632A691275B124491E38EA7 /* HippyDemo */,
+				37AC1BAC994661BA846D4236 /* Products */,
+				7D0241712C232049EC5C8DC8 /* Pods */,
+				C24B18F307439A018EC32537 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		4CF6648308C60D57DD274D30 /* HomePage */ = {
+			isa = PBXGroup;
+			children = (
+				DC53FC9D9560D6AD989F8540 /* HomePageView.xib */,
+				91861A8DD9D692FEDF657D34 /* HomePageViewController.h */,
+				90B5552FD45612EC5EC4CB45 /* HomePageViewController.mm */,
+			);
+			path = HomePage;
+			sourceTree = "<group>";
+		};
+		529ECDFF8342B9C9D950B1FA /* turbomodule */ = {
+			isa = PBXGroup;
+			children = (
+				C629FDE26F7B6DBC976FB63A /* TurboBaseModule.h */,
+				CC8AEAE8BF116954FB41BDF9 /* TurboBaseModule.mm */,
+				041D598BDAC3735B5A06ECE7 /* TurboConfig.h */,
+				46034630F6D4A25199673157 /* TurboConfig.m */,
+			);
+			path = turbomodule;
+			sourceTree = "<group>";
+		};
+		57D9249C5EA211061816F73B /* RenderPage */ = {
+			isa = PBXGroup;
+			children = (
+				28C2DA6A96B596294158B364 /* HippyDemoViewController.h */,
+				9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */,
+			);
+			path = RenderPage;
+			sourceTree = "<group>";
+		};
+		73EF815F203E15B86205DFC3 /* PageManager */ = {
+			isa = PBXGroup;
+			children = (
+				9ABAD8FCDB669A1A6F327CDB /* DebugCell.h */,
+				BD54126F3E80B297E2109B40 /* DebugCell.m */,
+				01F6A42F861E597779C10D09 /* DebugCell.xib */,
+				BF84819C1E7CCD88BCBEA4D7 /* HippyPageCache.h */,
+				27E7AA75BF1236A4328285E7 /* HippyPageCache.m */,
+				E54E76502FD6AF687683BA8A /* HippyPageCacheContainerView.h */,
+				A066953E3614D26125F617EF /* HippyPageCacheContainerView.m */,
+				8C70B069BA7C4A351FD26D60 /* HippyPageCacheView.h */,
+				82BFD15025A6217FEE93CC45 /* HippyPageCacheView.m */,
+				C7504BC18486120B29F3D9FA /* PageCreationCell.h */,
+				263EFA7461EF8C6CCDF67C66 /* PageCreationCell.m */,
+				25B65684EC9C9AF27BB04D21 /* PageCreationCell.xib */,
+				FBB045A62B4E511674BF590C /* PageCreationViewController.h */,
+				1E734E5A93F5B92EA4149B8D /* PageCreationViewController.m */,
+				53A0957F7CC6967C8F70403A /* PageManagerViewController.h */,
+				7CC425F89818837D6DA1053A /* PageManagerViewController.m */,
+			);
+			path = PageManager;
+			sourceTree = "<group>";
+		};
+		7D0241712C232049EC5C8DC8 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				331F0D867F0DF450A84E4587 /* Pods-HippyDemo.debug.xcconfig */,
+				7DB34DDF95B8E9C9AD87FFE4 /* Pods-HippyDemo.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		C24B18F307439A018EC32537 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				344AB561913707F8A4793EC8 /* Pods_HippyDemo.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DE44248AB3BFFAAE044EAB9E /* myview */ = {
+			isa = PBXGroup;
+			children = (
+				16E50FF2E97E0CF6CD4B1EE1 /* MyView.h */,
+				90F34E176169143334EDFC28 /* MyView.m */,
+				73A859BDC9C3189E38FD082F /* MyViewManager.h */,
+				834EC46509EC221C787A9F23 /* MyViewManager.mm */,
+			);
+			path = myview;
+			sourceTree = "<group>";
+		};
+		F3C07E1B41FBB8BA0834C6BC /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				B2FA2A97C78628634C6AFC9A /* TTTGB-Medium.otf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F7DF50CA19E5E79F64D3D4E6 /* HippyDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 20BB0794C4C1CBC0A34760F4 /* Build configuration list for PBXNativeTarget "HippyDemo" */;
+			buildPhases = (
+				261C188D2073B9C801310C71 /* [CP] Check Pods Manifest.lock */,
+				8C5357857E521ECD2E143CFD /* Sources */,
+				81E836ED7DAB70A2CBF5FAFE /* Resources */,
+				171164B8638E25416B38386C /* CopyFiles */,
+				188D3F897881826DDEBE243C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HippyDemo;
+			productName = HippyDemo;
+			productReference = 3A2AA203AF38A01360BEFB2A /* HippyDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		215A0FDFFBD7838975355873 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1530;
+			};
+			buildConfigurationList = BD5ED1CB5E91D88413261758 /* Build configuration list for PBXProject "HippyDemo" */;
+			compatibilityVersion = "Xcode 11.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 3F4F18D890009F63DB0F22D2;
+			productRefGroup = 37AC1BAC994661BA846D4236 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F7DF50CA19E5E79F64D3D4E6 /* HippyDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		81E836ED7DAB70A2CBF5FAFE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CF888F990C83ECD4F6C78AA /* Assets.xcassets in Resources */,
+				4CBD515D378CB81C4C164353 /* DebugCell.xib in Resources */,
+				36842E3B36BB6E52267BED0F /* HomePageView.xib in Resources */,
+				719D92A12C2AF85E00E26339 /* HippyDemo.xctestplan in Resources */,
+				C1A78F8868963E6C790472AA /* PageCreationCell.xib in Resources */,
+				719D92A32C2AFB0F00E26339 /* hippy-Unit-UnitTests.xctestplan in Resources */,
+				719D92A52C2AFC6300E26339 /* PrivacyInfo.xcprivacy in Resources */,
+				EBC6C5A3C36A88BF4DAD00BE /* res in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		261C188D2073B9C801310C71 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-HippyDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8C5357857E521ECD2E143CFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				291382C2783D93A2C7BD4ACB /* AppDelegate.m in Sources */,
+				369577C613161936EE28F52E /* DebugCell.m in Sources */,
+				5A5A9B087B27BD97E132C49E /* DemoBaseViewController.m in Sources */,
+				5A60628334CE16EA4F8B1329 /* DemoNavigationViewController.m in Sources */,
+				A3F629CA4C94D65F42BB4B33 /* HippyDemoViewController.m in Sources */,
+				D026B185E903AE8F958F8588 /* HippyPageCache.m in Sources */,
+				DF04004944D28CE1569D68EC /* HippyPageCacheContainerView.m in Sources */,
+				994E84462AD481034728A29D /* HippyPageCacheView.m in Sources */,
+				C94B7BB8A618F36A1F58C270 /* HomePageViewController.mm in Sources */,
+				F67849BC0665859B70497D0E /* IconUtils.m in Sources */,
+				9C99A05896359E49AE9A8352 /* MyView.m in Sources */,
+				FD3BE72F8A086DC9A9484195 /* MyViewManager.mm in Sources */,
+				DE19BAD300150C5D3D76D7F7 /* PageCreationCell.m in Sources */,
+				8C009766BC90CAF781042636 /* PageCreationViewController.m in Sources */,
+				DCCEB3FED1802C0D9C21AB11 /* PageManagerViewController.m in Sources */,
+				F3F6D205C6FBA36CB262A28E /* SettingsInfo.m in Sources */,
+				380469787621147052854E8F /* SettingsViewController.m in Sources */,
+				74C51526435B1AB788CBF991 /* TurboBaseModule.mm in Sources */,
+				72328C3389BA8DD5E54D7D5F /* TurboConfig.m in Sources */,
+				BD5196B65EE0B712FDA2EB9B /* UIViewController+Title.m in Sources */,
+				16D159EB8DCA407DFE4008C8 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A19596015FBB918148A61FF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7DB34DDF95B8E9C9AD87FFE4 /* Pods-HippyDemo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = HippyDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo2.db;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BDE0917765AAB8F06FED1216 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EDA31BB6FAF111A6FD9A3EC9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F2EFFA7A058FDD9A908F1C9C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 331F0D867F0DF450A84E4587 /* Pods-HippyDemo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = HippyDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo2.db;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		20BB0794C4C1CBC0A34760F4 /* Build configuration list for PBXNativeTarget "HippyDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2EFFA7A058FDD9A908F1C9C /* Debug */,
+				A19596015FBB918148A61FF4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BD5ED1CB5E91D88413261758 /* Build configuration list for PBXProject "HippyDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDE0917765AAB8F06FED1216 /* Debug */,
+				EDA31BB6FAF111A6FD9A3EC9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 215A0FDFFBD7838975355873 /* Project object */;
+}

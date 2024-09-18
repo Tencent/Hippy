@@ -45,8 +45,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  voltron:
-    path: ../../../voltron
+  voltron: 0.0.37
   qr_flutter: 4.0.0
 
   # The following adds the Cupertino Icons font to your application.

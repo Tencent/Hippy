@@ -27,7 +27,7 @@ public interface HippyBridge {
     String URI_SCHEME_ASSETS = "asset:";
     String URI_SCHEME_FILE = "file:";
 
-    void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+    void initJSBridge(String gobalConfig, NativeCallback callback, int groupId, boolean isReload);
 
     boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheTag, NativeCallback callback);

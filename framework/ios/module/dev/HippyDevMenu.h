@@ -32,7 +32,7 @@
 @interface HippyDevMenu : NSObject
 
 /**
- * Is the menu enabled. The menu is enabled by default if HP_DEV=1, but
+ * Is the menu enabled. The menu is enabled by default if HIPPY_DEV=1, but
  * you may wish to disable it so that you can provide your own shake handler.
  */
 @property (nonatomic, assign) BOOL shakeToShow;
@@ -68,11 +68,6 @@
  * directly, but can be called from JS.
  */
 - (void)reload;
-
-/**
- * Deprecated. Use the `-addItem:` method instead.
- */
-- (void)addItem:(NSString *)title handler:(void (^)(void))handler DEPRECATED_ATTRIBUTE;
 
 /**
  * Add custom item to the development menu. The handler will be called

@@ -33,14 +33,6 @@ export default [
     },
   },
   {
-    path: '/Clipboard',
-    name: '<Clipboard> 组件',
-    component: PAGE_LIST.Clipboard,
-    meta: {
-      type: Type.COMPONENT,
-    },
-  },
-  {
     path: '/Text',
     name: '<Text> 组件',
     component: PAGE_LIST.Text,

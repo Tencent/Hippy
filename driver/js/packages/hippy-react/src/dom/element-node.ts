@@ -249,6 +249,7 @@ class ElementNode extends ViewNode {
   public tagName: string;
   public id = '';
   public style: HippyTypes.Style = {};
+  public inheritStyle: HippyTypes.Style = {};
   public attributes: Attributes = {};
   public events: object = {};
 
@@ -488,6 +489,11 @@ class ElementNode extends ViewNode {
             return true;
           }
           this.setStyleAttribute(value);
+          const inheritProperties = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
+          const needInherit = inheritProperties.some(prop => Object.prototype.hasOwnProperty.call(value, prop));
+          if (needInherit) {
+            updateWithChildren(this);
+          }
           return false;
         },
       },

@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,18 +21,28 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderComponentProtocol.h"
+#import "HippyComponent.h"
+#import "HippyConvert+NativeRender.h"
+
+/// FCP Notification
+HIPPY_EXTERN const NSNotificationName HippyFirstContentfulPaintEndNotification;
+
 
 @interface UIView (MountEvent)
 
-@property (nonatomic, copy) NativeRenderDirectEventBlock onAppear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDisappear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onWillAppear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onWillDisappear;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDidMount;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDidUnmount;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onAttachedToWindow;
-@property (nonatomic, copy) NativeRenderDirectEventBlock onDetachedFromWindow;
+/// Paint Type of `View` node
+/// Used to calculate rendering time, etc
+/// e.g. fcp...
+@property (nonatomic, assign) HippyPaintType paintType;
+
+@property (nonatomic, copy) HippyDirectEventBlock onAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onDidMount;
+@property (nonatomic, copy) HippyDirectEventBlock onDidUnmount;
+@property (nonatomic, copy) HippyDirectEventBlock onAttachedToWindow;
+@property (nonatomic, copy) HippyDirectEventBlock onDetachedFromWindow;
 
 - (void)viewAppearEvent;
 - (void)viewDisappearEvent;

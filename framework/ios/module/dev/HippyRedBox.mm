@@ -24,22 +24,21 @@
 #import "HippyErrorInfo.h"
 #import "HippyRedBox.h"
 #import "HippyUtils.h"
+#import "HippyWeakProxy.h"
+#import "HippyAssert.h"
+#import "HippyConvert.h"
+#import "HippyJSStackFrame.h"
+#import "HippyLog.h"
+#import "HippyUtils.h"
+#import "HippyDefines.h"
 
-#import "HPAsserts.h"
-#import "HPConvert.h"
-#import "HPDriverStackFrame.h"
-#import "HPLog.h"
-#import "HPToolUtils.h"
-
-#import "MacroDefines.h"
-
-#if HP_DEBUG
+#if HIPPY_DEBUG
 
 @class HippyRedBoxWindow;
 
 @protocol HippyRedBoxWindowActionDelegate <NSObject>
 
-- (void)redBoxWindow:(HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HPDriverStackFrame *)stackFrame;
+- (void)redBoxWindow:(HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HippyJSStackFrame *)stackFrame;
 - (void)reloadFromRedBoxWindow:(HippyRedBoxWindow *)redBoxWindow;
 
 @end
@@ -51,7 +50,7 @@
 @implementation HippyRedBoxWindow {
     UITableView *_stackTraceTableView;
     NSString *_lastErrorMessage;
-    NSArray<HPDriverStackFrame *> *_lastStackTrace;
+    NSArray<HippyJSStackFrame *> *_lastStackTrace;
     __weak UIWindow *_previousKeyWindow;
 }
 
@@ -137,7 +136,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)showErrorMessage:(NSString *)message withStack:(NSArray<HPDriverStackFrame *> *)stack isUpdate:(BOOL)isUpdate {
+- (void)showErrorMessage:(NSString *)message withStack:(NSArray<HippyJSStackFrame *> *)stack isUpdate:(BOOL)isUpdate {
     // Show if this is a new message, or if we're updating the previous message
     if ((self.hidden && !isUpdate) || (!self.hidden && isUpdate && [_lastErrorMessage isEqualToString:message])) {
         _lastStackTrace = stack;
@@ -151,7 +150,7 @@
             [_stackTraceTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop
                                                 animated:NO];
         }
-        _previousKeyWindow = HPKeyWindow();
+        _previousKeyWindow = HippyKeyWindow();
         [self makeKeyAndVisible];
         [self becomeFirstResponder];
     }
@@ -177,7 +176,7 @@
         fullStackTrace = [NSMutableString string];
     }
 
-    for (HPDriverStackFrame *stackFrame in _lastStackTrace) {
+    for (HippyJSStackFrame *stackFrame in _lastStackTrace) {
         [fullStackTrace appendString:[NSString stringWithFormat:@"%@\n", stackFrame.methodName]];
         if (stackFrame.file) {
             [fullStackTrace appendFormat:@"    %@\n", [self formatFrameSource:stackFrame]];
@@ -187,7 +186,7 @@
     [pb setString:fullStackTrace];
 }
 
-- (NSString *)formatFrameSource:(HPDriverStackFrame *)stackFrame {
+- (NSString *)formatFrameSource:(HippyJSStackFrame *)stackFrame {
     NSString *lineInfo = [NSString stringWithFormat:@"%@:%zd", [stackFrame.file lastPathComponent], (long)stackFrame.lineNumber];
 
     if (stackFrame.column != 0) {
@@ -213,7 +212,7 @@
     }
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     NSUInteger index = indexPath.row;
-    HPDriverStackFrame *stackFrame = _lastStackTrace[index];
+    HippyJSStackFrame *stackFrame = _lastStackTrace[index];
     return [self reuseCell:cell forStackFrame:stackFrame];
 }
 
@@ -235,7 +234,7 @@
     return cell;
 }
 
-- (UITableViewCell *)reuseCell:(UITableViewCell *)cell forStackFrame:(HPDriverStackFrame *)stackFrame {
+- (UITableViewCell *)reuseCell:(UITableViewCell *)cell forStackFrame:(HippyJSStackFrame *)stackFrame {
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"cell"];
         cell.textLabel.textColor = [UIColor colorWithWhite:1 alpha:0.9];
@@ -277,7 +276,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 1) {
         NSUInteger row = indexPath.row;
-        HPDriverStackFrame *stackFrame = _lastStackTrace[row];
+        HippyJSStackFrame *stackFrame = _lastStackTrace[row];
         [_actionDelegate redBoxWindow:self openStackFrameInEditor:stackFrame];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -311,7 +310,7 @@
 
 @end
 
-@interface HippyRedBox () <HPInvalidating, HippyRedBoxWindowActionDelegate>
+@interface HippyRedBox () <HippyInvalidating, HippyRedBoxWindowActionDelegate>
 @end
 
 @implementation HippyRedBox {
@@ -344,7 +343,7 @@ HIPPY_EXPORT_MODULE()
 
 // WARNING: Should only be called from the main thread/dispatch queue.
 - (HippyErrorInfo *)_customizeError:(HippyErrorInfo *)error {
-    HPAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (!self->_errorCustomizers) {
         return error;
@@ -375,7 +374,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)showErrorMessage:(NSString *)message withRawStack:(NSString *)rawStack {
-    NSArray<HPDriverStackFrame *> *stack = [HPDriverStackFrame stackFramesWithLines:rawStack];
+    NSArray<HippyJSStackFrame *> *stack = [HippyJSStackFrame stackFramesWithLines:rawStack];
     [self showErrorMessage:message withStack:stack isUpdate:NO];
 }
 
@@ -391,8 +390,8 @@ HIPPY_EXPORT_MODULE()
     if (!_showEnabled) {
         return;
     }
-    if (![[stack firstObject] isKindOfClass:[HPDriverStackFrame class]]) {
-        stack = [HPDriverStackFrame stackFramesWithDictionaries:stack];
+    if (![[stack firstObject] isKindOfClass:[HippyJSStackFrame class]]) {
+        stack = [HippyJSStackFrame stackFramesWithDictionaries:stack];
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -406,22 +405,20 @@ HIPPY_EXPORT_MODULE()
     });
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(dismiss) {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_window dismiss];
     });
 }
-// clang-format on
 
 - (void)invalidate {
     [self dismiss];
 }
 
 - (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow
-openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
+openStackFrameInEditor:(HippyJSStackFrame *)stackFrame {
     //todo 
-    HPLog(@"red box cannot open stack frame");
+    HippyLog(@"red box cannot open stack frame");
 }
 
 - (void)reloadFromRedBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow {
@@ -430,15 +427,40 @@ openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
 
 @end
 
+
+#pragma mark -
+
+
 @implementation HippyBridge (HippyRedBox)
 
 - (HippyRedBox *)redBox {
     return [self moduleForClass:[HippyRedBox class]];
 }
 
+static HippyWeakProxy *HippyCurrentBridgeInstance = nil;
+
+/**
+ * The last current active bridge instance. This is set automatically whenever
+ * the bridge is accessed. It can be useful for static functions or singletons
+ * that need to access the bridge for purposes such as logging, but should not
+ * be relied upon to return any particular instance, due to race conditions.
+ */
++ (instancetype)currentBridge {
+    return (id)HippyCurrentBridgeInstance;
+}
+
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge {
+    HippyCurrentBridgeInstance = [HippyWeakProxy weakProxyForObject:currentBridge];
+    HippySetRedBoxFunction(^(NSString *errMsg, NSMutableArray<NSDictionary *> *stacks) {
+        [([HippyBridge currentBridge]).redBox showErrorMessage:errMsg withStack:stacks];
+    });
+}
+
+
 @end
 
-#else  // Disabled
+
+#else /* HIPPY_DEBUG */
 
 @implementation HippyRedBox
 
@@ -472,6 +494,12 @@ openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
     return nil;
 }
 
++ (nullable id)currentBridge {
+    return nil;
+}
+
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge {}
+
 @end
 
-#endif
+#endif /* HIPPY_DEBUG */

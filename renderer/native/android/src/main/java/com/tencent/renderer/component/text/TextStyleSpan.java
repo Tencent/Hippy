@@ -21,26 +21,26 @@ import android.text.style.MetricAffectingSpan;
 
 public class TextStyleSpan extends MetricAffectingSpan {
 
-    private final int mStyle;
-    private final int mWeight;
+    private final boolean mItalic;
+    private final String mFontWeight;
     private final String mFontFamily;
     private final FontAdapter mFontAdapter;
 
-    public TextStyleSpan(int fontStyle, int fontWeight, String fontFamily,
+    public TextStyleSpan(boolean italic, String fontWeight, String fontFamily,
             FontAdapter adapter) {
-        mStyle = fontStyle;
-        mWeight = fontWeight;
+        mItalic = italic;
+        mFontWeight = fontWeight;
         mFontFamily = fontFamily;
         mFontAdapter = adapter;
     }
 
     @Override
     public void updateDrawState(TextPaint textPaint) {
-        TypeFaceUtil.apply(textPaint, mStyle, mWeight, mFontFamily, mFontAdapter);
+        TypeFaceUtil.apply(textPaint, mItalic, mFontWeight, mFontFamily, mFontAdapter);
     }
 
     @Override
     public void updateMeasureState(TextPaint textPaint) {
-        TypeFaceUtil.apply(textPaint, mStyle, mWeight, mFontFamily, mFontAdapter);
+        TypeFaceUtil.apply(textPaint, mItalic, mFontWeight, mFontFamily, mFontAdapter);
     }
 }

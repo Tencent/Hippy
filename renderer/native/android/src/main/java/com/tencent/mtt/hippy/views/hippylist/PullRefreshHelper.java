@@ -22,16 +22,17 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.view.Gravity;
 import android.view.View;
-import android.view.View.OnTouchListener;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.LayoutManager;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallView;
+import com.tencent.renderer.node.PullHeaderRenderNode;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.AnimatorListenerBase;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
@@ -48,7 +49,7 @@ public abstract class PullRefreshHelper {
     public static final int DURATION = 200;
     public static final float PULL_RATIO = 2.4f;
     protected final HippyRecyclerView mRecyclerView;
-    protected final LinearLayout mContainer;
+    protected final PullRefreshContainer mContainer;
     protected final RenderNode mRenderNode;
     @Nullable
     protected View mItemView;
@@ -56,10 +57,11 @@ public abstract class PullRefreshHelper {
     protected ValueAnimator mAnimator;
     protected PullRefreshStatus mRefreshStatus = PullRefreshStatus.PULL_STATUS_FOLDED;
 
-    PullRefreshHelper(@NonNull HippyRecyclerView recyclerView, @NonNull RenderNode footerNode) {
+    PullRefreshHelper(@NonNull HippyRecyclerView recyclerView, @NonNull RenderNode node) {
         mRecyclerView = recyclerView;
-        mRenderNode = footerNode;
-        mContainer = new LinearLayout(recyclerView.getContext());
+        mRenderNode = node;
+        mContainer = new PullRefreshContainer(recyclerView.getContext(), node instanceof PullHeaderRenderNode);
+        mContainer.setId(node.getId());
     }
 
     protected abstract int handleDrag(int distance);
@@ -171,7 +173,13 @@ public abstract class PullRefreshHelper {
         mContainer.addView(itemView, lpChild);
         int width = isVertical ? MATCH_PARENT : 0;
         int height = isVertical ? 0 : MATCH_PARENT;
-        RecyclerView.LayoutParams lpContainer = new RecyclerView.LayoutParams(width, height);
+        RecyclerView.LayoutParams lpContainer;
+        if (mRecyclerView instanceof HippyWaterfallView) {
+            lpContainer = new StaggeredGridLayoutManager.LayoutParams(width, height);
+            ((StaggeredGridLayoutManager.LayoutParams) lpContainer).setFullSpan(true);
+        } else {
+            lpContainer = new RecyclerView.LayoutParams(width, height);
+        }
         mContainer.setLayoutParams(lpContainer);
     }
 
@@ -214,12 +222,7 @@ public abstract class PullRefreshHelper {
     protected void smoothResizeTo(int fromValue, int toValue, int duration) {
         endAnimation();
         mAnimator = ValueAnimator.ofInt(fromValue, toValue);
-        mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                setVisibleSize((int) animation.getAnimatedValue());
-            }
-        });
+        mAnimator.addUpdateListener(animation -> setVisibleSize((int) animation.getAnimatedValue()));
         mAnimator.addListener(new AnimatorListenerBase() {
             @Override
             public void onAnimationEnd(Animator animation) {

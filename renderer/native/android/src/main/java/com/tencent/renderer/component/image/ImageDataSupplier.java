@@ -39,6 +39,8 @@ public interface ImageDataSupplier {
 
     boolean isRecyclable();
 
+    boolean isCacheable();
+
     boolean isAnimated();
 
     @NonNull

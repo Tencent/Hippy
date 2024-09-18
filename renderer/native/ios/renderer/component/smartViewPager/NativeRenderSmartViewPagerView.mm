@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,18 +20,17 @@
  * limitations under the License.
  */
 
-#import "NativeRenderBaseListViewCell.h"
-#import "NativeRenderBaseListViewDataSource.h"
-#import "NativeRenderFooterRefresh.h"
-#import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderImpl.h"
-#import "NativeRenderObjectView.h"
+#import "HippyNextBaseListViewCell.h"
+#import "HippyNextBaseListViewDataSource.h"
+#import "HippyFooterRefresh.h"
+#import "HippyHeaderRefresh.h"
+#import "HippyUIManager.h"
+#import "HippyShadowView.h"
 #import "NativeRenderSmartViewPagerView.h"
-#import "NativeRenderScrollProtocol.h"
+#import "HippyScrollProtocol.h"
 #import "UIView+MountEvent.h"
+#import "UIView+Hippy.h"
 #import "UIView+Render.h"
-#import "UIView+NativeRender.h"
-
 #include <objc/runtime.h>
 
 static NSInteger kInfiniteLoopBegin = 2;
@@ -39,7 +38,7 @@ static NSString *const kCellIdentifier = @"cellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
-@interface NativeRenderSmartViewPagerView () <NativeRenderRefreshDelegate> {
+@interface NativeRenderSmartViewPagerView () <HippyRefreshDelegate> {
     __weak UIView *_rootView;
     BOOL _isInitialListReady;
     NSTimeInterval _lastScrollDispatchTime;
@@ -62,8 +61,9 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
-        _dataSource = [[NativeRenderBaseListViewDataSource alloc] init];
-        self.dataSource.itemViewName = [self compoentItemName];
+        _dataSource = [[HippyNextBaseListViewDataSource alloc] initWithDataSource:nil 
+                                                                     itemViewName:[self compoentItemName]
+                                                                containBannerView:NO];
         [self initialization];
         self.collectionView.alwaysBounceVertical = NO;
         self.collectionView.alwaysBounceHorizontal = YES;
@@ -79,7 +79,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 {
     _circular = NO;
     _autoplay = NO;
-    _itemWidth = self.nativeRenderObjectView.frame.size.width;
+    _itemWidth = self.hippyShadowView.frame.size.width;
     _previousMargin = 0.0f;
     _nextMargin = 0.0f;
     _pageGap = 0;
@@ -209,8 +209,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     _previousMargin = previousMargin;
     _nextMargin = nextMargin;
     _pageGap = pageGap;
-    _itemWidth = self.nativeRenderObjectView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
-    _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.nativeRenderObjectView.frame.size.height);
+    _itemWidth = self.hippyShadowView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
+    _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.hippyShadowView.frame.size.height);
     _viewPagerLayout.minimumLineSpacing = pageGap;
     _viewPagerLayout.minimumInteritemSpacing = pageGap;
     _currentPage = [self adjustInitialPage:_initialPage];
@@ -238,13 +238,13 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (Class)listItemClass {
-    return [NativeRenderBaseListViewCell class];
+    return [HippyNextBaseListViewCell class];
 }
 
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.minimumLineSpacing = .0f;
-    layout.itemSize = CGSizeMake(self.nativeRenderObjectView.frame.size.width, self.nativeRenderObjectView.frame.size.height);
+    layout.itemSize = CGSizeMake(self.hippyShadowView.frame.size.width, self.hippyShadowView.frame.size.height);
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     _viewPagerLayout = layout;
     return layout;
@@ -252,7 +252,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)registerCells {
     Class cls = [self listItemClass];
-    NSAssert([cls isSubclassOfClass:[NativeRenderBaseListViewCell class]], @"list item class must be a subclass of NativeRenderBaseListViewCell");
+    NSAssert([cls isSubclassOfClass:[HippyNextBaseListViewCell class]], @"list item class must be a subclass of NativeRenderBaseListViewCell");
     [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
@@ -266,12 +266,12 @@ static NSString *const kListViewItem = @"ListViewItem";
     [super setFrame:frame];
 }
 
-- (void)nativeRenderSetFrame:(CGRect)frame {
-    [super nativeRenderSetFrame:frame];
+- (void)hippySetFrame:(CGRect)frame {
+    [super hippySetFrame:frame];
     self.collectionView.frame = self.bounds;
 }
 
-- (void)setInitialListReady:(NativeRenderDirectEventBlock)initialListReady {
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
     _initialListReady = initialListReady;
     _isInitialListReady = NO;
 }
@@ -287,7 +287,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self.collectionView reloadData];
 }
 
-- (void)didUpdateNativeRenderSubviews {
+- (void)didUpdateHippySubviews {
     [self refreshItemNodes];
     [self reloadData];
 }
@@ -312,8 +312,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.nativeRenderObjectView.subcomponents containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.subcomponents.count];
+    [self.dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.hippySubviews.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
@@ -336,7 +336,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    NativeRenderBaseListViewCell *cell = (NativeRenderBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:adjustIndexPath];
+    HippyNextBaseListViewCell *cell = (HippyNextBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:adjustIndexPath];
     return cell;
 }
 
@@ -345,7 +345,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
+    HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     return renderObject.frame.size;
 }
 
@@ -354,17 +354,17 @@ static NSString *const kListViewItem = @"ListViewItem";
     forItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
-    NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
-    [renderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
+    HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
+    HippyShadowView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
+    UIView *cellView = [self.uiManager createViewForShadowListItem:renderObject];
     hpCell.cellView = cellView;
-    cellView.parentComponent = self;
+    cellView.parent = self;
 }
 
-- (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {
+- (void)tableViewDidLayoutSubviews:(HippyNextListTableView *)tableView {
+    [super tableViewDidLayoutSubviews:tableView];
     NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
-    for (NativeRenderBaseListViewCell *cell in visibleCells) {
+    for (HippyNextBaseListViewCell *cell in visibleCells) {
         CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];
         CGRect intersection = CGRectIntersection(cellRectInTableView, [self.collectionView bounds]);
         if (CGRectEqualToRect(cellRectInTableView, intersection)) {
@@ -376,7 +376,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     if (_previousVisibleCells && ![_previousVisibleCells isEqualToArray:visibleCells]) {
         NSMutableArray<UICollectionViewCell *> *diff = [_previousVisibleCells mutableCopy];
         [diff removeObjectsInArray:visibleCells];
-        for (NativeRenderBaseListViewCell *cell in diff) {
+        for (HippyNextBaseListViewCell *cell in diff) {
             [cell setCellShowState:CellNotShowState];
         }
     }
@@ -536,7 +536,4 @@ static NSString *const kListViewItem = @"ListViewItem";
     return 1;
 }
 
-#pragma mark NativeRenderRefresh Delegate
-- (void)refreshView:(NativeRenderRefresh *)refreshView statusChanged:(NativeRenderRefreshStatus)status {
-}
 @end

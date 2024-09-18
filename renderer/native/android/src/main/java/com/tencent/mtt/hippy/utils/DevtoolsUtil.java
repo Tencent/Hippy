@@ -180,7 +180,7 @@ public class DevtoolsUtil {
     }
 
     public static void getScreenShot(@NonNull List params, @NonNull final View view, @NonNull final Promise promise) {
-        if (params.isEmpty()) {
+        if (params.isEmpty() || view.getWidth() <= 0 || view.getHeight() <= 0) {
             return;
         }
         NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
@@ -213,9 +213,10 @@ public class DevtoolsUtil {
                 Window window = ((Activity) ((ContextWrapper) context).getBaseContext()).getWindow();
                 final Bitmap finalBitmap = bitmap;
                 final float finalScale = scale;
-                PixelCopy.request(window,
+                try {
+                    PixelCopy.request(window,
                         new Rect(location[0], location[1], location[0] + view.getWidth(),
-                                location[1] + view.getHeight()),
+                            location[1] + view.getHeight()),
                         finalBitmap, new OnPixelCopyFinishedListener() {
 
                             @Override
@@ -227,6 +228,9 @@ public class DevtoolsUtil {
                                 }
                             }
                         }, new Handler(Looper.getMainLooper()));
+                } catch (IllegalArgumentException e) {
+                    LogUtils.e(TAG, " PixelCopy.request error", e);
+                }
             } else {
                 LogUtils.e(TAG, "getScreenShot context.getBaseContext() is not activity");
             }
@@ -251,7 +255,7 @@ public class DevtoolsUtil {
     }
 
     private static String bitmapToBase64Str(Bitmap bitmap, float scale, int viewWidth, int viewHeight) {
-        String result = null;
+        String result = "";
         ByteArrayOutputStream outputStream = null;
         try {
             if (bitmap != null) {
@@ -269,6 +273,8 @@ public class DevtoolsUtil {
                 byte[] bitmapBytes = outputStream.toByteArray();
                 result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
             }
+        } catch (IllegalArgumentException e) {
+            sCacheBitmapRef.clear();
         } catch (IOException e) {
             LogUtils.e(TAG, "bitmapToBase64Str, scale exception:", e);
         } finally {

@@ -18,13 +18,11 @@ package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CHILD_VIEW_FAILED_ERR;
-import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_LAYOUT;
 
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.openhippy.pool.BasePool.PoolType;
@@ -35,7 +33,6 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
@@ -52,15 +49,15 @@ import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
-import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
-import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
+import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallItemViewController;
+import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.node.VirtualNode;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,30 +68,32 @@ public class ControllerManager {
     @NonNull
     private final ControllerRegistry mControllerRegistry;
     @NonNull
-    private final ControllerUpdateManger<HippyViewController<?>, View> mControllerUpdateManger;
+    private final ControllerUpdateManger<HippyViewController<?>> mControllerUpdateManger;
     @NonNull
     private final Map<Integer, Pool<Integer, View>> mPreCreateViewPools = new HashMap<>();
     @NonNull
     private final Map<Integer, Pool<String, View>> mRecycleViewPools = new HashMap<>();
     @Nullable
-    private Renderer mRenderer;
+    private final WeakReference<Renderer> mRendererWeakRef;
     @Nullable
     private static List<Class<?>> sDefaultControllers;
 
     public ControllerManager(@NonNull Renderer renderer) {
-        mRenderer = renderer;
+        mRendererWeakRef = new WeakReference<>(renderer);
         mControllerRegistry = new ControllerRegistry(renderer);
         mControllerUpdateManger = new ControllerUpdateManger<>(renderer);
     }
 
     @Nullable
     public RenderManager getRenderManager() {
-        return mRenderer != null ? ((NativeRender) mRenderer).getRenderManager() : null;
+        Renderer renderer = mRendererWeakRef.get();
+        return renderer != null ? ((NativeRender) renderer).getRenderManager() : null;
     }
 
     @Nullable
     public NativeRender getNativeRender() {
-        return mRenderer != null ? ((NativeRender) mRenderer) : null;
+        Renderer renderer = mRendererWeakRef.get();
+        return renderer != null ? ((NativeRender) renderer) : null;
     }
 
     @NonNull
@@ -179,8 +178,8 @@ public class ControllerManager {
     }
 
     public void destroy() {
-        mControllerRegistry.clear();
-        mControllerUpdateManger.clear();
+        mControllerRegistry.destroy();
+        mControllerUpdateManger.destroy();
         for (Pool<Integer, View> pool : mPreCreateViewPools.values()) {
             pool.clear();
         }
@@ -195,7 +194,6 @@ public class ControllerManager {
                 deleteRootView(mControllerRegistry.getRootIdAt(i));
             }
         }
-        mRenderer = null;
     }
 
     @Nullable
@@ -237,7 +235,7 @@ public class ControllerManager {
         if (view != null || rootView == null || controller == null) {
             return;
         }
-        view = controller.createView(rootView, id, mRenderer, className, props);
+        view = controller.createView(rootView, id, mRendererWeakRef.get(), className, props);
         if (view != null) {
             addPreView(view, rootId);
         }
@@ -294,7 +292,7 @@ public class ControllerManager {
                 if (controller == null) {
                     return null;
                 }
-                view = controller.createView(rootView, id, mRenderer, className, node.getProps());
+                view = controller.createView(rootView, id, mRendererWeakRef.get(), className, node.getProps());
                 node.setNodeFlag(FLAG_UPDATE_LAYOUT);
             }
             if (view != null) {
@@ -371,14 +369,21 @@ public class ControllerManager {
         }
     }
 
-    public void moveView(int rootId, int id, int newPid, int index) {
+    public void moveView(int rootId, int id, int oldPid, int newPid, int index) {
         View view = mControllerRegistry.getView(rootId, id);
         if (view == null) {
             return;
         }
-        ViewParent oldParent = view.getParent();
+        View oldParent = mControllerRegistry.getView(rootId, oldPid);
         if (oldParent instanceof ViewGroup) {
-            ((ViewGroup) oldParent).removeView(view);
+            String className = NativeViewTag.getClassName(oldParent);
+            HippyViewController<?> controller = null;
+            if (className != null) {
+                controller = mControllerRegistry.getViewController(className);
+            }
+            if (controller != null) {
+                controller.deleteChild((ViewGroup) oldParent, view);
+            }
         }
         View newParent = mControllerRegistry.getView(rootId, newPid);
         if (newParent instanceof ViewGroup) {
@@ -621,21 +626,23 @@ public class ControllerManager {
     }
 
     private void reportRemoveViewException(int pid, View parent, int id, View child) {
-        if (mRenderer != null) {
+        Renderer renderer = mRendererWeakRef.get();
+        if (renderer != null) {
             NativeRenderException exception = new NativeRenderException(
                     REMOVE_CHILD_VIEW_FAILED_ERR,
                     getViewOperationExceptionMessage(pid, parent, id, child,
                             "Remove view failed:"));
-            mRenderer.handleRenderException(exception);
+            renderer.handleRenderException(exception);
         }
     }
 
     private void reportAddViewException(int pid, View parent, int id, View child) {
-        if (mRenderer != null) {
+        Renderer renderer = mRendererWeakRef.get();
+        if (renderer != null) {
             NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
                     getViewOperationExceptionMessage(pid, parent, id, child,
                             "Add child to parent failed:"));
-            mRenderer.handleRenderException(exception);
+            renderer.handleRenderException(exception);
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.views.hippylist;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.utils.EventUtils;
@@ -36,7 +37,8 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
             case PULL_STATUS_FOLDED:
                 if (distance < 0) { // down towards
                     // make sure edge reached, aka distance + getOffset() < 0
-                    consumed = Math.min(0, distance + getOffset());
+                    int offset = getOffset();
+                    consumed = Math.min(0, distance + offset);
                     if (consumed != 0) {
                         mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
                         size = getVisibleSize() - Math.round(consumed / PULL_RATIO);
@@ -48,7 +50,8 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
             case PULL_STATUS_REFRESHING:
                 if (distance < 0) { // down towards
                     // make sure edge reached, aka distance + getOffset() < 0
-                    consumed = Math.min(0, distance + getOffset());
+                    int offset = getOffset();
+                    consumed = Math.min(0, distance + offset);
                 } else { // up towards
                     // make sure consume no more than header size (converted by PULL_RATIO)
                     consumed = Math.min(Math.round(getVisibleSize() * PULL_RATIO), distance);

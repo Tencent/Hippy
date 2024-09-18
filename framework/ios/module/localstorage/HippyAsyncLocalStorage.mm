@@ -26,10 +26,10 @@
 #import "HippyBridge.h"
 #import "HippyDefines.h"
 #import "HippyUtils.h"
-#import "HPAsserts.h"
-#import "HPConvert.h"
-#import "HPLog.h"
-#import "HPToolUtils.h"
+#import "HippyAssert.h"
+#import "HippyConvert.h"
+#import "HippyLog.h"
+#import "HippyUtils.h"
 
 NSString *const HippyStorageDirectory = @"HippyAsyncLocalStorage_V1";
 static NSString *const HippyManifestFileName = @"manifest.json";
@@ -204,12 +204,12 @@ HIPPY_EXPORT_MODULE(StorageModule)
 }
 
 - (NSString *)_filePathForKey:(NSString *)key {
-    NSString *safeFileName = HPMD5Hash(key);
+    NSString *safeFileName = HippyMD5Hash(key);
     return [[self HippyGetStorageDirectory] stringByAppendingPathComponent:safeFileName];
 }
 
 - (NSDictionary *)_ensureSetup {
-    HPAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
+    HippyAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
 
     NSError *error = nil;
     if (!_HippyHasCreatedStorageDirectory) {
@@ -228,7 +228,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
             NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
             NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
-                HPLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
+                HippyLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
                 tmpDic = [NSMutableDictionary new];
             }
             [_manifest addEntriesFromDictionary:tmpDic];
@@ -366,7 +366,6 @@ HIPPY_EXPORT_MODULE(StorageModule)
 
 #pragma mark - Exported JS Functions
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -379,14 +378,12 @@ HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
     for (NSString *key in keys) {
         id keyError;
         id value = [self _getValueForKey:key errorOut:&keyError];
-        [result addObject:@[key, HPNullIfNil(value)]];
+        [result addObject:@[key, HippyNullIfNil(value)]];
         HippyAppendError(keyError, &errors);
     }
-    callback(@[HPNullIfNil(errors), result]);
+    callback(@[HippyNullIfNil(errors), result]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -403,11 +400,9 @@ HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
     if (changedManifest) {
         [self _writeManifest:&errors];
     }
-    callback(@[HPNullIfNil(errors)]);
+    callback(@[HippyNullIfNil(errors)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -425,7 +420,7 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
                 NSError *jsonError;
                 NSMutableDictionary *mergedVal = HippyJSONParseMutable(value, &jsonError);
                 if (HippyMergeRecursive(mergedVal, HippyJSONParse(entry[1], &jsonError))) {
-                    entry = @[entry[0], HPNullIfNil(HippyJSONStringify(mergedVal, NULL))];
+                    entry = @[entry[0], HippyNullIfNil(HippyJSONStringify(mergedVal, NULL))];
                 }
                 if (jsonError) {
                     keyError = HippyJSErrorFromNSError(jsonError);
@@ -440,11 +435,9 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
     if (changedManifest) {
         [self _writeManifest:&errors];
     }
-    callback(@[HPNullIfNil(errors)]);
+    callback(@[HippyNullIfNil(errors)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
                   callback:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
@@ -474,20 +467,16 @@ HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
     if (changedManifest) {
         [self _writeManifest:&errors];
     }
-    callback(@[HPNullIfNil(errors)]);
+    callback(@[HippyNullIfNil(errors)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(clear:(HippyResponseSenderBlock)callback) {
     [_manifest removeAllObjects];
     [HippyGetCache() removeAllObjects];
     NSDictionary *error = [self HippyDeleteStorageDirectory];
-    callback(@[HPNullIfNil(error)]);
+    callback(@[HippyNullIfNil(error)]);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(getAllKeys:(HippyResponseSenderBlock)callback) {
     NSDictionary *errorOut = [self _ensureSetup];
     if (errorOut) {
@@ -496,6 +485,5 @@ HIPPY_EXPORT_METHOD(getAllKeys:(HippyResponseSenderBlock)callback) {
         callback(@[(id)kCFNull, _manifest.allKeys]);
     }
 }
-// clang-format on
 
 @end

@@ -161,6 +161,7 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
         barrierDismissible: true,
         barrierColor: Color(barrierColor),
         context: buildContext,
+        useRootNavigator: false,
         transitionDuration: Duration(milliseconds: durationTime),
         transitionBuilder: (context, anim1, anim2, child) {
           return _animation(

@@ -15,10 +15,23 @@
 
 package com.tencent.mtt.hippy;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.view.PixelCopy;
+import android.view.PixelCopy.OnPixelCopyFinishedListener;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +53,7 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyRemoteBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.common.LogAdapter;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -50,16 +64,19 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostView;
 import com.tencent.renderer.FrameworkProxy;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.vfs.Processor;
 import com.tencent.vfs.VfsManager;
@@ -218,42 +235,62 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void onFirstViewAdded() {
-        mEngineContext.getJsDriver().recordFirstFrameEndTime(System.currentTimeMillis());
-        MonitorGroup monitorGroup = mEngineContext.getMonitor()
-                .endGroup(MonitorGroupType.LOAD_INSTANCE);
-        if (monitorGroup != null) {
-            mGlobalConfigs.getEngineMonitorAdapter()
-                    .onLoadInstanceCompleted(mEngineContext.getComponentName(), monitorGroup);
-        }
+    public void onFirstPaint() {
+        mEngineContext.getJsDriver().recordFirstPaintEndTime(System.currentTimeMillis());
+        mEngineContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_PAINT,
+                TimeMonitor.MONITOR_POINT_FIRST_CONTENTFUL_PAINT);
+        mGlobalConfigs.getEngineMonitorAdapter().onFirstPaintCompleted(mEngineContext.getComponentName());
         if (mModuleListener != null) {
             mModuleListener.onFirstViewAdded();
         }
     }
 
     @Override
-    public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged) {
+    public void onFirstContentfulPaint() {
+        mEngineContext.getJsDriver().recordFirstContentfulPaintEndTime(System.currentTimeMillis());
+        mEngineContext.getMonitor().endGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+        mGlobalConfigs.getEngineMonitorAdapter().onFirstContentfulPaintCompleted(mEngineContext.getComponentName());
+    }
+
+    @Override
+    public void onSizeChanged(int rootId, int w, int h, int ow, int oh) {
+        if (mEngineContext != null) {
+            HippyModuleManager manager = mEngineContext.getModuleManager();
+            if (manager != null) {
+                HippyMap hippyMap = new HippyMap();
+                hippyMap.pushDouble("width", PixelUtil.px2dp(w));
+                hippyMap.pushDouble("height", PixelUtil.px2dp(h));
+                hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(ow));
+                hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oh));
+                manager.getJavaScriptModule(EventDispatcher.class)
+                        .receiveNativeEvent("onSizeChanged", hippyMap);
+            }
+        }
+    }
+
+    @Override
+    public void updateDimension(int width, int height) {
         if (mEngineContext == null) {
             return;
         }
         Context context = mEngineContext.getGlobalConfigs().getContext();
         HippyMap dimensionMap = DimensionsUtil
-                .getDimensions(width, height, context, shouldUseScreenDisplay);
+                .getDimensions(width, height, context);
         int dimensionW = 0;
         int dimensionH = 0;
         if (dimensionMap != null) {
             HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
             dimensionW = windowMap.getInt("width");
             dimensionH = windowMap.getInt("height");
+            LogUtils.i(TAG, "updateDimension: " + dimensionMap);
         }
         if (height < 0 || dimensionW == dimensionH) {
             HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
             if (deviceAdapter != null) {
-                deviceAdapter.reviseDimensionIfNeed(context, dimensionMap, shouldUseScreenDisplay,
-                        systemUiVisibilityChanged);
+                deviceAdapter.reviseDimensionIfNeed(context, dimensionMap);
             }
         }
+        DimensionsUtil.convertDimensionsToDp(dimensionMap);
         if (mEngineContext.getModuleManager() != null) {
             mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class)
                     .set(dimensionMap);
@@ -263,6 +300,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public FontAdapter getFontAdapter() {
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
+    }
+
+    @Override
+    public LogAdapter getLogAdapter() {
+        return mEngineContext.getGlobalConfigs().getLogAdapter();
     }
 
     @Override
@@ -335,6 +377,96 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public void removeSnapshotView() {
         if (mEngineContext != null) {
             mEngineContext.getRenderer().removeSnapshotView();
+        }
+    }
+
+    public void getScreenshotBitmapForView(@Nullable Context context, int id,
+            @NonNull final ScreenshotBuildCallback callback) {
+        if (mEngineContext == null) {
+            throw new IllegalArgumentException("engine context is null");
+        }
+        View view = mEngineContext.findViewById(id);
+        if (view == null) {
+            throw new IllegalArgumentException("can not find view by id");
+        }
+        getScreenshotBitmapForView(context, view, callback);
+    }
+
+    private Window getDialogWindow(@NonNull RenderNode node) {
+        View hostView = mEngineContext.findViewById(node.getId());
+        if (hostView instanceof HippyModalHostView) {
+            Dialog dialog = ((HippyModalHostView) hostView).getDialog();
+            if (dialog != null) {
+                return dialog.getWindow();
+            }
+        }
+        return null;
+    }
+
+    private Window getViewWindow(@NonNull Activity activity, @NonNull View view) {
+        Window window = null;
+        RenderNode node = RenderManager.getRenderNode(view);
+        if (node == null) {
+            return activity.getWindow();
+        }
+        if (node.getClassName().equals(HippyModalHostManager.CLASS_NAME)) {
+            window = getDialogWindow(node);
+        }
+        if (window == null) {
+            RenderNode parent = node.getParent();
+            while (parent != null) {
+                if (parent.getClassName().equals(HippyModalHostManager.CLASS_NAME)) {
+                    window = getDialogWindow(parent);
+                    break;
+                }
+                parent = parent.getParent();
+            }
+        }
+        return window == null ? activity.getWindow() : window;
+    }
+
+    public void getScreenshotBitmapForView(@Nullable Context context, @NonNull View view,
+            @NonNull final ScreenshotBuildCallback callback) {
+        final int width = view.getWidth();
+        final int height = view.getHeight();
+        if (width <= 0 || height <= 0) {
+            String error = "error view size: width " + width + ", height " + height;
+            throw new IllegalArgumentException(error);
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!(context instanceof Activity)) {
+                    context = view.getContext();
+                    if (context instanceof ContextWrapper) {
+                        context = ((ContextWrapper) context).getBaseContext();
+                    }
+                    if (!(context instanceof Activity)) {
+                        throw new IllegalArgumentException("context is not activity");
+                    }
+                }
+                // Above Android O, use PixelCopy, because another way view.draw will cause Software rendering doesn't support hardware bitmaps
+                int[] location = new int[2];
+                view.getLocationInWindow(location);
+                Window window = getViewWindow((Activity) context, view);
+                final Bitmap finalBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                PixelCopy.request(window,
+                        new Rect(location[0], location[1], location[0] + view.getWidth(),
+                                location[1] + view.getHeight()),
+                        finalBitmap, new OnPixelCopyFinishedListener() {
+                            @Override
+                            public void onPixelCopyFinished(int copyResult) {
+                                callback.onScreenshotBuildCompleted(finalBitmap, copyResult);
+                            }
+                        }, new Handler(Looper.getMainLooper()));
+            } else {
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                canvas.drawColor(Color.WHITE);
+                view.draw(canvas);
+                callback.onScreenshotBuildCompleted(bitmap, PixelCopy.SUCCESS);
+            }
+        } catch (OutOfMemoryError e) {
+            callback.onScreenshotBuildCompleted(null, PixelCopy.ERROR_DESTINATION_INVALID);
         }
     }
 
@@ -559,12 +691,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
         mEngineContext.getJsDriver().recordNativeInitEndTime(mInitStartTime, System.currentTimeMillis());
-        MonitorGroup monitorGroup = mEngineContext.getMonitor()
-                .endGroup(MonitorGroupType.ENGINE_INITIALIZE);
-        if (monitorGroup != null) {
-            mGlobalConfigs.getEngineMonitorAdapter()
-                    .onEngineInitialized(statusCode, monitorGroup);
-        }
+        mGlobalConfigs.getEngineMonitorAdapter().onEngineInitialized(statusCode);
         for (EngineListener listener : mEventListeners) {
             listener.onInitialized(statusCode, error == null ? null : error.toString());
         }
@@ -572,8 +699,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private synchronized void restartEngineInBackground(boolean onReLoad) {
-        mMonitor.startPoint(MonitorGroupType.ENGINE_INITIALIZE,
-                TimeMonitor.MONITOR_POINT_INIT_NATIVE_ENGINE);
+        mMonitor.beginGroup(TimeMonitor.MONITOR_GROUP_INIT_ENGINE);
+        mMonitor.addPoint(TimeMonitor.MONITOR_GROUP_INIT_ENGINE, TimeMonitor.MONITOR_POINT_INIT_NATIVE_ENGINE);
         if (mCurrentState == EngineState.DESTROYED) {
             String errorMsg =
                     "restartEngineInBackground... error STATUS_WRONG_STATE, state=" + mCurrentState;
@@ -618,8 +745,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mCurrentState = result ? EngineState.INITED : EngineState.INITERRORED;
                 if (state != EngineState.ONRESTART) {
                     notifyEngineInitialized(
-                            result ? EngineInitStatus.STATUS_OK
-                                    : EngineInitStatus.STATUS_ERR_BRIDGE,
+                            result ? EngineInitStatus.STATUS_OK : EngineInitStatus.STATUS_ERR_BRIDGE,
                             e);
                 } else {
                     LogUtils.e(TAG,
@@ -627,7 +753,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     notifyEngineInitialized(EngineInitStatus.STATUS_WRONG_STATE, e);
                 }
             }
-        });
+        }, onReLoad);
     }
 
     /**
@@ -836,6 +962,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        @Nullable
+        public HippyMap getJsParams() {
+            return moduleLoadParams != null ? moduleLoadParams.jsParams : null;
+        }
+
+        @Override
         public HippyGlobalConfigs getGlobalConfigs() {
             return mGlobalConfigs;
         }
@@ -1017,19 +1149,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @Nullable String msg) {
             notifyModuleLoaded(statusCode, msg);
-            MonitorGroup monitorGroup = mEngineContext.getMonitor()
-                    .endGroup(MonitorGroupType.RUN_JS_BUNDLE);
-            if (monitorGroup != null) {
-                mGlobalConfigs.getEngineMonitorAdapter()
-                        .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName(),
-                                monitorGroup);
-            }
+            mGlobalConfigs.getEngineMonitorAdapter()
+                    .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName());
         }
 
         @Override
         public void onLoadInstanceCompleted(long result, String reason) {
-            mEngineContext.getMonitor().startPoint(MonitorGroupType.LOAD_INSTANCE,
-                    TimeMonitor.MONITOR_POINT_FIRST_FRAME);
+
         }
 
         public void destroyBridge(boolean isReload) {

@@ -25,9 +25,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-HP_EXTERN NSDictionary *HippyExportedDimensions(void);
+HIPPY_EXTERN NSDictionary *hippyExportedDimensions(HippyBridge *);
+HIPPY_EXTERN NSString *const HippyDimensionsShouldUpdateNotification;
 
+/// A Helper class that collects `Dimensions` info
 @interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
+
+/// Whether is UIScreen in system dark mode.
++ (BOOL)isUIScreenInOSDarkMode;
 
 @end
 

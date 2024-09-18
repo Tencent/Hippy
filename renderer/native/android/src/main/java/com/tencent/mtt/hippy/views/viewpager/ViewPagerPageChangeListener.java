@@ -57,12 +57,17 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
             params.put(PAGE_ITEM_POSITION, position);
             EventUtils.sendComponentEvent(mPager, EventUtils.EVENT_PAGE_SELECTED, params);
             View currView = mPager.getViewFromAdapter(mCurrPageIndex);
-            params.put(PAGE_ITEM_POSITION, mCurrPageIndex);
-            EventUtils.sendComponentEvent(currView, EventUtils.EVENT_PAGE_ITEM_WILL_APPEAR, params);
+            if (currView != null) {
+                params.put(PAGE_ITEM_POSITION, mCurrPageIndex);
+                EventUtils.sendComponentEvent(currView, EventUtils.EVENT_PAGE_ITEM_WILL_APPEAR,
+                        params);
+            }
             View lastView = mPager.getViewFromAdapter(mLastPageIndex);
-            params.put(PAGE_ITEM_POSITION, mLastPageIndex);
-            EventUtils.sendComponentEvent(lastView, EventUtils.EVENT_PAGE_ITEM_WILL_DISAPPEAR,
-                    params);
+            if (lastView != null) {
+                params.put(PAGE_ITEM_POSITION, mLastPageIndex);
+                EventUtils.sendComponentEvent(lastView, EventUtils.EVENT_PAGE_ITEM_WILL_DISAPPEAR,
+                        params);
+            }
         }
     }
 

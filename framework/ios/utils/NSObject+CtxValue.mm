@@ -21,8 +21,8 @@
  */
 
 #import "NSObject+CtxValue.h"
-#import "HPAsserts.h"
-
+#import "HippyAssert.h"
+#import "HippyLog.h"
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"
 #include "footstone/string_view.h"
@@ -30,9 +30,9 @@
 
 @implementation NSObject (CtxValue)
 
-- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
+- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
-        HPAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        HippyLogWarn(@"%@ No convertToCtxValue method", NSStringFromClass([self class]));
         std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
         return context->CreateObject(valueMap);
     }
@@ -87,7 +87,9 @@
             id value = [self objectForKey:key];
             auto keyPtr = [key convertToCtxValue:context];
             auto valuePtr = [value convertToCtxValue:context];
-            valueMap[keyPtr] = valuePtr;
+            if (keyPtr && valuePtr) {
+                valueMap[keyPtr] = valuePtr;
+            }
         }
         return context->CreateObject(valueMap);
     }
@@ -99,6 +101,9 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     size_t bufferLength = [self length];
+    if (bufferLength == 0) {
+        return context->CreateNull();
+    }
     void *buffer = malloc(bufferLength);
     if (buffer) {
         [self getBytes:buffer length:bufferLength];
@@ -147,20 +152,17 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
         if (context->IsString(value)) {
             footstone::string_view view;
             if (context->GetValueString(value, &view)) {
-                view = footstone::StringViewUtils::ConvertEncoding(view, footstone::string_view::Encoding::Utf16);
+                view = footstone::StringViewUtils::CovertToUtf16(view, view.encoding());
                 footstone::string_view::u16string &u16String = view.utf16_value();
-                NSString *string =
-                    [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
                 return string;
             }
-        }
-        else if (context->IsNumber(value)) {
+        } else if (context->IsNumber(value)) {
             double number = 0;
             if (context->GetValueNumber(value, &number)) {
                 return @(number);
             }
-        }
-        else if (context->IsArray(value)) {
+        } else if (context->IsArray(value)) {
             uint32_t length = context->GetArrayLength(value);
             NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
             for (uint32_t index = 0; index < length; index++) {
@@ -178,8 +180,7 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
             if (context->GetByteBuffer(value, &bytes, length, type)) {
                 return [NSData dataWithBytes:bytes length:length];
             }
-        }
-        else if (context->IsObject(value)) {
+        } else if (context->IsObject(value)) {
             std::unordered_map<CtxValuePtr, CtxValuePtr> map;
             if (context->GetEntriesFromObject(value, map)) {
                 NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
@@ -189,17 +190,19 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
                     if (!flag) {
                         continue;
                     }
-                    const auto &u16String = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
-                    NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                    // Note that reference value (const auto &) cannot be used directly here,
+                    // since the temporary string_view object will destruct the uft16 value.
+                    // a wrong example is:
+                    // const auto &u16Str = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
+                    string_view = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding());
+                    footstone::string_view::u16string &u16Str = string_view.utf16_value();
+                    NSString *string = [NSString stringWithCharacters:(const unichar *)u16Str.c_str() length:u16Str.length()];
                     auto &value = it.second;
                     id obj = ObjectFromCtxValue(context, value);
                     [dictionary setObject:obj forKey:string];
                 }
                 return [dictionary copy];
             }
-        }
-        else {
-
         }
         return [NSNull null];
     }

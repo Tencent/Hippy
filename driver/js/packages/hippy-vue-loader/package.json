@@ -28,7 +28,8 @@
   "dependencies": {
     "@vue/component-compiler-utils": "^3.1.0",
     "hash-sum": "^1.0.2",
-    "loader-utils": "^1.1.0"
+    "loader-utils": "^1.1.0",
+    "postcss-class-prefix": "~0.3.0"
   },
   "devDependencies": {
     "cache-loader": "^2.0.1",

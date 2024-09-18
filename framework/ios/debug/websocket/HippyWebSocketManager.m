@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "MacroDefines.h"
+#import "HippyDefines.h"
 #import "HippyWebSocketManager.h"
-#import "HPConvert.h"
-#import "HPToolUtils.h"
+#import "HippyConvert.h"
+#import "HippyUtils.h"
 #import "HippySRWebSocket.h"
 #import "HippyDefines.h"
 
@@ -61,7 +61,6 @@ HIPPY_EXPORT_MODULE(websocket)
     }
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
     NSDictionary *headers = params[@"headers"];
     NSString *url = params[@"url"];
@@ -75,9 +74,7 @@ HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolve
     resolve(@{@"code": @(0), @"id": socketId});
     [socket open];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
     NSNumber *socketId = params[@"id"];
     NSNumber *code = params[@"code"];
@@ -92,9 +89,7 @@ HIPPY_EXPORT_METHOD(close:(NSDictionary *)params) {
         }
     }
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
     NSNumber *socketId = params[@"id"];
     NSString *data = params[@"data"];
@@ -103,7 +98,6 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
         [socket send:data];
     }
 }
-// clang-format on
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
     dispatch_async(_queue, ^{

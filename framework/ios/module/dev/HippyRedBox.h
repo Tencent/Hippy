@@ -26,6 +26,8 @@
 #import "HippyBridgeModule.h"
 #import "HippyErrorCustomizer.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface HippyRedBox : NSObject <HippyBridgeModule>
 
 @property (nonatomic, assign) BOOL showEnabled;
@@ -50,4 +52,13 @@
 
 @property (nonatomic, readonly) HippyRedBox *redBox;
 
+/// The last current active bridge instance.
++ (nullable instancetype)currentBridge;
+
+/// Record the last active bridge instance.
+/// - Parameter currentBridge: bridge instance, pass nil to reset.
++ (void)setCurrentBridge:(nullable HippyBridge *)currentBridge;
+
 @end
+
+NS_ASSUME_NONNULL_END

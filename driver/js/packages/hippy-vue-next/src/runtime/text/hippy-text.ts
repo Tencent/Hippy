@@ -20,21 +20,28 @@
 
 import type { HippyElement } from '../element/hippy-element';
 import { HippyNode, NodeType } from '../node/hippy-node';
+import type { SsrNode } from '../../types';
 
 /**
  * hippy text node
  */
 export class HippyText extends HippyNode {
   public text: string;
+  // used to hydrate, same to vue
+  public data: string;
 
-  constructor(text: string) {
-    super(NodeType.TextNode);
+  constructor(text: string, ssrNode?: SsrNode) {
+    super(NodeType.TextNode, ssrNode);
     this.text = text;
+    this.data = text;
+
+    // text nodes do not need to be inserted into Native
+    this.isNeedInsertToNative = false;
   }
 
   public setText(text: string): void {
     this.text = text;
-    if (this.parentNode && this.nodeType === NodeType.ElementNode) {
+    if (this.parentNode && this.parentNode.nodeType === NodeType.ElementNode) {
       (this.parentNode as HippyElement).setText(text);
     }
   }

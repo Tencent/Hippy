@@ -110,6 +110,7 @@ void NativeRenderManager::DestroyRenderDelegate(JNIEnv* j_env) {
   j_env->CallVoidMethod(j_object, j_method_id);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
+  persistent_map_.Erase(id_);
 }
 
 void NativeRenderManager::InitDensity() {
@@ -124,7 +125,7 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
   }
   uint32_t root_id = root->GetId();
 
-  serializer_->Release();
+  footstone::value::SerializerHelper::DestroyBuffer(serializer_->Release());
   serializer_->WriteHeader();
 
   auto len = nodes.size();
@@ -182,8 +183,8 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
-
   CallNativeMethod("createNode", root->GetId(), buffer_pair);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
 }
 
 void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
@@ -201,7 +202,7 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
     }
   }
 
-  serializer_->Release();
+  footstone::value::SerializerHelper::DestroyBuffer(serializer_->Release());
   serializer_->WriteHeader();
 
   auto len = nodes.size();
@@ -242,8 +243,8 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
-
   CallNativeMethod("updateNode", root->GetId(), buffer_pair);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
@@ -253,13 +254,12 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  serializer_->Release();
+  footstone::value::SerializerHelper::DestroyBuffer(serializer_->Release());
   serializer_->WriteHeader();
 
   auto len = nodes.size();
   footstone::value::HippyValue::HippyValueArrayType dom_node_array;
   dom_node_array.resize(len);
-  uint32_t pid;
   for (uint32_t i = 0; i < len; i++) {
     const auto& render_info = nodes[i]->GetRenderInfo();
     footstone::value::HippyValue::HippyValueObjectType dom_node;
@@ -267,7 +267,6 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kPid] = footstone::value::HippyValue(render_info.pid);
     dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
     dom_node_array[i] = dom_node;
-    pid = render_info.pid;
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
@@ -286,15 +285,16 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(II[B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(I[B)V");
   if (!j_method_id) {
     FOOTSTONE_LOG(ERROR) << "moveNode" << " j_method_id error";
     return;
   }
-  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), pid, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), j_buffer);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_class);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
 }
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
@@ -343,7 +343,7 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  serializer_->Release();
+  footstone::value::SerializerHelper::DestroyBuffer(serializer_->Release());
   serializer_->WriteHeader();
 
   auto len = nodes.size();
@@ -367,8 +367,8 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
   }
   serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
-
   CallNativeMethod("updateLayout", root->GetId(), buffer_pair);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
@@ -637,11 +637,12 @@ void NativeRenderManager::HandleListenerOps(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  serializer_->Release();
+  footstone::value::SerializerHelper::DestroyBuffer(serializer_->Release());
   serializer_->WriteHeader();
   serializer_->WriteValue(HippyValue(event_listener_ops));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
   CallNativeMethod(method_name, root->GetId(), buffer_pair);
+  footstone::value::SerializerHelper::DestroyBuffer(buffer_pair);
 }
 
 void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id) {

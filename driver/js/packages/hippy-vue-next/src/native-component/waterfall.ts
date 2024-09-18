@@ -255,12 +255,17 @@ export function registerWaterfall(vueApp: App): void {
         type: [String, Number],
         default: '',
       },
+      fullSpan: {
+        type: Boolean,
+        default: false,
+      },
     },
     render() {
       return h(
         hippyWaterfallItemTag,
         {
           type: this.type,
+          fullSpan: this.fullSpan,
         },
         this.$slots.default ? this.$slots.default() : null,
       );

@@ -20,14 +20,30 @@
  * limitations under the License.
  */
 
-#import <WebKit/WKHTTPCookieStore.h>
-#import <WebKit/WKWebsiteDataStore.h>
-
+#import "HippyNetWork.h"
+#import <WebKit/WebKit.h>
+#import <QuartzCore/QuartzCore.h>
 #import "HippyBridge+VFSLoader.h"
 #import "HippyDefines.h"
-#import "HippyNetWork.h"
-#import "HPAsserts.h"
-#import "HPToolUtils.h"
+#import "HippyAssert.h"
+#import "HippyUtils.h"
+
+
+// Request parameter of fetch API
+static NSString *const kHippyNetworkRequestParaURL = @"url";
+static NSString *const kHippyNetworkRequestParaMethod = @"method";
+static NSString *const kHippyNetworkRequestParaHeaders = @"headers";
+static NSString *const kHippyNetworkRequestParaBody = @"body";
+
+// Response parameter of fetch API
+static NSString *const kHippyNetworkResponseStatusCode = @"statusCode";
+static NSString *const kHippyNetworkResponseStatusLine = @"statusLine";
+static NSString *const kHippyNetworkResponseHeaders = @"respHeaders";
+static NSString *const kHippyNetworkResponseBody = @"respBody";
+
+// Duration parameter in resp.header of fetch API
+static NSString *const kHippyNetworkRequestDuration = @"Hippy-Request-Duration";
+
 
 static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response) {
     NSString *textEncoding = [response textEncodingName];
@@ -45,59 +61,87 @@ static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response
 
 HIPPY_EXPORT_MODULE(network)
 
-// clang-format off
-HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
+HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params
+                    resolver:(HippyPromiseResolveBlock)resolve
+                    rejecter:(HippyPromiseRejectBlock)reject) {
     if (!resolve) {
         return;
     }
-    NSString *method = params[@"method"];
-    NSString *url = params[@"url"];
-    NSDictionary *header = params[@"headers"];
-    NSString *body = params[@"body"];
-  
-    HPAssertParam(url);
-    HPAssertParam(method);
+
+    NSString *url = params[kHippyNetworkRequestParaURL];
+    NSString *method = params[kHippyNetworkRequestParaMethod];
+    NSDictionary *header = params[kHippyNetworkRequestParaHeaders];
+    NSString *body = params[kHippyNetworkRequestParaBody];
+
+    if (!url) {
+        HippyAssertParam(url);
+        if (reject) {
+            reject(@"invalid_params", @"URL is missing", nil);
+        }
+        return;
+    }
 
     NSMutableDictionary *vfsParams = [NSMutableDictionary new];
-    [header enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL *stop) {
+    [header enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL *stop) {
         NSString *value = nil;
-        if ([obj isKindOfClass: [NSArray class]]) {
+        if ([obj isKindOfClass:[NSArray class]]) {
             value = [[(NSArray *)obj valueForKey:@"description"] componentsJoinedByString:@","];
-        } else if ([obj isKindOfClass: [NSString class]]) {
+        } else if ([obj isKindOfClass:[NSString class]]) {
             value = obj;
         }
         
-        [vfsParams setValue: value forKey: key];
+        if (value) {
+            [vfsParams setValue:value forKey:key];
+        }
     }];
+
     NSData *data = nil;
     if (body) {
         data = [body dataUsingEncoding:NSUTF8StringEncoding];
     }
+
+    // Record request start time
+    CFTimeInterval startTime = CACurrentMediaTime();
+
+    // Send Request
     [self.bridge loadContentsAsynchronouslyFromUrl:url
-                                            method:method?:@"Get"
+                                            method:method ?: @"GET"
                                             params:vfsParams
                                               body:data
                                              queue:nil
                                           progress:nil
-                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                 completionHandler:^(NSData *data, NSDictionary *userInfo,
+                                                     NSURLResponse *response, NSError *error) {
         NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:encoding];
         NSUInteger statusCode = 0;
-        NSDictionary *headers = nil;
+        NSMutableDictionary *headers = [NSMutableDictionary dictionary];
+
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
             statusCode = [httpRes statusCode];
-            headers = [httpRes allHeaderFields];
+            [headers addEntriesFromDictionary:[httpRes allHeaderFields]];
         }
-        NSDictionary *result =
-            @{ @"statusCode": @(statusCode), @"statusLine": @"", @"respHeaders": headers ?: @ {}, @"respBody": dataStr ?: @"" };
+
+        // Get request duration，in ms.
+        // and add to resp headers.
+        CFTimeInterval requestDuration = (CACurrentMediaTime() - startTime) * 1000;
+        [headers addEntriesFromDictionary:@{ kHippyNetworkRequestDuration : @(requestDuration).stringValue }];
+
+        NSDictionary *result = @{
+            kHippyNetworkResponseStatusCode : @(statusCode),
+            kHippyNetworkResponseStatusLine : @"",
+            kHippyNetworkResponseHeaders : headers ?: @{},
+            kHippyNetworkResponseBody : dataStr ?: @""
+        };
+
         resolve(result);
     }];
 }
-// clang-format on
 
-// clang-format off
-HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
+HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString 
+                    resolver:(HippyPromiseResolveBlock)resolve
+                    rejecter:(__unused HippyPromiseRejectBlock)reject) {
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
         resolve(@"");
@@ -115,9 +159,7 @@ HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolv
     }
     resolve(string);
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValue expireString:(NSString *)expireString) {
     NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
     if (nil == uriData) {
@@ -186,7 +228,6 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:source_url mainDocumentURL:nil];
     });
 }
-// clang-format on
 
 - (void)deleteCookiesForURL:(NSURL *)url {
     NSString *path = [[url path] isEqualToString:@""]?@"/":[url path];

@@ -18,13 +18,14 @@ package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
 import androidx.recyclerview.widget.RecyclerViewBase;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import java.lang.ref.WeakReference;
 
 public final class StickyViewFactory implements IHeaderViewFactory {
 
-    private final RecyclerViewBase recyclerView;
+    private final WeakReference<RecyclerViewBase> recyclerViewWeakRef;
 
     public StickyViewFactory(RecyclerViewBase recyclerView) {
-        this.recyclerView = recyclerView;
+        recyclerViewWeakRef = new WeakReference<>(recyclerView);
     }
 
     /**
@@ -37,7 +38,8 @@ public final class StickyViewFactory implements IHeaderViewFactory {
      * @return 返回对应到ViewHolder，不会返回Null
      */
     public ViewHolder getHeaderForPosition(int position) {
-        if (position < 0) {
+        RecyclerViewBase recyclerView = recyclerViewWeakRef.get();
+        if (position < 0 || recyclerView == null) {
             return null;
         }
         ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);

@@ -29,7 +29,6 @@ import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.openhippy.connector.NativeCallback;
 import com.openhippy.framework.BuildConfig;
-import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -50,9 +49,9 @@ import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
-import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroupType;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
@@ -62,6 +61,12 @@ import java.util.ArrayList;
 @SuppressWarnings({"unused", "deprecation"})
 public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.BridgeCallback,
         Handler.Callback {
+
+    public enum BridgeState {
+        UNINITIALIZED,
+        INITIALIZED,
+        DESTROYED
+    }
 
     static final int MSG_CODE_INIT_BRIDGE = 10;
     static final int MSG_CODE_RUN_BUNDLE = 11;
@@ -83,10 +88,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     public static final int DESTROY_CLOSE = 0;
     public static final int DESTROY_RELOAD = 1;
 
+    public static final int CREATE_NORMAL = 0;
+    public static final int CREATE_RELOAD = 1;
+
     final HippyEngineContext mContext;
     final HippyBundleLoader mCoreBundleLoader;
     private final HippyBridge mHippyBridge;
-    volatile boolean mInitialized = false;
+    BridgeState mBridgeState = BridgeState.UNINITIALIZED;
     Handler mHandler;
     final boolean mEnableV8Serialization;
     ArrayList<String> mLoadedBundleInfo = null;
@@ -220,23 +228,24 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     @Override
     public boolean handleMessage(Message msg) {
+        final TimeMonitor timeMonitor = mContext.getMonitor();
         try {
             switch (msg.what) {
                 case MSG_CODE_INIT_BRIDGE: {
                     @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> callback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
+                    final int code = msg.arg1;
                     try {
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
                             public void Call(long result, Message message, String action,
                                     String reason) {
-                                if (result != 0) {
+                                if (result != 0 || mBridgeState == BridgeState.DESTROYED) {
                                     String info =
-                                            "initJSBridge error: result=" + result + ", reason="
-                                                    + reason;
+                                            "initJSBridge error: result " + result + ", reason "
+                                                    + reason + ", bridge state " + mBridgeState;
                                     reportException(new Throwable(info));
                                     return;
                                 }
-
                                 long runtimeId = mHippyBridge.getV8RuntimeId();
                                 if (mContext != null) {
                                     mContext.onRuntimeInitialized();
@@ -249,44 +258,45 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                     mThirdPartyAdapter.onRuntimeInit(runtimeId);
                                 }
                                 if (mCoreBundleLoader != null) {
-                                    final TimeMonitor timeMonitor = mContext.getMonitor();
-                                    timeMonitor.startPoint(MonitorGroupType.ENGINE_INITIALIZE,
-                                            TimeMonitor.MONITOR_POINT_LOAD_COMMON_JS);
+                                    timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_INIT_ENGINE,
+                                            TimeMonitor.MONITOR_POINT_LOAD_VENDOR_JS);
                                     mCoreBundleLoader
                                             .load(mHippyBridge, new NativeCallback(mHandler) {
                                                 @Override
                                                 public void Call(long result, Message message,
                                                         String action, String reason) {
-                                                    mInitialized = result == 0;
+                                                    if (mBridgeState == BridgeState.DESTROYED) {
+                                                        return;
+                                                    }
                                                     RuntimeException exception = null;
-                                                    if (!mInitialized) {
+                                                    if (result == 0) {
+                                                        mBridgeState = BridgeState.INITIALIZED;
+                                                    } else {
                                                         exception = new RuntimeException(
                                                                 "load coreJsBundle failed, check your core jsBundle:"
                                                                         + reason);
                                                     }
-                                                    timeMonitor.startPoint(
-                                                            MonitorGroupType.ENGINE_INITIALIZE,
-                                                            TimeMonitor.MONITOR_POINT_NOTIFY_ENGINE_INITIALIZED);
-                                                    callback.callback(mInitialized, exception);
+                                                    callback.callback((result == 0), exception);
+                                                    timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_INIT_ENGINE);
                                                 }
                                             });
                                 } else {
-                                    mInitialized = true;
-                                    callback.callback(mInitialized, null);
+                                    mBridgeState = BridgeState.INITIALIZED;
+                                    callback.callback(true, null);
                                 }
                             }
-                        }, mGroupId);
+                        }, mGroupId, code == CREATE_RELOAD);
                     } catch (Throwable e) {
-                        mInitialized = false;
+                        mBridgeState = BridgeState.UNINITIALIZED;
                         callback.callback(false, e);
                     }
                     return true;
                 }
                 case MSG_CODE_RUN_BUNDLE: {
                     HippyBundleLoader loader = (HippyBundleLoader) msg.obj;
-                    if (!mInitialized) {
+                    if (mBridgeState != BridgeState.INITIALIZED) {
                         mContext.onLoadModuleCompleted(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
-                                "load module error. HippyBridge mInitialized:" + mInitialized);
+                                "load module error. bridge state: " + mBridgeState);
                         return true;
                     }
                     if (loader == null) {
@@ -296,8 +306,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     }
                     final String bundleUniKey = loader.getBundleUniKey();
                     if (mLoadedBundleInfo != null && !TextUtils.isEmpty(bundleUniKey)
-                            && mLoadedBundleInfo
-                            .contains(bundleUniKey)) {
+                            && mLoadedBundleInfo.contains(bundleUniKey)) {
                         mContext.onLoadModuleCompleted(ModuleLoadStatus.STATUS_REPEAT_LOAD,
                                 "repeat load module. loader.getBundleUniKey=" + bundleUniKey);
                         return true;
@@ -324,20 +333,21 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                                 "load module error. loader.load failed. check the file!!");
                                     }
                                 }
+                                timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE);
+                                timeMonitor.beginGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+                                timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_PAINT, TimeMonitor.MONITOR_POINT_FIRST_PAINT);
                             }
                         });
                     } else {
                         mContext.onLoadModuleCompleted(ModuleLoadStatus.STATUS_VARIABLE_NULL,
                                 "can not load module. loader.getBundleUniKey=null");
                     }
-
                     return true;
                 }
                 case MSG_CODE_CALL_FUNCTION: {
-                    if (mInitialized) {
+                    if (mBridgeState == BridgeState.INITIALIZED) {
                         handleCallFunction(msg);
                     }
-
                     return true;
                 }
                 case MSG_CODE_DESTROY_BRIDGE: {
@@ -352,87 +362,82 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         } catch (Throwable e) {
             reportException(e);
         }
-
         return false;
     }
 
     @Override
-    public void initBridge(Callback<Boolean> callback) {
+    public void initBridge(Callback<Boolean> callback, boolean isReload) {
         mHandler = new Handler(mContext.getThreadExecutor().getBridgeThread().getLooper(), this);
-        Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE, callback);
+        Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE);
+        message.arg1 = isReload ? CREATE_RELOAD : CREATE_NORMAL;
+        message.obj = callback;
         mHandler.sendMessage(message);
     }
 
     @Override
     public void runBundle(int id, HippyBundleLoader loader) {
-        mContext.getMonitor().startPoint(MonitorGroupType.RUN_JS_BUNDLE, TimeMonitor.MONITOR_POINT_LOAD_BUSINESS_JS);
-        if (!mInitialized) {
-            mContext.onLoadModuleCompleted(ModuleLoadStatus.STATUS_ENGINE_UNINIT,
-                    "load module error. HippyBridge not initialized");
-            return;
+        if (mHandler != null) {
+            mContext.getMonitor().beginGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE);
+            mContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE,
+                    TimeMonitor.MONITOR_POINT_LOAD_MAIN_JS);
+            Message message = mHandler.obtainMessage(MSG_CODE_RUN_BUNDLE, 0, id, loader);
+            mHandler.sendMessage(message);
         }
-        Message message = mHandler.obtainMessage(MSG_CODE_RUN_BUNDLE, 0, id, loader);
-        mHandler.sendMessage(message);
     }
 
     @Override
     public void loadInstance(String name, int id, HippyMap params) {
-        if (!mInitialized) {
-            return;
+        if (mHandler != null) {
+            mContext.getMonitor().beginGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+            mContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_PAINT, TimeMonitor.MONITOR_POINT_FIRST_PAINT);
+            HippyMap map = new HippyMap();
+            map.pushString("name", name);
+            map.pushInt("id", id);
+            map.pushMap("params", params);
+            Message message = mHandler
+                    .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_LOAD_INSTANCE, map);
+            mHandler.sendMessage(message);
         }
-        mContext.getMonitor().startPoint(MonitorGroupType.LOAD_INSTANCE,
-                TimeMonitor.MONITOR_POINT_LOAD_INSTANCE);
-        HippyMap map = new HippyMap();
-        map.pushString("name", name);
-        map.pushInt("id", id);
-        map.pushMap("params", params);
-        Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_LOAD_INSTANCE, map);
-        mHandler.sendMessage(message);
     }
 
     @Override
     public void resumeInstance(int id) {
-        if (!mInitialized) {
-            return;
+        if (mHandler != null) {
+            Message message = mHandler
+                    .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_RESUME_INSTANCE, id);
+            mHandler.sendMessage(message);
         }
-
-        Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_RESUME_INSTANCE, id);
-        mHandler.sendMessage(message);
     }
 
     @Override
     public void pauseInstance(int id) {
-        if (!mInitialized) {
-            return;
+        if (mHandler != null) {
+            Message message = mHandler
+                    .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_PAUSE_INSTANCE, id);
+            mHandler.sendMessage(message);
         }
-
-        Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_PAUSE_INSTANCE, id);
-        mHandler.sendMessage(message);
     }
 
     @Override
     public void destroyInstance(int id) {
-        if (!mInitialized) {
-            return;
+        if (mHandler != null) {
+            JSObject jsObject = new JSObject();
+            jsObject.set("id", id);
+            Message message = mHandler
+                    .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_DESTROY_INSTANCE,
+                            jsObject);
+            mHandler.sendMessage(message);
         }
-        JSObject jsObject = new JSObject();
-        jsObject.set("id", id);
-        Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_DESTROY_INSTANCE,
-                        jsObject);
-        mHandler.sendMessage(message);
     }
 
     @Override
     public void execCallback(Object params, BridgeTransferType transferType) {
-        Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(),
-                        FUNCTION_ACTION_CALLBACK,
-                        params);
-        mHandler.sendMessage(message);
+        if (mHandler != null) {
+            Message message = mHandler
+                    .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(),
+                            FUNCTION_ACTION_CALLBACK, params);
+            mHandler.sendMessage(message);
+        }
     }
 
     @Override
@@ -446,7 +451,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     @Override
     public void destroy() {
-        mInitialized = false;
+        mBridgeState = BridgeState.DESTROYED;
         if (mHandler != null) {
             mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
             mHandler.removeMessages(MSG_CODE_RUN_BUNDLE);
@@ -457,17 +462,16 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     @Override
     public void callJavaScriptModule(String moduleName, String methodName, Object param,
             BridgeTransferType transferType) {
-        if (!mInitialized) {
-            return;
+        if (mHandler != null) {
+            HippyMap map = new HippyMap();
+            map.pushString("moduleName", moduleName);
+            map.pushString("methodName", methodName);
+            map.pushObject("params", param);
+            Message message = mHandler
+                    .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(),
+                            FUNCTION_ACTION_CALL_JS_MODULE, map);
+            mHandler.sendMessage(message);
         }
-        HippyMap map = new HippyMap();
-        map.pushString("moduleName", moduleName);
-        map.pushString("methodName", methodName);
-        map.pushObject("params", param);
-        Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, transferType.value(),
-                        FUNCTION_ACTION_CALL_JS_MODULE, map);
-        mHandler.sendMessage(message);
     }
 
     @Override
@@ -485,20 +489,16 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     @Override
     public void reportException(Throwable e) {
-        if (mContext == null || e == null) {
-            return;
+        if (mContext != null && e != null) {
+            mContext.handleException(e);
         }
-
-        mContext.handleException(e);
     }
 
     @Override
     public void reportException(String message, String stackTrace) {
-        if (mContext == null) {
-            return;
+        if (mContext != null) {
+            mContext.handleException(new HippyJsException(message, stackTrace));
         }
-
-        mContext.handleException(new HippyJsException(message, stackTrace));
     }
 
     String getGlobalConfigs() {
@@ -506,14 +506,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         assert (context != null);
 
         HippyMap globalParams = new HippyMap();
-        HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context, false);
+        HippyMap dimensionMap = DimensionsUtil.getDimensions(-1, -1, context);
 
         if (mContext.getGlobalConfigs() != null
                 && mContext.getGlobalConfigs().getDeviceAdapter() != null) {
             mContext.getGlobalConfigs().getDeviceAdapter()
-                    .reviseDimensionIfNeed(context, dimensionMap, false,
-                            false);
+                    .reviseDimensionIfNeed(context, dimensionMap);
         }
+        DimensionsUtil.convertDimensionsToDp(dimensionMap);
         globalParams.pushMap("Dimensions", dimensionMap);
 
         String packageName = "";

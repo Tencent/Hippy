@@ -21,52 +21,111 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyBridgeDelegate.h"
 #import "HippyBridgeModule.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyModulesSetup.h"
-#import "HPImageProviderProtocol.h"
-#import "HPInvalidating.h"
-#import "MacroDefines.h"
-
-#include <memory>
+#import "HippyImageProviderProtocol.h"
+#import "HippyImageViewCustomLoader.h"
+#import "HippyInvalidating.h"
+#import "HippyDefines.h"
 
 @class HippyJSExecutor;
 @class HippyModuleData;
+@class HippyRootView;
 
-class VFSUriLoader;
-
-namespace hippy {
-inline namespace dom {
-class DomManager;
-class RootNode;
-class RenderManager;
-};
-};
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Indicate hippy sdk version
+ * 注意：为兼容2.0版本，保持的相同的下划线前缀命名，不可修改
  */
-HP_EXTERN NSString *const HippySDKVersion;
+HIPPY_EXTERN NSString *const _HippySDKVersion;
+
 /**
  * This notification triggers a reload of all bridges currently running.
  * Deprecated, use HippyBridge::requestReload instead.
  */
-HP_EXTERN NSString *const HippyReloadNotification;
+HIPPY_EXTERN NSString *const HippyReloadNotification;
+
+
+// Keys of userInfo for the following notifications
+HIPPY_EXTERN NSString *const kHippyNotiBridgeKey;
+HIPPY_EXTERN NSString *const kHippyNotiBundleUrlKey;
+HIPPY_EXTERN NSString *const kHippyNotiBundleTypeKey;
+HIPPY_EXTERN NSString *const kHippyNotiErrorKey;
+
+/// Bundle Type of Vendor (or Common Bundle),
+/// used in kHippyNotiBundleTypeKey
+HIPPY_EXTERN const NSUInteger HippyBridgeBundleTypeVendor;
+/// Bundle Type Business,
+/// used in kHippyNotiBundleTypeKey
+HIPPY_EXTERN const NSUInteger HippyBridgeBundleTypeBusiness;
+
+/**
+ * This notification fires when the bridge starts loading and executing the JS bundle.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *  }
+ *
+ * 备注：bundle包开始加载的通知, 注意与Hippy2不同的是，不仅指代`Common包`，`Business包`同样会发送该通知，
+ * 可通过userInfo中bundleType参数进行区分，see: HippyBridgeBundleTypeVendor
+  */
+HIPPY_EXTERN NSString *const HippyJavaScriptWillStartLoadingNotification;
+
+/**
+ * This notification fires when bridge has fetched JS bundle's source code.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *     kHippyNotiErrorKey : $(error), // NSError object
+ *  }
+ *
+ * 备注：获取到Bundle包的source code data时的通知
+ */
+HIPPY_EXTERN NSString *const HippyJavaScripDidLoadSourceCodeNotification;
 
 /**
  * This notification fires when the bridge has finished loading the JS bundle.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *  }
+ *
+ * 备注：Bundle包`加载和执行`结束的通知
  */
-HP_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
+HIPPY_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
 
 /**
  * This notification fires when the bridge failed to load the JS bundle. The
  * `error` key can be used to determine the error that occured.
+ * @discussion
+ * Notification.object: instance of HippyBridge
+ * Notification.userInfo:
+ *  @{
+ *     kHippyNotiBridgeKey : $(instance of HippyBridge),
+ *     kHippyNotiBundleUrlKey : $(bundleURL),
+ *     kHippyNotiBundleTypeKey : $(bundleType),
+ *     kHippyNotiErrorKey : $(error), // NSError object
+ *  }
+ *
+ * 备注：Bundle包`加载和执行`失败的通知
  */
-HP_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
+HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
 
 /**
  * This notification fires each time a native module is instantiated. The
@@ -74,105 +133,155 @@ HP_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
  * Note that this notification may be fired before the module is available via
  * the `[bridge moduleForClass:]` method.
  */
-HP_EXTERN NSString *const HippyDidInitializeModuleNotification;
+HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
 
 /**
  * This function returns the module name for a given class.
  */
-HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
+HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
-/**
- * Async batched bridge used to communicate with the JavaScript application.
- */
-@interface HippyBridge : NSObject <HPInvalidating>
 
+
+#pragma mark -
+
+/// Async bridge used to communicate with the JavaScript application.
+@interface HippyBridge : NSObject <HippyInvalidating>
+
+/// Create A HippyBridge instance, without load/execute any js bundle.
+///
+/// @param delegate bridge delegate
+/// @param block for user-defined module
+/// @param launchOptions launch options, will not be sent to frontend
+/// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
+///
+/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
+/// 传空时默认不共享，SDK内部默认分配一随机key。
+- (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
+                  moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
+                   launchOptions:(nullable NSDictionary *)launchOptions
+                     executorKey:(nullable NSString *)executorKey;
+
+
+/// Create A HippyBridge instance with a common js bundle.
+///
+/// This method is compatible with the Hippy2 initializer function.
+///
+/// @param delegate bridge delegate
+/// @param bundleURL the
+/// @param block for user-defined module
+/// @param launchOptions launch options, will not be sent to frontend
+/// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
+///
+/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
+/// 传空时默认不共享，SDK内部默认分配一随机key。
+- (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
+                       bundleURL:(nullable NSURL *)bundleURL
+                  moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
+                   launchOptions:(nullable NSDictionary *)launchOptions
+                     executorKey:(nullable NSString *)executorKey;
+
+/// The delegate of bridge
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
+/// SDK launch config
+/// TODO: optimizes the launchOptions parameter
 @property (nonatomic, copy, readonly) NSDictionary *launchOptions;
 
-@property (nonatomic, assign) std::weak_ptr<hippy::RenderManager> renderManager;
-
-/**
- *  Create A HippyBridge instance
- *
- *  @param delegate bridge delegate
- *  @param block for user-defined module
- *  @param launchOptions launch options, will not be sent to frontend
- *  @param engineKey key to engine instance. HippyBridge with same engine key will share same engine intance
- *  @return A HippyBridge instance
- */
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                  moduleProvider:(HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions
-                       engineKey:(NSString *)engineKey;
-
-/**
- * Context name for HippyBridge
- *
- * @discussion Context name will be shown on safari development menu.
- * only for JSC engine
- */
-@property(nonatomic, copy)NSString *contextName;
-
-/**
- * Set module name
- *
- *@discussion module name will show in error infomation
- */
+/// Module name
+///
+/// @discussion
+/// Module name is the only Key used to identify the bridge instance,
+/// It must be set and cannot be nil.
 @property (nonatomic, strong) NSString *moduleName;
 
-/**
- * URLs of the script that was loaded into the bridge.
- */
+/// Context name for HippyBridge
+///
+/// @discussion 
+/// Context name will be shown on safari development menu. Only for JSC engine.
+/// By default, moduleName is the contextName.
+@property (nonatomic, copy) NSString *contextName;
+
+/// Use this to check if the bridge has been invalidated.
+@property (nonatomic, readonly, getter=isValid) BOOL valid;
+
+/// Reason for bridge invalidate state
+@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
+
+/// Whether the bridge is loading bundle
+@property (nonatomic, readonly, getter=isLoading) BOOL loading;
+
+/// All loaded bundle urls
 @property (nonatomic, copy, readonly) NSArray<NSURL *> *bundleURLs;
 
-/**
- * Set debug url for devtools
- */
-@property (nonatomic, strong, readonly) NSURL *debugURL;
+/// Path of sandbox directory
+@property (nonatomic, strong) NSString *sandboxDirectory;
 
-/**
- *  Load js bundles from urls
- *
- *  @param bundleURL bundles url
- *  @discussion HippyBridge makes sure bundles will be loaded in order.
- */
-- (void)loadBundleURL:(NSURL *)bundleURL
-           completion:(void (^_Nullable)(NSURL * _Nullable, NSError * _Nullable))completion;
+/// Shared data between different rootViews on same bridge.
+/// Set by HippyRootView when runHippyApplication.
+/// Reserved for compatible with hippy2.
+///
+/// Note: Deprecated property.
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSDictionary *> *shareOptions;
 
-@property(nonatomic, assign)std::weak_ptr<VFSUriLoader> VFSUriLoader;
+/// Get Device Info
+- (NSDictionary *)deviceInfo;
 
-/**
- * Image provider method
- * Users adds or obtains image providers in the following methods
- */
-- (void)addImageProviderClass:(Class<HPImageProviderProtocol>)cls;
-- (NSArray<Class<HPImageProviderProtocol>> *)imageProviderClasses;
+#pragma mark - Image Related
 
-/**
- * Set basic configuration for native render
- * @param domManager DomManager
- * @param rootNode RootNode
- */
-- (void)setupDomManager:(std::shared_ptr<hippy::DomManager>)domManager
-               rootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
+/// Get the custom Image Loader
+///
+/// Note that A custom ImageLoader can be registered in two ways:
+/// One is through the registration method provided below,
+/// The other is to register globally with the HIPPY_EXPORT_MODULE macro.
+///
+/// Only one image loader can take effect at a time.
+@property (nonatomic, strong, nullable, readonly) id<HippyImageCustomLoaderProtocol> imageLoader;
 
-/**
- *  Load instance for root view and show views
- *  @param rootTag RootTag for specific root view
- *  @param props Initial parameters for instance.
- */
-- (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
+/// Set a custom Image Loader for current `hippyBridge`
+/// The globally registered ImageLoader is ignored when set by this method.
+///
+/// - Parameter imageLoader: id
+- (void)setCustomImageLoader:(id<HippyImageCustomLoaderProtocol>)imageLoader;
 
+/// Get all classes that confirms to HippyImageProviderProtocol
+@property (nonatomic, strong, nonnull, readonly) NSArray<Class<HippyImageProviderProtocol>> *imageProviders;
+
+/// Add a custom ImageProvider class.
+/// - Parameter cls: class confirms to HippyImageProviderProtocol
+- (void)addImageProviderClass:(Class<HippyImageProviderProtocol>)cls;
+
+
+#pragma mark - Lifecycle Related API
+
+/// Register RootView
+///
+/// Internally, will create a dom root node and bind to the root view,
+/// and connect all parts together, prepare for `loadInstance`.
+/// - Parameter rootView: A view instance
+- (void)setRootView:(UIView *)rootView;
+
+/// Load instance for hippy root view and show views
+/// This is the Entry of Hippy Application
+/// - Parameters:
+///   - rootTag: tag of rootView
+///   - props: props(appProperties) for hippy frontend application
+- (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(nullable NSDictionary *)props;
+
+/// Unload the instance
+/// - Parameter rootTag: tag of rootView
 - (void)unloadInstanceForRootView:(NSNumber *)rootTag;
 
-- (void)rootViewSizeChangedEvent:(NSNumber *)tag params:(NSDictionary *)params;
+/// Reload the bundle and reset executor & modules.
+/// Safe to call from any thread.
+/// Internally sends `HippyReloadNotification` Notification.
+- (void)requestReload;
 
-/**
- * Access the underlying JavaScript executor. You can use this in unit tests to detect
- * when the executor has been invalidated, or when you want to schedule calls on the
- * JS VM outside of Hippy Native. Use with care!
- */
+
+#pragma mark -
+
+/// Access the underlying JavaScript executor.
+/// You can use this in unit tests to detect when the executor has been invalidated,
+/// or when you want to schedule calls on the JS VM outside of Hippy Native. Use with care!
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
 
 /**
@@ -187,17 +296,33 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;
 
+/// Handle msg(buffer) from JS side
+/// - Parameters:
+///   - buffer: id
+///   - batchEnded: whether is batch end
 - (void)handleBuffer:(id _Nullable)buffer batchEnded:(BOOL)batchEnded;
 
-- (void)setInspectable:(BOOL)isInspectable;
+/// Send native event to JS side
+/// - Parameters:
+///   - eventName: event name
+///   - params: event info
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
 
-/**
- * All registered bridge module classes.
- */
+
+#pragma mark - Module Management
+
+/// Whether is turboModule enabled
+/// default is YES
+@property (nonatomic, assign) BOOL enableTurbo;
+
+/// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
 
-- (NSString *)moduleConfig;
+/// Get all native module info.
+- (NSDictionary *)nativeModuleConfig;
 
+/// Get config info for given module name
+/// - Parameter moduleName: name of module
 - (NSArray *)configForModuleName:(NSString *)moduleName;
 
 - (BOOL)moduleSetupComplete;
@@ -209,6 +334,10 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (id)moduleForName:(NSString *)moduleName;
 - (id)moduleForClass:(Class)moduleClass;
+
+/// Get ModuleData by name
+/// - Parameter moduleName: JS name of module
+- (nullable HippyModuleData *)moduleDataForName:(NSString *)moduleName;
 
 /**
  * Convenience method for retrieving all modules conforming to a given protocol.
@@ -224,67 +353,88 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (BOOL)moduleIsInitialized:(Class)moduleClass;
 
-/** A red box will show when error occurs by default
- *  only work on HP_DEBUG mode
- */
-- (void)setRedBoxShowEnabled:(BOOL)enabled;
-
-/**
- * just for debugger
- */
-- (void)bindKeys;
-
-/**
- * Use this to check if the bridge has been invalidated.
- */
-@property (nonatomic, readonly, getter=isValid) BOOL valid;
-
-@property (nonatomic, readonly, getter=isLoading) BOOL loading;
-
-/**
- * Reload the bundle and reset executor & modules. Safe to call from any thread.
- */
-- (void)reload;
-
-/**
- * Inform the bridge, and anything subscribing to it, that it should reload.
- */
-- (void)requestReload;
-
-@property (nonatomic, assign) BOOL debugMode;
-
-@property (nonatomic, strong) NSString *appVerson;  //
-
-@property (nonatomic, assign) HPInvalidateReason invalidateReason;
-
-@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
-
-
-@property (nonatomic, assign) BOOL enableTurbo;
-/**
- * Get  the turbo module for a given name.
- */
+/// Get turbo module by name.
+/// - Parameter name: name of turbo module
 - (id)turboModuleWithName:(NSString *)name;
 
-- (NSDictionary *)deviceInfo;
 
-/**
- * property to path of sandbox directory
- */
-@property (nonatomic, strong) NSURL *sandboxDirectory;
+#pragma mark - Snapshot
 
-#pragma mark event dispatcher
-- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
-
-#pragma mark snapshot
 - (NSData *)snapShotData;
 
 - (void)setSnapShotData:(NSData *)data;
 
+
+#pragma mark - App UI State Related
+
+/// NightMode or not, default is NO.
+/// Updated by HippyRootView
+@property (atomic, assign, readonly) BOOL isOSNightMode;
+
+/// update `NightMode` state when changed
+/// - Parameter isOSNightMode: bool
+/// - Parameter rootViewTag: rootView's hippyTag
+- (void)setOSNightMode:(BOOL)isOSNightMode withRootViewTag:(NSNumber *)rootViewTag;
+
+/// Update the size of RootView
+/// - Parameter size: CGSize
+- (void)resetRootSize:(CGSize)size;
+
+
+#pragma mark - Debug Related
+
+/// Whether is in debug mode
+/// debug mode will open DevMenu and make JSC inspectable
+@property (nonatomic, assign) BOOL debugMode;
+
+/// Debug URL for devtools
+/// TODO: debugURL not working ?
+@property (nonatomic, strong, readonly) NSURL *debugURL;
+
+/// Sets whether the context is inspectable in Web Inspector.
+/// Default value is NO.
+///
+/// - Parameter isInspectable: BOOL
+- (void)setInspectable:(BOOL)isInspectable;
+
+/// A red box will show when error occurs by default
+/// only work on HIPPY_DEBUG mode
+///
+/// - Parameter enabled: BOOL
+- (void)setRedBoxShowEnabled:(BOOL)enabled;
+
+
+#pragma mark - Advanced Usages
+
+/* 说明：
+ * 以下方法一般情况下无需调用，仅供高级定制化使用。
+ * Following methods are only used for advanced customization, no need to be invoked in general.
+ */
+
+/// Interceptor for methods
+@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
+
+
+typedef NSUInteger HippyBridgeBundleType;
+typedef void (^HippyBridgeBundleLoadCompletionBlock)(NSURL * _Nullable bundleURL, NSError * _Nullable error);
+
+/// Load and Execute bundle from the given bundle URL
+/// - Parameters:
+///   - bundleURL: bundle url
+///   - bundleType: type of bundle, e.g.: whether is `Vendor Bundle`(Common Bundle) or `Business Bundle`
+///   - completion: Completion block
+///
+/// - Disscusion: HippyBridge makes sure bundles will be loaded and execute in order.
+- (void)loadBundleURL:(NSURL *)bundleURL
+           bundleType:(HippyBridgeBundleType)bundleType
+           completion:(HippyBridgeBundleLoadCompletionBlock)completion;
+
+
 @end
 
-HP_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
 
-HP_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);
+HIPPY_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
+
+HIPPY_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);
 
 NS_ASSUME_NONNULL_END

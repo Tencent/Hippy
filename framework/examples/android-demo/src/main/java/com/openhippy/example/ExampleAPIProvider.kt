@@ -44,6 +44,6 @@ class ExampleAPIProvider : HippyAPIProvider {
      * register View controller for JavaScript
      */
     override fun getControllers(): List<Class<out HippyViewController<*>>> {
-        return emptyList()
+        return arrayListOf(ExampleCustomPropsController::class.java)
     }
 }

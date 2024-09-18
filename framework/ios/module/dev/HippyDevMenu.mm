@@ -24,13 +24,13 @@
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
 #import "HippyWebSocketProxy.h"
-#import "HPAsserts.h"
-#import "HPToolUtils.h"
-#import "MacroDefines.h"
+#import "HippyAssert.h"
+#import "HippyUtils.h"
+#import "HippyDefines.h"
 
 #include <objc/runtime.h>
 
-#if HP_DEV
+#if HIPPY_DEV
 
 static NSString *const HippyShowDevMenuNotification = @"HippyShowDevMenuNotification";
 static NSString *const HippyDevMenuSettingsKey = @"HippyDevMenu";
@@ -107,8 +107,9 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) { HippyDevMenuTypeButton, HippyDevM
 
 @end
 
-@interface HippyDevMenu () <HippyBridgeModule, HPInvalidating> {
+@interface HippyDevMenu () <HippyBridgeModule, HippyInvalidating> {
     __weak UIAlertController *_actionSheet;
+    NSMutableArray<HippyDevMenuItem *> *_extraMenuItems;
     NSUserDefaults *_defaults;
 }
 
@@ -124,7 +125,7 @@ HIPPY_EXPORT_MODULE()
     // We're swizzling here because it's poor form to override methods in a category,
     // however UIWindow doesn't actually implement motionEnded:withEvent:, so there's
     // no need to call the original implementation.
-    HPSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
+    HippySwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
 }
 
 - (instancetype)init {
@@ -142,38 +143,19 @@ HIPPY_EXPORT_MODULE()
 - (void)setBridge:(HippyBridge *)bridge {
     _bridge = bridge;
 
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
     if (bridge.debugMode) {
-        __weak HippyDevMenu *weakSelf = self;
-
         HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
-
+        __weak __typeof(self) weakSelf = self;
+        
         // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"d" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"e" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"b" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"u" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
-            [weakSelf toggle];
-        }];
-
-        // Toggle debug menu
-        [commands registerKeyCommandWithInput:@"g" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
+        [commands registerKeyCommandWithInput:@"d"
+                                modifierFlags:UIKeyModifierCommand
+                                       action:^(__unused UIKeyCommand *command) {
             [weakSelf toggle];
         }];
     }
-#endif
+#endif /* TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST */
 }
 
 - (dispatch_queue_t)methodQueue {
@@ -181,8 +163,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)invalidate {
-    [_actionSheet dismissViewControllerAnimated:YES completion:^(void) {
-    }];
+    [_actionSheet dismissViewControllerAnimated:YES completion:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -204,46 +185,39 @@ HIPPY_EXPORT_MODULE()
     }
 }
 
-- (void)addItem:(NSString *)title handler:(void (^)(void))handler {
-    [self addItem:[HippyDevMenuItem buttonItemWithTitle:title handler:handler]];
-}
-
-- (void)addItem:(__unused HippyDevMenuItem *)item {
-    HPAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
+- (void)addItem:(HippyDevMenuItem *)item {
+    [_extraMenuItems addObject:item];
 }
 
 - (NSArray<HippyDevMenuItem *> *)menuItems {
     NSMutableArray<HippyDevMenuItem *> *items = [NSMutableArray new];
 
     // Add built-in items
-
     __weak HippyDevMenu *weakSelf = self;
-
     [items addObject:[HippyDevMenuItem buttonItemWithTitle:@"Reload" handler:^{
         [weakSelf reload];
     }]];
+    // Add extra items
+    [items addObjectsFromArray:_extraMenuItems];
     return items;
 }
 
-// clang-format off
 HIPPY_EXPORT_METHOD(reload) {
     [_bridge requestReload];
 }
-// clang-format on
 
-// clang-format off
 HIPPY_EXPORT_METHOD(show) {
-    if (_actionSheet || !_bridge || HPRunningInAppExtension()) {
+    if (_actionSheet || !_bridge || HippyRunningInAppExtension()) {
         return;
     }
     
     NSString *title = [NSString stringWithFormat:@"Hippy: Development (%@)", [_bridge moduleName]];
     // On larger devices we don't have an anchor point for the action sheet
-    UIAlertControllerStyle style = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone ? UIAlertControllerStyleActionSheet : UIAlertControllerStyleAlert;
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:title
-                                                                         message:@""
-                                                                  preferredStyle:style];
-    _actionSheet = actionSheet;
+    UIAlertControllerStyle style = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone ?
+    UIAlertControllerStyleActionSheet : UIAlertControllerStyleAlert;
+    _actionSheet = [UIAlertController alertControllerWithTitle:title
+                                                       message:nil
+                                                preferredStyle:style];
     
     NSArray<HippyDevMenuItem *> *items = [self menuItems];
     for (HippyDevMenuItem *item in items) {
@@ -267,9 +241,8 @@ HIPPY_EXPORT_METHOD(show) {
                                                    handler:^(__unused UIAlertAction *action) {
     }]];
     
-    [HPPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
+    [HippyPresentedViewController() presentViewController:_actionSheet animated:YES completion:nil];
 }
-// clang-format on
 
 @end
 
@@ -293,7 +266,7 @@ HIPPY_EXPORT_METHOD(show) {
 @implementation HippyBridge (HippyDevMenu)
 
 - (HippyDevMenu *)devMenu {
-#if HP_DEV
+#if HIPPY_DEV
     return [self moduleForClass:[HippyDevMenu class]];
 #else
     return nil;

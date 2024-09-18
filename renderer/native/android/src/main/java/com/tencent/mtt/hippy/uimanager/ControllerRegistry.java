@@ -28,6 +28,7 @@ import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RenderNode;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,14 +43,16 @@ public class ControllerRegistry {
     @NonNull
     private final Map<String, ControllerHolder> mControllers =  new HashMap<>();
     @Nullable
-    private Renderer mRenderer;
+    private final WeakReference<Renderer> mRendererWeakRef;
 
     public ControllerRegistry(@NonNull Renderer renderer) {
-        mRenderer = renderer;
+        mRendererWeakRef = new WeakReference<>(renderer);
     }
 
-    public void clear() {
-        mRenderer = null;
+    void destroy() {
+        mViews.clear();
+        mRootViews.clear();
+        mControllers.clear();
     }
 
     public void addControllerHolder(String name, ControllerHolder controllerHolder) {
@@ -66,10 +69,11 @@ public class ControllerRegistry {
     public HippyViewController getViewController(@NonNull String className) {
         ControllerHolder holder = mControllers.get(className);
         if (holder == null) {
-            if (mRenderer != null) {
+            Renderer renderer = mRendererWeakRef.get();
+            if (renderer != null) {
                 NativeRenderException exception = new NativeRenderException(
                         GET_VIEW_CONTROLLER_FAILED_ERR, "Unknown class name=" + className);
-                mRenderer.handleRenderException(exception);
+                renderer.handleRenderException(exception);
             }
             return null;
         }

@@ -20,10 +20,11 @@
  *
  */
 
-#import "HippyJSExecutor.h"
-#import "HippyModuleData.h"
+
 #import "HippyTurboModuleManager.h"
-#import "HPAsserts.h"
+#import "HippyJSExecutor+Internal.h"
+#import "HippyModuleData.h"
+#import "HippyAssert.h"
 
 #include <unordered_map>
 
@@ -32,10 +33,10 @@
 
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 
-HP_EXTERN void HippyRegisterTurboModule(NSString *, Class);
+HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);
 void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
     if (!moduleClass || !moduleName || moduleName.length == 0) {
-        HPAssert(NO, @"moduleName or moduleClass is nil or empty!");
+        HippyAssert(NO, @"moduleName or moduleClass is nil or empty!");
         return;
     }
     
@@ -44,11 +45,11 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
         HippyTurboModuleMap = [NSMutableDictionary dictionary];
     });
 
-    HPAssert([moduleClass conformsToProtocol:@protocol(HippyTurboModule)],
+    HippyAssert([moduleClass conformsToProtocol:@protocol(HippyTurboModule)],
                 @"%@ does not conform to the HippyTurboModule protocol", moduleClass);
 
     if ([HippyTurboModuleMap objectForKey:moduleName]) {
-        HPAssert(NO, @"dumplicate regist the moduleName(%@) for %@ and %@",
+        HippyAssert(NO, @"dumplicate regist the moduleName(%@) for %@ and %@",
                     moduleName,
                     NSStringFromClass(moduleClass),
                     NSStringFromClass([HippyTurboModuleMap objectForKey:moduleName]));
@@ -109,7 +110,7 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
             module = [[moduleCls alloc] initWithName:name bridge:_bridge];
             [self.turboModuleCache setObject:module forKey:name];
         } else {
-            HPAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
+            HippyAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
         }
     }
     return module;

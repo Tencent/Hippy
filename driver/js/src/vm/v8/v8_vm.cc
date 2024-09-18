@@ -69,7 +69,7 @@ void InitializePlatform() {
 }
 
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
-  FOOTSTONE_DLOG(INFO) << "V8VM begin";
+  FOOTSTONE_DLOG(INFO) << "V8VM begin, version: " << v8::V8::GetVersion();
   {
     std::lock_guard<std::mutex> lock(mutex);
     if (platform != nullptr) {
@@ -88,6 +88,10 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
 #endif
       FOOTSTONE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
+#ifdef ENABLE_INSPECTOR
+      auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform->GetTracingController());
+      devtools::DevtoolsDataSource::OnGlobalTracingControlGenerate(trace);
+#endif    
     }
   }
   create_params_.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();

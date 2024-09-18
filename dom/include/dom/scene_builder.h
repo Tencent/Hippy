@@ -49,7 +49,8 @@ class SceneBuilder {
 
   static void Create(const std::weak_ptr<DomManager>& dom_manager,
               const std::weak_ptr<RootNode>& root_node,
-              std::vector<std::shared_ptr<DomInfo>>&& nodes);
+              std::vector<std::shared_ptr<DomInfo>>&& nodes,
+              bool needSortByIndex);
   static void Update(const std::weak_ptr<DomManager>& dom_manager,
               const std::weak_ptr<RootNode>& root_node,
               std::vector<std::shared_ptr<DomInfo>>&& nodes);

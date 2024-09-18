@@ -24,7 +24,7 @@
 #import "PageCreationCell.h"
 #import "DebugCell.h"
 #import "IconUtils.h"
-#import "NativeRenderViewController.h"
+#import "HippyDemoViewController.h"
 #import "HippyBundleURLProvider.h"
 #import "UIViewController+Title.h"
 
@@ -32,14 +32,15 @@ static NSString *const kNormalCell = @"normalCell";
 static NSString *const kDebugCell = @"debugCell";
 
 static NSString *const kDriverTypeReact = @"JS React";
-static NSString *const kDriverTypeVue = @"JS Vue";
+static NSString *const kDriverTypeVue2 = @"JS Vue2";
+static NSString *const kDriverTypeVue3 = @"JS Vue3";
 
 static NSString *const kRenderTypeNative = @"Native";
 
 static NSString *const kCancel = @"取消";
 
 @interface PageCreationViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    NSString *_currentDriver;
+    DriverType _currentDriver;
     NSString *_renderer;
     UITableView *_tableView;
     BOOL _debugMode;
@@ -54,7 +55,7 @@ static NSString *const kCancel = @"取消";
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self setNavigationItemTitle:@"Page Managerment"];
-    _currentDriver = kDriverTypeReact;
+    _currentDriver = DriverTypeReact;
     _renderer = kRenderTypeNative;
     [self setNavigationAreaBackground:[UIColor whiteColor]];
     CGFloat ratio = 229.f / 255.f;
@@ -120,13 +121,14 @@ static NSString *const kCancel = @"取消";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     if (0 == [indexPath section]) {
         PageCreationCell *cell =
             (PageCreationCell *)[tableView dequeueReusableCellWithIdentifier:kNormalCell
                                                                 forIndexPath:indexPath];
         cell.summaryImageView.image = [UIImage imageFromIconName:@"driver_icon"];
         cell.typeLabel.text = @"Driver";
-        cell.subTypeLabel.text = _currentDriver;
+        cell.subTypeLabel.text = @[kDriverTypeReact, kDriverTypeVue2, kDriverTypeVue3][_currentDriver];
         return cell;
     }
     else if (1 == [indexPath section]) {
@@ -202,19 +204,25 @@ static NSString *const kCancel = @"取消";
     [alert addAction:[UIAlertAction actionWithTitle:kDriverTypeReact style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         PageCreationViewController *strongVC = weakVC;
         if (strongVC) {
-            strongVC->_currentDriver = action.title;
+            strongVC->_currentDriver = DriverTypeReact;
             [strongVC->_tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationAutomatic];
         }
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:kDriverTypeVue style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    [alert addAction:[UIAlertAction actionWithTitle:kDriverTypeVue2 style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         PageCreationViewController *strongVC = weakVC;
         if (strongVC) {
-            strongVC->_currentDriver = action.title;
+            strongVC->_currentDriver = DriverTypeVue2;
             [strongVC->_tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
         }
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:kCancel style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    [alert addAction:[UIAlertAction actionWithTitle:kDriverTypeVue3 style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        PageCreationViewController *strongVC = weakVC;
+        if (strongVC) {
+            strongVC->_currentDriver = DriverTypeVue3;
+            [strongVC->_tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
+        }
     }]];
+    [alert addAction:[UIAlertAction actionWithTitle:kCancel style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alert animated:YES completion:NULL];
 }
 
@@ -251,18 +259,18 @@ static NSString *const kCancel = @"取消";
 }
 
 - (void)createDemoAction {
-    PageCreationCell *cell0 = [_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    DriverType driverType = [[cell0 subTypeLabel].text isEqualToString:@"JS React"]?DriverTypeReact:DriverTypeVue;
-//    PageCreationCell *cell1 = [_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+    DriverType driverType = _currentDriver;
     RenderType renderType = RenderTypeNative;
-    //[cell1.subTypeLabel.text isEqualToString:@"Native"]?RenderTypeNative:RenderTypeNative;
     NSURL *debugURL = nil;
     if (_debugMode) {
         DebugCell *cell2 = [_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
         NSString *debugString = [cell2 debugURLString];
         debugURL = [NSURL URLWithString:debugString];
     }
-    NativeRenderViewController *vc = [[NativeRenderViewController alloc] initWithDriverType:driverType renderType:renderType debugURL:debugURL isDebugMode:_debugMode];
+    HippyDemoViewController *vc = [[HippyDemoViewController alloc] initWithDriverType:driverType 
+                                                                           renderType:renderType
+                                                                             debugURL:debugURL
+                                                                          isDebugMode:_debugMode];
     NSMutableArray<__kindof UIViewController *> *viewControllers = [[self.navigationController viewControllers] mutableCopy];
     [viewControllers removeLastObject];
     [viewControllers addObject:vc];

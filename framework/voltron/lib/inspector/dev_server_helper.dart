@@ -44,7 +44,7 @@ class DevServerHelper {
     bool jsMinify,
   ) {
     if (_remoteServerData.isValid()) {
-      return "${_remoteServerData.getScheme()}://${_remoteServerData.getHost()}${_remoteServerData.getPath()}?dev=$devMode&hot=$hmr&minify=$jsMinify";
+      return "${_remoteServerData.getScheme()}://${_remoteServerData.getHost()}/${_remoteServerData.getPath()}?dev=$devMode&hot=$hmr&minify=$jsMinify";
     }
     return "http://$host/$bundleName?dev=$devMode&hot=$hmr&minify=$jsMinify";
   }

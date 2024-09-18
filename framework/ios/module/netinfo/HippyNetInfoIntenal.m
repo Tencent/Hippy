@@ -24,7 +24,7 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 
 #import "HippyNetInfoIntenal.h"
-#import "HPAsserts.h"
+#import "HippyAssert.h"
 
 #include <netinet/in.h>
 
@@ -122,7 +122,7 @@ static NSString *hippyReachabilityGetCellType(NSString *cellType) {
     return HippNetworkCellTypeUnknown;
 }
 
-static SCNetworkReachabilityRef createReachabilityRefWithZeroAddress() {
+static SCNetworkReachabilityRef createReachabilityRefWithZeroAddress(void) {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
@@ -205,7 +205,7 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
 }
 
 - (HippyNetworkTypeObject *)addNetworkTypeChangeObserver:(id<HippyNetworkTypeChangedDelegate>)observer {
-    HPAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
+    HippyAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
     if (observer) {
         [_observers addObject:observer];
     }
@@ -234,7 +234,7 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
 - (void)notifyObserversNetworkTypeChanged:(HippyNetworkTypeObject *)object {
     NSArray<id<HippyNetworkTypeChangedDelegate>> *observers = [_observers allObjects];
     for (id<HippyNetworkTypeChangedDelegate> observer in observers) {
-        HPAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
+        HippyAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
         if ([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)]) {
             [observer hippyNetworkTypeChanged:object];
         }

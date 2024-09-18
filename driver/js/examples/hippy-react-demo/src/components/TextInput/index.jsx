@@ -20,6 +20,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#242424',
     height: 30,
+    // you can use lineHeight
+    // to control the space between lines in multi-line input.
+    // for example:
     lineHeight: 30,
   },
   input_style_block: {

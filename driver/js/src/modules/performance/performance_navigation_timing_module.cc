@@ -99,6 +99,7 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
   ADD_PROPERTY(hippy_dom_end, "hippyDomEnd", GetHippyDomEnd)
   ADD_PROPERTY(hippy_first_frame_start, "hippyFirstFrameStart", GetHippyFirstFrameStart)
   ADD_PROPERTY(hippy_first_frame_end, "hippyFirstFrameEnd", GetHippyFirstFrameEnd)
+  ADD_PROPERTY(hippy_first_contentful_paint_end, "hippyFirstContentfulPaintEnd", GetHippyFirstContentfulPaintEnd)
 #undef ADD_PROPERTY
 
   PropertyDefine<PerformanceNavigationTiming> bundle_info;

@@ -16,18 +16,20 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
 import static com.tencent.renderer.NativeRenderer.NODE_ID;
 import static com.tencent.renderer.NativeRenderer.NODE_INDEX;
 import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_DELETED;
-import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 
 import com.openhippy.pool.BasePool.PoolType;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
@@ -38,10 +40,12 @@ import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.RenderNode;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import android.text.TextUtils;
@@ -58,13 +62,17 @@ import java.util.Objects;
 public class RenderManager {
 
     private static final String TAG = "RenderManager";
+    private static final int INITIAL_UPDATE_NODE_SIZE = 1 << 9;
     private boolean isBatching = false;
     @NonNull
     private final ControllerManager mControllerManager;
     @NonNull
-    private final Map<Integer, List<RenderNode>> mUIUpdateNodes = new HashMap<>();
+    private final Map<Integer, LinkedHashSet<RenderNode>> mUIUpdateNodes = new HashMap<>();
+    @Nullable
+    private final WeakReference<Renderer> mRendererWeakRef;
 
     public RenderManager(Renderer renderer) {
+        mRendererWeakRef = new WeakReference<>(renderer);
         mControllerManager = new ControllerManager(renderer);
     }
 
@@ -150,8 +158,7 @@ public class RenderManager {
                     "appendVirtualChild: rootNode=" + rootNode + " parentNode=" + parentNode);
             return;
         }
-        RenderNode node = mControllerManager.createRenderNode(rootId, id, props, className,
-                isLazy || parentNode.checkNodeFlag(FLAG_LAZY_LOAD));
+        RenderNode node = mControllerManager.createRenderNode(rootId, id, props, className, isLazy);
         if (node == null) {
             LogUtils.w(TAG, "createNode: node == null");
             return;
@@ -166,12 +173,12 @@ public class RenderManager {
     }
 
     public void addUpdateNodeIfNeeded(int rootId, RenderNode node) {
-        List<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
+        LinkedHashSet<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
         if (updateNodes == null) {
-            updateNodes = new ArrayList<>();
+            updateNodes = new LinkedHashSet<>(INITIAL_UPDATE_NODE_SIZE);
             updateNodes.add(node);
             mUIUpdateNodes.put(rootId, updateNodes);
-        } else if (!updateNodes.contains(node)) {
+        } else {
             updateNodes.add(node);
         }
     }
@@ -226,7 +233,7 @@ public class RenderManager {
             LogUtils.w(TAG, "moveNode: get parent failed!");
             return;
         }
-        List<RenderNode> moveNodes = null;
+        List<Pair<RenderNode, Integer>> moveNodes = null;
         List<MoveNodeInfo> infoList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             try {
@@ -242,7 +249,7 @@ public class RenderManager {
         Collections.sort(infoList, new Comparator<MoveNodeInfo>() {
             @Override
             public int compare(MoveNodeInfo n1, MoveNodeInfo n2) {
-                return n1.index < n2.index ? -1 : 0;
+                return n1.index - n2.index;
             }
         });
         for (int i = 0; i < infoList.size(); i++) {
@@ -261,7 +268,7 @@ public class RenderManager {
                     if (moveNodes == null) {
                         moveNodes = new ArrayList<>();
                     }
-                    moveNodes.add(child);
+                    moveNodes.add(new Pair<>(child, pid));
                 }
                 parent.resetChildIndex(child, info.index);
             } catch (Exception e) {
@@ -281,11 +288,11 @@ public class RenderManager {
             LogUtils.w(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
             return;
         }
-        List<RenderNode> moveNodes = new ArrayList<>(ids.length);
+        List<Pair<RenderNode, Integer>> moveNodes = new ArrayList<>(ids.length);
         for (int i = 0; i < ids.length; i++) {
             RenderNode node = getRenderNode(rootId, ids[i]);
             if (node != null) {
-                moveNodes.add(node);
+                moveNodes.add(new Pair<>(node, oldPid));
                 oldParent.removeChild(node);
                 newParent.addChild(node, (i + insertIndex));
             }
@@ -344,7 +351,7 @@ public class RenderManager {
     }
 
     public void batch(int rootId) {
-        List<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
+        LinkedHashSet<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
         if (updateNodes == null) {
             return;
         }
@@ -379,6 +386,12 @@ public class RenderManager {
             node.getParent().removeChild(node);
         }
         removeRenderNode(rootId, node.getId());
+        if (node.getClassName().equals(TEXT_CLASS_NAME)) {
+            Renderer renderer = mRendererWeakRef.get();
+            if (renderer instanceof NativeRender) {
+                ((NativeRender) renderer).deleteVirtualChildNode(rootId, node.getId());
+            }
+        }
         node.setNodeFlag(FLAG_ALREADY_DELETED);
         node.onDeleted();
     }
@@ -387,6 +400,9 @@ public class RenderManager {
         RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootId == nodeId) {
             NativeRendererManager.removeRootNode(rootId);
+            if (rootNode != null) {
+                rootNode.clear();
+            }
         }
         if (rootNode != null) {
             rootNode.removeRenderNode(nodeId);

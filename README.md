@@ -2,7 +2,7 @@
 
 ![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy) [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Tencent/Hippy)](https://github.com/Tencent/Hippy/releases)
 
-[Homepage](//tencent.github.io/Hippy/)
+[Homepage](https://openhippy.com)
 
 ## 💡 Introduction
 
@@ -62,7 +62,7 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 
 3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]`.
 
-4. Install Xcodegen with `brew install xcodegen`, install CocoaPods with `brew install cocoapods`, install cmake with `brew install cmake`, then execute `xcodegen` command at `framework/examples/ios-demo` directory, which will create `HippyDemo.xcodeproj` and `HippyDemo.xcworkspace` files and install Cocoapods dependencies.
+4. Install CocoaPods with `brew install cocoapods`, install cmake with `brew install cmake`, then execute `pod install` command at `framework/examples/ios-demo` directory, which will create `HippyDemo.xcworkspace` files and install Cocoapods dependencies.
 
 5. Start the Xcode and build the iOS app with opening `framework/examples/ios-demo/HippyDemo.xcworkspace`.
 

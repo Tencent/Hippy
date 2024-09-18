@@ -34,6 +34,7 @@ enum NodeOperateType {
   UPDATE,
   DELETE,
   MOVE,
+  UPDATE_EVENT,
 }
 
 // batch operation of native node
@@ -143,12 +144,14 @@ function endBatch() {
     const { rootViewId } = getHippyCachedInstance();
     // create Scene Builder with rootView id
     const sceneBuilder = new global.Hippy.SceneBuilder(rootViewId);
+    // nodes need sort by index
+    const needSortByIndex = true;
     // batch operations on nodes based on operation type
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NodeOperateType.CREATE:
           printNodeOperation(chunk.printedNodes, 'createNode');
-          sceneBuilder.create(chunk.nodes);
+          sceneBuilder.create(chunk.nodes, needSortByIndex);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NodeOperateType.UPDATE:
@@ -163,6 +166,9 @@ function endBatch() {
         case NodeOperateType.MOVE:
           printNodeOperation(chunk.printedNodes, 'moveNode');
           sceneBuilder.move(chunk.nodes);
+          break;
+        case NodeOperateType.UPDATE_EVENT:
+          handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         default:
           break;
@@ -241,4 +247,19 @@ export function renderUpdateChildNativeNode([nativeLanguages, eventLanguages, pr
     });
     endBatch();
   }
+}
+
+/**
+ * update native event
+ *
+ * @param eventNode
+ */
+export function renderUpdateChildNativeEvent(eventNode): void {
+  batchNativeNodes.push({
+    type: NodeOperateType.UPDATE_EVENT,
+    nodes: [],
+    eventNodes: [eventNode],
+    printedNodes: [],
+  });
+  endBatch();
 }

@@ -16,11 +16,12 @@
     "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js"
   },
   "dependencies": {
-    "@hippy/vue-next": "latest",
-    "@hippy/vue-router-next-history": "latest",
+    "@hippy/vue-next": "v3.3-latest",
+    "@hippy/vue-router-next-history": "0.0.1",
     "@hippy/web-renderer": "latest",
-    "@vue/runtime-core": "^3.2.21",
-    "vue": "^3.2.21",
+    "@vue/runtime-core": "^3.4.32",
+    "@vue/shared": "^3.4.32",
+    "vue": "^3.4.32",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
@@ -39,10 +40,10 @@
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
     "@hippy/hippy-hmr-plugin": "^0.1.0",
     "@hippy/rejection-tracking-polyfill": "^1.0.0",
-    "@hippy/vue-css-loader": "^2.0.1",
+    "@hippy/vue-css-loader": "v3.3-latest",
     "@vitejs/plugin-vue": "^1.9.4",
     "@vue/cli-service": "^4.5.19",
-    "@vue/compiler-sfc": "^3.2.21",
+    "@vue/compiler-sfc": "^3.4.32",
     "babel-loader": "^8.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "clean-webpack-plugin": "^4.0.0",
@@ -58,6 +59,7 @@
     "url-loader": "^4.0.0",
     "vue-loader": "^17.0.0",
     "webpack": "^4.46.0",
-    "webpack-cli": "^4.7.2"
+    "webpack-cli": "^4.7.2",
+    "webpack-bundle-analyzer": "^4.10.2"
   }
 }

@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-public interface NativeRenderDelegate extends RenderExceptionHandler {
+public interface NativeRenderDelegate extends RenderExceptionHandler, RenderLogHandler {
 
     void createNode(int rootId, @NonNull List<Object> nodeList) throws NativeRenderException;
 
@@ -30,7 +30,7 @@ public interface NativeRenderDelegate extends RenderExceptionHandler {
 
     void moveNode(int rootId, int[] ids, int newPid, int oldPid, int insertIndex) throws NativeRenderException;
 
-    void moveNode(int rootId, int pid, @NonNull List<Object> list) throws NativeRenderException;
+    void moveNode(int rootId, @NonNull List<Object> list) throws NativeRenderException;
 
     void updateLayout(int rootId, @NonNull List<Object> list) throws NativeRenderException;
 

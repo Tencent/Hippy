@@ -31,6 +31,8 @@
 #include "footstone/worker_impl.h"
 #include "jni/jni_register.h"
 #include "jni/data_holder.h"
+#include "jni/jni_env.h"
+#include "jni/scoped_java_ref.h"
 
 namespace hippy {
 inline namespace framework {
@@ -107,8 +109,10 @@ void ReleaseRootResources(JNIEnv* j_env,
   auto& persistent_map = RootNode::PersistentMap();
   std::shared_ptr<RootNode> root_node;
   auto flag = persistent_map.Find(root_id, root_node);
-  FOOTSTONE_CHECK(flag);
-  root_node->ReleaseResources();
+  FOOTSTONE_DCHECK(flag);
+  if (flag) {
+    root_node->ReleaseResources();
+  }
 }
 
 void SetDomManager(JNIEnv* j_env,
@@ -130,11 +134,32 @@ void SetDomManager(JNIEnv* j_env,
   root_node->SetDomManager(dom_manager_object);
 }
 
-jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
+static void SetThreadPriority(jobject j_object) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  auto j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    FOOTSTONE_LOG(ERROR) << "CallJavaMethod j_class error";
+    return;
+  }
+  auto j_cb_id = j_env->GetMethodID(j_class, "setThreadPrority", "()V");
+  if (!j_cb_id) {
+    FOOTSTONE_LOG(ERROR) << "CallJavaMethod j_cb_id error";
+    return;
+  }
+  j_env->CallVoidMethod(j_object, j_cb_id);
+  JNIEnvironment::ClearJEnvException(j_env);
+  j_env->DeleteLocalRef(j_class);
+}
+
+jint CreateDomManager(JNIEnv* j_env, jobject j_obj) {
   auto dom_manager = std::make_shared<DomManager>();
   auto dom_id = hippy::global_data_holder_key.fetch_add(1);
   hippy::global_data_holder.Insert(dom_id, dom_manager);
   auto worker = std::make_shared<WorkerImpl>(kDomWorkerName, false);
+  auto callback = std::make_shared<JavaRef>(j_env, j_obj);
+  worker->BeforeStart([callback]() {
+    if (callback->GetObj()) SetThreadPriority(callback->GetObj());
+  });
   worker->Start();
   auto runner = std::make_shared<TaskRunner>(kDomRunnerName);
   runner->SetWorker(worker);

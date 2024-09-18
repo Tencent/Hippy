@@ -20,15 +20,14 @@
  *
  */
 
-#import "HPFootstoneUtils.h"
-#import "HPToolUtils.h"
+#import "HippyFootstoneUtils.h"
+#import "HippyUtils.h"
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
 #import "VFSUriHandler.h"
-
+#import "HippyAssert.h"
 #include <functional>
 #include <unordered_map>
-
 #include "footstone/string_view_utils.h"
 
 NSString *const VFSErrorDomain = @"VFSErrorDomain";
@@ -86,35 +85,22 @@ void VFSUriLoader::RequestUntrustedContent(const std::shared_ptr<hippy::RequestJ
     hippy::vfs::UriLoader::RequestUntrustedContent(request, cb);
 }
 
-void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSOperationQueue *operationQueue,
-                                           VFSHandlerProgressBlock progress,
-                                           VFSHandlerCompletionBlock completion) {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    RequestUntrustedContent(request, operationQueue, progress, completion);
-}
-
-void VFSUriLoader::RequestUntrustedContent(NSString *urlString, NSString *method,
+void VFSUriLoader::RequestUntrustedContent(NSString *urlString,
+                                           NSDictionary *extraInfo,
                                            NSOperationQueue *operationQueue,
-                                           NSDictionary<NSString *, NSString *> *httpHeader, NSData *body,
                                            VFSHandlerProgressBlock progress,
                                            VFSHandlerCompletionBlock completion) {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    if (method) {
-        [request setHTTPMethod:method];
-    }
-    if (httpHeader) {
-        for (NSString *key in httpHeader) {
-            [request setValue:httpHeader[key] forHTTPHeaderField:key];
-        }
-    }
-    if (body) {
-        [request setHTTPBody:body];
-    }
-    RequestUntrustedContent(request, operationQueue, progress, completion);
+    NSURL *url = HippyURLWithString(urlString, nil);
+    HippyAssert(url, @"Invalid URL! %@", urlString);
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    RequestUntrustedContent(request, extraInfo, operationQueue, progress, completion);
 }
 
-void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQueue *operationQueue,
-                                           VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion) {
+void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request,
+                                           NSDictionary *extraInfo,
+                                           NSOperationQueue *operationQueue,
+                                           VFSHandlerProgressBlock progress, 
+                                           VFSHandlerCompletionBlock completion) {
     if (!request || !completion) {
         return;
     }
@@ -129,8 +115,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
             auto &scheme_handler_list = find->second;
             cur_convenient_it = scheme_handler_list.begin();
             end_convenient_it = scheme_handler_list.end();
-        }
-        else {
+        } else {
             cur_convenient_it = default_convenient_handlers_.begin();
             end_convenient_it = default_convenient_handlers_.end();
         }
@@ -142,17 +127,23 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
     //check if convenient loader exists, or forward to cpp loader
     if (cur_convenient) {
         auto startPoint = footstone::TimePoint::SystemNow();
-        VFSHandlerCompletionBlock callback = ^(NSData *data, NSURLResponse *response, NSError *error) {
+        auto weak_this = weak_from_this();
+        VFSHandlerCompletionBlock callback = ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
             auto endPoint = footstone::TimePoint::SystemNow();
             string_view uri(NSStringToU16StringView([[response URL] absoluteString]));
-            DoRequestTimePerformanceCallback(uri, startPoint, endPoint);
+            string_view msg([error.localizedDescription UTF8String]?:"");
+            auto shared_this = weak_this.lock();
+            if (shared_this) {
+                DoRequestResultCallback(uri, startPoint, endPoint, static_cast<int32_t>(error.code), msg);
+            }
             if (completion) {
-                completion(data, response, error);
+                completion(data, userInfo, response, error);
             }
         };
-        cur_convenient->RequestUntrustedContent(request, operationQueue, progress, callback, block);
-    }
-    else {
+        cur_convenient->RequestUntrustedContent(request, extraInfo, operationQueue, progress, callback, block);
+    } else {
+        // TODO: when forward to cpp loader
+        // cpp loader does not handle rscType
         string_view uri = NSStringToU8StringView([requestURL absoluteString]);
         auto meta = NSDictionaryToStringUnorderedMap([request allHTTPHeaderFields]);
         auto progressCallback = [progress, operationQueue](int64_t current, int64_t total){
@@ -179,7 +170,7 @@ void VFSUriLoader::RequestUntrustedContent(NSURLRequest *request, NSOperationQue
                     NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
                     error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
                 }
-                completion(data, response, error);
+                completion(data, nil, response, error);
             }
         };
         RequestUntrustedContent(requestJob, responseCallback);

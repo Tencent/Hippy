@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -20,14 +20,15 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
+#import "HippyUIManager.h"
+#import "HippyUIManager+Private.h"
 #import "NativeRenderManager.h"
-#import "NativeRenderObjectText.h"
+#import "HippyShadowText.h"
 #import "RenderVsyncManager.h"
-#import "HPAsserts.h"
-
+#import "HippyAssert.h"
 #include "dom/dom_manager.h"
 #include "dom/layout_node.h"
+#include "dom/root_node.h"
 
 using HippyValue = footstone::value::HippyValue;
 using RenderManager = hippy::RenderManager;
@@ -38,41 +39,55 @@ using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 using RootNode = hippy::RootNode;
 
-NativeRenderManager::NativeRenderManager(): hippy::RenderManager("NativeRenderManager") {
-}
 
-void NativeRenderManager::Initialize() {
-    renderImpl_ = [[NativeRenderImpl alloc] initWithRenderManager:weak_from_this()];
-}
+NativeRenderManager::NativeRenderManager(const std::string& name): hippy::RenderManager(name) {}
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>> &&nodes) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ createRenderNodes:std::move(nodes) onRootNode:root_node];
+        auto rootNode = root_node.lock();
+        if (rootNode) {
+            std::shared_lock<std::shared_mutex> lock(_mutex);
+            HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+            [uiManager createRenderNodes:std::move(nodes) onRootNode:root_node];
+        }
     }
 }
 
 void NativeRenderManager::UpdateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ updateRenderNodes:std::move(nodes) onRootNode:root_node];
+        auto rootNode = root_node.lock();
+        if (rootNode) {
+            std::shared_lock<std::shared_mutex> lock(_mutex);
+            HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+            [uiManager updateRenderNodes:std::move(nodes) onRootNode:root_node];
+        }
+        
     }
 }
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
+        auto rootNode = root_node.lock();
+        if (rootNode) {
+            std::shared_lock<std::shared_mutex> lock(_mutex);
+            HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+            [uiManager deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
+        }
     }
 }
 
 void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
                                        const std::vector<std::shared_ptr<DomNode>>& nodes) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
         using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult>;
         std::vector<DomNodeUpdateInfoTuple> nodes_infos;
         nodes_infos.reserve(nodes.size());
@@ -82,7 +97,7 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
               DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult);
               nodes_infos.push_back(nodeUpdateInfo);
         }
-        [renderImpl_ updateNodesLayout:nodes_infos onRootNode:root_node];
+        [uiManager updateNodesLayout:nodes_infos onRootNode:root_node];
     }
 }
 
@@ -92,43 +107,87 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
                                          int32_t to_pid,
                                          int32_t index) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ renderMoveViews:std::move(moved_ids)
-                       fromContainer:from_pid
-                         toContainer:to_pid
-                               index:index
-                          onRootNode:root_node];
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+        [uiManager renderMoveViews:std::move(moved_ids)
+                     fromContainer:from_pid
+                       toContainer:to_pid
+                             index:index
+                        onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                          std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ renderMoveNodes:std::move(nodes) onRootNode:root_node];
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+        // Check whether all nodes have the same pid
+        uint32_t firstPid = nodes[0]->GetPid();
+        bool allSamePid = std::all_of(nodes.begin(), nodes.end(),
+                                      [firstPid](const std::shared_ptr<DomNode>& node) {
+            return node->GetPid() == firstPid;
+        });
+        
+        if (allSamePid) {
+            // If all nodes have the same pid, call directly
+            [uiManager renderMoveNodes:std::move(nodes) onRootNode:root_node];
+        } else {
+            // If not, group them by pid and then call for each group
+            std::map<int, std::vector<std::shared_ptr<DomNode>>> pidNodeMap;
+            for (auto& node : nodes) {
+                pidNodeMap[node->GetPid()].push_back(node);
+            }
+            for (auto& pair : pidNodeMap) {
+                [uiManager renderMoveNodes:std::move(pair.second) onRootNode:root_node];
+            }
+        }
     }
 }
 
 void NativeRenderManager::EndBatch(std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ batchOnRootNode:root_node];
+        TDF_PERF_LOG("NativeRenderManager::EndBatch Begin");
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+        [uiManager batchOnRootNode:root_node];
+        TDF_PERF_LOG("NativeRenderManager::EndBatch End");
+
     }
 }
 
-void NativeRenderManager::BeforeLayout(std::weak_ptr<hippy::RootNode> root_node) {}
+void NativeRenderManager::BeforeLayout(std::weak_ptr<hippy::RootNode> root_node) {
+}
 
-void NativeRenderManager::AfterLayout(std::weak_ptr<hippy::RootNode> root_node) {}
+void NativeRenderManager::AfterLayout(std::weak_ptr<hippy::RootNode> root_node) {
+}
 
 void NativeRenderManager::AddEventListener(std::weak_ptr<hippy::RootNode> root_node,
                                            std::weak_ptr<DomNode> dom_node,
                                            const std::string& name) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
         auto node = dom_node.lock();
         if (node) {
             int32_t tag = node->GetId();
-            [renderImpl_ addEventName:name forDomNodeId:tag onRootNode:root_node];
+            [uiManager addEventName:name forDomNodeId:tag onRootNode:root_node];
         }
     }
 };
@@ -137,12 +196,29 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<hippy::RootNode> roo
                                               std::weak_ptr<DomNode> dom_node,
                                               const std::string &name) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
         auto node = dom_node.lock();
         if (node) {
             int32_t node_id = node->GetId();
-            [renderImpl_ removeEventName:name forDomNodeId:node_id onRootNode:root_node];
+            [uiManager removeEventName:name forDomNodeId:node_id onRootNode:root_node];
         }
+    }
+}
+
+void NativeRenderManager::RemoveVSyncEventListener(std::weak_ptr<hippy::RootNode> root_node) {
+    @autoreleasepool {
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
+        [uiManager removeVSyncEventOnRootNode:root_node];
     }
 }
 
@@ -152,90 +228,58 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
                                        const DomArgument& param,
                                        uint32_t cb) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootNode->GetId()];
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
             HippyValue hippy_value;
             param.ToObject(hippy_value);
-            [renderImpl_ dispatchFunction:name viewName:node->GetViewName()
-                                viewTag:node->GetId() onRootNode:root_node params:hippy_value
-                                callback:node->GetCallback(name, cb)];
+            [uiManager dispatchFunction:name 
+                               viewName:node->GetViewName()
+                                viewTag:node->GetId() 
+                             onRootNode:root_node 
+                                 params:hippy_value
+                               callback:node->GetCallback(name, cb)];
         }
         EndBatch(root_node);
     }
 }
 
-void NativeRenderManager::RegisterExtraComponent(NSArray<Class> *extraComponents) {
+void NativeRenderManager::RegisterRootView(UIView *view,
+                                           std::weak_ptr<hippy::RootNode> root_node,
+                                           HippyUIManager *uiManager) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ registerExtraComponent:extraComponents];
+        auto rootNode = root_node.lock();
+        if (!rootNode) {
+            return;
+        }
+        HippyAssertParam(uiManager);
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        _uiManagerMap[rootNode->GetId()] = uiManager;
+        [uiManager registerRootView:view asRootNode:root_node];
     }
 }
 
-void NativeRenderManager::RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node) {
+void NativeRenderManager::UnregisterRootView(uint32_t rootId) {
     @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ registerRootView:view asRootNode:root_node];
+        std::shared_lock<std::shared_mutex> lock(_mutex);
+        HippyUIManager *uiManager = _uiManagerMap[rootId];
+        HippyAssertParam(uiManager);
+        [uiManager unregisterRootViewFromTag:@(rootId)];
+        _uiManagerMap.erase(rootId);
     }
-}
-
-void NativeRenderManager::UnregisterRootView(uint32_t id) {
-    @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ unregisterRootViewFromTag:@(id)];
-    }
-}
-
-NSArray<UIView *> *NativeRenderManager::rootViews() {
-    @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        return [renderImpl_ rootViews];
-    }
-}
-
-void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
-    @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ setDomManager:dom_manager];
-    }
-}
-
-void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
-    HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-    renderImpl_.uiCreationLazilyEnabled = enabled;
-}
-
-void NativeRenderManager::AddImageProviderClass(Class<HPImageProviderProtocol> cls) {
-    @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        [renderImpl_ addImageProviderClass:cls];
-    }
-}
-
-NSArray<Class<HPImageProviderProtocol>> *NativeRenderManager::GetImageProviderClasses() {
-    @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        return [renderImpl_ imageProviderClasses];
-    }
-}
-
-void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
-    @autoreleasepool {
-        HPAssert(renderImpl_, @"renderImpl_ is null, did you forget to call Initialize()?");
-        renderImpl_.VFSUriLoader = loader;
-    }
-}
-
-void NativeRenderManager::SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb) {
-    [renderImpl_ setRootViewSizeChangedEvent:cb];
-}
-
-NativeRenderImpl *NativeRenderManager::GetNativeRenderImpl() {
-    return renderImpl_;
 }
 
 NativeRenderManager::~NativeRenderManager() {
-    [renderImpl_ invalidate];
-    renderImpl_ = nil;
+    std::shared_lock<std::shared_mutex> lock(_mutex);
+    for (auto &pair : _uiManagerMap) {
+        [pair.second invalidate];
+    }
+    _uiManagerMap.clear();
+    FOOTSTONE_LOG(INFO) << "~NativeRenderManager";
 }
  

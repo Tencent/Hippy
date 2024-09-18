@@ -91,8 +91,8 @@ class PageManagement : AppCompatActivity() {
         for (hippyEngineWrapper in hippyEngineList) {
             hippyEngineWrapper.pageItem?.let {
                 val pageItemImage = it.findViewById<ImageView>(R.id.page_item_image)
-                hippyEngineWrapper.snapshot?.let {
-                    pageItemImage.setImageBitmap(hippyEngineWrapper.snapshot)
+                hippyEngineWrapper.screenshot?.let {
+                    pageItemImage.setImageBitmap(hippyEngineWrapper.screenshot)
                 }
             }
         }
@@ -194,7 +194,7 @@ class PageManagement : AppCompatActivity() {
             pageItemTips.text = resources.getText(R.string.page_add_item_tips_text)
             pageItemTipsImage.setImageResource(R.drawable.page_item_add_4x)
         } else {
-            hippyEngineWrapper.snapshot?.let {
+            hippyEngineWrapper.screenshot?.let {
                 pageItemImage.setImageBitmap(it)
             }
             deletePageButton.setOnClickListener { v ->

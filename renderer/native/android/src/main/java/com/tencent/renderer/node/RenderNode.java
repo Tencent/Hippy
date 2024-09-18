@@ -19,6 +19,7 @@ package com.tencent.renderer.node;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REUSE_VIEW_HAS_ABANDONED_NODE_ERR;
 
 import android.text.TextUtils;
+import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.View;
 
@@ -40,6 +41,7 @@ import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponent;
 import com.tencent.renderer.component.image.ImageComponentController;
+import com.tencent.renderer.component.text.TextComponentController;
 import com.tencent.renderer.utils.DiffUtils;
 
 import java.lang.ref.WeakReference;
@@ -89,6 +91,10 @@ public class RenderNode {
      * Mark should update children drawing order.
      */
     public static final int FLAG_UPDATE_DRAWING_ORDER = 0x00000100;
+    /**
+     * Mark node has lazy parent node, which means there is an ancestor node has flag {@link #FLAG_LAZY_LOAD}.
+     */
+    public static final int FLAG_PARENT_LAZY_LOAD = 0x00000200;
     private int mNodeFlags = 0;
     private PoolType mPoolInUse = PoolType.NONE;
     protected int mX;
@@ -114,7 +120,7 @@ public class RenderNode {
     @Nullable
     protected Object mExtra;
     @Nullable
-    protected List<RenderNode> mMoveNodes;
+    protected List<Pair<RenderNode, Integer>> mMoveNodes;
     @Nullable
     protected SparseIntArray mDeletedChildren;
     @Nullable
@@ -173,7 +179,7 @@ public class RenderNode {
 
     @Nullable
     public Component ensureComponentIfNeeded(Class<?> cls) {
-        if (cls == ComponentController.class) {
+        if (cls == ComponentController.class || cls == TextComponentController.class) {
             if (mComponent == null) {
                 mComponent = new Component(this);
             }
@@ -200,6 +206,10 @@ public class RenderNode {
     @Nullable
     public Map<String, Object> getProps() {
         return mProps;
+    }
+
+    public boolean containProperty(@NonNull String key) {
+        return (mProps != null) ? mProps.containsKey(key) : false;
     }
 
     @Nullable
@@ -278,6 +288,7 @@ public class RenderNode {
         index = (index < 0) ? 0 : Math.min(index, mChildren.size());
         mChildren.add(index, node);
         node.mParent = this;
+        node.onParentLazyChanged(isLazyLoad());
         // If has set z index in the child nodes, the rendering order needs to be rearranged
         // after adding nodes
         if (mDrawingOrder != null) {
@@ -286,15 +297,38 @@ public class RenderNode {
     }
 
     public void setLazy(boolean isLazy) {
+        if (isLazy == checkNodeFlag(FLAG_LAZY_LOAD)) {
+            return;
+        }
+        boolean oldLazy = isLazyLoad();
         if (isLazy) {
             setNodeFlag(FLAG_LAZY_LOAD);
         } else {
             resetNodeFlag(FLAG_LAZY_LOAD);
         }
-        for (int i = 0; i < getChildCount(); i++) {
-            RenderNode child = getChildAt(i);
-            if (child != null) {
-                child.setLazy(isLazy);
+        notifyLazyChanged(oldLazy, isLazyLoad());
+    }
+
+    public void onParentLazyChanged(boolean isLazy) {
+        if (isLazy == checkNodeFlag(FLAG_PARENT_LAZY_LOAD)) {
+            return;
+        }
+        boolean oldLazy = isLazyLoad();
+        if (isLazy) {
+            setNodeFlag(FLAG_PARENT_LAZY_LOAD);
+        } else {
+            resetNodeFlag(FLAG_PARENT_LAZY_LOAD);
+        }
+        notifyLazyChanged(oldLazy, isLazyLoad());
+    }
+
+    private void notifyLazyChanged(boolean oldLazy, boolean newLazy) {
+        if (oldLazy != newLazy) {
+            for (int i = 0; i < getChildCount(); i++) {
+                RenderNode child = getChildAt(i);
+                if (child != null) {
+                    child.onParentLazyChanged(newLazy);
+                }
             }
         }
     }
@@ -407,6 +441,11 @@ public class RenderNode {
     @Nullable
     public View prepareHostView(boolean skipComponentProps, PoolType poolType) {
         if (isLazyLoad()) {
+            if (!skipComponentProps) {
+                // component props may changed here,
+                // reset FLAG_ALREADY_UPDATED to pass check in {@link #prepareHostViewRecursive} later.
+                resetNodeFlag(FLAG_ALREADY_UPDATED);
+            }
             return null;
         }
         mPoolInUse = poolType;
@@ -465,6 +504,11 @@ public class RenderNode {
         mountHostView();
         for (RenderNode renderNode : mChildren) {
             renderNode.mountHostViewRecursive();
+        }
+        // Due to the delayed loading of list view items and their child elements, non first screen elements
+        // may need to manually call batch complete when created, such as nested view pagers within list view items
+        if (shouldNotifyNonBatchingChange()) {
+            batchComplete();
         }
     }
 
@@ -550,15 +594,15 @@ public class RenderNode {
             mChildrenUnattached.clear();
         }
         if (mMoveNodes != null && !mMoveNodes.isEmpty()) {
-            Collections.sort(mMoveNodes, new Comparator<RenderNode>() {
+            Collections.sort(mMoveNodes, new Comparator<Pair<RenderNode, Integer>>() {
                 @Override
-                public int compare(RenderNode o1, RenderNode o2) {
-                    return o1.indexFromParent() < o2.indexFromParent() ? -1 : 0;
+                public int compare(Pair<RenderNode, Integer> o1, Pair<RenderNode, Integer> o2) {
+                    return o1.first.indexFromParent() - o2.first.indexFromParent();
                 }
             });
-            for (RenderNode moveNode : mMoveNodes) {
-                mControllerManager.moveView(mRootId, moveNode.getId(), mId,
-                        getChildDrawingOrder(moveNode));
+            for (Pair<RenderNode, Integer> pair : mMoveNodes) {
+                mControllerManager.moveView(mRootId, pair.first.getId(), pair.second, mId,
+                        getChildDrawingOrder(pair.first));
             }
             mMoveNodes.clear();
         }
@@ -567,7 +611,7 @@ public class RenderNode {
             mControllerManager.updateLayout(mClassName, mRootId, mId, mX, mY, mWidth, mHeight);
             resetNodeFlag(FLAG_UPDATE_LAYOUT);
         }
-        if (checkNodeFlag(FLAG_UPDATE_EXTRA)) {
+        if (checkNodeFlag(FLAG_UPDATE_EXTRA) && getHostView() != null) {
             mControllerManager.updateExtra(mRootId, mId, mClassName, mExtra);
             resetNodeFlag(FLAG_UPDATE_EXTRA);
         }
@@ -630,7 +674,7 @@ public class RenderNode {
         setNodeFlag(FLAG_UPDATE_LAYOUT);
     }
 
-    public void addMoveNodes(@NonNull List<RenderNode> moveNodes) {
+    public void addMoveNodes(@NonNull List<Pair<RenderNode, Integer>> moveNodes) {
         if (mMoveNodes == null) {
             mMoveNodes = new ArrayList<>();
         }
@@ -644,6 +688,7 @@ public class RenderNode {
             component.setTextLayout(object);
             setNodeFlag(FLAG_UPDATE_EXTRA);
         }
+        mExtra = object;
     }
 
     public boolean isDeleted() {
@@ -651,7 +696,7 @@ public class RenderNode {
     }
 
     public boolean isLazyLoad() {
-        return checkNodeFlag(FLAG_LAZY_LOAD);
+        return checkNodeFlag(FLAG_LAZY_LOAD) || checkNodeFlag(FLAG_PARENT_LAZY_LOAD);
     }
 
     public boolean checkRegisteredEvent(@NonNull String eventName) {
@@ -701,10 +746,19 @@ public class RenderNode {
         }
     }
 
+    public boolean isBatching() {
+        RenderManager renderManager = mControllerManager.getRenderManager();
+        return renderManager != null && renderManager.isBatching();
+    }
+
     public void batchStart() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchStart(mRootId, mId, mClassName);
         }
+    }
+
+    protected boolean shouldNotifyNonBatchingChange() {
+        return false;
     }
 
     public void batchComplete() {

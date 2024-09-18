@@ -21,20 +21,24 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#import "HPFootstoneUtils.h"
+#import "HippyFootstoneUtils.h"
 #import "NSURLResponse+ToUnorderedMap.h"
 #import "NSURLSessionDataProgress.h"
 #import "TypeConverter.h"
 #import "VFSUriHandler.h"
 #import "VFSUriLoader.h"
-
-#include <objc/runtime.h>
-
+#import "HippyImageViewCustomLoader.h"
 #include "footstone/string_view_utils.h"
 #include "vfs/uri_loader.h"
+#include <objc/runtime.h>
+
 
 static char *progressKey = nullptr;
+NSString *const kHippyVFSRequestResTypeKey = @"kHippyVFSRequestResTypeKey";
+NSString *const kHippyVFSRequestCustomImageLoaderKey = @"kHippyVFSRequestCustomImageLoaderKey";
+NSString *const kHippyVFSRequestExtraInfoForCustomImageLoaderKey = @"kHippyVFSRequestExtraInfoForCustomImageLoaderKey";
+NSString *const HippyVFSResponseDecodedImageKey = @"HippyVFSResponseDecodedImageKey";
+
 
 static bool CheckRequestFromCPP(const std::unordered_map<std::string, std::string> &headers) {
     auto find = headers.find(kRequestOrigin);
@@ -68,7 +72,7 @@ static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri
     if (!url) {
         return nil;
     }
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     [request setAllHTTPHeaderFields:HttpHeadersFromMap(headers)];
     return [request copy];
 }
@@ -100,7 +104,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
         return;
     }
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    VFSHandlerCompletionBlock rsp = ^(NSData * data, NSURLResponse *resp, NSError *error){
+    VFSHandlerCompletionBlock rsp = ^(NSData * data, NSDictionary *userInfo, NSURLResponse *resp, NSError *error){
         if (error) {
             response->SetRetCode(RetCodeFromNSError(error));
             NSString *errorMsg = [error localizedFailureReason];
@@ -115,7 +119,12 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
         }
         dispatch_semaphore_signal(sem);
     };
-    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:rsp];
+    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:req 
+                                                                     completionHandler:^(NSData * _Nullable data,
+                                                                                         NSURLResponse * _Nullable response,
+                                                                                         NSError * _Nullable error) {
+        rsp(data, nil, response, error);
+    }];
     [dataTask resume];
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
@@ -149,9 +158,9 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
                 cb(job_resp);
                 return;
             }
-            loader->RequestUntrustedContent(req, nil, ^(NSUInteger current, NSUInteger total) {
+            loader->RequestUntrustedContent(req, nil, nil, ^(NSUInteger current, NSUInteger total) {
                 request->GetProgressCallback()(current, total);
-            }, ^(NSData *data, NSURLResponse *resp, NSError *error) {
+            }, ^(NSData *data, NSDictionary *userInfo, NSURLResponse *resp, NSError *error) {
                 RetCode code = RetCodeFromNSError(error);
                 string_view errMsg = NSStringToU8StringView([error localizedFailureReason]);
                 auto map = [resp toUnorderedMap];
@@ -170,6 +179,7 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob> r
 }
 
 void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
+                                            NSDictionary *extraInfo,
                                             NSOperationQueue *queue,
                                             VFSHandlerProgressBlock progress,
                                             VFSHandlerCompletionBlock completion,
@@ -179,6 +189,37 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
         return;
     }
     NSURL *requestURL = [request URL];
+    
+    // If it is an image request,
+    // we need to determine whether the user has a custom ImageLoader,
+    // if so, we need to request data through the custom ImageLoader.
+    if (extraInfo &&
+        extraInfo[kHippyVFSRequestCustomImageLoaderKey] &&
+        [extraInfo[kHippyVFSRequestResTypeKey] integerValue] == HippyVFSRscTypeImage) {
+        id<HippyImageCustomLoaderProtocol> customLoader = extraInfo[kHippyVFSRequestCustomImageLoaderKey];
+        NSDictionary *extraForCustomLoader = extraInfo[kHippyVFSRequestExtraInfoForCustomImageLoaderKey];
+        
+        [customLoader loadImageAtUrl:requestURL
+                           extraInfo:extraForCustomLoader
+                            progress:progress
+                           completed:^(NSData * _Nullable data, 
+                                       NSURL * _Nonnull url,
+                                       NSError * _Nullable error,
+                                       UIImage * _Nullable image,
+                                       HippyImageLoaderControlOptions options) {
+            NSDictionary *dict = nil;
+            if (image && (options & HippyImageLoaderControl_SkipDecodeOrDownsample)) {
+                dict = @{ HippyVFSResponseDecodedImageKey: image };
+            }
+            NSURLResponse *rsp = [[NSURLResponse alloc] initWithURL:url
+                                                           MIMEType:nil
+                                              expectedContentLength:data.length
+                                                   textEncodingName:nil];
+            completion(data, dict, rsp, error);
+        }];
+        return;
+    }
+    
     NSDictionary<NSString *, NSString *> *httpHeaders = [request allHTTPHeaderFields];
     if ([httpHeaders[@(kRequestOrigin)] isEqualToString:@(kRequestFromOC)]) {
         NSDictionary *userInfo = @{NSURLErrorFailingURLErrorKey: requestURL,
@@ -186,7 +227,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                    @"NSURLErrorFailingInfo": @"scheme not registered"};
         NSInteger code = static_cast<NSInteger>(hippy::JobResponse::RetCode::SchemeNotRegister);
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
-        completion(nil, nil, error);
+        completion(nil, nil, nil, error);
         return;
     }
     NSURLSessionDataProgress *dataProgress = [[NSURLSessionDataProgress alloc] initWithProgress:progress result:completion];
@@ -195,7 +236,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
     if (!dataTask) {
         auto nextHandler = next();
         if (nextHandler) {
-            nextHandler->RequestUntrustedContent(request, queue, progress, completion, next);
+            nextHandler->RequestUntrustedContent(request, extraInfo, queue, progress, completion, next);
         }
         else {
             //try to forward to cpp uri handler
@@ -206,7 +247,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                            @"NSURLErrorFailingInfo": @"loader not found"};
                 NSInteger code = static_cast<NSInteger>(hippy::JobResponse::RetCode::ResourceNotFound);
                 NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
-                completion(nil, nil, error);
+                completion(nil, nil, nil, error);
                 return;
             }
             auto progressCallback = [progress](int64_t current, int64_t total){
@@ -233,7 +274,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                         NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
                         error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
                     }
-                    completion(data, response, error);
+                    completion(data, nil, response, error);
                 }
             };
             loader->hippy::UriLoader::RequestUntrustedContent(requestJob, responseCallback);

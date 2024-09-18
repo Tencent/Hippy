@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
+import com.tencent.mtt.hippy.common.BaseEngineContext;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
@@ -35,7 +36,7 @@ import com.tencent.vfs.VfsManager;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-public interface NativeRender extends RenderExceptionHandler {
+public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
 
     @NonNull
     RenderManager getRenderManager();
@@ -62,6 +63,11 @@ public interface NativeRender extends RenderExceptionHandler {
 
     @Nullable
     Executor getBackgroundExecutor();
+
+    @Nullable
+    BaseEngineContext getEngineContext();
+
+    void deleteVirtualChildNode(int rootId, int nodeId);
 
     int getEngineId();
 
@@ -91,14 +97,15 @@ public interface NativeRender extends RenderExceptionHandler {
     VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props);
 
-    void onFirstViewAdded();
+    void onFirstPaint();
 
-    void onSizeChanged(int rootId, int width, int height);
+    void onFirstContentfulPaint();
+
+    void onSizeChanged(int rootId, int width, int height, int oldWidth, int oldHeight);
 
     void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync);
 
-    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged);
+    void updateDimension(int width, int height);
 
     void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
             @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType);

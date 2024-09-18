@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.tencent.renderer.component.drawable;
 
 import android.graphics.Canvas;
@@ -42,14 +26,16 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 
 import android.text.Layout;
+import android.text.Spanned;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.renderer.component.text.TextLineMetricsHelper;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 
 public class TextDrawable extends Drawable {
 
-    private boolean mTextBold = false;
+    private boolean mFakeBoldText = false;
     private int mCustomTextColor = 0;
     private float mLeftPadding;
     private float mRightPadding;
@@ -60,8 +46,10 @@ public class TextDrawable extends Drawable {
     private Layout mLayout;
     @Nullable
     private BackgroundHolder mBackgroundHolder;
+    private TextLineMetricsHelper mHelper;
 
     public void setTextLayout(@NonNull Object obj) {
+        Layout oldLayout = mLayout;
         if (obj instanceof TextRenderSupplier) {
             mLayout = ((TextRenderSupplier) obj).layout;
             mLeftPadding = ((TextRenderSupplier) obj).leftPadding;
@@ -71,6 +59,22 @@ public class TextDrawable extends Drawable {
         } else if (obj instanceof Layout) {
             mLayout = (Layout) obj;
         }
+        if (mLayout != oldLayout) {
+            mHelper = getTextLineMetricsHelper(mLayout);
+        }
+    }
+
+    private TextLineMetricsHelper getTextLineMetricsHelper(Layout layout) {
+        if (layout != null) {
+            CharSequence text = layout.getText();
+            if (text instanceof Spanned) {
+                TextLineMetricsHelper[] spans = ((Spanned) text).getSpans(0, 0, TextLineMetricsHelper.class);
+                if (spans != null && spans.length > 0) {
+                    return spans[0];
+                }
+            }
+        }
+        return null;
     }
 
     public void setBackgroundHolder(@Nullable BackgroundHolder holder) {
@@ -90,11 +94,7 @@ public class TextDrawable extends Drawable {
 
     private void updateContentRegionIfNeeded() {
         if (mBackgroundHolder != null) {
-            mContentRegion.set(mBackgroundHolder.getContentRectF());
-            float borderWidth = mBackgroundHolder.getBorderWidth();
-            if (borderWidth > 1.0f) {
-                mContentRegion.inset(borderWidth, borderWidth);
-            }
+            mContentRegion.set(mBackgroundHolder.getContentRegion());
         }
     }
 
@@ -106,20 +106,25 @@ public class TextDrawable extends Drawable {
             return;
         }
         updateContentRegionIfNeeded();
-        final Path borderRadiusPath =
-                (mBackgroundHolder != null) ? mBackgroundHolder.getBorderRadiusPath() : null;
+        final Path contentPath = (mBackgroundHolder != null) ? mBackgroundHolder.getContentPath() : null;
         canvas.save();
-        if (borderRadiusPath != null) {
-            canvas.clipPath(borderRadiusPath);
+        if (contentPath != null) {
+            canvas.clipPath(contentPath);
         } else {
             canvas.clipRect(mContentRegion);
         }
         canvas.translate(getTextLayoutOffsetX(), getTextLayoutOffsetY());
         Paint paint = mLayout.getPaint();
         if (paint != null) {
-            paint.setFakeBoldText(mTextBold);
+            paint.setFakeBoldText(mFakeBoldText);
         }
-        mLayout.draw(canvas);
+        if (mHelper != null) {
+            mHelper.initialize();
+            mLayout.draw(canvas);
+            mHelper.drawTextDecoration(canvas, mLayout);
+        } else {
+            mLayout.draw(canvas);
+        }
         canvas.restore();
     }
 
@@ -133,6 +138,10 @@ public class TextDrawable extends Drawable {
 
     }
 
+    public void setFakeBoldText(boolean isFakeBoldText) {
+        mFakeBoldText = isFakeBoldText;
+    }
+
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
 
@@ -142,15 +151,13 @@ public class TextDrawable extends Drawable {
         if (mLayout == null) {
             return 0;
         }
-        final int width = getBounds().width();
-        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
         switch (mLayout.getAlignment()) {
             case ALIGN_CENTER:
-                return (width - mLayout.getWidth()) / 2.0f;
+                return mContentRegion.centerX() - mLayout.getWidth() * 0.5f;
             case ALIGN_OPPOSITE:
-                return width - mRightPadding - borderWidth - mLayout.getWidth();
+                return mContentRegion.right - mRightPadding - mLayout.getWidth();
             default:
-                return mLeftPadding + borderWidth;
+                return mLeftPadding + mContentRegion.left;
         }
     }
 
@@ -158,7 +165,6 @@ public class TextDrawable extends Drawable {
         if (mLayout == null) {
             return 0;
         }
-        final float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
-        return mTopPadding + borderWidth;
+        return mTopPadding + mContentRegion.top;
     }
 }

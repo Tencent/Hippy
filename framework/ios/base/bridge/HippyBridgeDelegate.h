@@ -21,10 +21,29 @@
  */
 
 @class HippyBridge;
+#import "HippyInvalidating.h"
 
-#import "HPInvalidating.h"
 
-@protocol HippyBridgeDelegate <NSObject>
+/// An Interceptor protocol for gesture events.
+@protocol HippyTouchEventInterceptorProtocol <NSObject>
+
+@optional
+
+/// A centralized handler for event sending,
+/// which hippy calls before sending events to the JS side.
+///
+/// This method is convenient for external data reporting of hippy gesture events
+/// - Parameters:
+///   - eventName: name of event
+///   - point: point in hippyRootView
+///   - view: target view
+- (void)willSendGestureEvent:(NSString *)eventName withPagePoint:(CGPoint)point toView:(UIView *)view;
+
+@end
+
+
+/// Delegate of HippyBridge
+@protocol HippyBridgeDelegate <NSObject, HippyTouchEventInterceptorProtocol>
 
 @optional
 
@@ -55,14 +74,6 @@
  */
 - (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
 
-//invalidate methods
-/**
- * Invoke when HippyBridge requests reloading
- *
- * @param bridge HippyBridge that requests reloading
- */
-- (void)reload:(HippyBridge *)bridge;
-
 /**
  * Tell delegate to remove root node
  *
@@ -77,6 +88,27 @@
  * @param reason reson for HippyBridge invalidation, typically reload, or dealloc
  * @param bridge HippyBridge to be invalidated
  */
-- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge;
+- (void)invalidateForReason:(HippyInvalidateReason)reason bridge:(HippyBridge *)bridge;
+
+
+#pragma mark - UI/Layout Related
+
+/// When return YES,
+/// it indicates that you want to use the `viewWillTransitionToSize` method in UIViewController
+/// instead of the deprecated UIApplicationDidChangeStatusBarOrientationNotification.
+///
+/// Note that you must call `onHostControllerTransitionedToSize` of HippyRootView when size changed.
+- (BOOL)shouldUseViewWillTransitionMethodToMonitorOrientation;
+
+/// The default status bar height when hippy cannot obtained dynamically.
+///
+/// Note: In general, the page layout should not depend on `StatusBar` height,
+/// Its height is dynamically changed and should be obtained dynamically.
+/// This value is only used as a default value if hippy cannot be obtained.
+///
+/// Only for compatibility with old code, strongly discouraged.
+/// return values less than 0 will be treated as 0.
+- (CGFloat)defaultStatusBarHeightNoMatterHiddenOrNot;
+
 
 @end

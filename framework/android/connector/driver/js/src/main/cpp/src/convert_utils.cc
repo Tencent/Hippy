@@ -344,6 +344,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(const std::share
 
     auto to_jobject_tuple = ToJObject(ctx, item);
     if (!std::get<0>(to_jobject_tuple)) {
+      j_env->DeleteLocalRef(key_j_obj);
       return std::make_tuple(false, std::get<1>(to_jobject_tuple), static_cast<jobject>(nullptr));
     }
     jobject value_j_obj = std::get<2>(to_jobject_tuple);
@@ -644,6 +645,7 @@ std::tuple<bool,
   } else if (!obj) {
     result = ctx->CreateNull();
   } else {
+    j_env->DeleteLocalRef(obj);
     return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap",
                            static_cast<std::shared_ptr<CtxValue>>(nullptr));
   }

@@ -166,6 +166,24 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline std::any GetTurbo() { return turbo_; }
   inline void SetTurbo(std::any turbo) { turbo_ = turbo; }
   inline std::weak_ptr<Engine> GetEngine() { return engine_; }
+  inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return extra_function_map_; }
+    
+  inline bool RegisterExtraCallback(const std::string& key, RegisterFunction func) {
+    if (!func) {
+      return false;
+    }
+    (*extra_function_map_)[key] = std::move(func);
+    return true;
+  }
+  
+  inline bool GetExtraCallback(const std::string& key, RegisterFunction& outFunc) const {
+    auto it = extra_function_map_->find(key);
+    if (it != extra_function_map_->end()) {
+      outFunc = it->second;
+      return true;
+    }
+    return false;
+  }
 
   inline std::any GetClassTemplate(const string_view& name) {
     auto engine = engine_.lock();
@@ -275,22 +293,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
   inline void SetUriLoader(std::weak_ptr<UriLoader> loader) {
     loader_ = loader;
-    auto the_loader = loader_.lock();
-    if (the_loader) {
-      the_loader->SetRequestTimePerformanceCallback([WEAK_THIS](const string_view& uri, const TimePoint& start, const TimePoint& end) {
-        DEFINE_AND_CHECK_SELF(Scope)
-        auto runner = self->GetTaskRunner();
-        if (runner) {
-          auto task = [weak_this, uri, start, end]() {
-            DEFINE_AND_CHECK_SELF(Scope)
-            auto entry = self->GetPerformance()->PerformanceResource(uri);
-            entry->SetLoadSourceStart(start);
-            entry->SetLoadSourceEnd(end);
-          };
-          runner->PostTask(std::move(task));
-        }
-      });
-    }
+    SetCallbackForUriLoader();
   }
 
   inline std::weak_ptr<UriLoader> GetUriLoader() { return loader_; }
@@ -300,14 +303,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   }
 
   inline std::weak_ptr<DomManager> GetDomManager() { return dom_manager_; }
-
-  inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
-    render_manager_ = render_manager;
-  }
-
-  inline std::weak_ptr<RenderManager> GetRenderManager() {
-    return render_manager_;
-  }
 
   inline std::weak_ptr<RootNode> GetRootNode() {
     return root_node_;
@@ -324,6 +319,8 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline std::shared_ptr<Performance> GetPerformance() {
     return performance_;
   }
+
+  void HandleUriLoaderError(const string_view& uri, const int32_t ret_code, const string_view& error_msg);
 
 #ifdef ENABLE_INSPECTOR
   inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
@@ -373,7 +370,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
       FOOTSTONE_CHECK(context);
       auto weak_callback_wrapper = std::make_unique<WeakCallbackWrapper>([](void* callback_data, void* internal_data) {
         auto class_template = reinterpret_cast<ClassTemplate<T>*>(callback_data);
-        auto holder_map = class_template->holder_map;
+        auto& holder_map = class_template->holder_map;
         auto it = holder_map.find(internal_data);
         if (it != holder_map.end()) {
           holder_map.erase(it);
@@ -470,6 +467,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   friend class Engine;
   void BindModule();
   void Bootstrap();
+  void SetCallbackForUriLoader();
 
  private:
   std::weak_ptr<Engine> engine_;
@@ -478,6 +476,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::any bridge_;
   std::any turbo_;
   std::string name_;
+  std::unique_ptr<RegisterMap> extra_function_map_; // store some callback functions
   uint32_t call_ui_function_callback_id_;
   std::unordered_map<uint32_t, std::shared_ptr<CtxValue>> call_ui_function_callback_holder_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
@@ -486,7 +485,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::weak_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
-  std::weak_ptr<RenderManager> render_manager_;
   std::weak_ptr<RootNode> root_node_;
   std::unordered_map<std::string, std::shared_ptr<ModuleBase>> module_object_map_;
   std::unordered_map<string_view , std::shared_ptr<CtxValue>> javascript_class_map_;

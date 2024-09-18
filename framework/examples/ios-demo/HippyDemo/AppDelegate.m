@@ -24,12 +24,8 @@
 #import "HomePageViewController.h"
 #import "DemoNavigationViewController.h"
 
-@interface AppDelegate ()
-
-@end
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
@@ -39,9 +35,5 @@
     [self.window makeKeyAndVisible];
     return YES;
 }
-
-//- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window {
-//    return UIInterfaceOrientationMaskPortrait;
-//}
 
 @end
