@@ -307,7 +307,11 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                     // so it is not a Number anymore.
                     // See NativeRenderManager::CallFunction() for more.
                     // TODO: add more type check for safe
-                    blockArg = json;
+                    blockArg = ^(NSArray *args){
+                        // Since the block passed from UIManager's dispatchFunction method is of type HippyPromiseResolve,
+                        // a small conversion is required here to avoid compatibility issues.
+                        ((HippyPromiseResolveBlock)json)(args.count > 0 ? args.firstObject : NSNull.null);
+                    };
                 } else {
                     __weak HippyBridge *weakBridge = bridge;
                     blockArg = ^(NSArray *args){
@@ -325,7 +329,11 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                     // so it is not a Number anymore.
                     // See NativeRenderManager::CallFunction() for more.
                     // TODO: add more type check for safe
-                    blockArg = json;
+                    blockArg = ^(NSError *error) {
+                        // Since the block passed from UIManager's dispatchFunction method is of type HippyPromiseResolve,
+                        // a small conversion is required here to avoid compatibility issues.
+                        ((HippyPromiseResolveBlock)json)(HippyJSErrorFromNSError(error));
+                    };
                 } else {
                     __weak HippyBridge *weakBridge = bridge;
                     blockArg = ^(NSError *error) {
@@ -368,7 +376,12 @@ static void enqueueBlockCallback(HippyBridge *bridge, HippyModuleMethod *moduleM
                     // so it is not a Number anymore.
                     // See NativeRenderManager::CallFunction() for more.
                     // TODO: add more type check for safe
-                    blockArg = json;
+                    blockArg = ^(NSString *code, NSString *message, NSError *error) {
+                        // Since the block passed from UIManager's dispatchFunction method is of type HippyPromiseResolve,
+                        // a small conversion is required here to avoid compatibility issues.
+                        NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
+                        ((HippyPromiseResolveBlock)json)(errorJSON);
+                    };
                 } else {
                     __weak HippyBridge *weakBridge = bridge;
                     blockArg = ^(NSString *code, NSString *message, NSError *error) {
