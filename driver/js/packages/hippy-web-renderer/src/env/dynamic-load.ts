@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-export const dynamicLoad = (path: string, callback: Function): void => {
+export const dynamicLoad = (path: string, encode: string, callback: Function): void => {
   const script = document.createElement('script');
   script.async = true;
   script.setAttribute('src', path);
