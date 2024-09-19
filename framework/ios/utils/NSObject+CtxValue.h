@@ -77,6 +77,10 @@ using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 
 @end
 
-HIPPY_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
+/// Convert CtxValue to NSObject
+/// - Parameters:
+///   - context: hippy context
+///   - value: ctx value
+HIPPY_EXTERN __nullable id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
 
 NS_ASSUME_NONNULL_END
