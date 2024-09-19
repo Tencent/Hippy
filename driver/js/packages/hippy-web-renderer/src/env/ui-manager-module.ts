@@ -1,0 +1,60 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29  Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const globalUiFunctions: string[] = ['measureInWindow', 'measureInAppWindow', 'getBoundingClientRect'];
+
+export const document = {
+  createNode(rootViewId, queue) {
+    Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
+  },
+  updateNode(rootViewId, queue) {
+    Hippy.bridge.callNative('UIManagerModule', 'updateNode', rootViewId, queue);
+  },
+  deleteNode(rootViewId, queue) {
+    Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, queue);
+  },
+  flushBatch(rootViewId, queue) {
+    Hippy.bridge.callNative('UIManagerModule', 'flushBatch', rootViewId, queue);
+  },
+  startBatch() {
+    Hippy.bridge.callNative('UIManagerModule', 'startBatch');
+  },
+  endBatch() {
+    Hippy.bridge.callNative('UIManagerModule', 'endBatch');
+
+    if (typeof flushQueueImmediate === 'function') {
+      flushQueueImmediate();
+    }
+  },
+  sendRenderError(error) {
+    if (error) {
+      throw error;
+    }
+  },
+  callUIFunction(id: any, name: any, param?: any, cb?: any) {
+    if (globalUiFunctions.includes(name)) {
+      // global ui function, call ui module function direct
+      Hippy.bridge.callNative('UIManagerModule', name, [id, param], cb);
+    } else {
+      // view ui function
+      Hippy.bridge.callNative('UIManagerModule', 'callUIFunction', [id, name, param], cb);
+    }
+  },
+};

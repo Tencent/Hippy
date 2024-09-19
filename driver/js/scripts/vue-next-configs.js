@@ -202,7 +202,8 @@ function genConfig(name) {
       nodeResolve({
         preferBuiltins: true,
       }),
-    ].concat(getBabelConfig(opts)).concat([cjs()]).concat(opts.plugins || []),
+    ].concat(getBabelConfig(opts)).concat([cjs()])
+      .concat(opts.plugins || []),
     output: {
       file: opts.dest,
       format: opts.format,
