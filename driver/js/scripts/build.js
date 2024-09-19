@@ -25,8 +25,9 @@ const reactBuilds = require('./react-configs').getAllBuilds();
 const reactWebBuilds = require('./react-web-configs').getAllBuilds();
 const vueBuilds = require('./vue-configs').getAllBuilds();
 const vueNextBuilds = require('./vue-next-configs').getAllBuilds();
+const webRendererBuilds = require('./web-renderer-configs').getAllBuilds();
 
-let builds = [...reactBuilds, ...reactWebBuilds, ...vueBuilds, ...vueNextBuilds];
+let builds = [...reactBuilds, ...reactWebBuilds, ...vueBuilds, ...vueNextBuilds, ...webRendererBuilds];
 
 // filter builds via command line arg
 if (process.argv[2]) {
