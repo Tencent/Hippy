@@ -53,6 +53,7 @@
         NSMutableDictionary *nestedDic = [NSMutableDictionary dictionary];
         nestedDic[@"testZeroData"] = [NSData data];
         nestedDic[@"testNumber"] = @200;
+        nestedDic[@"testBool"] = @YES;
         nestedDic[@"testNull"] = [NSNull null];
         nestedDic[@"testString"] = @"";
         nestedDic[@"testString1"] = @"0";
@@ -69,6 +70,12 @@
         
         ctxValue = [@[testDic, testDic, testDic] convertToCtxValue:context];
         XCTAssert(ctxValue != nullptr);
+        
+        NSArray *testDicArr = ObjectFromCtxValue(context, ctxValue);
+        XCTAssert(testDicArr.count == 3);
+        XCTAssert([testDicArr.firstObject[@"testDic"][@"testNumber"] intValue] == 200);
+        XCTAssert([testDicArr.firstObject[@"testDic"][@"testBool"] boolValue] == YES);
+        XCTAssert([testDicArr.firstObject[@"testDic"][@"testString1"] isEqualToString:@"0"]);
         
         NSMutableArray *testArr = [NSMutableArray array];
         [testArr addObject:[NSData data]];
