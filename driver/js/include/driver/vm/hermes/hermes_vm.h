@@ -46,6 +46,7 @@ class HermesVM : public VM {
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
   virtual std::shared_ptr<Ctx> CreateContext() override;
   bool ParseHippyValue(const std::shared_ptr<Ctx>& ctx, const string_view& json, HippyValue& hippy_value);
+  static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 };
 
 }  // namespace vm

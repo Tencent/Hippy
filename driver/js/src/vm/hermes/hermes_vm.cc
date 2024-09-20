@@ -111,9 +111,11 @@ bool HermesVM::ParseHippyValue(const std::shared_ptr<Ctx>& ctx, const string_vie
   return JsiValueToHippyValue(*runtime, value, hippy_value);
 }
 
-std::shared_ptr<Ctx> HermesVM::CreateContext() { return std::make_shared<HermesCtx>(); }
+std::shared_ptr<Ctx> HermesVM::CreateContext() {
+  return std::make_shared<HermesCtx>();
+}
 
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
+std::shared_ptr<VM> HermesVM::CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
   return std::make_shared<HermesVM>(std::static_pointer_cast<HermesVMInitParam>(param));
 }
 

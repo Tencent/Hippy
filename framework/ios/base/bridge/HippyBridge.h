@@ -157,7 +157,25 @@ HIPPY_EXTERN NSString *const HippyReloadNotification;
 HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 
-#pragma mark -
+#pragma mark - Bridge Launch Options
+/// Launch Options for HippyBridge
+@interface HippyLaunchOptions : NSObject
+
+/// Whether is in debug mode
+/// debug mode will open DevMenu and make JS inspectable
+@property (nonatomic, assign) BOOL debugMode;
+
+/// Whether enable turboMode(jsi)
+@property (nonatomic, assign) BOOL enableTurbo;
+
+/// Whether use `hermes` as JS engine
+/// This property requires the `JS_Hermes` compilation macro enabled to take effect.
+/// default is NO.
+@property (nonatomic, assign) BOOL useHermesEngine;
+
+@end
+
+#pragma mark - HippyBridge
 
 /// Async bridge used to communicate with the JavaScript application.
 @interface HippyBridge : NSObject <HippyInvalidating>
@@ -175,7 +193,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// When executorKey is empty, it is not shared by default. A random key is assigned by default in the SDK.
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(nullable NSDictionary *)launchOptions
+                   launchOptions:(nullable id)launchOptions
                      executorKey:(nullable NSString *)executorKey;
 
 
@@ -196,7 +214,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                        bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(nullable NSDictionary *)launchOptions
+                   launchOptions:(nullable id)launchOptions
                      executorKey:(nullable NSString *)executorKey NS_DESIGNATED_INITIALIZER;
 
 // Not available
@@ -207,8 +225,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
 /// SDK launch config
-/// TODO: optimizes the launchOptions parameter
-@property (nonatomic, copy, readonly) NSDictionary *launchOptions;
+/// For compatibility with older versions,
+/// type may be a dictionary, or a HippyLaunchOptions object.
+@property (nonatomic, strong, readonly) id launchOptions;
 
 /// Module name
 ///
@@ -360,7 +379,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /// Whether is in debug mode
 /// debug mode will open DevMenu and make JSC inspectable
-@property (nonatomic, assign) BOOL debugMode;
+@property (nonatomic, assign, readonly) BOOL debugMode;
 
 /// Debug URL for devtools
 @property (nonatomic, strong, nullable, readonly) NSURL *debugURL;
@@ -380,6 +399,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 #pragma mark - Advanced Usages
 
+
+/// Whether use Hermes as JS Engine
+@property (nonatomic, assign, readonly) BOOL useHermesEngine;
 /// Interceptor for methods
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 

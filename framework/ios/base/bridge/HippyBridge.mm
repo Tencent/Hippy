@@ -137,6 +137,9 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 };
 
 
+@implementation HippyLaunchOptions
+
+@end
 @interface HippyBridge () {
     // Identifies whether batch updates are in progress.
     BOOL _wasBatchActive;
@@ -198,7 +201,7 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
 
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(nullable NSDictionary *)launchOptions
+                   launchOptions:(NSDictionary *)launchOptions
                      executorKey:(nullable NSString *)executorKey {
     return [self initWithDelegate:delegate
                         bundleURL:nil
@@ -210,7 +213,7 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                        bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(nullable NSDictionary *)launchOptions
+                   launchOptions:(nullable id)launchOptions
                      executorKey:(nullable NSString *)executorKey {
     if (self = [super init]) {
         _delegate = delegate;
@@ -218,9 +221,20 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         _pendingLoadingVendorBundleURL = bundleURL;
         _allBundleURLs = [NSMutableArray array];
         _shareOptions = [NSMutableDictionary dictionary];
-        _debugMode = [launchOptions[kHippyLaunchOptionsDebugModeKey] boolValue];
+        if ([launchOptions isKindOfClass:NSDictionary.class]) {
+            // Compatible with old versions
+            _debugMode = [launchOptions[kHippyLaunchOptionsDebugModeKey] boolValue];
+            _enableTurbo = !!launchOptions[kHippyLaunchOptionsEnableTurboKey] ? [launchOptions[kHippyLaunchOptionsEnableTurboKey] boolValue] : YES;
+        } else if ([launchOptions isKindOfClass:HippyLaunchOptions.class]) {
+            HippyLaunchOptions *options = launchOptions;
+            _debugMode = options.debugMode;
+            _enableTurbo = options.enableTurbo;
+            _useHermesEngine = options.useHermesEngine;
+        } else {
+            HippyAssert(NO, @"Invalid Launch Options!");
+        }
         _debugURL = _debugMode ? bundleURL : nil;
-        _enableTurbo = !!launchOptions[kHippyLaunchOptionsEnableTurboKey] ? [launchOptions[kHippyLaunchOptionsEnableTurboKey] boolValue] : YES;
+        _launchOptions = launchOptions;
         _engineKey = executorKey.length > 0 ? executorKey : [NSString stringWithFormat:@"%p", self];
         HippyLogInfo(@"HippyBridge init begin, self:%p", self);
 

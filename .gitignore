@@ -13,6 +13,7 @@ dist
 node_modules
 xcuserdata
 v8forios
+hermesforios
 
 *.log
 *.iml

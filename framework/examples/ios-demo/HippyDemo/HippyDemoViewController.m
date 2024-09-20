@@ -99,7 +99,11 @@
 - (void)runHippyDemo {
     // Necessary configuration:
     NSString *moduleName = @"Demo";
-    NSDictionary *launchOptions = @{ @"DebugMode": @(_debugMode) };
+    // Set launch options for hippy bridge
+    HippyLaunchOptions *launchOptions = [HippyLaunchOptions new];
+    launchOptions.debugMode = _debugMode;
+    launchOptions.useHermesEngine = YES;
+    // Prepare initial properties for js side
     NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
     HippyBridge *bridge = nil;
@@ -132,6 +136,7 @@
     // Config whether jsc is inspectable, Highly recommended setting,
     // since inspectable of JSC is disabled by default since iOS 16.4
     [bridge setInspectable:YES];
+    
     _hippyBridge = bridge;
     rootView.frame = self.contentAreaView.bounds;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;

@@ -44,7 +44,7 @@ void WorkerManager::Terminate() {
 void WorkerManager::CreateWorkers(uint32_t size) {
   std::shared_ptr<Worker> worker;
   for (uint32_t i = 0; i < size; ++i) {
-    worker = std::make_shared<WorkerImpl>();
+    worker = std::make_shared<WorkerImpl>("Hippy URI Worker");
     worker->Start();
     workers_.push_back(worker);
   }

@@ -141,7 +141,7 @@ void Engine::ClearWeakCallbackWrapper(void* key) {
 
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateVM";
-  vm_ = hippy::CreateVM(param);
+  vm_ = hippy::VM::CreateVM(param);
 }
 
 }

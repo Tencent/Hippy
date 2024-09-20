@@ -52,6 +52,7 @@ public:
   virtual std::shared_ptr<Ctx> CreateContext() override;
   
   static JSStringRef CreateJSCString(const footstone::string_view& str_view);
+  static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 };
 
 }

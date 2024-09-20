@@ -41,7 +41,17 @@
 }
 
 - (void)testOCObject2CtxValue {
-    auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"];
+#ifdef JS_JSC
+    [self runOCObject2CtxValueTestInEngine:hippy::VM::kJSEngineJSC];
+#endif /* JS_JSC */
+#ifdef JS_HERMES
+    [self runOCObject2CtxValueTestInEngine:hippy::VM::kJSEngineHermes];
+#endif /* JS_HERMES */
+}
+
+- (void)runOCObject2CtxValueTestInEngine:(const std::string &)engineType {
+    auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"
+                                                                            engineType:engineType];
     auto scope = engine->GetEngine()->CreateScope("testKey");
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"ToCtxValue"];

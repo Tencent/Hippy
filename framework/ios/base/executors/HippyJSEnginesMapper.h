@@ -41,13 +41,12 @@ class Worker;
 
 class EngineResource {
 public:
-    EngineResource();
-    EngineResource(const std::string name);
+    EngineResource(const std::string name, const std::string vmType = "");
     ~EngineResource();
     std::shared_ptr<hippy::Engine> GetEngine() {return engine_;};
     std::shared_ptr<hippy::DomManager> GetDomManager() {return dom_manager_;};
 private:
-    void Setup(const std::string name);
+    void Setup(const std::string name, const std::string vmType);
 private:
     std::shared_ptr<hippy::Engine> engine_;
     std::shared_ptr<footstone::Worker> dom_worker_;
@@ -80,7 +79,8 @@ private:
  *
  * @return EngineResource instance for key
  */
-- (std::shared_ptr<EngineResource>)createJSEngineResourceForKey:(NSString *)key;
+- (std::shared_ptr<EngineResource>)createJSEngineResourceForKey:(NSString *)key 
+                                                     engineType:(const std::string&)vmType;
 
 /**
  * Decrease reference of EngineResource instance for key

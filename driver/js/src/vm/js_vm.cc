@@ -21,10 +21,22 @@
  */
 
 #include "driver/vm/js_vm.h"
-
 #include "driver/napi/js_try_catch.h"
 #include "driver/vm/native_source_code.h"
 #include "footstone/string_view_utils.h"
+
+#ifdef JS_JSC
+#include "driver/vm/jsc/jsc_vm.h"
+#endif /* JS_JSC */
+
+#ifdef JS_HERMES
+#include "driver/vm/hermes/hermes_vm.h"
+#endif /* JS_HERMES */
+
+#ifdef JS_V8
+#include "driver/vm/v8/v8_vm.h"
+#endif /* JS_V8 */
+
 
 #ifdef JS_HERMES
 #pragma clang diagnostic push
@@ -76,6 +88,34 @@ void VM::HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& eve
     FOOTSTONE_LOG(WARNING) << "hippy exceptionHandler error, description = " << message;
   }
 #endif
+}
+
+std::shared_ptr<VM> VM::CreateVM(const std::shared_ptr<VMInitParam>& param) {
+  std::shared_ptr<VM> vm = nullptr;
+  
+  if (!param || param->vmType.empty()) {
+    // Using jsc on iOS and v8 on Android by default.
+#ifdef JS_JSC
+    vm = JSCVM::CreateVM(param);
+#elif defined(JS_V8)
+    vm = V8VM::CreateVM(param);
+#endif /* JS_JSC/JS_V8 */
+  } else if (param->vmType == kJSEngineJSC) {
+#ifdef JS_JSC
+    vm = JSCVM::CreateVM(param);
+#endif /* JS_JSC */
+  } else if (param->vmType == kJSEngineHermes) {
+#ifdef JS_HERMES
+    vm = HermesVM::CreateVM(param);
+#endif /* JS_HERMES */
+  } else if (param->vmType == kJSEngineV8) {
+#ifdef JS_V8
+    vm = V8::CreateVM(param);
+#endif /* JS_V8 */
+  }
+  
+  FOOTSTONE_CHECK(vm != nullptr);
+  return vm;
 }
 
 }  // namespace vm

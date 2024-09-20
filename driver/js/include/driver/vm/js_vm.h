@@ -38,8 +38,12 @@ inline namespace vm {
 
 class VM {
  public:
-  static const int64_t kDefaultGroupId = -1;
-  static const int64_t kDebuggerGroupId = -2;
+  static inline const int64_t kDefaultGroupId = -1;
+  static inline const int64_t kDebuggerGroupId = -2;
+  static inline const std::string kJSEngineV8 = "V8";
+  static inline const std::string kJSEngineJSC = "JSC";
+  static inline const std::string kJSEngineHermes = "Hermes";
+    
   using string_view = footstone::string_view;
   using Ctx = hippy::napi::Ctx;
   using CtxValue = hippy::napi::CtxValue;
@@ -51,6 +55,7 @@ class VM {
    public:
     bool is_debug;
     int64_t group_id;
+    std::string vmType;
 #ifdef ENABLE_INSPECTOR
     std::shared_ptr<DevtoolsDataSource> devtools_data_source;
 #endif
@@ -83,9 +88,9 @@ class VM {
   inline const auto& GetUncaughtExceptionCallback() {
     return uncaught_exception_callback_;
   }
-
+    
+  static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
   static void HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& event_name, const std::shared_ptr<CtxValue>& exception);
-
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) = 0;
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
  private:
@@ -95,8 +100,6 @@ class VM {
                      const string_view& description,
                      const string_view& stack)> uncaught_exception_callback_;
 };
-
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param);
 
 }
 
