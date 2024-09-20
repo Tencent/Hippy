@@ -24,8 +24,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// HeaderItem's ViewManager of RefreshWrapper
 @interface HippyRefreshWrapperItemViewManager : HippyViewManager
 
 @end
+
+/// FooterItem's ViewManager of RefreshWrapper
+@interface HippyRefreshWrapperFooterItemViewManager : HippyViewManager
+
+@end
+
 
 NS_ASSUME_NONNULL_END
