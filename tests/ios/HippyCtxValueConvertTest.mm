@@ -83,8 +83,12 @@
 
 // NSNumber (Boolean)
 - (void)testBoolToCtxValue {
-    auto testCtxBoolean = _context->CreateBoolean(true);
     NSNumber *testOCBool = @YES;
+    CtxValuePtr testCtxBoolean = [testOCBool convertToCtxValue:_context];
+    XCTAssert(_context->IsBoolean(testCtxBoolean));
+    XCTAssertTrue([ObjectFromCtxValue(_context, testCtxBoolean) boolValue] == [testOCBool boolValue]);
+    testOCBool = @NO;
+    testCtxBoolean = [testOCBool convertToCtxValue:_context];
     XCTAssert(_context->IsBoolean(testCtxBoolean));
     XCTAssertTrue([ObjectFromCtxValue(_context, testCtxBoolean) boolValue] == [testOCBool boolValue]);
 }
