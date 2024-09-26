@@ -45,6 +45,16 @@
                                           @Nullable Object params);
     ```
 
+6. 自定义事件controller属性注册方式变更 <br>
+   由于3.0事件名称从2.0的驼峰写法统一转换为全小写命名，会导致之前开发者自定义事件无法接收到属性设置，需要在事件属性注解中将defaultType值改为HippyControllerProps.EVENT:
+
+    ```java
+    @HippyControllerProps(name = "onMyEvent", defaultType = HippyControllerProps.EVENT, defaultBoolean = false)
+    public void setMyEvent(HippyScrollView scrollView, boolean isEnable) {
+
+    }
+    ```
+    
 </br>
 
 # 组件变更
