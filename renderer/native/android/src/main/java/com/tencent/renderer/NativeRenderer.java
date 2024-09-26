@@ -99,6 +99,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     public static final String NODE_ID = "id";
     public static final String NODE_INDEX = "index";
     public static final String NODE_PROPS = "props";
+    public static final String EVENT_PREFIX = "on";
     private static final String TAG = "NativeRenderer";
     private static final String NODE_PID = "pId";
     private static final String NODE_DELETE_PROPS = "deleteProps";
@@ -107,7 +108,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String LAYOUT_TOP = "top";
     private static final String LAYOUT_WIDTH = "width";
     private static final String LAYOUT_HEIGHT = "height";
-    private static final String EVENT_PREFIX = "on";
     private static final String SNAPSHOT_CREATE_NODE = "createNode";
     private static final String SNAPSHOT_UPDATE_LAYOUT = "updateLayout";
     private static final String PAINT_TYPE_KEY = "paintType";

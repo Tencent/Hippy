@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.renderer.NativeRenderer.EVENT_PREFIX;
+
 import android.graphics.Color;
 import android.view.View;
 
@@ -112,6 +114,13 @@ public class ControllerUpdateManger<T> {
                 propsMethodHolder.defaultBoolean = controllerProps.defaultBoolean();
                 propsMethodHolder.method = method;
                 propsMethodHolder.hostClass = cls;
+                if (propsMethodHolder.defaultType.equals(HippyControllerProps.EVENT)) {
+                    style = style.toLowerCase();
+                    // Compatible with events prefixed with on in old version
+                    if (style.startsWith(EVENT_PREFIX)) {
+                        style = style.substring(EVENT_PREFIX.length());
+                    }
+                }
                 methodHolderMap.put(style, propsMethodHolder);
             }
         }
@@ -170,6 +179,7 @@ public class ControllerUpdateManger<T> {
             if (value == null) {
                 switch (methodHolder.defaultType) {
                     case HippyControllerProps.BOOLEAN:
+                    case HippyControllerProps.EVENT:
                         methodHolder.method.invoke(obj, arg1, methodHolder.defaultBoolean);
                         break;
                     case HippyControllerProps.NUMBER:
