@@ -55,8 +55,9 @@ public:
 template<typename T>
 static void InitSafeStaticVar(SafeStaticVar<T> *var, std::shared_ptr<T> &var_inner) {
   var->var_inner_ = var_inner;
-  uint64_t *p = (uint64_t *)&var_inner;
+  uint64_t *p = (uint64_t *)&var->var_inner_;
   uint64_t value = *p;
+  value ^= 0xf;
   var->sign_before_ = value;
   var->sign_after_ = value;
 }
@@ -65,6 +66,10 @@ template<typename T>
 static std::shared_ptr<T> GetSafeStaticVar(SafeStaticVar<T> *var) {
   uint64_t *p = (uint64_t *)&var->var_inner_;
   uint64_t value = *p;
+  if (value == 0) {
+    return nullptr;
+  }
+  value ^= 0xf;
   if (var->sign_before_ != value) {
     return nullptr;
   }
