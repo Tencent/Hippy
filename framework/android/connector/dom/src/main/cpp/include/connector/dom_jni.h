@@ -29,7 +29,7 @@ inline namespace framework {
 inline namespace connector {
 inline namespace dom {
 
-jint CreateDomManager(JNIEnv* j_env, __unused jobject j_obj);
+jint CreateDomManager(JNIEnv* j_env, __unused jobject j_obj, jint j_group_id, jint j_share_dom_id);
 
 void DestroyDomManager(JNIEnv* j_env,
                        __unused jobject j_obj,

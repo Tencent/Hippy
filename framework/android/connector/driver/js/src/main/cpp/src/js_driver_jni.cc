@@ -315,6 +315,7 @@ jint CreateJsDriver(JNIEnv* j_env,
   auto param = std::make_shared<V8VMInitParam>();
   param->enable_v8_serialization =  static_cast<bool>(j_enable_v8_serialization);
   param->is_debug = static_cast<bool>(j_is_dev_module);
+  param->group_id = static_cast<int64_t>(j_group_id);
   if (j_vm_init_param) {
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls, "initialHeapSize", "J");
