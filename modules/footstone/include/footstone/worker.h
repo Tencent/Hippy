@@ -75,6 +75,12 @@ class Worker {
   inline void SetGroupId(uint32_t id) {
     group_id_ = id;
   }
+  inline uint32_t FetchAndSubReuseCount() {
+    return --reuse_count_;
+  }
+  inline uint32_t FetchAndAddReuseCount() {
+    return ++reuse_count_;
+  }
   static bool IsTaskRunning();
   bool RunTask();
   void BeforeStart(std::function<void()> before_start) { before_start_ = before_start; }
@@ -131,6 +137,7 @@ class Worker {
    *    不同TaskRunner切换的开销越大，则每个task从加入到执行的延迟可能就越大。
    */
   bool is_schedulable_;
+  uint32_t reuse_count_;
   uint32_t group_id_;
   std::unique_ptr<Driver> driver_;
 };
