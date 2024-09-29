@@ -23,52 +23,10 @@
 #import "HippyDemoViewController.h"
 #import "UIViewController+Title.h"
 #import "HippyPageCache.h"
-#import "DemoConfigs.h"
+@import hippy;
 
-#import "HippyMethodInterceptorProtocol.h"
-
-#import <hippy/HippyBridge.h>
-#import <hippy/HippyRootView.h>
-#import <hippy/HippyLog.h>
-#import <hippy/HippyAssert.h>
-#import <hippy/UIView+Hippy.h>
-
-static NSString *const engineKey = @"Demo";
-
-static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-    static NSArray *logLevelMap;
-    static NSDateFormatter *formatter;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        logLevelMap = @[@"TRACE", @"INFO", @"WARN", @"ERROR", @"FATAL"];
-        formatter = [NSDateFormatter new];
-        formatter.dateFormat = formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
-    });
-
-    NSString *levelStr = level < 0 || level > logLevelMap.count ? logLevelMap[1] : logLevelMap[level];
-
-    if(fileName){
-        return [[NSString alloc] initWithFormat:@"[%@][%@:%d][%@]%@",
-                [formatter stringFromDate:timestamp],
-                fileName.lastPathComponent,
-                lineNumber.intValue,
-                levelStr,
-                message
-        ];
-    }else{
-        return [[NSString alloc] initWithFormat:@"[%@]%@",
-                [formatter stringFromDate:timestamp],
-                message
-        ];
-    }
-}
 
 @interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate, HippyRootViewDelegate> {
-    DriverType _driverType;
-    RenderType _renderType;
-    BOOL _isDebugMode;
-    NSURL *_debugURL;
-    
     HippyBridge *_hippyBridge;
     HippyRootView *_hippyRootView;
     BOOL _fromCache;
@@ -87,7 +45,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
         _driverType = driverType;
         _renderType = renderType;
         _debugURL = debugURL;
-        _isDebugMode = isDebugMode;
+        _debugMode = isDebugMode;
     }
     return self;
 }
@@ -98,7 +56,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
         _driverType = pageCache.driverType;
         _renderType = pageCache.renderType;
         _debugURL = pageCache.debugURL;
-        _isDebugMode = pageCache.isDebugMode;
+        _debugMode = pageCache.isDebugMode;
         _hippyRootView = pageCache.rootView;
         _hippyBridge = pageCache.hippyBridge;
         _fromCache = YES;
@@ -125,143 +83,89 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     }
 }
 
-- (void)registerLogFunction {
-    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-        NSString *log = formatLog([NSDate date], level, fileName, lineNumber, message);
-        if([log hasSuffix:@"\n"]){
-            fprintf(stderr, "%s", log.UTF8String);
-        }else{
-            fprintf(stderr, "%s\n", log.UTF8String);
-        }
-    });
-}
-
 - (void)runHippyCache {
     _hippyRootView.frame = self.contentAreaView.bounds;
     [self.contentAreaView addSubview:_hippyRootView];
 }
 
-- (void)runHippyDemo {
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(_isDebugMode)};
-    NSString *uniqueEngineKey = [NSString stringWithFormat:@"%@_%u", engineKey, arc4random()];
-    
-    _hippyBridge = [[HippyBridge alloc] initWithDelegate:self
-                                          moduleProvider:nil
-                                           launchOptions:launchOptions
-                                             executorKey:uniqueEngineKey];
-    _hippyBridge.methodInterceptor = self;
-    
-    [_hippyBridge setInspectable:YES];
-    
-    [self mountConnector:_hippyBridge];
+#pragma mark - Hippy Setup
+
+- (void)registerLogFunction {
+    // Register your custom log function for Hippy,
+    // use HippyDefaultLogFunction as an example, it outputs logs to stderr.
+    HippySetLogFunction(HippyDefaultLogFunction);
 }
 
-- (void)mountConnector:(HippyBridge *)hippyBridge {
-    BOOL isSimulator = NO;
-#if TARGET_IPHONE_SIMULATOR
-    isSimulator = YES;
-#endif
+- (void)runHippyDemo {
+    // Necessary configuration:
+    NSString *moduleName = @"Demo";
+    NSDictionary *launchOptions = @{ @"DebugMode": @(_debugMode) };
+    NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
-#if USE_NEW_LOAD
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
-                                                         moduleName:@"Demo"
-                                                  initialProperties:@{@"isSimulator": @(isSimulator)}
-                                                           delegate:self];
-    
-    if (_isDebugMode) {
-        hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
-        [hippyBridge loadBundleURL:_debugURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            [rootView runHippyApplication];
-        }];
-    } else {
-        NSURL *vendorBundleURL = [self vendorBundleURL];
-        [hippyBridge loadBundleURL:vendorBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            NSLog(@"url %@ load finish", vendorBundleURL);
-        }];
-        NSURL *indexBundleURL = [self indexBundleURL];
-        hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
-        [hippyBridge loadBundleURL:indexBundleURL completion:^(NSURL * _Nullable, NSError * _Nullable) {
-            NSLog(@"url %@ load finish", indexBundleURL);
-            [rootView runHippyApplication];
-        }];
-    }
-    
-#else
+    HippyBridge *bridge = nil;
     HippyRootView *rootView = nil;
-    
-    if (_isDebugMode) {
-        hippyBridge.sandboxDirectory = [_debugURL URLByDeletingLastPathComponent];
-        rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
-                                             businessURL:_debugURL
-                                              moduleName:@"Demo"
-                                       initialProperties:@{@"isSimulator": @(isSimulator)}
+    if (_debugMode) {
+        bridge = [[HippyBridge alloc] initWithDelegate:self
+                                             bundleURL:_debugURL
+                                        moduleProvider:nil
+                                         launchOptions:launchOptions
+                                           executorKey:nil];
+        rootView = [[HippyRootView alloc] initWithBridge:bridge
+                                              moduleName:moduleName
+                                       initialProperties:initialProperties
                                                 delegate:self];
     } else {
         NSURL *vendorBundleURL = [self vendorBundleURL];
         NSURL *indexBundleURL = [self indexBundleURL];
-        [hippyBridge loadBundleURL:vendorBundleURL
-                        bundleType:HippyBridgeBundleTypeVendor
-                        completion:^(NSURL * _Nullable url, NSError * _Nullable error) {
-            NSLog(@"url %@ load finish", vendorBundleURL);
-        }];
-        hippyBridge.sandboxDirectory = [indexBundleURL URLByDeletingLastPathComponent];
-        rootView = [[HippyRootView alloc] initWithBridge:hippyBridge
+        bridge = [[HippyBridge alloc] initWithDelegate:self
+                                             bundleURL:vendorBundleURL
+                                        moduleProvider:nil
+                                         launchOptions:launchOptions
+                                           executorKey:moduleName];
+        rootView = [[HippyRootView alloc] initWithBridge:bridge
                                              businessURL:indexBundleURL
-                                              moduleName:@"Demo"
-                                       initialProperties:@{@"isSimulator": @(isSimulator)}
+                                              moduleName:moduleName
+                                       initialProperties:initialProperties
                                                 delegate:self];
     }
     
-#endif
-    
+    // // Config whether jsc is inspectable, Highly recommended setting,
+    // since inspectable of JSC is disabled by default since iOS 16.4
+    [bridge setInspectable:YES];
+    _hippyBridge = bridge;
     rootView.frame = self.contentAreaView.bounds;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    
     [self.contentAreaView addSubview:rootView];
     _hippyRootView = rootView;
+    
+    
+    // Optional configs:
+    bridge.methodInterceptor = self; // see HippyMethodInterceptorProtocol
 }
 
-- (void)viewDidLayoutSubviews {
-    [super viewDidLayoutSubviews];
-    _hippyRootView.frame = self.contentAreaView.bounds;
+
+#pragma mark - Helpers
+
+- (NSString *)currentJSBundleDir {
+    NSString *dir = nil;
+    if (DriverTypeVue2 == _driverType) {
+        dir = @"res/vue2";
+    } else if (DriverTypeVue3 == _driverType) {
+        dir = @"res/vue3";
+    } else if (DriverTypeReact == _driverType) {
+        dir = @"res/react";
+    }
+    return dir;
 }
 
 - (NSURL *)vendorBundleURL {
-    NSString *path = nil;
-    if (DriverTypeReact == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res/react"];
-    }
-    else if (DriverTypeVue == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res/vue3"];
-    }
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:[self currentJSBundleDir]];
     return [NSURL fileURLWithPath:path];
 }
 
 - (NSURL *)indexBundleURL {
-    NSString *path = nil;
-    if (DriverTypeReact == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res/react"];
-    }
-    else if (DriverTypeVue == _driverType) {
-        path = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res/vue3"];
-    }
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:[self currentJSBundleDir]];
     return [NSURL fileURLWithPath:path];
-}
-
-- (DriverType)driverType {
-    return _driverType;
-}
-
-- (RenderType)renderType {
-    return _renderType;
-}
-
-- (NSURL *)debugURL {
-    return _debugURL;
-}
-
-- (BOOL)isDebugMode {
-    return _isDebugMode;
 }
 
 - (void)removeRootView:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
@@ -275,7 +179,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     pageCache.driverType = _driverType;
     pageCache.renderType = _renderType;
     pageCache.debugURL = _debugURL;
-    pageCache.debugMode = _isDebugMode;
+    pageCache.debugMode = _debugMode;
     UIGraphicsBeginImageContextWithOptions(_hippyRootView.bounds.size, NO, [UIScreen mainScreen].scale);
     [_hippyRootView drawViewHierarchyInRect:_hippyRootView.bounds afterScreenUpdates:YES];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
@@ -300,7 +204,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
 }
 
 
-#pragma mark - HippyMethodInterceptorProtocol
+#pragma mark - Optional - HippyMethodInterceptorProtocol
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName
                         methodName:(NSString *)methodName

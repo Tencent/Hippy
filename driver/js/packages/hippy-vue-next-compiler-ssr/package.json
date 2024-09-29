@@ -24,14 +24,14 @@
     "README.md"
   ],
   "peerDependencies": {
-    "@vue/compiler-core": "^3.2.46",
-    "@vue/compiler-dom": "^3.2.46",
-    "@vue/shared": "^3.2.46"
+    "@vue/compiler-core": "3.4.32",
+    "@vue/compiler-dom": "3.4.32",
+    "@vue/shared": "3.4.32"
   },
   "devDependencies": {
-    "@vue/compiler-core": "^3.2.46",
-    "@vue/compiler-dom": "^3.2.46",
-    "@vue/shared": "^3.2.46"
+    "@vue/compiler-core": "3.4.32",
+    "@vue/compiler-dom": "3.4.32",
+    "@vue/shared": "3.4.32"
   },
   "jest": {
     "moduleNameMapper": {

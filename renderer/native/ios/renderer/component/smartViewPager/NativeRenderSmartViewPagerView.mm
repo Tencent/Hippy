@@ -29,9 +29,8 @@
 #import "NativeRenderSmartViewPagerView.h"
 #import "HippyScrollProtocol.h"
 #import "UIView+MountEvent.h"
-#import "UIView+Render.h"
 #import "UIView+Hippy.h"
-
+#import "UIView+Render.h"
 #include <objc/runtime.h>
 
 static NSInteger kInfiniteLoopBegin = 2;
@@ -313,8 +312,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.hippyShadowView.subcomponents containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.subcomponents.count];
+    [self.dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.hippySubviews.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 

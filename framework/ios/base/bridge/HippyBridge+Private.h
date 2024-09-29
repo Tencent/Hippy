@@ -24,25 +24,20 @@
 #define HippyBridge_Private_h
 
 #import "HippyBridge.h"
-#import "footstone/time_point.h"
+#include "footstone/time_point.h"
 #include <memory>
 
 class VFSUriLoader;
-class NativeRenderManager;
 
 namespace hippy {
 inline namespace dom {
 class DomManager;
 class RootNode;
-class RenderManager;
 };
 };
 
 
 @protocol HippyBridgeInternal <NSObject>
-
-/// The C++ version of RenderManager instance, bridge holds
-@property (nonatomic, assign) std::shared_ptr<NativeRenderManager> renderManager;
 
 /// URI Loader
 @property (nonatomic, assign) std::weak_ptr<VFSUriLoader> vfsUriLoader;

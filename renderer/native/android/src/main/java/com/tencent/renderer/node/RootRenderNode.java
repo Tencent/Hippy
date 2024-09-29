@@ -23,12 +23,13 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.renderer.utils.ChoreographerUtils;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RootRenderNode extends RenderNode {
 
     private final int mRendererId;
     private final SparseArray<RenderNode> mNodes = new SparseArray<>(80);
-    private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>(40);
+    private final ConcurrentHashMap<Integer, VirtualNode> mVirtualNodes = new ConcurrentHashMap<>(40);
 
     public RootRenderNode(int rootId, int id, int rendererId, @NonNull String className,
             @NonNull ControllerManager controllerManager) {
@@ -68,7 +69,7 @@ public class RootRenderNode extends RenderNode {
     }
 
     public void removeVirtualNode(int id) {
-        mVirtualNodes.delete(id);
+        mVirtualNodes.remove(id);
     }
 
     @Override

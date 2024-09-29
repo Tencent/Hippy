@@ -28,7 +28,7 @@
 #import "UIView+Hippy.h"
 
 static void collectDirtyNonTextDescendants(HippyShadowText *renderObject, NSMutableArray *nonTextDescendants) {
-    for (HippyShadowView *child in renderObject.subcomponents) {
+    for (HippyShadowView *child in renderObject.hippySubviews) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             collectDirtyNonTextDescendants((HippyShadowText *)child, nonTextDescendants);
         } else if ([child isTextDirty]) {
@@ -36,11 +36,6 @@ static void collectDirtyNonTextDescendants(HippyShadowText *renderObject, NSMuta
         }
     }
 }
-
-@interface HippyShadowText (Private)
-// hplayout
-- (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode;
-@end
 
 @implementation HippyTextManager
 
@@ -109,7 +104,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
                 [(HippyShadowText *)shadowView recomputeText];
                 collectDirtyNonTextDescendants((HippyShadowText *)shadowView, queue);
             } else {
-                for (HippyShadowView *child in [shadowView subcomponents]) {
+                for (HippyShadowView *child in [shadowView hippySubviews]) {
                     if ([child isTextDirty]) {
                         [queue addObject:child];
                     }

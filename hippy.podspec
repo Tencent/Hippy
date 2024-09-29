@@ -24,9 +24,6 @@ Pod::Spec.new do |s|
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
   s.ios.deployment_target = '11.0'
-  # Disable module compilation
-  s.module_map = false
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'NO' }
 
   s.prepare_command = <<-CMD
       ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
@@ -58,27 +55,26 @@ Pod::Spec.new do |s|
     'modules/vfs/ios/*.{h,m,mm}',
     'modules/ios/image/*.{h,m,mm}',
     ]
+    framework.private_header_files = [
+    'framework/ios/**/*+Private.h',
+    'framework/ios/**/*+Inne.h',
+    'framework/ios/**/*+Internal.h',
+    'framework/ios/**/HippyJSEnginesMapper.h',
+    'framework/ios/**/NSObject+CtxValue.h',
+    'framework/ios/**/HippyTurboModuleManager.h',
+    'renderer/native/ios/**/*+Private.h',
+    'renderer/native/ios/**/*+Internal.h',
+    'renderer/native/ios/**/NativeRenderManager.h',
+    'renderer/native/ios/**/HippyComponentMap.h',
+    'renderer/native/ios/**/UIView+DirectionalLayout.h',
+    'modules/vfs/ios/**/*.h',
+    ]
     framework.public_header_files = [
     'framework/ios/**/*.h',
     'renderer/native/ios/**/*.h',
     'modules/vfs/ios/*.h',
     'modules/ios/image/*.h',
     ]
-    if js_engine == "jsc"
-      framework.exclude_files = [
-      'framework/ios/base/enginewrapper/v8',
-      'framework/ios/utils/v8']
-    elsif js_engine == "v8"
-      framework.exclude_files = [
-      'framework/ios/base/enginewrapper/jsc',
-      'framework/ios/utils/jsc']
-    else
-      framework.exclude_files = [
-      'framework/ios/base/enginewrapper/jsc',
-      'framework/ios/utils/jsc',
-      'framework/ios/base/enginewrapper/v8',
-      'framework/ios/utils/v8']
-    end
     framework.libraries = 'c++'
     framework.frameworks = 'CoreServices'
     framework.pod_target_xcconfig = {
@@ -89,6 +85,7 @@ Pod::Spec.new do |s|
     framework.dependency 'hippy/Base'
     framework.dependency 'hippy/JSDriver'
     framework.dependency 'hippy/VFS'
+    framework.dependency 'hippy/Dom'
     framework.dependency 'hippy/DomUtils'
     framework.dependency 'hippy/Footstone'
     framework.dependency 'hippy/FootstoneUtils'
@@ -97,7 +94,7 @@ Pod::Spec.new do |s|
   s.subspec 'Footstone' do |footstone|
     footstone.libraries = 'c++'
     footstone.source_files = ['modules/footstone/**/*.{h,cc}']
-    footstone.private_header_files = ['modules/footstone/**/*.h']
+    footstone.project_header_files = ['modules/footstone/**/*.h']
     footstone.exclude_files = ['modules/footstone/include/footstone/platform/adr', 'modules/footstone/src/platform/adr']
     footstone.header_mappings_dir = 'modules/footstone/include/'
     
@@ -114,7 +111,7 @@ Pod::Spec.new do |s|
   s.subspec 'FootstoneUtils' do |footstoneutils|
     footstoneutils.libraries = 'c++'
     footstoneutils.source_files = ['modules/ios/footstoneutils/*.{h,mm}']
-    footstoneutils.private_header_files = ['modules/ios/footstoneutils/*.h']
+    footstoneutils.project_header_files = ['modules/ios/footstoneutils/*.h']
     footstoneutils.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_ENABLE_CPP_EXCEPTIONS' => false,
@@ -127,7 +124,7 @@ Pod::Spec.new do |s|
   s.subspec 'VFS' do |vfs|
     vfs.libraries = 'c++'
     vfs.source_files = ['modules/vfs/native/**/*.{h,cc}']
-    vfs.private_header_files = ['modules/vfs/native/include/**/*.h']
+    vfs.project_header_files = ['modules/vfs/native/include/**/*.h']
     vfs.header_mappings_dir = 'modules/vfs/native/include/'
     
     header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/vfs/native/include/'
@@ -212,7 +209,7 @@ Pod::Spec.new do |s|
  
     dom.libraries = 'c++'
     dom.source_files = dom_source_files 
-    dom.private_header_files = ['dom/include/**/*.h']
+    dom.project_header_files = ['dom/include/**/*.h']
     dom.header_mappings_dir = 'dom/include/'
     dom.exclude_files = dom_exclude_files
     dom.pod_target_xcconfig = {

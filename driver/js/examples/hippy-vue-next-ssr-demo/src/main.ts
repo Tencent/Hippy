@@ -1,4 +1,4 @@
-import { type StyleNode, insertStyleForSsrNodes } from '@hippy/vue-next-style-parser';
+import { type StyleNode, insertStyleForSsrNodes } from '@hippy/hippy-vue-next-style-parser';
 import type { SsrNode } from '@hippy/vue-next-server-renderer';
 import { renderNativeNodesByCache, renderSsrNodes, deleteNativeNodes, SSR_UNIQUE_ID_KEY } from './ssr-node-ops';
 import { IS_IOS, isDev } from './env';

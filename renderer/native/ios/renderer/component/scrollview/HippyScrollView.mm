@@ -25,6 +25,7 @@
 #import "UIView+Hippy.h"
 #import "UIView+MountEvent.h"
 #import "UIView+DirectionalLayout.h"
+#import "HippyRenderUtils.h"
 
 @implementation HippyCustomScrollView
 
@@ -262,7 +263,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (NSArray<UIView *> *)subcomponents {
+- (NSArray<UIView *> *)hippySubviews {
     return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
 }
 
@@ -285,8 +286,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     _contentView = nil;
 }
 
-- (void)didUpdateHippySubviews
-{
+- (void)didUpdateHippySubviews {
     // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
 }
 
@@ -661,7 +661,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 - (void)hippyBridgeDidFinishTransaction {
     CGSize contentSize = self.contentSize;
-    if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize)) {
+    if (!HippyCGSizeRoundInPixelNearlyEqual(_scrollView.contentSize, contentSize)) {
         // When contentSize is set manually, ScrollView internals will reset
         // contentOffset to  {0, 0}. Since we potentially set contentSize whenever
         // anything in the ScrollView updates, we workaround this issue by manually

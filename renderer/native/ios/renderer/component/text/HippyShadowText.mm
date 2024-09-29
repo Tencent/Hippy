@@ -89,6 +89,7 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
 {
     BOOL _isNestedText; // Indicates whether Text is nested, for speeding up typesetting calculations
     BOOL _needRelayoutText; // special styles require two layouts, eg. verticalAlign etc
+    hippy::LayoutMeasureMode _cachedTextStorageWidthMode; // cached width mode when building text storage
 }
 
 @end
@@ -96,9 +97,10 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
 
 @implementation HippyShadowText
 
-hippy::LayoutSize textMeasureFunc(
-    HippyShadowText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
-                                 float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
+hippy::LayoutSize textMeasureFunc(HippyShadowText *weakShadowText,
+                                  float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                  float height, hippy::LayoutMeasureMode heightMeasureMode,
+                                  void *layoutContext) {
     hippy::LayoutSize retSize;
     HippyShadowText *strongShadowText = weakShadowText;
     if (strongShadowText) {
@@ -311,7 +313,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         // so only call amendXxx when subcomponent is not a <Text>.
         if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
             _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-            for (HippyShadowView *shadowView in self.subcomponents) {
+            for (HippyShadowView *shadowView in self.hippySubviews) {
                 if (![shadowView isKindOfClass:HippyShadowText.class]) {
                     [shadowView amendLayoutBeforeMount:blocks];
                 }
@@ -441,7 +443,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     info.foregroundColor = self.color ?: [UIColor blackColor];
     info.backgroundColor = self.backgroundColor;
     info.opacity = self.opacity;
-    info.isNestedText = self.subcomponents.count > 0;
+    info.isNestedText = self.hippySubviews.count > 0;
     _isNestedText = info.isNestedText;
     return [self _attributedStringWithStyleInfo:info];
 }
@@ -496,7 +498,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    for (HippyShadowView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             HippyShadowText *childShadowText = (HippyShadowText *)child;
             HippyAttributedStringStyleInfo *childInfo = [HippyAttributedStringStyleInfo new];
@@ -966,7 +968,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         return;
     }
     _allowFontScaling = allowFontScaling;
-    for (HippyShadowView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             ((HippyShadowText *)child).allowFontScaling = allowFontScaling;
         }
@@ -983,7 +985,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         HippyLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
-    for (HippyShadowView *child in [self subcomponents]) {
+    for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             ((HippyShadowText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }

@@ -21,7 +21,7 @@
 /**
  * Implement the patch props method required for Vue3 VNode mount
  */
-import type { ComponentInternalInstance, VNode, ElementNamespace } from '@vue/runtime-core';
+import type { ComponentInternalInstance, ElementNamespace } from '@vue/runtime-core';
 import { isOn } from '@vue/shared';
 import type { NeedToTyped } from './types';
 
@@ -48,7 +48,7 @@ export function patchProp(
       patchStyle(el, prevValue, nextValue);
       break;
     default:
-      if (isOn(key)) {
+      if (isOn(key) && !isNativeEvent(key)) {
         // event prop
         patchEvent(el, key, prevValue, nextValue, parentComponent);
       } else {
@@ -57,4 +57,8 @@ export function patchProp(
       }
       break;
   }
+}
+
+export function isNativeEvent(key: string) {
+  return ['onInterceptTouchEvent', 'onInterceptPullUpEvent'].indexOf(key) >= 0;
 }

@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridge+PerformanceAPI.h"
-#import "HippyJSExecutor.h"
+#import "HippyJSExecutor+Internal.h"
 #import "HippyLog.h"
 #import "driver/scope.h"
 

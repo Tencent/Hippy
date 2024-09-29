@@ -26,15 +26,14 @@
     "README.md"
   ],
   "peerDependencies": {
-    "@vue/server-renderer": "^3.2.46",
-    "@vue/runtime-core": "^3.2.46",
-    "@vue/shared": "^3.2.46"
+    "@vue/server-renderer": "3.4.32",
+    "@vue/runtime-core": "3.4.32",
+    "@vue/shared": "3.4.32"
   },
   "devDependencies": {
-    "@vue/server-renderer": "^3.2.46",
-    "@vue/runtime-core": "^3.2.46",
-    "@vue/shared": "^3.2.46",
-    "vue": "^3.2.46"
+    "@vue/server-renderer": "3.4.32",
+    "@vue/runtime-core": "3.4.32",
+    "@vue/shared": "3.4.32"
   },
   "jest": {
     "moduleNameMapper": {

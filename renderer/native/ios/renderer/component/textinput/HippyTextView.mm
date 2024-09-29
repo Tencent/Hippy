@@ -27,6 +27,7 @@
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
+#import "HippyRenderUtils.h"
 
 @implementation HippyUITextView
 
@@ -108,27 +109,6 @@
 @dynamic lineHeight;
 @dynamic lineSpacing;
 @dynamic lineHeightMultiple;
-
-#pragma mark - Keyboard Events
-
-- (void)keyboardWillShow:(NSNotification *)aNotification {
-    [super keyboardWillShow:aNotification];
-    //获取键盘的高度
-    NSDictionary *userInfo = [aNotification userInfo];
-    NSValue *aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
-    CGRect keyboardRect = [aValue CGRectValue];
-    CGFloat keyboardHeight = keyboardRect.size.height;
-    if (self.isFirstResponder && _onKeyboardWillShow) {
-        _onKeyboardWillShow(@{ @"keyboardHeight": @(keyboardHeight) });
-    }
-}
-
-- (void)keyboardWillHide:(NSNotification *)aNotification {
-    [super keyboardWillHide:aNotification];
-    if (_onKeyboardWillHide) {
-        _onKeyboardWillHide(@{});
-    }
-}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -290,7 +270,8 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     CGSize contentSize = (CGSize) { CGRectGetMaxX(_scrollView.frame), INFINITY };
     contentSize.height = [_textView sizeThatFits:contentSize].height;
     
-    if (_viewDidCompleteInitialLayout && _onContentSizeChange && !CGSizeEqualToSize(_previousContentSize, contentSize)) {
+    if (_viewDidCompleteInitialLayout && _onContentSizeChange 
+        && !HippyCGSizeRoundInPixelNearlyEqual(_previousContentSize, contentSize)) {
         _previousContentSize = contentSize;
         _onContentSizeChange(@{
             @"contentSize": @ {

@@ -25,11 +25,11 @@
 #import "HippyFooterRefresh.h"
 #import "HippyWaterfallItemView.h"
 #import "UIView+Hippy.h"
+#import "UIView+Render.h"
 #import "HippyRefresh.h"
 #import "HippyWaterfallViewDataSource.h"
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
-#import "UIView+Render.h"
 #import "HippyWaterfallViewCell.h"
 #import "HippyRootView.h"
 #import "HippyShadowListView.h"
@@ -198,16 +198,16 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 - (void)hippyBridgeDidFinishTransaction {
     HippyShadowListView *listNode = self.hippyShadowView;
-    if (!_dataSource || (listNode && listNode.itemChangeContext.hasChanges)) {
-        HippyLogTrace(@"🔥 %@ Reload %@", self.hippyTag, [[listNode itemChangeContext] description]);
+    if (!_dataSource || (listNode && listNode.isDirty)) {
+        HippyLogTrace(@"🔥 %@ Reload", self.hippyTag);
         [self cacheVisibleCellViewsForReuse];
         [self reloadData];
-        [listNode.itemChangeContext clear];
+        listNode.isDirty = NO;
     }
 }
 
 - (void)reloadData {
-    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.subcomponents copy];
+    NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.hippySubviews copy];
     _dataSource = [[HippyWaterfallViewDataSource alloc] initWithDataSource:datasource
                                                                      itemViewName:[self compoentItemName]
                                                                 containBannerView:_containBannerView];
@@ -263,9 +263,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     
     UIView *cellView = nil;
     UIView *cachedCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
-    if (cachedCellView &&
-        [shadowView isKindOfClass:HippyShadowWaterfallItem.class] &&
-        !((HippyShadowWaterfallItem *)shadowView).layoutDirty) {
+    if (cachedCellView) {
         cellView = cachedCellView;
     } else {
         cellView = [self.uiManager createViewForShadowListItem:shadowView];
@@ -522,8 +520,9 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     }
 }
 
-- (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
-{ return nil; }
+- (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return nil;
+}
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view {
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {

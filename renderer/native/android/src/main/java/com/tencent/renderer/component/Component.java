@@ -29,6 +29,7 @@ import android.os.Build;
 import android.text.Layout;
 import android.text.Spannable;
 
+import android.text.Spanned;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -336,10 +337,10 @@ public class Component implements Drawable.Callback {
         assert mTextDrawable != null;
         if (mTextDrawable.getTextLayout() != null) {
             CharSequence textSequence = mTextDrawable.getTextLayout().getText();
-            if (textSequence instanceof Spannable) {
-                Spannable spannable = (Spannable) textSequence;
-                TextGestureSpan[] spans = spannable
-                        .getSpans(0, spannable.length(), TextGestureSpan.class);
+            if (textSequence instanceof Spanned) {
+                Spanned spannedText = (Spanned) textSequence;
+                TextGestureSpan[] spans = spannedText
+                        .getSpans(0, spannedText.length(), TextGestureSpan.class);
                 setGestureEnable((spans != null && spans.length > 0));
             }
         }

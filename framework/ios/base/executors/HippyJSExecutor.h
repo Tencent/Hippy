@@ -24,37 +24,14 @@
 #import "HippyDefines.h"
 #import "HippyDefines.h"
 #import "HippyInvalidating.h"
-#include <memory>
 
+@class HippyBridge;
 
 /**
  * Block that when js script execution completion
  */
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
-
-
-namespace hippy {
-inline namespace driver {
-
-inline namespace napi {
-class CtxValue;
-}
-
-class Scope;
-
-}
-
-inline namespace vfs {
-class UriLoader;
-}
-
-}
-
-@class HippyBridge;
-@protocol HippyContextWrapper;
-
-typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
-
+typedef void (^HippyContextCreatedBlock)(void);
 
 /**
  * Uses a JavaScriptCore context as the execution engine.
@@ -64,19 +41,14 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /// HippyBridge instance
 @property (nonatomic, weak) HippyBridge *bridge;
 
-/**
- * Whether the executor has been invalidated
- */
+/// Whether the executor has been invalidated
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
 /// EngineKey
 @property (nonatomic, copy) NSString *enginekey;
 
-/// hippy scope
-@property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
-
 /// context created block
-@property(nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
+@property (nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
 
 /// Init method
 /// - Parameters:
@@ -98,14 +70,6 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /// Set whether js engine is inspectable
 /// - Parameter inspectable: BOOL
 - (void)setInspecable:(BOOL)inspectable;
-
-/// Set Uri loader
-/// - Parameter uriLoader: vfs::UriLoader
-- (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader;
-
-/// Get turbo object
-/// - Parameter name: NSString
-- (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
 // TODO: 疑似已废弃
 /**
@@ -136,8 +100,6 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
  */
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete;
 
-- (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete;
-
 /**
  * Enqueue a block to run in the executors JS thread. Fallback to `dispatch_async`
  * on the main queue if the executor doesn't own a thread.
@@ -154,5 +116,12 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /// Updated hippy global info
 /// - Parameter dict: updated info
 - (void)updateNativeInfoToHippyGlobalObject:(NSDictionary *)dict;
+
+/// Inject object to JS global using `objectName` as key sync.
+/// Must be called in the JS thread.
+- (void)injectObjectSync:(NSObject *)value asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete;
+
+/// Inject object to JS global using `objectName` as key async.
+- (void)injectObjectAsync:(NSString *)value asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete;
 
 @end

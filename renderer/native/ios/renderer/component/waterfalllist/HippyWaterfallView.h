@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import "HippyBridge.h"
 #import "HippyCollectionViewWaterfallLayout.h"
 #import "HippyComponent.h"
 #import "HippyScrollableProtocol.h"

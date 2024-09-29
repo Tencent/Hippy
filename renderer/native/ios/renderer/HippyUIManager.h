@@ -33,6 +33,7 @@
 @class HippyComponentMap;
 @protocol HippyImageProviderProtocol;
 
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
@@ -66,10 +67,22 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /// The HippyUIManager responsible for updating the view hierarchy.
 @interface HippyUIManager : NSObject <HippyInvalidating>
 
-@property (nonatomic, weak) HippyBridge *bridge;
+/// HippyBridge instance
+@property (nonatomic, weak, readonly) HippyBridge *bridge;
+
+/// View Registry of all nodes
 @property (nonatomic, readonly) HippyComponentMap *viewRegistry;
+
+/// Specify whether UI hierarchy will be created instantly.
+/// When setting YES, UI hierarchy will not be created automatically,
+/// default is NO.
 @property (nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
+/// Init method
+/// - Parameter bridge: HippyBridge
+- (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /// Gets the view associated with a hippyTag.
 /// - Parameters:
@@ -142,10 +155,12 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 @interface HippyBridge (HippyUIManager)
 
 /// The current HippyUIManager instance
-@property (nonatomic, readonly) HippyUIManager *uiManager;
+@property (nonatomic, strong) HippyUIManager *uiManager;
 
 /// A custom touch handler for gesture special processing
 /// You can use it when you need to modify Hippy's default gesture handling logic
 @property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
 
 @end
+
+NS_ASSUME_NONNULL_END

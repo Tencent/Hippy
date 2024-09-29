@@ -28,6 +28,7 @@
 
 #include <mutex>
 #include <vector>
+#include <set>
 
 #include "footstone/logging.h"
 #include "footstone/string_view.h"
@@ -61,6 +62,27 @@ struct ConstructorData {
   ~ConstructorData() {
     JSClassRelease(class_ref);
   }
+};
+
+class ConstructorDataManager {
+public:
+  void SaveConstructorDataPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    constructor_data_ptr_set_.insert(ptr);
+  }
+
+  void ClearConstructorDataPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    constructor_data_ptr_set_.erase(ptr);
+  }
+
+  bool IsValidConstructorDataPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return constructor_data_ptr_set_.find(ptr) != constructor_data_ptr_set_.end();
+  }
+private:
+  std::set<void*> constructor_data_ptr_set_;
+  std::mutex mutex_;
 };
 
 class JSCCtx : public Ctx {
@@ -127,8 +149,7 @@ public:
   virtual std::shared_ptr<CtxValue> CreateObject() override;
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
-  virtual std::shared_ptr<CtxValue> CreateString(
-                                                 const string_view& string) override;
+  virtual std::shared_ptr<CtxValue> CreateString(const string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
@@ -213,6 +234,8 @@ public:
   bool is_exception_handled_;
   std::unordered_map<string_view, std::shared_ptr<ClassDefinition>> class_definition_map_;
   std::weak_ptr<VM> vm_;
+    
+  std::unordered_map<JSClassRef, std::unique_ptr<ConstructorData>> constructor_data_holder_;
 };
 
 inline footstone::string_view ToStrView(JSStringRef str) {

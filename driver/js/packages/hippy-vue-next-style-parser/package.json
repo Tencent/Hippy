@@ -24,10 +24,10 @@
     "url": "https://github.com/Tencent/Hippy/issues"
   },
   "peerDependencies": {
-    "@vue/shared": "^3.2.46"
+    "@vue/shared": "3.4.32"
   },
   "devDependencies": {
-    "@vue/shared": "^3.2.46"
+    "@vue/shared": "3.4.32"
   },
   "entry": "./src/index.ts",
   "jest": {

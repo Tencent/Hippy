@@ -712,4 +712,21 @@ NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *co
     return @(HIPPY_STR(HIPPY_VERSION));
 }
 
++ (NSString *)getBaseDirFromResourcePath:(NSURL *)url {
+    NSString *urlString = url.absoluteString;
+    NSRange lastSlashRange = [urlString rangeOfString:@"/" options:NSBackwardsSearch];
+    if (lastSlashRange.location == NSNotFound) {
+        // Return the original string if no slash is found
+        return urlString;
+    }
+    
+    if ([url isFileURL] || [url isFileReferenceURL]) {
+        // For file URLs, remove the last path component
+        return [url URLByDeletingLastPathComponent].absoluteString;
+    } else{
+        // For http/https URLs, truncate after the last slash in the base URL
+        return [urlString substringToIndex:lastSlashRange.location + 1];
+    }
+}
+
 @end

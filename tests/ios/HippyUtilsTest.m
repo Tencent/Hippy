@@ -86,5 +86,30 @@
     
 }
 
+- (void)testGetBaseDirFromResourcePath {
+    // Test with an HTTP URL
+    NSURL *httpURL = [NSURL URLWithString:@"http://localhost:38989/index.bundle?platform=ios"];
+    NSString *expectedBaseHTTPURL = @"http://localhost:38989/";
+    NSString *baseHTTPURLString = [HippyUtils getBaseDirFromResourcePath:httpURL];
+    XCTAssertEqualObjects(baseHTTPURLString, expectedBaseHTTPURL, @"The base URL should be truncated after the last slash.");
+    
+    // Test with a file URL
+    NSURL *fileURL = [NSURL fileURLWithPath:@"/Users/username/Documents/test.txt"];
+    NSString *expectedBaseFileURL = @"file:///Users/username/Documents/";
+    NSString *baseFileURLString = [HippyUtils getBaseDirFromResourcePath:fileURL];
+    XCTAssertEqualObjects(baseFileURLString, expectedBaseFileURL, @"The base file URL should be the directory path.");
+    
+    // Test with a URL with no slashes
+    NSURL *noSlashesURL = [NSURL URLWithString:@"mailto:user@example.com"];
+    NSString *expectedNoSlashesURL = @"mailto:user@example.com";
+    NSString *baseNoSlashesURLString = [HippyUtils getBaseDirFromResourcePath:noSlashesURL];
+    XCTAssertEqualObjects(baseNoSlashesURLString, expectedNoSlashesURL, @"The URL with no slashes should be returned as is.");
+    
+    // Test with a nil URL
+    NSURL *nilURL = nil;
+    NSString *baseNilURLString = [HippyUtils getBaseDirFromResourcePath:nilURL];
+    XCTAssertNil(baseNilURLString, @"The base URL should be nil for a nil input URL.");
+}
+
 
 @end

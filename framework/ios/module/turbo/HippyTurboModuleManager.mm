@@ -20,9 +20,10 @@
  *
  */
 
-#import "HippyJSExecutor.h"
-#import "HippyModuleData.h"
+
 #import "HippyTurboModuleManager.h"
+#import "HippyJSExecutor+Internal.h"
+#import "HippyModuleData.h"
 #import "HippyAssert.h"
 
 #include <unordered_map>

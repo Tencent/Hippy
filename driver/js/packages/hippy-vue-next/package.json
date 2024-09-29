@@ -28,12 +28,12 @@
     "README.md"
   ],
   "peerDependencies": {
-    "@vue/runtime-core": "^3.2.46",
-    "@vue/shared": "^3.2.46"
+    "@vue/runtime-core": "3.4.32",
+    "@vue/shared": "3.4.32"
   },
   "devDependencies": {
-    "@vue/runtime-core": "^3.2.46",
-    "@vue/shared": "^3.2.46"
+    "@vue/runtime-core": "3.4.32",
+    "@vue/shared": "3.4.32"
   },
   "jest": {
     "moduleNameMapper": {
