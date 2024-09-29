@@ -286,8 +286,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     _contentView = nil;
 }
 
-- (void)didUpdateHippySubviews
-{
+- (void)didUpdateHippySubviews {
     // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
 }
 

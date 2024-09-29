@@ -54,7 +54,11 @@
 @implementation NSNumber (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    return context->CreateNumber([self doubleValue]);
+    if ([self isKindOfClass:[@YES class]]) {
+        return context->CreateBoolean(self.boolValue);
+    } else {
+        return context->CreateNumber(self.doubleValue);
+    }
 }
 
 @end
@@ -144,10 +148,10 @@
 
 @end
 
-id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
+__nullable id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
     @autoreleasepool {
         if (!context || !value) {
-            return [NSNull null];
+            return nil;
         }
         if (context->IsString(value)) {
             footstone::string_view view;
@@ -156,6 +160,11 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
                 footstone::string_view::u16string &u16String = view.utf16_value();
                 NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
                 return string;
+            }
+        } else if (context->IsBoolean(value)) {
+            bool result = false;
+            if (context->GetValueBoolean(value, &result)) {
+                return @(result);
             }
         } else if (context->IsNumber(value)) {
             double number = 0;
@@ -168,7 +177,9 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
             for (uint32_t index = 0; index < length; index++) {
                 auto element = context->CopyArrayElement(value, index);
                 id obj = ObjectFromCtxValue(context, element);
-                [array addObject:obj];
+                if (obj) {
+                    [array addObject:obj];
+                }
             }
             return [array copy];
         }
@@ -199,11 +210,17 @@ id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
                     NSString *string = [NSString stringWithCharacters:(const unichar *)u16Str.c_str() length:u16Str.length()];
                     auto &value = it.second;
                     id obj = ObjectFromCtxValue(context, value);
-                    [dictionary setObject:obj forKey:string];
+                    if (string && obj) {
+                        [dictionary setObject:obj forKey:string];
+                    }
                 }
                 return [dictionary copy];
             }
+        } else if (context->IsNull(value)) {
+            return [NSNull null];
+        } else if (context->IsUndefined(value)) {
+            return nil;
         }
-        return [NSNull null];
+        return nil;
     }
 }

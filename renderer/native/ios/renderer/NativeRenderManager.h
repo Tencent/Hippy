@@ -20,37 +20,31 @@
  * limitations under the License.
  */
 
-#ifndef NativeRenderManager_h
-#define NativeRenderManager_h
+#ifndef _HIPPY_NATIVERENDERMANAGER_H_
+#define _HIPPY_NATIVERENDERMANAGER_H_
 
 #include <memory>
 #include <vector>
-
+#include <shared_mutex>
+#include <unordered_map>
 #include "dom/render_manager.h"
 
 @class UIView, HippyUIManager;
 
-class VFSUriLoader;
 namespace hippy {
 inline namespace dom {
 class RootNode;
 }
 }
 
-@protocol HippyImageProviderProtocol;
-
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
  */
-class NativeRenderManager : public hippy::RenderManager ,public std::enable_shared_from_this<NativeRenderManager> {
-    
+class NativeRenderManager : public hippy::RenderManager, public std::enable_shared_from_this<NativeRenderManager> {
 public:
-    NativeRenderManager();
-    NativeRenderManager(HippyUIManager *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
-    
+
+    explicit NativeRenderManager(const std::string& name);
     ~NativeRenderManager();
-    
-    void Initialize();
 
     /**
      *  create views from dom nodes
@@ -58,21 +52,21 @@ public:
      */
     void CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                           std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
-    
+
     /**
      *  update views' properties from dom nodes
      *  @param nodes A set of nodes for updating views' properties
      */
     void UpdateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                           std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
-    
+
     /**
      *  delete views from dom nodes
      *  @param nodes A set of nodes for deleting views
      */
     void DeleteRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                           std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
-    
+
     /**
      * update layout for view
      *
@@ -80,7 +74,7 @@ public:
      */
     void UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
                       const std::vector<std::shared_ptr<hippy::DomNode>>& nodes) override;
-    
+
     /**
      * move views from container to another container
      *
@@ -95,12 +89,12 @@ public:
                         int32_t index) override;
 
     void MoveRenderNode(std::weak_ptr<hippy::RootNode> root_node, std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
-    
+
     /**
      * Invoked after batched operations completed
      */
     void EndBatch(std::weak_ptr<hippy::RootNode> root_node) override;
-    
+
     /**
      * Invoked before nodes do layout
      */
@@ -118,7 +112,7 @@ public:
      * @param name event name
      */
     void AddEventListener(std::weak_ptr<hippy::RootNode> root_node, std::weak_ptr<hippy::DomNode> dom_node, const std::string& name) override;
-    
+
     /**
      * unregister event for specific view
      *
@@ -131,7 +125,7 @@ public:
      * unregister vsync event
      */
     void RemoveVSyncEventListener(std::weak_ptr<hippy::RootNode> root_node);
-    
+
     /**
      * invoke function of view
      *
@@ -142,84 +136,30 @@ public:
      * @discussion Caller can get callback block from id by DomNode::GetCallback function
      */
     void CallFunction(std::weak_ptr<hippy::RootNode> root_node,
-                      std::weak_ptr<hippy::DomNode> dom_node, const std::string &name,
+                      std::weak_ptr<hippy::DomNode> dom_node,
+                      const std::string &name,
                       const DomArgument& param,
                       uint32_t cb) override;
-    
+
     /**
-     * Register custom ui component
-     *
-     * @param extraComponents a map of custom ui components
-     */
-    void RegisterExtraComponent(NSArray<Class> *extraComponents);
-        
-    /**
-     * Regitster a root view
+     * Regitster a root view and register UIManager instance to RenderManager
      *
      * @param view a specitified view as root view
      * @param root_node root node for root view
+     * @param uiManager HippyUIManager instance
      */
-    void RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node);
-    
+    void RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node, HippyUIManager *uiManager);
+
     /**
      * Unregister a root view
      *
      * @param id root view id
      */
     void UnregisterRootView(uint32_t id);
-    
-    /**
-     * Get all registered root views
-     *
-     * @return a copy array of root views
-     */
-    NSArray<UIView *> *rootViews();
-    
-    /**
-     * set dom manager for render manager
-     *
-     * @param dom_manager weak pointer of dom manager
-     */
-    void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
-        
-    /**
-     * Specify whether ui hierarchy should be created instantly
-     *
-     * @param enabled true means ui will not be created until it is required
-     * @discussion when true, ui hierarchy will not be created automatically, default is false
-     */
-    void SetUICreationLazilyEnabled(bool enabled);
-    
-    /**
-     * Set vfs uri loader of CPP version
-     *
-     *@param loader vfs url loader instance
-     */
-    void SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader);
-    
-    /**
-     * Set HippyBridge pointer to renderManager
-     *
-     *@param bridge HippyBridge instance
-     */
-    void SetHippyBridge(HippyBridge *bridge);
-        
-    /**
-     * Set root view size changed event callback
-     *
-     *@param cb callback
-     */
-    void SetRootViewSizeChangedEvent(std::function<void(int32_t rootTag, NSDictionary *)> cb);
-    
-    /**
-     * Get HippyUIManager variable
-     *
-     * @return A HippyUIManager instance
-     */
-    HippyUIManager *GetHippyUIManager();
-    
+
 private:
-    HippyUIManager *renderImpl_;
+    std::shared_mutex _mutex; // For _uiManagerMap's thread safety
+    std::unordered_map<uint32_t, HippyUIManager *> _uiManagerMap;
 };
 
-#endif /* NativeRenderManager_h */
+#endif /* _HIPPY_NATIVERENDERMANAGER_H_ */

@@ -81,6 +81,18 @@
     XCTAssertTrue([ObjectFromCtxValue(_context, ctxValue) isEqualToNumber:testOCNumber]);
 }
 
+// NSNumber (Boolean)
+- (void)testBoolToCtxValue {
+    NSNumber *testOCBool = @YES;
+    CtxValuePtr testCtxBoolean = [testOCBool convertToCtxValue:_context];
+    XCTAssert(_context->IsBoolean(testCtxBoolean));
+    XCTAssertTrue([ObjectFromCtxValue(_context, testCtxBoolean) boolValue] == [testOCBool boolValue]);
+    testOCBool = @NO;
+    testCtxBoolean = [testOCBool convertToCtxValue:_context];
+    XCTAssert(_context->IsBoolean(testCtxBoolean));
+    XCTAssertTrue([ObjectFromCtxValue(_context, testCtxBoolean) boolValue] == [testOCBool boolValue]);
+}
+
 // NSArray
 - (void)testNSArrayToCtxValue {
     NSArray *testOCArray = @[@"Hello", @42, @YES];
@@ -111,6 +123,13 @@
     CtxValuePtr ctxValue = [testOCNull convertToCtxValue:_context];
     XCTAssert(_context->IsNull(ctxValue));
     XCTAssert([ObjectFromCtxValue(_context, ctxValue) isKindOfClass:[NSNull class]]);
+}
+
+// Nil (Undefined)
+- (void)testUndefinedCtxValue {
+    auto testCtxUndefined = _context->CreateUndefined();
+    XCTAssert(_context->IsUndefined(testCtxUndefined));
+    XCTAssertNil(ObjectFromCtxValue(_context, testCtxUndefined));
 }
 
 // NSError

@@ -21,7 +21,6 @@
  */
 
 #include "driver/napi/jsc/jsc_try_catch.h"
-
 #include "driver/napi/jsc/jsc_ctx.h"
 #include "driver/napi/jsc/jsc_ctx_value.h"
 
@@ -45,7 +44,6 @@ JSCTryCatch::~JSCTryCatch() {
   if (HasCaught()) {
     if (is_rethrow_ || is_verbose_) {
       std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
-      ctx->SetException(exception_);
       if (is_rethrow_) {
         ctx->SetExceptionHandled(false);
       } else {
@@ -61,21 +59,24 @@ void JSCTryCatch::ReThrow() {
 
 bool JSCTryCatch::HasCaught() {
   if (enable_) {
-    return !!exception_;
+    std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
+    return !!ctx->GetException();
   }
   return false;
 }
 
 bool JSCTryCatch::CanContinue() {
   if (enable_) {
-    return !exception_;
+    std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
+    return !ctx->GetException();
   }
   return true;
 }
 
 bool JSCTryCatch::HasTerminated() {
   if (enable_) {
-    return !!exception_;
+    std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
+    return !!ctx->GetException();
   }
   return false;
 }
@@ -89,13 +90,14 @@ void JSCTryCatch::SetVerbose(bool is_verbose) {
 }
 
 std::shared_ptr<CtxValue> JSCTryCatch::Exception() {
-  return exception_;
+  std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
+  return ctx->GetException();
 }
 
 string_view JSCTryCatch::GetExceptionMessage() {
   if (enable_) {
     std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
-    return ctx->GetExceptionMessage(exception_);
+    return ctx->GetExceptionMessage(ctx->GetException());
   }
   return "";
 }

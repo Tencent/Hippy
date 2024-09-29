@@ -29,9 +29,8 @@
 #import "NativeRenderSmartViewPagerView.h"
 #import "HippyScrollProtocol.h"
 #import "UIView+MountEvent.h"
-#import "UIView+Render.h"
 #import "UIView+Hippy.h"
-
+#import "UIView+Render.h"
 #include <objc/runtime.h>
 
 static NSInteger kInfiniteLoopBegin = 2;

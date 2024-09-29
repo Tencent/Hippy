@@ -34,6 +34,7 @@ public @interface HippyControllerProps {
   String DEFAULT = "";
   String ARRAY = "array";
   String MAP = "map";
+  String EVENT = "event";
 
   String name();
 

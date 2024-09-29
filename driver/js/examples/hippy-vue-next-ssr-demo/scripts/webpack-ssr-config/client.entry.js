@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const pkg = require('../../package.json');
+const fs = require('fs')
 
 module.exports = {
   mode: 'production',
@@ -90,8 +91,32 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.json', '.ts'],
-    alias: (() => ({
-      src: path.resolve('./src'),
-    }))(),
+    alias: (() => {
+      const aliases = {
+        src: path.resolve('./src'),
+      };
+
+      // If @hippy/vue-next-style-parser was built exist in packages directory then make an alias
+      // Remove the section if you don't use it
+      const hippyVueNextStyleParserPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next-style-parser/dist');
+      if (fs.existsSync(path.resolve(hippyVueNextStyleParserPath, 'index.js'))) {
+        console.warn(`* Using the @hippy/vue-next-style-parser in ${hippyVueNextStyleParserPath} as @hippy/vue-next-style-parser alias`);
+        aliases['@hippy/vue-next-style-parser'] = hippyVueNextStyleParserPath;
+      } else {
+        console.warn('* Using the @hippy/vue-next-style-parser defined in package.json');
+      }
+
+      // If @hippy/vue-next-server-render was built exist in packages directory then make an alias
+      // Remove the section if you don't use it
+      const hippyVueNextSsrPath = path.resolve(__dirname, '../../../../packages/hippy-vue-next-server-renderer/dist');
+      if (fs.existsSync(path.resolve(hippyVueNextSsrPath, 'index.js'))) {
+        console.warn(`* Using the @hippy/vue-next-server-renderer in ${hippyVueNextSsrPath} as @hippy/vue-next-server-renderer alias`);
+        aliases['@hippy/vue-next-server-renderer'] = hippyVueNextSsrPath;
+      } else {
+        console.warn('* Using the @hippy/vue-next-server-renderer defined in package.json');
+      }
+
+      return aliases;
+    })(),
   },
 };

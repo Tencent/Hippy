@@ -271,11 +271,13 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     UIView *cachedVisibleCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
     if (cachedVisibleCellView) {
         cellView = cachedVisibleCellView;
-        HippyLogTrace(@"🟢 use cached visible cellView at %@ for %@", indexPath, shadowView.hippyTag);
+        HippyLogTrace(@"%@ 🟢 use cached visible cellView at {%ld - %ld} for %@",
+                      self.hippyTag, indexPath.section, indexPath.row, shadowView.hippyTag);
     } else {
         cellView = [self.uiManager createViewForShadowListItem:shadowView];
         [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
-        HippyLogTrace(@"🟡 create cellView at %@ for %@", indexPath, shadowView.hippyTag);
+        HippyLogTrace(@"%@ 🟡 create cellView at {%ld - %ld} for %@",
+                      self.hippyTag, indexPath.section, indexPath.row, shadowView.hippyTag);
     }
     
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],

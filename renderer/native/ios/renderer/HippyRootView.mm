@@ -28,6 +28,7 @@
 #import "HippyBridge.h"
 #import "Hippybridge+PerformanceAPI.h"
 #import "HippyUIManager.h"
+#import "HippyUtils.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyTouchHandler.h"
 #import "HippyJSExecutor.h"
@@ -158,7 +159,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         _hasBusinessBundleToLoad = YES;
         
         // Set the default sandbox directory
-        [bridge setSandboxDirectory:[businessURL URLByDeletingLastPathComponent]];
+        [bridge setSandboxDirectory:[HippyUtils getBaseDirFromResourcePath:businessURL]];
     }
     if (self = [self initWithBridge:bridge
                          moduleName:moduleName
@@ -184,7 +185,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                     }
                     
                     // 抛出业务包(BusinessBundle aka SecondaryBundle)加载完成通知，for hippy2兼容
-                    NSMutableDictionary *userInfo = @{ kHippyNotiBundleUrlKey: url,
+                    NSMutableDictionary *userInfo = @{ kHippyNotiBundleUrlKey: url ?: @"",
                                                        kHippyNotiBridgeKey: strongSelf.bridge }.mutableCopy;
                     if (error) { [userInfo setObject:error forKey:kHippyNotiErrorKey]; }
                     HIPPY_IGNORE_WARNING_BEGIN(-Wdeprecated)

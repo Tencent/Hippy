@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-#define EXPERIMENT_LAYER_OPTIMIZATION
-
 #include "dom/dom_manager.h"
 
 #include <mutex>
@@ -54,11 +52,11 @@ using Deserializer = footstone::value::Deserializer;
 using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 
 void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager) {
-#ifdef EXPERIMENT_LAYER_OPTIMIZATION
+#ifdef HIPPY_EXPERIMENT_LAYER_OPTIMIZATION
   optimized_render_manager_ = std::make_shared<LayerOptimizedRenderManager>(render_manager.lock());
   render_manager_ = optimized_render_manager_;
 #else
-  render_manager_ = render_manager;
+  render_manager_ = render_manager.lock();
 #endif
 }
 
@@ -125,7 +123,7 @@ void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 }
 
 void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
-  auto render_manager = render_manager_.lock();
+  auto render_manager = render_manager_;
   FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {
     return;
@@ -187,7 +185,7 @@ void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
   if (!root_node) {
     return;
   }
-  auto render_manager = render_manager_.lock();
+  auto render_manager = render_manager_;
   // check render_manager, measure text dependent render_manager
   FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {

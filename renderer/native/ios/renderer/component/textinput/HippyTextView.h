@@ -83,8 +83,6 @@
 @property (nonatomic, copy) HippyDirectEventBlock onChangeText;
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;
 @property (nonatomic, copy) HippyDirectEventBlock onFocus;
-@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillShow;
-@property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillHide;
 
 - (void)updateFrames;
 @end
