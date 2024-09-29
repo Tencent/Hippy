@@ -41,7 +41,7 @@ inline namespace dom {
 
 REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              "createDomManager",
-             "()I",
+             "(II)I",
              CreateDomManager)
 
 REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
@@ -79,6 +79,7 @@ using TaskRunner = footstone::TaskRunner;
 
 constexpr char kDomWorkerName[] = "dom_worker";
 constexpr char kDomRunnerName[] = "dom_task_runner";
+constexpr int32_t kDefaultGroupId = -1;
 
 void CreateRoot(JNIEnv* j_env,
                 __unused jobject j_obj,
@@ -151,21 +152,41 @@ static void SetThreadPriority(jobject j_object) {
   j_env->DeleteLocalRef(j_class);
 }
 
-jint CreateDomManager(JNIEnv* j_env, jobject j_obj) {
+jint CreateDomManager(JNIEnv* j_env, jobject j_obj, jint j_group_id, jint j_share_dom_id) {
   auto dom_manager = std::make_shared<DomManager>();
   auto dom_id = hippy::global_data_holder_key.fetch_add(1);
   hippy::global_data_holder.Insert(dom_id, dom_manager);
-  auto worker = std::make_shared<WorkerImpl>(kDomWorkerName, false);
-  auto callback = std::make_shared<JavaRef>(j_env, j_obj);
-  worker->BeforeStart([callback]() {
-    if (callback->GetObj()) SetThreadPriority(callback->GetObj());
-  });
-  worker->Start();
-  auto runner = std::make_shared<TaskRunner>(kDomRunnerName);
-  runner->SetWorker(worker);
-  worker->Bind({runner});
-  dom_manager->SetTaskRunner(runner);
-  dom_manager->SetWorker(worker);
+  auto group_id = footstone::checked_numeric_cast<jint, int32_t>(j_group_id);
+  auto share_dom_id = footstone::checked_numeric_cast<jint, int32_t>(j_share_dom_id);
+  std::any share_dom_manager;
+  bool flag = false;
+  if (share_dom_id > 0) {
+    flag = hippy::global_data_holder.Find(static_cast<uint32_t>(share_dom_id), share_dom_manager);
+  }
+  FOOTSTONE_DLOG(ERROR) << "CreateDomManager flag " << flag << ", dom_id " << dom_id << ", share_dom_id " << share_dom_id;
+  if (flag && group_id != kDefaultGroupId) {
+    FOOTSTONE_DLOG(ERROR) << "CreateDomManager share ";
+    auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(share_dom_manager);
+    auto worker = dom_manager_object->GetWorker();
+    auto runner = dom_manager_object->GetTaskRunner();
+    dom_manager->SetTaskRunner(runner);
+    dom_manager->SetWorker(worker);
+    auto count = worker->FetchAndAddReuseCount();
+    FOOTSTONE_DLOG(ERROR) << "CreateDomManager worker reuse count " << count << ", dom manager id " << dom_id;
+  } else {
+    FOOTSTONE_DLOG(ERROR) << "CreateDomManager create new ";
+    auto worker = std::make_shared<WorkerImpl>(kDomWorkerName, false);
+    auto callback = std::make_shared<JavaRef>(j_env, j_obj);
+    worker->BeforeStart([callback]() {
+      if (callback->GetObj()) SetThreadPriority(callback->GetObj());
+    });
+    worker->Start();
+    auto runner = std::make_shared<TaskRunner>(kDomRunnerName);
+    runner->SetWorker(worker);
+    worker->Bind({runner});
+    dom_manager->SetTaskRunner(runner);
+    dom_manager->SetWorker(worker);
+  }
   return footstone::checked_numeric_cast<uint32_t, jint>(dom_id);
 }
 
@@ -175,7 +196,11 @@ void DestroyDomManager(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_do
   auto flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
   FOOTSTONE_CHECK(flag);
   auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
-  dom_manager_object->GetWorker()->Terminate();
+  auto count = dom_manager_object->GetWorker()->FetchAndSubReuseCount();
+  FOOTSTONE_DLOG(ERROR) << "DestroyDomManager worker reuse count " << count << ", dom manager id " << dom_manager_id;
+  if (count == 0) {
+    dom_manager_object->GetWorker()->Terminate();
+  }
   flag = hippy::global_data_holder.Erase(dom_manager_id);
   FOOTSTONE_DCHECK(flag);
 }

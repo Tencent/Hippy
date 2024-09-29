@@ -19,24 +19,67 @@ package com.openhippy.connector;
 import android.view.View;
 import androidx.annotation.NonNull;
 import android.os.Process;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("JavaJniMissingFunction")
 public class DomManager implements Connector {
 
     private final int mInstanceId;
+    private final int mGroupId;
+    private static final Map<Integer, List<Integer>> sDomManagerGroup = new HashMap<>();
 
-    public DomManager() {
-        mInstanceId = createDomManager();
+    public DomManager(int groupId) {
+        int shareDomId = DomManager.getDomIdFromGroup(groupId);
+        mInstanceId = createDomManager(groupId, shareDomId);
+        mGroupId = groupId;
+        addDomManagerToGroup();
     }
 
     @Override
     public void destroy() {
         destroyDomManager(mInstanceId);
+        removeDomManagerFromGroup();
     }
 
     @Override
     public int getInstanceId() {
         return mInstanceId;
+    }
+
+    public static int getDomIdFromGroup(int groupId) {
+        List<Integer> group = sDomManagerGroup.get(groupId);
+        if (group == null || group.isEmpty()) {
+            return -1;
+        }
+        return group.get(0);
+    }
+
+    private void removeDomManagerFromGroup() {
+        List<Integer> group = sDomManagerGroup.get(mGroupId);
+        if (group != null) {
+            try {
+                group.remove(Integer.valueOf(mInstanceId));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void addDomManagerToGroup() {
+        if (mGroupId < 0) {
+            return;
+        }
+        List<Integer> group = sDomManagerGroup.get(mGroupId);
+        if (group == null) {
+            group = new ArrayList<>();
+            group.add(mInstanceId);
+            sDomManagerGroup.put(mGroupId, group);
+        } else {
+            group.add(mInstanceId);
+        }
     }
 
     public void attachToRenderer(@NonNull Connector rendererConnector) {
@@ -74,7 +117,7 @@ public class DomManager implements Connector {
      *
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomManager();
+    private native int createDomManager(int groupId, int shareDomId);
 
     /**
      * Release native (C++) dom manager instance.

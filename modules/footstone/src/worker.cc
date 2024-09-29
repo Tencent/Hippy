@@ -55,6 +55,7 @@ Worker::Worker(std::string name, bool is_schedulable, std::unique_ptr<Driver> dr
       is_stacking_mode_(false),
       has_migration_data_(false),
       is_schedulable_(is_schedulable),
+      reuse_count_(1),
       group_id_(0),
       driver_(std::move(driver)) {
 }

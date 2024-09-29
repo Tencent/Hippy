@@ -73,7 +73,6 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostView;
 import com.tencent.renderer.FrameworkProxy;
-import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.node.RenderNode;
@@ -881,7 +880,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver);
-            mDomManager = (domManager != null) ? domManager : new DomManager();
+            mDomManager = (domManager != null) ? domManager : new DomManager(mGroupId);
             mRenderer = createRenderer(RenderConnector.NATIVE_RENDERER);
             mDomManager.attachToRenderer(mRenderer);
             mRenderer.attachToDom(mDomManager);
