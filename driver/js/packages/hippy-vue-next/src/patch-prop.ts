@@ -29,9 +29,10 @@ import { patchAttr } from './modules/attrs';
 import { patchClass } from './modules/class';
 import { patchEvent } from './modules/events';
 import { patchStyle } from './modules/style';
+import type { HippyElement } from './runtime/element/hippy-element';
 
 export function patchProp(
-  el: NeedToTyped,
+  el: HippyElement,
   key: string,
   prevValue: NeedToTyped,
   nextValue: NeedToTyped,
