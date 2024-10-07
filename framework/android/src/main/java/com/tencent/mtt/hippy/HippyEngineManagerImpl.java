@@ -689,7 +689,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
-        mEngineContext.getJsDriver().recordNativeInitEndTime(mInitStartTime, System.currentTimeMillis());
         mGlobalConfigs.getEngineMonitorAdapter().onEngineInitialized(statusCode);
         for (EngineListener listener : mEventListeners) {
             listener.onInitialized(statusCode, error == null ? null : error.toString());
@@ -879,7 +878,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mJsDriver = new JsDriver();
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
-                    mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver);
+                    mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver, mInitStartTime);
             mDomManager = (domManager != null) ? domManager : new DomManager(mGroupId);
             mRenderer = createRenderer(RenderConnector.NATIVE_RENDERER);
             mDomManager.attachToRenderer(mRenderer);
