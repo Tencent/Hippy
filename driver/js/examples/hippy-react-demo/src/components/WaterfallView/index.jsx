@@ -318,7 +318,7 @@ export default class ListExample extends React.Component {
   }
 
   getWaterfallContentInset() {
-    return { top: 0, left: 0, bottom: 0, right: 0 };
+    return { top: 12, left: 12, bottom: 12, right: 12 };
   }
 
   getItemStyle() {
@@ -376,6 +376,7 @@ export default class ListExample extends React.Component {
               columnSpacing={columnSpacing}
               interItemSpacing={interItemSpacing}
               numberOfItems={dataSource.length}
+              contentInset={contentInset}
               preloadItemNumber={4}
               style={{ flex: 1 }}
               onScroll={this.onScroll}

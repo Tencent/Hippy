@@ -19,6 +19,7 @@ package androidx.recyclerview.widget;
 import android.view.View;
 
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.State;
@@ -65,15 +66,18 @@ public class HippyStaggeredGridLayoutManager extends StaggeredGridLayoutManager 
         if (isFullSpan) {
             child.layout(left, top, right, bottom);
         } else {
-            int lf = spanIndex * (lp.width + mItemDecoration.getColumnSpacing());
-            int rt = (spanIndex + 1) * lp.width + spanIndex * mItemDecoration.getColumnSpacing();
+            int lf = mRecyclerView.getPaddingLeft() + spanIndex * (lp.width
+                    + mItemDecoration.getColumnSpacing());
+            int rt = mRecyclerView.getPaddingLeft() + (spanIndex + 1) * lp.width
+                    + spanIndex * mItemDecoration.getColumnSpacing();
             child.layout(lf, top, rt, bottom);
         }
         int size;
         if (child instanceof PullRefreshContainer) {
             size = getOrientation() == RecyclerView.VERTICAL ? bottom - top : right - left;
         } else {
-            size = getOrientation() == RecyclerView.VERTICAL ? lp.height + mItemDecoration.getItemSpacing()
+            size = getOrientation() == RecyclerView.VERTICAL ? lp.height
+                    + mItemDecoration.getItemSpacing()
                     : lp.width + mItemDecoration.getItemSpacing();
         }
         RenderNode childNode = RenderManager.getRenderNode(child);
