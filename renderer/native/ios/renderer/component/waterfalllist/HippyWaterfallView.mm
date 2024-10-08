@@ -209,8 +209,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (void)reloadData {
     NSArray<HippyShadowView *> *datasource = [self.hippyShadowView.hippySubviews copy];
     _dataSource = [[HippyWaterfallViewDataSource alloc] initWithDataSource:datasource
-                                                                     itemViewName:[self compoentItemName]
-                                                                containBannerView:_containBannerView];
+                                                              itemViewName:[self compoentItemName]
+                                                         containBannerView:_containBannerView];
     
     [self.collectionView reloadData];
     
