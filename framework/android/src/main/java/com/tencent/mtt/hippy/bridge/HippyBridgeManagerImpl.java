@@ -99,6 +99,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     final boolean mEnableV8Serialization;
     ArrayList<String> mLoadedBundleInfo = null;
     private final int mGroupId;
+    private long mInitStartTime = 0;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private StringBuilder mStringBuilder;
     private SafeHeapWriter safeHeapWriter;
@@ -111,10 +112,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
             int bridgeType, boolean enableV8Serialization, boolean isDevModule,
             String debugServerHost, int groupId, HippyThirdPartyAdapter thirdPartyAdapter,
-            V8InitParams v8InitParams, @NonNull JsDriver jsDriver) {
+            V8InitParams v8InitParams, @NonNull JsDriver jsDriver, long initStartTime) {
         mContext = context;
         mCoreBundleLoader = coreBundleLoader;
         mGroupId = groupId;
+        mInitStartTime = initStartTime;
         mThirdPartyAdapter = thirdPartyAdapter;
         mEnableV8Serialization = enableV8Serialization;
         mHippyBridge = new HippyBridgeImpl(context, this, bridgeType == BRIDGE_TYPE_SINGLE_THREAD,
@@ -257,6 +259,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                 if (mThirdPartyAdapter != null) {
                                     mThirdPartyAdapter.onRuntimeInit(runtimeId);
                                 }
+                                mContext.getJsDriver().recordNativeInitEndTime(mInitStartTime, System.currentTimeMillis());
                                 if (mCoreBundleLoader != null) {
                                     timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_INIT_ENGINE,
                                             TimeMonitor.MONITOR_POINT_LOAD_VENDOR_JS);
