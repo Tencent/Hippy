@@ -22,29 +22,35 @@ import androidx.annotation.Nullable;
 
 public class ImageDataPool extends BasePool<ImageDataKey, ImageRecycleObject> {
 
-    private static final int DEFAULT_IMAGE_POOL_SIZE = 16;
-    private LruCache<ImageDataKey, ImageRecycleObject> mPools;
+    private static int IMAGE_POOL_SIZE = 24;
+    private static LruCache<ImageDataKey, ImageRecycleObject> mPools;
 
-    public ImageDataPool() {
-        init(DEFAULT_IMAGE_POOL_SIZE);
-    }
-
-    @SuppressWarnings("unused")
-    public ImageDataPool(int size) {
-        init(Math.max(DEFAULT_IMAGE_POOL_SIZE, size));
-    }
-
-    private void init(int size) {
-        mPools = new LruCache<ImageDataKey, ImageRecycleObject>(
-                size) {
-            @Override
-            protected void entryRemoved(boolean evicted, @NonNull ImageDataKey key,
-                    @NonNull ImageRecycleObject oldValue, @Nullable ImageRecycleObject newValue) {
-                if (evicted) {
-                    onEntryEvicted(oldValue);
+    public static void setImagePoolSize(int size) {
+        if (size > 0) {
+            IMAGE_POOL_SIZE = size;
+            if (mPools != null) {
+                try {
+                    mPools.resize(size);
+                } catch (IllegalArgumentException e) {
+                    // ignore incorrect value settings
                 }
             }
-        };
+        }
+    }
+
+    public ImageDataPool() {
+        if (mPools == null) {
+            mPools = new LruCache<ImageDataKey, ImageRecycleObject>(
+                    IMAGE_POOL_SIZE) {
+                @Override
+                protected void entryRemoved(boolean evicted, @NonNull ImageDataKey key,
+                        @NonNull ImageRecycleObject oldValue, @Nullable ImageRecycleObject newValue) {
+                    if (evicted) {
+                        onEntryEvicted(oldValue);
+                    }
+                }
+            };
+        }
     }
 
     @Override
