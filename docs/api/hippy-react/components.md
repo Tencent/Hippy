@@ -442,7 +442,32 @@ import icon from './qb_icon_new.png';
 | onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| pointerEvents | 用于控制视图是否可以成为触摸事件的目标。 | `enum('box-none', 'none', 'box-only', 'auto')` | `iOS` |
 
+* pointerEvents 的参数含义：
+  * `auto`（默认值） - 视图可以是触摸事件的目标；
+  * `none` - 视图永远不是触摸事件的目标；
+  * `box-none` - 视图不是触摸事件的目标，但它的子视图可以是。其行为类似视图在CSS中有以下类:
+
+    ```css
+    .box-none {
+        pointer-events: none;
+    }
+    .box-none * {
+        pointer-events: auto;
+    }
+    ```
+
+  * `box-only` - 视图可以是触摸事件的目标，但它的子视图不能。其行为类似视图在CSS中有以下类:
+
+    ```css
+    .box-only {
+        pointer-events: auto;
+    }
+    .box-only * {
+        pointer-events: none;
+    }
+    ```
 
 ## 方法
 

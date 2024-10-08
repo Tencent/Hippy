@@ -67,6 +67,32 @@
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS、Voltron`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS、Voltron`   | 
 | nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
+| pointerEvents | 用于控制视图是否可以成为触摸事件的目标。 | `enum('box-none', 'none', 'box-only', 'auto')` | `iOS` |
+
+* pointerEvents 的参数含义：
+  * `auto`（默认值） - 视图可以是触摸事件的目标；
+  * `none` - 视图永远不是触摸事件的目标；
+  * `box-none` - 视图不是触摸事件的目标，但它的子视图可以是。其行为类似视图在CSS中有以下类:
+
+    ```css
+    .box-none {
+        pointer-events: none;
+    }
+    .box-none * {
+        pointer-events: auto;
+    }
+    ```
+
+  * `box-only` - 视图可以是触摸事件的目标，但它的子视图不能。其行为类似视图在CSS中有以下类:
+
+    ```css
+    .box-only {
+        pointer-events: auto;
+    }
+    .box-only * {
+        pointer-events: none;
+    }
+    ```
 
 ---
 

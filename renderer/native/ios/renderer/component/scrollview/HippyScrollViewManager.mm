@@ -89,7 +89,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 
 
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
-                    callback:(HippyPromiseResolveBlock)callback) {
+                    callback:(nonnull HippyPromiseResolveBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyScrollView *view = viewRegistry[hippyTag];
         CGSize size = view.scrollView.contentSize;
@@ -98,9 +98,9 @@ HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
 }
 
 HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
-                    offsetX:(NSNumber *)x
-                    offsetY:(NSNumber *)y
-                    animated:(NSNumber *)animated) {
+                    offsetX:(nonnull NSNumber *)x
+                    offsetY:(nonnull NSNumber *)y
+                    animated:(nonnull NSNumber *)animated) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
@@ -114,7 +114,7 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
 }
 
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
-                    options:(NSDictionary *)options) {
+                    options:(nullable NSDictionary *)options) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
