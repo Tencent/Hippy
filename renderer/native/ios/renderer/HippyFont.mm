@@ -115,7 +115,9 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
-    return [HippyFont updateFont:nil withFamily:[HippyConvert NSString:json[@"fontFamily"]] size:[HippyConvert NSNumber:json[@"fontSize"]]
+    return [HippyFont updateFont:nil 
+                      withFamily:[HippyConvert NSString:json[@"fontFamily"]]
+                            size:[HippyConvert NSNumber:json[@"fontSize"]]
                           weight:[HippyConvert NSString:json[@"fontWeight"]]
                            style:[HippyConvert NSString:json[@"fontStyle"]]
                          variant:[HippyConvert NSStringArray:json[@"fontVariant"]]
@@ -322,20 +324,16 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     return font;
 }
 
-+ (UIFont *)updateFont:(UIFont *)font withFamily:(NSString *)family {
-    return [self updateFont:font withFamily:family size:nil weight:nil style:nil variant:nil scaleMultiplier:1];
-}
-
-+ (UIFont *)updateFont:(UIFont *)font withSize:(NSNumber *)size {
-    return [self updateFont:font withFamily:nil size:size weight:nil style:nil variant:nil scaleMultiplier:1];
-}
-
-+ (UIFont *)updateFont:(UIFont *)font withWeight:(NSString *)weight {
-    return [self updateFont:font withFamily:nil size:nil weight:weight style:nil variant:nil scaleMultiplier:1];
-}
-
-+ (UIFont *)updateFont:(UIFont *)font withStyle:(NSString *)style {
-    return [self updateFont:font withFamily:nil size:nil weight:nil style:style variant:nil scaleMultiplier:1];
++ (NSString *)familyNameWithCSSNameMatching:(NSString *)fontName {
+    NSString *familyName = fontName;
+    if (fontName && ![[UIFont familyNames] containsObject:fontName]) {
+        // Not a real FamilyName
+        // Using CSS name matching semantics.
+        // fontSize here is just a placeholder for getting font.
+        UIFont *cssFont = [UIFont fontWithName:fontName size:14.0];
+        familyName = cssFont.familyName;
+    }
+    return familyName;
 }
 
 @end

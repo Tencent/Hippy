@@ -418,8 +418,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         BOOL isJSTaskRunner = (domManager->GetTaskRunner() && footstone::TaskRunner::GetCurrentTaskRunner());
         if (isJSTaskRunner) {
             domNodeAction();
-        }
-        else {
+        } else {
             std::vector<std::function<void()>> ops = {domNodeAction};
             domManager->PostTask(hippy::dom::Scene(std::move(ops)));
         }

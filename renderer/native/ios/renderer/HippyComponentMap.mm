@@ -89,6 +89,10 @@ using RootNode = hippy::RootNode;
     return nil != rootComponent;
 }
 
+- (NSArray<NSNumber *> *)allRootTags {
+    return [[_rootComponentsMap keyEnumerator] allObjects];
+}
+
 - (NSArray<id<HippyComponent>> *)rootComponents {
     return [[_rootComponentsMap objectEnumerator] allObjects];
 }

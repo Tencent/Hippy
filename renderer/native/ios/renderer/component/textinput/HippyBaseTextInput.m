@@ -21,6 +21,7 @@
  */
 
 #import "HippyBaseTextInput.h"
+#import "HippyFont.h"
 
 static NSString *const kKeyboardHeightKey = @"keyboardHeight";
 
@@ -92,6 +93,58 @@ static NSString *const kKeyboardHeightKey = @"keyboardHeight";
                                                  selector:@selector(keyboardHeightChanged:)
                                                      name:UIKeyboardWillChangeFrameNotification
                                                    object:nil];
+    }
+}
+
+
+#pragma mark - Hippy Update Callback
+
+- (void)hippyBridgeDidFinishTransaction {
+    // Use this opportunity to update font if needed.
+    [self layoutIfNeeded];
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [self rebuildAndUpdateFont];
+}
+
+
+#pragma mark - Font Related
+
+- (void)setFontSize:(NSNumber *)fontSize {
+    _fontSize = fontSize;
+    [self setNeedsLayout];
+}
+
+- (void)setFontStyle:(NSString *)fontStyle {
+    _fontStyle = fontStyle;
+    [self setNeedsLayout];
+}
+
+- (void)setFontWeight:(NSString *)fontWeight {
+    _fontWeight = fontWeight;
+    [self setNeedsLayout];
+}
+
+- (void)setFontFamily:(NSString *)fontFamily {
+    _fontFamily = fontFamily;
+    [self setNeedsLayout];
+}
+
+- (void)rebuildAndUpdateFont {
+    // Convert fontName to fontFamily if needed
+    CGFloat scaleMultiplier = 1.0; // scale not supported
+    NSString *familyName = [HippyFont familyNameWithCSSNameMatching:self.fontFamily];
+    UIFont *font = [HippyFont updateFont:self.font
+                              withFamily:familyName
+                                    size:self.fontSize
+                                  weight:self.fontWeight
+                                   style:self.fontStyle
+                                 variant:nil
+                         scaleMultiplier:scaleMultiplier];
+    if (self.font != font) {
+        self.font = font;
     }
 }
 

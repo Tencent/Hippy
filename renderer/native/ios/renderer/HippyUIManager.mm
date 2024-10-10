@@ -49,6 +49,8 @@
 #import "HippyModuleMethod.h"
 #import "HippyBridge+Private.h"
 #import "HippyJSExecutor.h"
+#import "HippyShadowText.h"
+#import "HippyShadowTextView.h"
 #import "dom/root_node.h"
 #import "objc/runtime.h"
 #import <os/lock.h>
@@ -181,6 +183,7 @@ NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDi
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
 NSString *const HippyUIManagerRootViewTagKey = @"HippyUIManagerRootViewTagKey";
 NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
+NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNotification";
 
 @interface HippyUIManager() {
     NSMutableArray<HippyViewManagerUIBlock> *_pendingUIBlocks;
@@ -233,6 +236,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     _componentDataLock = OS_UNFAIR_LOCK_INIT;
     HippyScreenScale();
     HippyScreenSize();
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(onFontChangedFromNative:)
+                                                 name:HippyFontChangeTriggerNotification
+                                               object:nil];
 }
 
 - (void)invalidate {
@@ -1482,6 +1489,53 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 - (void)domEventDidHandle:(const std::string &)eventName forNode:(int32_t)tag onRoot:(int32_t)rootTag {
     // no op
+}
+
+
+#pragma mark - Font Refresh
+
+- (void)onFontChangedFromNative:(NSNotification *)notification {
+    NSNumber *targetRootTag = notification.object;
+    if ((targetRootTag != nil) && ![self.viewRegistry containRootComponentWithTag:targetRootTag]) {
+        // do compare if notification has target RootView.
+        return;
+    }
+    
+    __weak __typeof(self)weakSelf = self;
+    [self.bridge.javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+
+        NSArray<NSNumber *> *allRootTags;
+        if (targetRootTag != nil) {
+            allRootTags = [NSArray arrayWithObject:targetRootTag];
+        } else {
+            // UIManager may have more than one Root
+            allRootTags = strongSelf->_shadowViewRegistry.allRootTags;
+        }
+        
+        for (NSNumber *rootTag in allRootTags) {
+            NSArray<HippyShadowView *> *shadowViews = [strongSelf->_shadowViewRegistry componentsForRootTag:rootTag].allValues;
+            Class shadowTextClass = [HippyShadowText class];
+            Class shadowTextViewClass = [HippyShadowTextView class];
+            for (HippyShadowView *shadowView in shadowViews) {
+                if ([shadowView isKindOfClass:shadowTextClass] ||
+                    [shadowView isKindOfClass:shadowTextViewClass]) {
+                    [shadowView dirtyText:NO];
+                    [shadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+                }
+            }
+            // do layout and refresh UI
+            auto domManager = self.domManager.lock();
+            if (domManager) {
+                auto rootNode = [strongSelf->_shadowViewRegistry rootNodeForTag:rootTag];
+                domManager->DoLayout(rootNode);
+                domManager->EndBatch(rootNode);
+            }
+        }
+    }];
 }
 
 @end
