@@ -1173,7 +1173,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                     if (!bridge) {
                         return;
                     }
-                    [bridge.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+                    [bridge.javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
                         auto strongNode = weakNode.lock();
                         if (strongNode) {
                             strongNode->HandleEvent(event);
