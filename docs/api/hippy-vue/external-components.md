@@ -285,6 +285,7 @@ export default {
 | containPullFooter | 是否包含 `pull-footer` | `boolean`  | `Android、iOS、Voltron` |
 | numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `Android、iOS、Voltron`    |
 | preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `Android、iOS、Voltron`    |
+| showScrollIndicator   | 是否显示滚动条。(iOS 3.3.2版本起支持) `default: true` | `boolean`  | `iOS` |
 
 ## 事件
 
