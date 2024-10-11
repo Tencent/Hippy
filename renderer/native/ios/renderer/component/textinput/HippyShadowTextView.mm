@@ -192,17 +192,15 @@ static hippy::LayoutSize x5MeasureFunc(
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
-    [super amendLayoutBeforeMount:blocks];
-    
-    if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
-        return;
+    if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
+        //Set needs layout for font change event, etc.
+        NSNumber *currentTag = self.hippyTag;
+        [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
+            UIView *view = lazyCreatedView ?: viewRegistry[currentTag];
+            [view setNeedsLayout];
+        }];
     }
-    //Set needs layout for font change event, etc.
-    NSNumber *currentTag = self.hippyTag;
-    [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
-        UIView *view = lazyCreatedView ?: viewRegistry[currentTag];
-        [view setNeedsLayout];
-    }];
+    [super amendLayoutBeforeMount:blocks];
 }
 
 
