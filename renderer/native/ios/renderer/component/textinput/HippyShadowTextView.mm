@@ -23,6 +23,7 @@
 #import "HippyUtils.h"
 #import "HippyShadowTextView.h"
 #import "HippyShadowView+Internal.h"
+#import "HippyFont.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
@@ -34,8 +35,15 @@ static const CGFloat defaultFontSize = 16.0;
 
 @interface HippyShadowTextView ()
 
+/// Cached font
+@property (nonatomic, strong) UIFont *font;
+/// Whether font needs to be updated.
+@property (nonatomic, assign) BOOL isFontDirty;
 /// Cached text attributes
 @property (nonatomic, strong) NSDictionary *dicAttributes;
+
+/// rebuild and update the font property
+- (void)rebuildAndUpdateFont;
 
 @end
 
@@ -48,8 +56,12 @@ static hippy::LayoutSize x5MeasureFunc(
         HippyShadowTextView *shadowText = weakShadowText;
         NSString *text = shadowText.text ?: shadowText.placeholder;
         if (nil == shadowText.dicAttributes) {
+            if (shadowText.isFontDirty) {
+                [shadowText rebuildAndUpdateFont];
+                shadowText.isFontDirty = NO;
+            }
+            // Keep this historical code, default fontSize 16.
             if (shadowText.font == nil) {
-                
                 shadowText.font = [UIFont systemFontOfSize:defaultFontSize];
             }
             NSDictionary *attrs = nil;
@@ -81,13 +93,6 @@ static hippy::LayoutSize x5MeasureFunc(
 }
 
 @implementation HippyShadowTextView
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-    }
-    return self;
-}
 
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
@@ -142,6 +147,100 @@ static hippy::LayoutSize x5MeasureFunc(
                 }
             }
         }};
+    }
+}
+
+- (void)dirtyText:(BOOL)needToDoLayout {
+    [super dirtyText:needToDoLayout];
+    self.isFontDirty = YES;
+    self.dicAttributes = nil;
+    
+    // mark layout node dirty
+    auto domManager = self.domManager.lock();
+    auto weakDomManager = self.domManager;
+    if (domManager) {
+        __weak HippyShadowView *weakSelf = self;
+        auto domNodeAction = [needToDoLayout, weakSelf, weakDomManager](){
+            @autoreleasepool {
+                HippyShadowView *strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
+                auto strongDomManager = weakDomManager.lock();
+                if (!strongDomManager) {
+                    return;
+                }
+                int32_t componentTag = [[strongSelf hippyTag] intValue];
+                auto domNode = strongDomManager->GetNode(strongSelf.rootNode, componentTag);
+                if (domNode) {
+                    domNode->GetLayoutNode()->MarkDirty();
+                    if (needToDoLayout) {
+                        strongDomManager->DoLayout(strongSelf.rootNode);
+                        strongDomManager->EndBatch(strongSelf.rootNode);
+                    }
+                }
+            }
+        };
+        BOOL isJSTaskRunner = (domManager->GetTaskRunner() && footstone::TaskRunner::GetCurrentTaskRunner());
+        if (isJSTaskRunner) {
+            domNodeAction();
+        } else {
+            std::vector<std::function<void()>> ops = {domNodeAction};
+            domManager->PostTask(hippy::dom::Scene(std::move(ops)));
+        }
+    }
+}
+
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    [super amendLayoutBeforeMount:blocks];
+    
+    if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
+        return;
+    }
+    //Set needs layout for font change event, etc.
+    NSNumber *currentTag = self.hippyTag;
+    [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
+        UIView *view = lazyCreatedView ?: viewRegistry[currentTag];
+        [view setNeedsLayout];
+    }];
+}
+
+
+#pragma mark - Font Related
+
+- (void)setFontSize:(NSNumber *)fontSize {
+    _fontSize = fontSize;
+    self.isFontDirty = YES;
+}
+
+- (void)setFontStyle:(NSString *)fontStyle {
+    _fontStyle = fontStyle;
+    self.isFontDirty = YES;
+}
+
+- (void)setFontWeight:(NSString *)fontWeight {
+    _fontWeight = fontWeight;
+    self.isFontDirty = YES;
+}
+
+- (void)setFontFamily:(NSString *)fontFamily {
+    _fontFamily = fontFamily;
+    self.isFontDirty = YES;
+}
+
+- (void)rebuildAndUpdateFont {
+    // Convert fontName to fontFamily if needed
+    CGFloat scaleMultiplier = 1.0; // scale not supported
+    NSString *familyName = [HippyFont familyNameWithCSSNameMatching:self.fontFamily];
+    UIFont *font = [HippyFont updateFont:self.font
+                              withFamily:familyName
+                                    size:self.fontSize
+                                  weight:self.fontWeight
+                                   style:self.fontStyle
+                                 variant:nil
+                         scaleMultiplier:scaleMultiplier];
+    if (self.font != font) {
+        self.font = font;
     }
 }
 

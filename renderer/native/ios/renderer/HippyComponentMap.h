@@ -21,9 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyComponent.h"
-
 #include <memory>
 
 namespace hippy {
@@ -39,6 +37,7 @@ typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
     HippyComponentReferenceTypeWeak,
 };
 
+/// A structure that holds all root and components information
 @interface HippyComponentMap : NSObject
 
 /// Whether all recorded elements are strongly referenced,
@@ -62,18 +61,30 @@ typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
                   forTag:(NSNumber *)tag;
 
+/// Remove root component
+/// - Parameter tag: hippyTag
 - (void)removeRootComponentWithTag:(NSNumber *)tag;
 
+/// Whether contain root component with given tag
+/// - Parameter tag: hippyTag
 - (BOOL)containRootComponentWithTag:(NSNumber *)tag;
 
+/// Get all rootTags
+- (NSArray<NSNumber *> *)allRootTags;
+
+/// Get all root components
 - (NSArray<id<HippyComponent>> *)rootComponents;
 
+/// Get root component with given tag
+/// - Parameter tag: hippyTag
 - (__kindof id<HippyComponent>)rootComponentForTag:(NSNumber *)tag;
 
+/// Get RootNode for given tag
+/// - Parameter tag: hippyTag
 - (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag;
 
 
-#pragma mark -
+#pragma mark - Components manage
 
 /// Add a component to ComponentMap
 - (void)addComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag;
@@ -81,8 +92,14 @@ typedef NS_ENUM(NSUInteger, HippyComponentReferenceType) {
 /// Remove one component from ComponentMap
 - (void)removeComponent:(__kindof id<HippyComponent>)component forRootTag:(NSNumber *)tag;
 
+/// Get all components for given root tag
+/// - Parameter tag: hippyTag
 - (NSDictionary<NSNumber *, __kindof id<HippyComponent>> *)componentsForRootTag:(NSNumber *)tag;
 
+/// Get specific component on rootTag with given tag
+/// - Parameters:
+///   - componentTag: hippyTag
+///   - tag: rootTag
 - (__kindof id<HippyComponent>)componentForTag:(NSNumber *)componentTag onRootTag:(NSNumber *)tag;
 
 
