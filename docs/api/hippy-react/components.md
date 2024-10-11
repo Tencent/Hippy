@@ -552,6 +552,7 @@ import icon from './qb_icon_new.png';
 | renderPullHeader | 如何渲染 `PullHeader`，此时 `containPullHeader` 默认设置成 `true` |  `() => React.ReactElement` | `Android、iOS、Voltron`    |
 | renderPullFooter | 如何渲染 `PullFooter`，此时 `containPullFooter` 默认设置成 `true` |  `() => React.ReactElement` | `Android、iOS、Voltron` |
 | onScroll              | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] }` | `Android、iOS、Voltron`
+| showScrollIndicator   | 是否显示滚动条。(iOS 3.3.2版本起支持) `default: true` | `boolean`  | `iOS` |
 
 ## 方法
 
