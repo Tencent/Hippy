@@ -195,6 +195,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             NSArray<NSString *> *parts = [keyPath componentsSeparatedByString:@"."];
             if (parts) {
                 key = parts.lastObject;
+                HippyAssert(key, @"Invalid KeyPath, please check your prop define!");
                 parts = [parts subarrayWithRange:(NSRange) { 0, parts.count - 1 }];
             }
 
@@ -242,7 +243,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                                 [weakManager.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeGesture" args:params];
                             } else {
                                 [params setValue:body ?: @{} forKey:@"extra"];
-                                [params setObject:key forKey:@"eventName"];
+                                [params setObject:key ?: @"" forKey:@"eventName"];
                                 [weakManager.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveUIComponentEvent"
                                                                              args:params];
                             }
