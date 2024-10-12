@@ -97,7 +97,7 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     if ((self = [super init])) {
         _propagationLifecycle = NativeRenderUpdateLifecycleUninitialized;
         _frame = CGRectMake(0, 0, NAN, NAN);
-        _objectSubviews = [NSMutableArray arrayWithCapacity:8];
+        _objectSubviews = [NSMutableArray array];
         _confirmedLayoutDirection = hippy::Direction::Inherit;
         _layoutDirection = hippy::Direction::Inherit;
     }
