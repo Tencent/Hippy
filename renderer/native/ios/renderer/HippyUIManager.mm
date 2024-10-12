@@ -198,15 +198,15 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSHashTable<id<HippyComponent>> *_componentTransactionListeners;
     
     std::mutex _renderQueueLock;
-    NSMutableDictionary<NSString *, id> *_viewManagers;
-    NSArray<Class> *_extraComponents;
-    
-    NSMutableArray<Class<HippyImageProviderProtocol>> *_imageProviders;
 }
 
-
+/// All managed ViewManagers
+@property (atomic, strong) NSMutableDictionary<NSString *, id> *viewManagers;
+/// All extra components
+@property (atomic, strong) NSArray<Class> *extraComponents;
 
 @end
+
 
 @implementation HippyUIManager
 
@@ -668,36 +668,37 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 - (__kindof HippyViewManager *)viewManagerForViewName:(NSString *)viewName {
     HippyBridge *strongBridge = self.bridge;
-    if (!_viewManagers) {
-        _viewManagers = [NSMutableDictionary dictionary];
-        if (_extraComponents) {
-            for (Class cls in _extraComponents) {
+    if (!self.viewManagers) {
+        NSMutableDictionary *viewManagers = [NSMutableDictionary dictionary];
+        if (self.extraComponents) {
+            for (Class cls in self.extraComponents) {
                 NSString *viewName = viewNameFromViewManagerClass(cls);
-                HippyAssert(![_viewManagers objectForKey:viewName],
+                HippyAssert(![viewManagers objectForKey:viewName],
                          @"duplicated component %@ for class %@ and %@", viewName,
                          NSStringFromClass(cls),
-                         NSStringFromClass([_viewManagers objectForKey:viewName]));
-                [_viewManagers setObject:cls forKey:viewName];
+                         NSStringFromClass([viewManagers objectForKey:viewName]));
+                [viewManagers setObject:cls forKey:viewName];
             }
         }
         NSArray<Class> *classes = HippyGetViewManagerClasses(strongBridge);
         NSMutableDictionary *defaultViewManagerClasses = [NSMutableDictionary dictionaryWithCapacity:[classes count]];
         for (Class cls in classes) {
             NSString *viewName = viewNameFromViewManagerClass(cls);
-            if ([_viewManagers objectForKey:viewName]) {
+            if ([viewManagers objectForKey:viewName]) {
                 continue;
             }
             [defaultViewManagerClasses setObject:cls forKey:viewName];
         }
-        [_viewManagers addEntriesFromDictionary:defaultViewManagerClasses];
+        [viewManagers addEntriesFromDictionary:defaultViewManagerClasses];
+        self.viewManagers = viewManagers;
     }
     // Get and instantiate the class
-    id object = [_viewManagers objectForKey:viewName];
+    id object = [self.viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
         viewManager.bridge = strongBridge;
         NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"Must be a HippyViewManager instance");
-        [_viewManagers setObject:viewManager forKey:viewName];
+        [self.viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
     return object;
@@ -1118,7 +1119,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 - (void)registerExtraComponent:(NSArray<Class> *)extraComponents {
-    _extraComponents = extraComponents;
+    self.extraComponents = extraComponents;
 }
 
 
