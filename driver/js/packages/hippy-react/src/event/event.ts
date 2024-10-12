@@ -18,14 +18,13 @@
  * limitations under the License.
  */
 
-interface Event {
-  type: string;
-  bubbles: boolean;
-  currentTarget: Element | null;
-  target: Element | null;
-}
 
-class Event implements Event {
+class Event implements HippyTypes.Event {
+  public type: string;
+  public bubbles: boolean;
+  public currentTarget: Element | null;
+  public target: Element | null;
+
   /**
    * constructor
    * @param eventName - handler name, e.g. onClick

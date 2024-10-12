@@ -32,7 +32,7 @@ interface FocusableProps {
   nextFocusUpId?: string;
   nextFocusLeftId?: string;
   nextFocusRightId?: string;
-  onClick?: () => void;
+  onClick?: (evt: HippyTypes.ClickEvent) => void;
   onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 

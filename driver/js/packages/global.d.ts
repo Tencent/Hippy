@@ -21,6 +21,12 @@
 declare namespace HippyTypes {
 
   export type __PLATFORM__ = 'ios' | 'android' | null;
+  export interface Event {
+    type: string;
+    bubbles: boolean;
+    currentTarget: Element | null;
+    target: Element | null;
+  }
 
   export interface TouchEvent {
     // Touch coordinate X
@@ -29,6 +35,12 @@ declare namespace HippyTypes {
     // Touch coordinate Y
     // eslint-disable-next-line camelcase
     page_y: number;
+  }
+
+
+  export interface ClickEvent extends Event {
+    eventPhase: EventPhase;
+    [key: string]: any;
   }
 
   export interface FocusEvent {
