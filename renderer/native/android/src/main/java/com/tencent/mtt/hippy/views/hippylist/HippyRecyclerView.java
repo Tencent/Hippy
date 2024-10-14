@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
         implements IHeaderAttachListener, HippyViewHolderAbandonListener, HippyNestedScrollTarget2 {
 
+    private static final String TAG = "HippyRecyclerView";
     private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 4;
     private static final int INVALID_POINTER = -1;
     protected ADP listAdapter;
@@ -253,10 +255,19 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      * 刷新数据
      */
     public void setListData() {
-        LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
         LayoutManager layoutManager = getLayoutManager();
+        int currentNodeCount = listAdapter.getRenderNodeCount();
         if (layoutManager instanceof StaggeredGridLayoutManager) {
-            listAdapter.notifyItemRangeChanged(renderNodeCount, listAdapter.getRenderNodeCount() - renderNodeCount);
+            LogUtils.d(TAG, "setListData: lastNodeCount " + renderNodeCount + ", currentNodeCount " + currentNodeCount);
+            int[] firstVisibleItem = null;
+            firstVisibleItem = ((HippyStaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(firstVisibleItem);
+            if (renderNodeCount >= currentNodeCount && firstVisibleItem != null
+                    && (firstVisibleItem[0] == 0 || firstVisibleItem[0] == 1)) {
+                LogUtils.d(TAG, "setListData: firstVisibleItem[0] " + firstVisibleItem[0]);
+                listAdapter.notifyDataSetChanged();
+            } else if (renderNodeCount < currentNodeCount) {
+                listAdapter.notifyItemRangeInserted(renderNodeCount, listAdapter.getRenderNodeCount() - renderNodeCount);
+            }
         } else {
             listAdapter.notifyDataSetChanged();
         }
@@ -264,7 +275,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             overPullHelper.enableOverPullUp(!listAdapter.hasFooter());
             overPullHelper.enableOverPullDown(!listAdapter.hasHeader());
         }
-        renderNodeCount = listAdapter.getRenderNodeCount();
+        renderNodeCount = currentNodeCount;
         if (renderNodeCount > 0 && mInitialContentOffset > 0) {
             scrollToInitContentOffset();
         }

@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.HippyOverPullListener;
 import androidx.recyclerview.widget.HippyStaggeredGridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
@@ -56,6 +57,7 @@ import java.util.HashMap;
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
         OnAttachStateChangeListener, HippyOverPullListener {
 
+    private static final int WATERFALL_SCROLL_RELAYOUT_THRESHOLD = 4;
     protected final HippyRecyclerView hippyRecyclerView;
     private boolean scrollBeginDragEventEnable;
     private boolean scrollEndDragEventEnable;
@@ -179,6 +181,21 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         return onScrollDragEndedEvent;
     }
 
+    private void relayoutWaterfallIfNeeded() {
+        LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
+        if (layoutManager instanceof HippyStaggeredGridLayoutManager) {
+            int[] firstVisibleItem = null;
+            firstVisibleItem = ((HippyStaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(firstVisibleItem);
+            if (firstVisibleItem != null && (firstVisibleItem[0] <= WATERFALL_SCROLL_RELAYOUT_THRESHOLD)) {
+                Adapter adapter = hippyRecyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                    hippyRecyclerView.dispatchLayout();
+                }
+            }
+        }
+    }
+
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         int oldState = currentState;
@@ -190,6 +207,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
         sendFlingEndEvent(oldState, currentState);
+        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+            relayoutWaterfallIfNeeded();
+        }
     }
 
     @Override
