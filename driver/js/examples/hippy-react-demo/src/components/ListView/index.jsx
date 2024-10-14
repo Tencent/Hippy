@@ -4,7 +4,6 @@ import {
   View,
   StyleSheet,
   Text,
-  Platform,
 } from '@hippy/react';
 
 const STYLE_LOADING = 100;
@@ -271,8 +270,7 @@ export default class ListExample extends React.Component {
             return true;
           }}
           bounces={true}
-          // horizontal ListView  flag（only Android support）
-          horizontal={horizontal}
+          horizontal={horizontal} // horizontal ListView flag
           style={[{ backgroundColor: '#ffffff' }, horizontal ? { height: 50 } : { flex: 1 }]}
           numberOfRows={dataSource.length}
           renderRow={this.getRenderRow}
@@ -297,33 +295,32 @@ export default class ListExample extends React.Component {
           onScroll={this.onScroll}
           scrollEventThrottle={1000} // 1s
         />
-        {Platform.OS === 'android'
-          ? <View
-            onClick={() => this.changeDirection()}
-            style={{
-              position: 'absolute',
-              right: 20,
-              bottom: 20,
-              width: 67,
-              height: 67,
-              borderRadius: 30,
-              boxShadowOpacity: 0.6,
-              boxShadowRadius: 5,
-              boxShadowOffsetX: 3,
-              boxShadowOffsetY: 3,
-              boxShadowColor: '#4c9afa' }}>
-            <View style={{
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              backgroundColor: '#4c9afa',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
+        <View
+          onClick={() => this.changeDirection()}
+          style={{
+            position: 'absolute',
+            right: 20,
+            bottom: 20,
+            width: 67,
+            height: 67,
+            borderRadius: 30,
+            boxShadowOpacity: 0.6,
+            boxShadowRadius: 5,
+            boxShadowOffsetX: 3,
+            boxShadowOffsetY: 3,
+            boxShadowColor: '#4c9afa' }}>
+          <View style={{
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: '#4c9afa',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
             <Text style={{ color: 'white' }}>切换方向</Text>
           </View>
-        </View> : null}
+        </View>
       </View>
     );
   }
