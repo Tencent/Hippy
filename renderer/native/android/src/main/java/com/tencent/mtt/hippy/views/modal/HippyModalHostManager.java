@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
 
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
@@ -101,4 +102,13 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
         v.showOrUpdate();
     }
 
+    @Override
+    public int getChildCount(HippyModalHostView modalHostView) {
+        return modalHostView.getModalChildCount();
+    }
+
+    @Override
+    public View getChildAt(HippyModalHostView modalHostView, int i) {
+        return modalHostView.getModalChildAt(i);
+    }
 }
