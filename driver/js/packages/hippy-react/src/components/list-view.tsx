@@ -494,20 +494,21 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       style = getFooterStyle();
     }
     if (typeof renderPullFooter === 'function') {
-      pullFooter = (
-        <PullFooter
-          // @ts-ignore
-          style={style}
-          key={'pull-footer'}
-          ref={(ref) => {
-            this.pullFooter = ref;
-          }}
-          onFooterPulling={onFooterPulling}
-          onFooterReleased={onFooterReleased}
-        >
-          { renderPullFooter() }
-        </PullFooter>
-      );
+      const footerProps: any = {
+        style,
+        key: 'pull-footer',
+        ref: (ref) => {
+          this.pullFooter = ref;
+        },
+      };
+
+      if (typeof onFooterPulling === 'function') {
+        footerProps.onFooterPulling = onFooterPulling;
+      }
+      if (typeof onFooterPulling === 'function') {
+        footerProps.onFooterReleased = onFooterReleased;
+      }
+      pullFooter = <PullFooter {...footerProps}>{renderPullFooter()}</PullFooter>;
     }
     return pullFooter;
   }
