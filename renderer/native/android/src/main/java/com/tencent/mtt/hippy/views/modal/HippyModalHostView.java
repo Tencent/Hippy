@@ -127,24 +127,27 @@ public class HippyModalHostView extends HippyViewGroup implements
     }
 
     @Override
-    public int getChildCount() {
-        return mDialogRootView.getChildCount();
-    }
-
-    @Override
-    public View getChildAt(int index) {
-        return mDialogRootView.getChildAt(index);
-    }
-
-    @Override
     public void removeView(View child) {
         mDialogRootView.removeView(child);
     }
 
     @Override
     public void removeViewAt(int index) {
-        View child = getChildAt(index);
+        View child = getModalChildAt(index);
         mDialogRootView.removeView(child);
+    }
+
+    // Do not directly override the getChildCount method of ModalHostView, as it may cause the crash:
+    // java.lang.IllegalArgumentException: parameter must be a descendant
+    // Because under Modal, there are actually no child views. When the system traverses internally, it returns the
+    // number of child views of mDialogRootView, which leads to inconsistent parent values in the internal
+    // verification process of the system.
+    public int getModalChildCount() {
+        return mDialogRootView.getChildCount();
+    }
+
+    public View getModalChildAt(int index) {
+        return mDialogRootView.getChildAt(index);
     }
 
     @Override
@@ -243,7 +246,7 @@ public class HippyModalHostView extends HippyViewGroup implements
                 lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
                 window.setAttributes(lp);
                 sysUI = sysUI | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             } else if (mEnterImmersionStatusBar) {
                 sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
                 sysUI = sysUI & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
