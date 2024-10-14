@@ -34,9 +34,6 @@ import { SelectorsMap } from './css-selectors-match';
 import { parseSelector } from './parser';
 import { HIPPY_GLOBAL_STYLE_NAME, HIPPY_GLOBAL_DISPOSE_STYLE_NAME } from './';
 
-type Declaration = [property: string, value: string | number];
-export type ASTRule = [hash: string, selectors: string[], declarations: Declaration[]];
-
 // style load hook
 const beforeLoadStyleHook: Function = (declaration: Function): Function => declaration;
 
@@ -73,7 +70,7 @@ function createSimpleSelectorFromAst(ast) {
         ? new AttributeSelector(ast.property, ast.test, ast.value)
         : new AttributeSelector(ast.property);
     default:
-      return new InvalidSelector(new Error('Unknown selector.'));;
+      return null;
   }
 }
 
@@ -128,23 +125,10 @@ function createSelector(sel) {
  * @param beforeLoadStyle
  */
 export function fromAstNodes(
-  astRules: Array<CssAttribute | ASTRule> = [],
+  astRules: CssAttribute[] = [],
   beforeLoadStyle?: Function,
 ): RuleSet[] {
-  const rules = astRules.map(rule => {
-    if (!Array.isArray(rule)) return rule;
-    const [hash, selectors, declarations] = rule as ASTRule;
-    return {
-      hash,
-      selectors,
-      declarations: declarations.map(([property, value]) => ({
-        type: 'declaration',
-        property,
-        value,
-      })),
-    };
-  });
-  return rules.map((rule) => {
+  return astRules.map((rule) => {
     const declarations = rule.declarations
       .filter(isDeclaration)
       // use default hook when there is no hook passed in
