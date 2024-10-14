@@ -24,10 +24,10 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
+import { Device } from '../native';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
 import View from './view';
-import { Device } from '../native';
 
 type DataItem = any;
 
@@ -458,18 +458,18 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   ) {
     let pullFooter: JSX.Element | null = null;
     if (typeof renderPullFooter === 'function') {
-      pullFooter = (
-        <PullFooter
-          key={'PullFooter'}
-          ref={(ref) => {
-            this.pullFooter = ref;
-          }}
-          onFooterPulling={onFooterPulling}
-          onFooterReleased={onFooterReleased}
-        >
-          { renderPullFooter() }
-        </PullFooter>
-      );
+      const footerProps: any = {
+        key: 'PullFooter',
+        ref: (ref) => {
+          this.pullFooter = ref;
+        },
+        onFooterReleased,
+      };
+
+      if (typeof onFooterPulling === 'function') {
+        footerProps.onFooterPulling = onFooterPulling;
+      }
+      pullFooter = <PullFooter {...footerProps}>{renderPullFooter()}</PullFooter>;
     }
     return pullFooter;
   }
