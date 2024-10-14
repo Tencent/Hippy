@@ -78,7 +78,6 @@
       </li>
     </ul>
     <div
-      v-if="Platform === 'android'"
       :style="{
         position: 'absolute',
         right: 20,
@@ -114,7 +113,7 @@
 </template>
 
 <script lang="ts">
-import { type ListViewEvent, Native } from '@hippy/vue-next';
+import { type ListViewEvent } from '@hippy/vue-next';
 import { defineComponent, ref, onMounted, type Ref } from '@vue/runtime-core';
 
 const STYLE_LOADING = 100;
@@ -269,7 +268,6 @@ export default defineComponent({
       list,
       STYLE_LOADING,
       horizontal,
-      Platform: Native.Platform,
       onAppear,
       onDelete,
       onDisappear,
