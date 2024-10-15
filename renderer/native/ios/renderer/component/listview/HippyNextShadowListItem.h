@@ -20,10 +20,20 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyNextBaseListViewCell.h"
-#import "HippyView.h"
 
-@interface HippyNextBaseListItemView : HippyView <ViewAppearStateProtocol>
+#import "HippyShadowWaterfallItem.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// ListView item's shadow view
+@interface HippyNextShadowListItem : HippyShadowWaterfallItem
+
+/// Whether item is stick to the top
+@property (nonatomic, assign, getter=isSticky) BOOL sticky;
+
+/// Memory management property that sets item to exist for the lifetime of listView
+@property (nonatomic, assign) BOOL keepAlive;
 
 @end
+
+NS_ASSUME_NONNULL_END
