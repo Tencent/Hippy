@@ -24,9 +24,8 @@
 #import "HippyNextBaseListViewDataSource.h"
 #import "HippyShadowView.h"
 #import "HippyShadowListView.h"
+#import "HippyNextShadowListItem.h"
 
-
-static NSString * const kStickyCellPropKey = @"sticky";
 
 @interface HippyNextBaseListViewDataSource () {
     NSMutableArray *_shadowHeaderViews;
@@ -42,9 +41,8 @@ static NSString * const kStickyCellPropKey = @"sticky";
     NSMutableArray<HippyShadowView *> *shadowSectionCell = nil;
     BOOL isFirstIndex = YES;
     for (HippyShadowView *shadowView in dataSource) {
-        if ([self.itemViewName isEqualToString:shadowView.viewName]) {
-            NSNumber *sticky = shadowView.props[kStickyCellPropKey];
-            if ([sticky boolValue]) {
+        if ([shadowView isKindOfClass:HippyNextShadowListItem.class]) {
+            if (((HippyNextShadowListItem *)shadowView).isSticky) {
                 [shadowHeaders addObject:shadowView];
                 if (shadowSectionCell) {
                     [shadowCells addObject:shadowSectionCell];
