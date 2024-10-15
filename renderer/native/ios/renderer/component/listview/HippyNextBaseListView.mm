@@ -33,6 +33,7 @@
 #import "UIView+Hippy.h"
 #import "UIView+Render.h"
 #import "HippyShadowListView.h"
+#import "HippyNextShadowListItem.h"
 
 static NSString *const kCellIdentifier = @"HippyListCellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"HippySupplementaryIdentifier";
@@ -41,6 +42,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 @interface HippyNextBaseListView () <HippyRefreshDelegate> {
     BOOL _isInitialListReady;
     NSArray<UICollectionViewCell *> *_previousVisibleCells;
+    NSMutableArray<UIView *> *_keepAliveCellViews; // cellViews that marked keep-Alive
 }
 
 @end
@@ -265,17 +267,28 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyNextBaseListViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    HippyShadowView *shadowView = [self.dataSource cellForIndexPath:indexPath];
+    HippyNextShadowListItem *shadowView = (HippyNextShadowListItem *)[self.dataSource cellForIndexPath:indexPath];
     
     UIView *cellView = nil;
     UIView *cachedVisibleCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
     if (cachedVisibleCellView) {
         cellView = cachedVisibleCellView;
+        // Remove keep-Alive cellView if needed
+        if ([_keepAliveCellViews containsObject:cachedVisibleCellView] && shadowView.keepAlive == NO) {
+            [_keepAliveCellViews removeObject:cachedVisibleCellView];
+        }
         HippyLogTrace(@"%@ 🟢 use cached visible cellView at {%ld - %ld} for %@",
                       self.hippyTag, indexPath.section, indexPath.row, shadowView.hippyTag);
     } else {
         cellView = [self.uiManager createViewForShadowListItem:shadowView];
         [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
+        // Add keep-Alive cellView to cache if needed
+        if (shadowView.keepAlive) {
+            if (!_keepAliveCellViews) {
+                _keepAliveCellViews = [NSMutableArray array];
+            }
+            [_keepAliveCellViews addObject:cellView];
+        }
         HippyLogTrace(@"%@ 🟡 create cellView at {%ld - %ld} for %@",
                       self.hippyTag, indexPath.section, indexPath.row, shadowView.hippyTag);
     }
