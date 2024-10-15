@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.modules.nativemodules.image;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.VfsManager;
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 @HippyNativeModule(name = "ImageLoaderModule")
 public class ImageLoaderModule extends HippyNativeModuleBase {
 
+    private final String TAG = "ImageLoaderModule";
     private final VfsManager mVfsManager;
     private static final String ERROR_KEY_MESSAGE = "message";
 
@@ -64,6 +67,41 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
         return requestParams;
     }
 
+    private void onFetchFailed(final String url, final Promise promise, @NonNull final ResourceDataHolder dataHolder) {
+        String message =
+                dataHolder.errorMessage != null ? dataHolder.errorMessage : "";
+        String errorMsg = "Fetch image failed, url=" + url + ", msg=" + message;
+        JSObject jsObject = new JSObject();
+        jsObject.set(ERROR_KEY_MESSAGE, errorMsg);
+        promise.reject(jsObject);
+    }
+
+    private void handleFetchResult(final String url, final Promise promise, @NonNull final ResourceDataHolder dataHolder) {
+        byte[] bytes = dataHolder.getBytes();
+        Bitmap bitmap = dataHolder.bitmap;
+        LogUtils.d(TAG, "handleFetchResult: url " + url + ", result " + dataHolder.resultCode);
+        if (dataHolder.resultCode == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
+            if (bitmap != null && !bitmap.isRecycled()) {
+                LogUtils.d(TAG, "handleFetchResult: url " + url
+                        + ", bitmap width " + bitmap.getWidth() + ", bitmap height " + bitmap.getHeight());
+                JSObject jsObject = new JSObject();
+                jsObject.set("width", bitmap.getWidth());
+                jsObject.set("height", bitmap.getHeight());
+                promise.resolve(jsObject);
+            } else if (bytes != null && bytes.length > 0) {
+                decodeImageData(url, bytes, promise);
+            } else {
+                if (TextUtils.isEmpty(dataHolder.errorMessage)) {
+                    dataHolder.errorMessage = "Invalid image data or bitmap!";
+                }
+                onFetchFailed(url, promise, dataHolder);
+            }
+        } else {
+            onFetchFailed(url, promise, dataHolder);
+        }
+        dataHolder.recycle();
+    }
+
     @HippyMethod(name = "getSize")
     public void getSize(final String url, final Promise promise) {
         if (TextUtils.isEmpty(url)) {
@@ -76,20 +114,7 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
                 new FetchResourceCallback() {
                     @Override
                     public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
-                        byte[] bytes = dataHolder.getBytes();
-                        if (dataHolder.resultCode
-                                != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null
-                                || bytes.length <= 0) {
-                            String message =
-                                    dataHolder.errorMessage != null ? dataHolder.errorMessage : "";
-                            String errorMsg = "Fetch image failed, url=" + url + ", msg=" + message;
-                            JSObject jsObject = new JSObject();
-                            jsObject.set(ERROR_KEY_MESSAGE, errorMsg);
-                            promise.reject(jsObject);
-                        } else {
-                            decodeImageData(url, bytes, promise);
-                        }
-                        dataHolder.recycle();
+                        handleFetchResult(url, promise, dataHolder);
                     }
 
                     @Override
