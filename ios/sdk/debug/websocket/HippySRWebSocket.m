@@ -278,8 +278,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 - (instancetype)initWithURL:(NSURL *)URL;
 { return [self initWithURL:URL protocols:nil]; }
 
-- (instancetype)initWithURL:(NSURL *)URL protocols:(NSArray<NSString *> *)protocols;
-{
+- (instancetype)initWithURL:(NSURL *)URL
+               extraHeaders:(NSDictionary *)extraHeaders
+                  protocols:(NSArray<NSString *> *)protocols {
     NSMutableURLRequest *request;
     if (URL) {
         // Build a mutable request so we can fill the cookie header.
@@ -295,9 +296,20 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
         // Load and set the cookie header.
         NSArray<NSHTTPCookie *> *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:components.URL];
-        [request setAllHTTPHeaderFields:[NSHTTPCookie requestHeaderFieldsWithCookies:cookies]];
+        NSDictionary *cookieHeaders = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
+        
+        // Set extraHeaders passed from the js
+        NSMutableDictionary *allHeaders = cookieHeaders.mutableCopy ?: [NSMutableDictionary dictionary];
+        if (extraHeaders) {
+            [allHeaders addEntriesFromDictionary:extraHeaders];
+        }
+        [request setAllHTTPHeaderFields:allHeaders];
     }
     return [self initWithURLRequest:request protocols:protocols];
+}
+
+- (instancetype)initWithURL:(NSURL *)URL protocols:(NSArray<NSString *> *)protocols {
+    return [self initWithURL:URL extraHeaders:nil protocols:protocols];
 }
 
 - (void)_HippySR_commonInit;
