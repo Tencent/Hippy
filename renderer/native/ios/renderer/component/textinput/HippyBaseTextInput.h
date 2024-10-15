@@ -32,6 +32,8 @@
 @property (nonatomic, strong) NSString *fontStyle;
 /// Font property - FontFamily
 @property (nonatomic, strong) NSString *fontFamily;
+/// Font property - FontUrl
+@property (nonatomic, strong) NSString *fontUrl;
 
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, assign) UIEdgeInsets contentInset;

@@ -50,6 +50,7 @@ import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.image.ImageLoader;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.FontLoader;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.RenderNode;
@@ -136,6 +137,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private ExecutorService mBackgroundExecutor;
     @Nullable
     private ImageLoaderAdapter mImageLoader;
+    @Nullable
+    private FontLoader mFontLoader;
 
     public enum FCPBatchState {
         WATCHING,
@@ -221,6 +224,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             mImageLoader = new ImageLoader(getVfsManager(), getImageDecoderAdapter());
         }
         return mImageLoader;
+    }
+
+    @Nullable
+    public FontLoader getFontLoader() {
+        if (mFontLoader == null && getVfsManager() != null) {
+            mFontLoader = new FontLoader(getVfsManager());
+        }
+        return mFontLoader;
     }
 
     @Override
@@ -404,6 +415,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     private void onSizeChanged(int rootId, int w, int h) {
         mRenderProvider.onSizeChanged(rootId, w, h);
+    }
+
+    public void markTextNodeDirty(int rootId) {
+        mRenderProvider.markTextNodeDirty(rootId);
+    }
+
+    public void freshWindow(int rootId) {
+        mRenderProvider.freshWindow(rootId);
     }
 
     @Override

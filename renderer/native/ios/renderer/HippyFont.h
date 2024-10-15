@@ -33,6 +33,7 @@
  */
 + (UIFont *)updateFont:(UIFont *)font
             withFamily:(NSString *)family
+                   url:(NSString *)url
                   size:(NSNumber *)size
                 weight:(NSString *)weight
                  style:(NSString *)style

@@ -55,6 +55,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.FontLoader;
 import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.utils.EventUtils;
@@ -96,6 +97,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private int mLineHeight = 0;
     @Nullable
     private String mFontFamily;
+    private String mFontUrl;
     private Paint mTextPaint;
 
     public HippyTextInput(Context context) {
@@ -208,7 +210,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     public void onBatchComplete() {
         if (mShouldUpdateTypeface) {
             updateTypeface();
-            mShouldUpdateTypeface = false;
         }
         if (!mShouldUpdateLineHeight) {
             return;
@@ -762,6 +763,13 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         }
     }
 
+    public void setFontUrl(String fontUrl) {
+        if (!Objects.equals(mFontUrl, fontUrl)) {
+            mFontUrl = fontUrl;
+            mShouldUpdateTypeface = true;
+        }
+    }
+
     public void setFontWeight(String weight) {
         if (!mFontWeight.equals(weight)) {
             mFontWeight = weight;
@@ -776,6 +784,16 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             mTextPaint.reset();
         }
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
+        if (mFontUrl != null) {
+            FontLoader loader = nativeRenderer == null ? null : nativeRenderer.getFontLoader();
+            if (loader != null) {
+                int rootId = nativeRenderer.getRootView(this).getId();
+                mShouldUpdateTypeface = loader.loadIfNeeded(mFontFamily, mFontUrl, nativeRenderer, rootId);
+            }
+        }
+        else {
+            mShouldUpdateTypeface = false;
+        }
         FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();
         TypeFaceUtil.apply(mTextPaint, mItalic, mFontWeight, mFontFamily, fontAdapter);
         setTypeface(mTextPaint.getTypeface(), mTextPaint.isFakeBoldText() ? Typeface.BOLD : Typeface.NORMAL);

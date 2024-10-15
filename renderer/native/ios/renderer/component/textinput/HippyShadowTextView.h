@@ -42,5 +42,7 @@
 @property (nonatomic, strong) NSString *fontStyle;
 /// Font property - FontFamily
 @property (nonatomic, strong) NSString *fontFamily;
+/// Font property - FontUrl
+@property (nonatomic, strong) NSString *fontUrl;
 
 @end

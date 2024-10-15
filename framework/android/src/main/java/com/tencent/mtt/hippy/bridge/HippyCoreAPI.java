@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.debug.DevMenu;
 import com.tencent.mtt.hippy.modules.nativemodules.console.ConsoleModule;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.modules.nativemodules.exception.ExceptionModule;
+import com.tencent.mtt.hippy.modules.nativemodules.font.FontLoaderModule;
 import com.tencent.mtt.hippy.modules.nativemodules.image.ImageLoaderModule;
 import com.tencent.mtt.hippy.modules.nativemodules.netinfo.NetInfoModule;
 import com.tencent.mtt.hippy.modules.nativemodules.network.NetworkModule;
@@ -82,6 +83,12 @@ public class HippyCoreAPI implements HippyAPIProvider {
             @Override
             public HippyNativeModuleBase get() {
                 return new ImageLoaderModule(context);
+            }
+        });
+        modules.put(FontLoaderModule.class, new Provider<HippyNativeModuleBase>() {
+            @Override
+            public HippyNativeModuleBase get() {
+                return new FontLoaderModule(context);
             }
         });
         modules.put(NetworkModule.class, new Provider<HippyNativeModuleBase>() {

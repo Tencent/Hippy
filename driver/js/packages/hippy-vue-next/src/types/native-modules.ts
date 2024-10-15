@@ -22,6 +22,7 @@ import type { ClipboardModule } from './native-modules/clip-board-module';
 import type { DeviceEventModule } from './native-modules/device-event-module';
 import type { Http } from './native-modules/http';
 import type { ImageLoaderModule } from './native-modules/image-loader-module';
+import type { FontLoaderModule } from './native-modules/font-loader-module';
 import type { NetInfo } from './native-modules/net-info';
 import type { Network } from './native-modules/network';
 import type { TestModule } from './native-modules/test-module';
@@ -32,6 +33,7 @@ export interface NativeInterfaceMap {
   // The key here is the module name set by the native and cannot be changed at will.
   UIManagerModule: UiManagerModule;
   ImageLoaderModule: ImageLoaderModule;
+  FontLoaderModule: FontLoaderModule;
   websocket: Websocket;
   NetInfo: NetInfo;
   ClipboardModule: ClipboardModule;

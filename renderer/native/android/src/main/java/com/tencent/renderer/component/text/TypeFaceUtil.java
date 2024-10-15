@@ -22,12 +22,14 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 
+import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ public class TypeFaceUtil {
     public static final String TEXT_FONT_STYLE_NORMAL = "normal";
     private static final String TAG = "TypeFaceUtil";
     private static final String[] EXTENSIONS = {"", "_bold", "_italic", "_bold_italic"};
-    private static final String[] FONT_EXTENSIONS = {".ttf", ".otf"};
+    private static final String[] FONT_EXTENSIONS = {".ttf", ".otf", ""};
     private static final String FONTS_PATH = "fonts/";
     private static final Map<String, SparseArray<Typeface>> sFontCache = new HashMap<>();
 
@@ -79,6 +81,30 @@ public class TypeFaceUtil {
         return typeface;
     }
 
+    public static void clearFontCache(String fontFamilyName) {
+        sFontCache.remove(fontFamilyName);
+    }
+
+    private static Typeface createExactTypeFace(String fileName) {
+        // create from assets
+        Typeface typeface = null;
+        try {
+            typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+        } catch (Exception e) {
+            LogUtils.w(TAG, e.getMessage());
+        }
+        // create from cache dir
+        if (typeface == null || typeface.equals(Typeface.DEFAULT)) {
+            try {
+                File cacheDir = ContextHolder.getAppContext().getCacheDir();
+                typeface = Typeface.createFromFile(new File(cacheDir, fileName));
+            } catch (Exception e) {
+                LogUtils.w(TAG, e.getMessage());
+            }
+        }
+        return typeface;
+    }
+
     private static Typeface createTypeface(String fontFamilyName, int weightNumber, int style, boolean italic,
             @Nullable FontAdapter fontAdapter) {
         final String extension = EXTENSIONS[style];
@@ -94,22 +120,16 @@ public class TypeFaceUtil {
             }
             for (String fileExtension : FONT_EXTENSIONS) {
                 String fileName = FONTS_PATH + splitName + extension + fileExtension;
-                try {
-                    Typeface typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
-                    if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
-                        return typeface;
-                    }
-                } catch (Exception e) {
-                    // If create type face from asset failed, other builder can also be used
-                    LogUtils.w(TAG, e.getMessage());
+                Typeface typeface = createExactTypeFace(fileName);
+                if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
+                    return typeface;
                 }
-                if (style == Typeface.NORMAL) {
-                    continue;
-                }
-                // try to load font file without extension
-                fileName = FONTS_PATH + splitName + fileExtension;
-                try {
-                    Typeface typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+            }
+            // try to load font file without extension
+            if (style != Typeface.NORMAL) {
+                for (String fileExtension : FONT_EXTENSIONS) {
+                    String fileName = FONTS_PATH + splitName + fileExtension;
+                    Typeface typeface = createExactTypeFace(fileName);
                     if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
                         if (VERSION.SDK_INT >= VERSION_CODES.P && weightNumber > 0) {
                             return Typeface.create(typeface, weightNumber, italic);
@@ -117,8 +137,6 @@ public class TypeFaceUtil {
                         // "bold" has no effect on api level < P, prefer to use `Paint.setFakeBoldText(boolean)`
                         return italic ? Typeface.create(typeface, Typeface.ITALIC) : typeface;
                     }
-                } catch (Exception e) {
-                    LogUtils.w(TAG, e.getMessage());
                 }
             }
             if (fontAdapter != null) {

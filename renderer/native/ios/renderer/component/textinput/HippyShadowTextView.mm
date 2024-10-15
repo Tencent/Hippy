@@ -226,12 +226,21 @@ static hippy::LayoutSize x5MeasureFunc(
     self.isFontDirty = YES;
 }
 
+- (void)setFontUrl:(NSString *)fontUrl {
+    _fontUrl = fontUrl;
+    self.isFontDirty = YES;
+}
+
 - (void)rebuildAndUpdateFont {
     // Convert fontName to fontFamily if needed
     CGFloat scaleMultiplier = 1.0; // scale not supported
     NSString *familyName = [HippyFont familyNameWithCSSNameMatching:self.fontFamily];
+    if (!familyName) {
+        familyName = self.fontFamily;
+    }
     UIFont *font = [HippyFont updateFont:self.font
                               withFamily:familyName
+                                     url:self.fontUrl
                                     size:self.fontSize
                                   weight:self.fontWeight
                                    style:self.fontStyle
