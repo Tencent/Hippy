@@ -162,7 +162,7 @@ public class ContentDrawable extends Drawable {
             drawGif(canvas, mImageHolder.getGifMovie());
         } else {
             Bitmap bitmap = mImageHolder.getBitmap();
-            if (bitmap != null) {
+            if (bitmap != null && !bitmap.isRecycled()) {
                 drawBitmap(canvas, bitmap);
             }
         }
