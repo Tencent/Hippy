@@ -17,7 +17,7 @@ Hippy is now applied in [Tencent](http://www.tencent.com/) major apps such as Mo
 * Excellent performance with JS engine binding communication.
 * Build-in recyclable component with better performance.
 * Smoothly and gracefully migrate to Web browser.
-* Fully supported Flex [Layout engine](./layout).
+* Fully supported Flex [Layout engine](https://github.com/Tencent/taitank).
 
 ## 🔨 Getting started
 
