@@ -140,6 +140,13 @@
         });
         self.initialContentOffset = 0;
     }
+    if (self.initialContentIndex > 0) {
+        NSUInteger initialContentIndex = self.initialContentIndex;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self scrollToIndex:initialContentIndex animated:NO];
+        });
+        self.initialContentIndex = 0;
+    }
 
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
