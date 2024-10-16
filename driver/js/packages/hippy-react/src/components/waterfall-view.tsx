@@ -458,18 +458,18 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   ) {
     let pullFooter: JSX.Element | null = null;
     if (typeof renderPullFooter === 'function') {
-      pullFooter = (
-        <PullFooter
-          key={'PullFooter'}
-          ref={(ref) => {
-            this.pullFooter = ref;
-          }}
-          onFooterPulling={onFooterPulling}
-          onFooterReleased={onFooterReleased}
-        >
-          { renderPullFooter() }
-        </PullFooter>
-      );
+      const footerProps: any = {
+        key: 'PullFooter',
+        ref: (ref) => {
+          this.pullFooter = ref;
+        },
+        onFooterReleased,
+      };
+
+      if (typeof onFooterPulling === 'function') {
+        footerProps.onFooterPulling = onFooterPulling;
+      }
+      pullFooter = <PullFooter {...footerProps}>{renderPullFooter()}</PullFooter>;
     }
     return pullFooter;
   }
