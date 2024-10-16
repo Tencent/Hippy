@@ -93,22 +93,22 @@ void VM::HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& eve
 std::shared_ptr<VM> VM::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   std::shared_ptr<VM> vm = nullptr;
   
-  if (!param || param->vmType.empty()) {
+  if (!param || param->vm_type.empty()) {
     // Using jsc on iOS and v8 on Android by default.
 #ifdef JS_JSC
     vm = JSCVM::CreateVM(param);
 #elif defined(JS_V8)
     vm = V8VM::CreateVM(param);
 #endif /* JS_JSC/JS_V8 */
-  } else if (param->vmType == kJSEngineJSC) {
+  } else if (param->vm_type == kJSEngineJSC) {
 #ifdef JS_JSC
     vm = JSCVM::CreateVM(param);
 #endif /* JS_JSC */
-  } else if (param->vmType == kJSEngineHermes) {
+  } else if (param->vm_type == kJSEngineHermes) {
 #ifdef JS_HERMES
     vm = HermesVM::CreateVM(param);
 #endif /* JS_HERMES */
-  } else if (param->vmType == kJSEngineV8) {
+  } else if (param->vm_type == kJSEngineV8) {
 #ifdef JS_V8
     vm = V8::CreateVM(param);
 #endif /* JS_V8 */

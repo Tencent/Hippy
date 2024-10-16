@@ -41,7 +41,7 @@
 @implementation HippyCtxValueConvertTest
 
 - (void)setUp {
-    _vm = hippy::CreateVM(std::make_shared<hippy::VM::VMInitParam>());
+    _vm = hippy::VM::CreateVM(std::make_shared<hippy::VM::VMInitParam>());
     _context = _vm->CreateContext();
 }
 

@@ -43,7 +43,7 @@ void EngineResource::Setup(const std::string name, const std::string vmType) {
     engine_ = std::make_shared<hippy::Engine>();
     auto initParam = std::make_shared<hippy::VM::VMInitParam>();
     if (!vmType.empty()) {
-        initParam->vmType = vmType;
+        initParam->vm_type = vmType;
     }
     engine_->AsyncInitialize(task_runner, initParam, nullptr);
 }

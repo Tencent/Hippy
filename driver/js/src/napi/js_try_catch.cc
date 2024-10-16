@@ -20,32 +20,21 @@
  *
  */
 
-#pragma once
-
-#include "driver/napi/hermes/hermes_ctx.h"
-#include "driver/napi/hermes/hermes_ctx_value.h"
 #include "driver/napi/js_try_catch.h"
+#include "footstone/logging.h"
+#include "driver/napi/js_ctx.h"
 
 namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-class HermesTryCatch : public TryCatch {
- public:
-  HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx);
-  virtual ~HermesTryCatch() = default;
 
-  virtual void ReThrow();
-  virtual bool HasCaught();
-  virtual bool CanContinue();
-  virtual bool HasTerminated();
-  virtual bool IsVerbose();
-  virtual void SetVerbose(bool verbose);
-  virtual std::shared_ptr<CtxValue> Exception();
-  virtual footstone::string_view GetExceptionMessage();
+std::shared_ptr<TryCatch> TryCatch::CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
+    std::shared_ptr<TryCatch> try_catch = ctx->CreateTryCatchScope(enable, ctx);
+    FOOTSTONE_CHECK(try_catch != nullptr);
+    return try_catch;
+}
 
-};
-
-}  // namespace napi
+}  // namespace vm
 }  // namespace driver
 }  // namespace hippy

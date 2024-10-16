@@ -55,7 +55,7 @@ std::shared_ptr<Ctx> JSCVM::CreateContext() {
 }
 
 std::shared_ptr<VM> JSCVM::CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
-  return std::make_shared<JSCVM>();
+  return std::make_shared<JSCVM>(param);
 }
 
 JSStringRef JSCVM::CreateJSCString(const string_view& str_view) {

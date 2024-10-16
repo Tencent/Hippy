@@ -43,6 +43,10 @@
 #include "vfs/uri_loader.h"
 #include "performance/performance.h"
 
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+#include "driver/vm/v8/inspector/v8_inspector_client_impl.h"
+#endif
+
 namespace hippy {
 
 namespace devtools {
@@ -427,7 +431,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
                                                                 nullptr));
     }
     for (size_t i = 0; i < class_template->functions.size(); ++i) {
-      //todo(polly) why &
       auto function_define_pointer = &class_template->functions[i];
       auto function = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
         auto function_define = reinterpret_cast<FunctionDefine<T>*>(data);

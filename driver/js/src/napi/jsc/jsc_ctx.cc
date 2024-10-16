@@ -28,6 +28,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/vm/native_source_code.h"
 #include "driver/vm/jsc/jsc_vm.h"
+#include "driver/napi/jsc/jsc_try_catch.h"
 
 
 namespace hippy {
@@ -993,6 +994,10 @@ void JSCCtx::ThrowException(const std::shared_ptr<CtxValue> &exception) {
 
 void JSCCtx::ThrowException(const string_view& exception) {
   ThrowException(CreateException(exception));
+}
+
+std::shared_ptr<TryCatch> JSCCtx::CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
+  return std::make_shared<JSCTryCatch>(enable, ctx);
 }
 
 JSPropertyAttributes ConvertPropertyAttribute(PropertyAttribute attr) {

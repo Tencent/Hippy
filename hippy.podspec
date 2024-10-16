@@ -169,11 +169,8 @@ Pod::Spec.new do |s|
         'driver/js/src/napi/v8',
         'driver/js/include/driver/vm/v8',
         'driver/js/src/vm/v8',
-        'driver/js/include/driver/napi/jsc',
-        'driver/js/src/napi/jsc',
-        'driver/js/include/driver/vm/jsc',
-        'driver/js/src/vm/jsc',
-        'driver/js/src/vm/hermes/native_source_code_hermes_android.cc']
+        'driver/js/src/vm/hermes/native_source_code_hermes_android.cc'
+        ]
     else
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
@@ -196,7 +193,7 @@ Pod::Spec.new do |s|
     elsif js_engine == "v8" 
       definition_engine = 'JS_V8=1'
     elsif js_engine == "hermes"
-      definition_engine = 'JS_HERMES=1'
+      definition_engine = 'JS_HERMES=1 JS_JSC=1'
     else
     end
     
@@ -384,7 +381,7 @@ Pod::Spec.new do |s|
     end
   end
 
-  # TODO(charleeshen): build hermes with no rtti
+  # TODO: build hermes with no rtti
   if js_engine == "hermes"
     s.subspec 'hermes' do |hermes|
       puts 'hippy subspec \'hermes\' read begin'
@@ -397,7 +394,6 @@ Pod::Spec.new do |s|
         'GCC_ENABLE_CPP_RTTI' => true,
       }
       hermes.ios.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/universal/hermes.xcframework"
-      hermes.osx.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/macosx/hermes.framework"
       puts 'hippy subspec \'hermes\' read end'
     end
   end

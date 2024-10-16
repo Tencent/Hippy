@@ -165,11 +165,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// debug mode will open DevMenu and make JS inspectable
 @property (nonatomic, assign) BOOL debugMode;
 
-/// Whether enable turboMode(jsi)
+/// Whether enable turboMode(jsi), default is YES.
 @property (nonatomic, assign) BOOL enableTurbo;
 
 /// Whether use `hermes` as JS engine
-/// This property requires the `JS_Hermes` compilation macro enabled to take effect.
+/// This property requires the `JS_HERMES` compilation macro enabled to take effect.
 /// default is NO.
 @property (nonatomic, assign) BOOL useHermesEngine;
 
@@ -400,8 +400,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 #pragma mark - Advanced Usages
 
 
-/// Whether use Hermes as JS Engine
-@property (nonatomic, assign, readonly) BOOL useHermesEngine;
+/// Whether is using Hermes as JS Engine
+@property (nonatomic, assign, readonly) BOOL usingHermesEngine;
 /// Interceptor for methods
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 

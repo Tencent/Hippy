@@ -21,7 +21,6 @@
  */
 
 #include "driver/napi/hermes/hermes_try_catch.h"
-
 #include "footstone/logging.h"
 
 namespace hippy {
@@ -29,10 +28,6 @@ inline namespace driver {
 inline namespace napi {
 
 using string_view = footstone::string_view;
-
-std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
-  return nullptr;
-}
 
 HermesTryCatch::HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx) : TryCatch(enable, ctx) {}
 

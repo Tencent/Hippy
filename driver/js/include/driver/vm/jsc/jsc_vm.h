@@ -40,7 +40,7 @@ inline namespace vm {
 
 class JSCVM : public VM, public std::enable_shared_from_this<JSCVM> {
 public:
-  JSCVM(): VM() { vm_ = JSContextGroupCreate(); }
+  JSCVM(const std::shared_ptr<VM::VMInitParam>& param): VM(param) { vm_ = JSContextGroupCreate(); }
   
   ~JSCVM() {
     JSContextGroupRelease(vm_);

@@ -55,7 +55,7 @@ class VM {
    public:
     bool is_debug;
     int64_t group_id;
-    std::string vmType;
+    std::string vm_type;
 #ifdef ENABLE_INSPECTOR
     std::shared_ptr<DevtoolsDataSource> devtools_data_source;
 #endif
@@ -70,25 +70,18 @@ class VM {
     VMInitParam(): VMInitParam(false, VM::kDefaultGroupId, nullptr) {}
   };
 
-  VM(std::shared_ptr<VMInitParam> param = std::make_shared<VMInitParam>())
-      : is_debug_(param->is_debug), group_id_(param->group_id), uncaught_exception_callback_(param->uncaught_exception_callback) {}
+  VM(std::shared_ptr<VMInitParam> param) : is_debug_(param->is_debug), group_id_(param->group_id), vm_type_(param->vm_type),
+    uncaught_exception_callback_(param->uncaught_exception_callback) {}
   virtual ~VM() { FOOTSTONE_DLOG(INFO) << "~VM"; }
 
   inline void SetDebug(bool is_debug) {
     is_debug_ = is_debug;
   }
-  inline bool IsDebug() {
-    return is_debug_;
-  }
+  inline bool IsDebug() { return is_debug_; }
+  inline int64_t GetGroupId() { return group_id_; }
+  inline std::string& GetVMType() { return vm_type_; }
+  inline const auto& GetUncaughtExceptionCallback() { return uncaught_exception_callback_; }
 
-  inline int64_t GetGroupId() {
-    return group_id_;
-  }
-
-  inline const auto& GetUncaughtExceptionCallback() {
-    return uncaught_exception_callback_;
-  }
-    
   static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
   static void HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& event_name, const std::shared_ptr<CtxValue>& exception);
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) = 0;
@@ -96,6 +89,7 @@ class VM {
  private:
   bool is_debug_;
   int64_t group_id_;
+  std::string vm_type_;
   std::function<void(const std::any& bridge,
                      const string_view& description,
                      const string_view& stack)> uncaught_exception_callback_;

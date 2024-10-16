@@ -31,9 +31,6 @@
 #include "footstone/logging.h"
 #include "footstone/task_runner.h"
 
-#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-#include "driver/vm/v8/inspector/v8_inspector_client_impl.h"
-#endif
 
 namespace hippy {
 inline namespace driver {

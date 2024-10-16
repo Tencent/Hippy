@@ -221,6 +221,7 @@ public:
   
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) override;
   virtual void ThrowException(const string_view& exception) override;
+  virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) override;
   
   virtual void SetExternalData(void* data) override;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;

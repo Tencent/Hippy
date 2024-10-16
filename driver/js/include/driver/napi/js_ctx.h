@@ -41,6 +41,8 @@ namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
+class TryCatch;
+
 enum PropertyAttribute {
   /** None. **/
   None = 0,
@@ -218,6 +220,7 @@ class Ctx {
 
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) = 0;
   virtual void ThrowException(const string_view& exception) = 0;
+  virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) = 0;
 
   virtual void SetExternalData(void* data) = 0;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) = 0;

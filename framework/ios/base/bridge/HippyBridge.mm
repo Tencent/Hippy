@@ -139,6 +139,14 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 
 @implementation HippyLaunchOptions
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _enableTurbo = YES;
+    }
+    return self;
+}
+
 @end
 @interface HippyBridge () {
     // Identifies whether batch updates are in progress.
@@ -229,9 +237,7 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
             HippyLaunchOptions *options = launchOptions;
             _debugMode = options.debugMode;
             _enableTurbo = options.enableTurbo;
-            _useHermesEngine = options.useHermesEngine;
-        } else {
-            HippyAssert(NO, @"Invalid Launch Options!");
+            _usingHermesEngine = options.useHermesEngine;
         }
         _debugURL = _debugMode ? bundleURL : nil;
         _launchOptions = launchOptions;

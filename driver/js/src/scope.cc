@@ -48,6 +48,7 @@
 #include "driver/modules/timer_module.h"
 #include "driver/modules/ui_manager_module.h"
 #include "driver/modules/ui_layout_module.h"
+#include "driver/vm/js_vm.h"
 #include "driver/vm/native_source_code.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
@@ -139,20 +140,20 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
-#ifdef JS_JSC
-/*
- * JSObjectFinalizeCallback will be called when you call JSContextGroupRelease, so it is necessary to hold the wrapper when ctx is destroyed.
- */
-#else
   auto engine = engine_.lock();
   FOOTSTONE_DCHECK(engine);
   if (engine) {
-    auto key = wrapper_.get();
-    engine->ClearWeakCallbackWrapper(key);
-    engine->ClearFunctionWrapper(key);
-    engine->ClearClassTemplate(key);
+    /* Note:
+     * JSObjectFinalizeCallback will be called when you call JSContextGroupRelease,
+     * so it is necessary to hold the wrapper when ctx is destroyed.
+     */
+    if (engine->GetVM()->GetVMType() != VM::kJSEngineJSC) {
+      auto key = wrapper_.get();
+      engine->ClearWeakCallbackWrapper(key);
+      engine->ClearFunctionWrapper(key);
+      engine->ClearClassTemplate(key);
+    }
   }
-#endif
 }
 
 void Scope::WillExit() {
