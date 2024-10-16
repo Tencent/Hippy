@@ -372,7 +372,6 @@ export default class ListExample extends React.Component {
               getItemKey={this.getItemKey}
               getItemStyle={this.getItemStyle}
               getHeaderStyle={this.getHeaderStyle}
-              contentInset={contentInset}
           />
     );
   }

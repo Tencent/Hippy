@@ -65,23 +65,10 @@ public class HippyGridSpacesItemDecoration extends RecyclerView.ItemDecoration {
             lp.leftMargin = 0;
             return;
         }
-        ViewHolder vh = lp.mViewHolder;
-        int margin = mItemSpacing;
-        HippyRecyclerListAdapter adapter = (HippyRecyclerListAdapter) parent.getAdapter();
-        if (lp.isFullSpan()) {
-            margin = 0;
-        } else if (vh != null) {
-            int headerCount = adapter.hasHeader() ? 1 : 0;
-            if (!adapter.hasBannerView() && vh.getLayoutPosition() < (mNumberOfColumns + headerCount)) {
-                margin = 0;
-            }
-        }
         if (HippyListUtils.isVerticalLayout(parent)) {
             lp.bottomMargin = mItemSpacing;
-            lp.topMargin = margin;
         } else {
             lp.rightMargin = mItemSpacing;
-            lp.leftMargin = margin;
         }
     }
 }

@@ -37,6 +37,7 @@ public class HippyWaterfallView extends HippyRecyclerView implements ClipChildre
                 return isOverPulling();
             }
         });
+        setOverScrollMode(OVER_SCROLL_NEVER);
     }
 
     public void setColumnSpacing(int columnSpacing) {
@@ -44,6 +45,14 @@ public class HippyWaterfallView extends HippyRecyclerView implements ClipChildre
         if (decoration instanceof HippyGridSpacesItemDecoration) {
             ((HippyGridSpacesItemDecoration) decoration).setColumnSpacing(columnSpacing);
         }
+    }
+
+    public int getItemSpacing() {
+        RecyclerView.ItemDecoration decoration = getItemDecorationAt(0);
+        if (decoration instanceof HippyGridSpacesItemDecoration) {
+            return ((HippyGridSpacesItemDecoration) decoration).getItemSpacing();
+        }
+        return 0;
     }
 
     public void setItemSpacing(int itemSpacing) {
