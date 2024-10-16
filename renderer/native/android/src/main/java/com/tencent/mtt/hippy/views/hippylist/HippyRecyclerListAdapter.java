@@ -31,6 +31,8 @@ import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyI
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
+import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallItemView;
+import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallView;
 import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.PullFooterRenderNode;
 import com.tencent.renderer.node.PullHeaderRenderNode;
@@ -223,7 +225,11 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             childLp.height = isVertical ? childNode.getHeight() : MATCH_PARENT;
             childLp.width = isVertical ? MATCH_PARENT : childNode.getWidth();
         } else {
-            childLp.height = childNode.getHeight();
+            if ((itemView instanceof HippyWaterfallItemView) && (hippyRecyclerView instanceof HippyWaterfallView)) {
+                childLp.height = childNode.getHeight() + ((HippyWaterfallView) hippyRecyclerView).getItemSpacing();
+            } else {
+                childLp.height = childNode.getHeight();
+            }
             childLp.width = childNode.getWidth();
         }
         itemView.setLayoutParams(childLp);
@@ -341,6 +347,9 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
                 return footerRefreshHelper.getVisibleHeight();
             }
             return 0;
+        }
+        if ((childNode instanceof WaterfallItemRenderNode) && (hippyRecyclerView instanceof HippyWaterfallView)) {
+            return childNode.getHeight() + ((HippyWaterfallView) hippyRecyclerView).getItemSpacing();
         }
         return childNode.getHeight();
     }
