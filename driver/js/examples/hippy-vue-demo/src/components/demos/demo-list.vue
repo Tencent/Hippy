@@ -78,7 +78,6 @@
       </li>
     </ul>
     <div
-      v-if="Vue.Native.Platform === 'android'"
       :style="{
         position: 'absolute',
         right: 20,

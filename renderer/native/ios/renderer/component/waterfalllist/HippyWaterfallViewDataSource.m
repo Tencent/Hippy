@@ -20,12 +20,11 @@
  * limitations under the License.
  */
 
-#import <UIKit/NSIndexPath+UIKitAdditions.h>
-
-#import "HippyAssert.h"
 #import "HippyWaterfallViewDataSource.h"
+#import "HippyAssert.h"
 #import "HippyShadowView.h"
 #import "HippyShadowListView.h"
+#import "HippyHeaderRefreshManager.h"
 
 @interface HippyWaterfallViewDataSource () {
     BOOL _containBannerView;
@@ -71,7 +70,16 @@
     _containBannerView = containBannerView;
     if ([dataSource count] > 0) {
         if (containBannerView) {
-            _bannerView = [dataSource firstObject];
+            // find the first shadowView that is not pull header or pull footer
+            for (int i = 0; i < dataSource.count; i++) {
+                HippyShadowView *subShadowView = [dataSource objectAtIndex:i];
+                if ([subShadowView.viewName isEqualToString:HippyHeaderRefreshManager.moduleName]) {
+                    continue;
+                } else {
+                    _bannerView = subShadowView;
+                    break;
+                }
+            }
         }
         NSUInteger loc = _containBannerView ? 1 : 0;
         NSArray<HippyShadowView *> *candidateRenderObjectViews = [dataSource subarrayWithRange:NSMakeRange(loc, [dataSource count] - loc)];

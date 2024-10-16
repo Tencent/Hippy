@@ -661,13 +661,17 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
             return;
         }
     }
-    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey]->GetEngine();
+    auto engineRsc = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey];
+    if (!engineRsc) {
+        return;
+    }
+    auto engine = engineRsc->GetEngine();
     if (engine) {
         auto runner = engine->GetJsTaskRunner();
         if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
             block();
-        } else {
-            engine->GetJsTaskRunner()->PostTask(block);
+        } else if (runner) {
+            runner->PostTask(block);
         }
     }
 }
@@ -679,9 +683,16 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
             return;
         }
     }
-    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey]->GetEngine();
+    auto engineRsc = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.enginekey];
+    if (!engineRsc) {
+        return;
+    }
+    auto engine = engineRsc->GetEngine();
     if (engine) {
-        engine->GetJsTaskRunner()->PostTask(block);
+        auto runner = engine->GetJsTaskRunner();
+        if (runner) {
+            runner->PostTask(block);
+        }
     }
 }
 

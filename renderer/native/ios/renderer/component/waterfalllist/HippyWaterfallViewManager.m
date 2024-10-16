@@ -44,6 +44,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(containPullHeader, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(containPullFooter, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
 HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+HIPPY_REMAP_VIEW_PROPERTY(showScrollIndicator, collectionView.showsVerticalScrollIndicator, BOOL)
 
 - (UIView *)view {
     return [[HippyWaterfallView alloc] init];
