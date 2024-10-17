@@ -476,6 +476,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     if (_fontFamily) {
         styleInfo.fontFamily = _fontFamily;
     }
+    if (_fontUrl) {
+        styleInfo.fontUrl = _fontUrl;
+    }
     if (!isnan(_letterSpacing)) {
         styleInfo.letterSpacing = @(_letterSpacing);
     }
@@ -489,6 +492,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     UIFont *font = [HippyFont updateFont:f
                               withFamily:styleInfo.fontFamily
+                                     url:styleInfo.fontUrl
                                     size:styleInfo.fontSize
                                   weight:styleInfo.fontWeight
                                    style:styleInfo.fontStyle
@@ -881,6 +885,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 NATIVE_RENDER_TEXT_PROPERTY(AdjustsFontSizeToFit, _adjustsFontSizeToFit, BOOL)
 NATIVE_RENDER_TEXT_PROPERTY(Color, _color, UIColor *)
 NATIVE_RENDER_TEXT_PROPERTY(FontFamily, _fontFamily, NSString *)
+NATIVE_RENDER_TEXT_PROPERTY(FontUrl, _fontUrl, NSString *)
 NATIVE_RENDER_TEXT_PROPERTY(FontSize, _fontSize, CGFloat)
 NATIVE_RENDER_TEXT_PROPERTY(FontWeight, _fontWeight, NSString *)
 NATIVE_RENDER_TEXT_PROPERTY(FontStyle, _fontStyle, NSString *)

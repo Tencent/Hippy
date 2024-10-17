@@ -241,6 +241,10 @@ export interface NativeApiType {
     prefetch: (url: string) => void;
   };
 
+  FontLoader: {
+    load: (fontFamily: string, url: string) => Promise<undefined>;
+  };
+
   // include window and screen info
   Dimensions: Dimensions;
 
@@ -514,6 +518,24 @@ export const Native: NativeApiType = {
      */
     prefetch(url: string): void {
       Native.callNative.call(this, 'ImageLoaderModule', 'prefetch', url);
+    },
+  },
+
+  FontLoader: {
+    /**
+     * get image size before image rendering
+     *
+     * @param fontFamily
+     * @param url - image url
+     */
+    load(fontFamily, url): Promise<undefined> {
+      return Native.callNativeWithPromise.call(
+        this,
+        'FontLoaderModule',
+        'load',
+        fontFamily,
+        url,
+      );
     },
   },
 

@@ -144,6 +144,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(fontSize, NSNumber)
 HIPPY_EXPORT_SHADOW_PROPERTY(fontWeight, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(fontStyle, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(fontFamily, NSString)
+HIPPY_EXPORT_SHADOW_PROPERTY(fontUrl, NSString)
 
 HIPPY_EXPORT_VIEW_PROPERTY(lineHeight, NSNumber)
 HIPPY_EXPORT_VIEW_PROPERTY(lineSpacing, NSNumber)
@@ -177,6 +178,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(fontSize, NSNumber)
 HIPPY_EXPORT_VIEW_PROPERTY(fontWeight, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(fontStyle, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(fontFamily, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(fontUrl, NSString)
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)hippyShadowView {
     NSNumber *componentTag = hippyShadowView.hippyTag;
