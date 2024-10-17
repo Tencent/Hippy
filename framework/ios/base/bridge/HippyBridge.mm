@@ -558,6 +558,9 @@ dispatch_queue_t HippyJSThread;
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         [strongSelf fetchBundleWithURL:bundleURL completion:^(NSData *source, NSError *error) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
+            if (!strongSelf || !bundleURL) {
+                return;
+            }
             NSDictionary *userInfo;
             if (error) {
                 HippyBridgeFatal(error, strongSelf);
