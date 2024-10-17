@@ -249,6 +249,50 @@
         </div>
       </div>
 
+      <!-- FontLoader -->
+      <div
+        v-if="Native.FontLoader"
+        class="native-block"
+      >
+        <label class="vue-native-title">FontLoader 使用</label>
+        <span :fontFamily="fontFamily">
+          This sentence will be set the specific font after download.
+        </span>
+        <span :fontFamily="fontFamily">
+          这句话将用指定的下载字体显示。
+        </span>
+        <input
+          :fontFamily="fontFamily"
+          :value="inputFontFaimly"
+          @change="inputFontFaimly = $event.value"
+          placeholder="Input font family"
+          placeholder-text-color="#40b883"
+          :editable="true"
+        >
+        <input
+          :value="fontUrl"
+          @change="fontUrl = $event.value"
+          placeholder="Input font url"
+          placeholder-text-color="#40b883"
+          :editable="true"
+        >
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="fillExample"
+          >
+            <span>填写示例</span>
+          </button>
+          <button
+            class="item-button"
+            @click="load"
+          >
+            <span>下载字体</span>
+          </button>
+        </div>
+        <span>load state: {{ loadState }}</span>
+      </div>
+
       <!-- Fetch -->
       <div class="native-block">
         <label class="vue-native-title">Fetch 使用</label>
@@ -337,6 +381,10 @@ export default defineComponent({
     const cookieString = ref('ready to set');
     const cookiesValue = ref('');
     const eventTriggeredTimes = ref(0);
+    const inputFontFaimly = ref('');
+    const fontUrl = ref('');
+    const fontFamily = ref('');
+    const loadState = ref('');
 
     /**
        * set local storage
@@ -375,12 +423,30 @@ export default defineComponent({
       imageSize.value = `${result.width}x${result.height}`;
     };
 
+    const load = async () => {
+      fontFamily.value = inputFontFaimly.value;
+      console.log('load fontFamily:', fontFamily.value)
+      console.log('load fontUrl:', fontUrl.value)
+      let result;
+      try {
+        await Native.FontLoader.load(fontFamily.value, fontUrl.value);
+        result = 'success';
+      } catch (error) {
+        result = error.message;
+      }
+      loadState.value = result;
+    };
+    const fillExample = () => {
+      inputFontFaimly.value = 'HYHuaXianZi J';
+      fontUrl.value = 'https://zf.sc.chinaz.com/Files/DownLoad/upload/2024/1009/hanyihuaxianzijianti.ttf';
+    };
+
     const setCookie = () => {
-      Native.Cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
+      Native.Cookie.set('https://openhippy.com/', 'name=hippy;network=mobile');
       cookieString.value = '\'name=hippy;network=mobile\' is set';
     };
     const getCookie = () => {
-      Native.Cookie.getAll('https://hippyjs.org').then((cookies) => {
+      Native.Cookie.getAll('https://openhippy.com/').then((cookies) => {
         cookiesValue.value = cookies;
       });
     };
@@ -412,7 +478,7 @@ export default defineComponent({
         netInfoText.value = `收到通知: ${info.network_info}`;
       });
 
-      fetch('https://hippyjs.org', {
+      fetch('https://openhippy.com/', {
         mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body)
       })
         .then((responseJson) => {
@@ -441,6 +507,8 @@ export default defineComponent({
       cookieString,
       cookiesValue,
       getSize,
+      load,
+      fillExample,
       setItem,
       getItem,
       removeItem,
@@ -449,6 +517,10 @@ export default defineComponent({
       getBoundingClientRect,
       triggerAppEvent,
       eventTriggeredTimes,
+      inputFontFaimly,
+      fontUrl,
+      fontFamily,
+      loadState,
     };
   },
   beforeDestroy() {
