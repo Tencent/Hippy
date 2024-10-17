@@ -248,6 +248,48 @@
         </div>
       </div>
 
+      <!-- FontLoader使用 -->
+      <div
+        v-if="Vue.Native.FontLoader"
+        class="native-block"
+      >
+        <label class="vue-native-title">FontLoader 使用</label>
+        <span :fontFamily="fontFamily">
+          This sentence will be set the specific font after download.
+        </span>
+        <span :fontFamily="fontFamily">
+          这句话将用指定的下载字体显示。
+        </span>
+        <input
+          :fontFamily="fontFamily"
+          v-model="inputFontFaimly"
+          placeholder="Input font family"
+          placeholder-text-color="#40b883"
+          :editable="true"
+        >
+        <input
+          v-model="fontUrl"
+          placeholder="Input font url"
+          placeholder-text-color="#40b883"
+          :editable="true"
+        >
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="fillExample"
+          >
+            <span>填写示例</span>
+          </button>
+          <button
+            class="item-button"
+            @click="load"
+          >
+            <span>下载字体</span>
+          </button>
+        </div>
+        <span>load state: {{ loadState }}</span>
+      </div>
+
       <!-- Fetch使用 -->
       <div
         class="native-block"
@@ -323,6 +365,10 @@ export default {
       cookieString: 'ready to set',
       cookiesValue: '',
       hasLayout: false,
+      inputFontFaimly: '',
+      fontUrl: '',
+      fontFamily: '',
+      loadState: '',
     };
   },
   async created() {
@@ -334,7 +380,7 @@ export default {
     this.netInfoListener = Vue.Native.NetInfo.addEventListener('change', (info) => {
       this.netInfoText = `收到通知: ${info.network_info}`;
     });
-    fetch('https://hippyjs.org', {
+    fetch('https://openhippy.com/', {
       mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body)
     }).then((responseJson) => {
       this.fetchText = `成功状态: ${responseJson.status}`;
@@ -402,12 +448,30 @@ export default {
       console.log('ImageLoader getSize', result);
       this.imageSize = `${result.width}x${result.height}`;
     },
+    async load() {
+      this.fontFamily = this.inputFontFaimly;
+      console.log('fontFamily:', this.fontFamily)
+      console.log('fontUrl:', this.fontUrl)
+      let result;
+      try {
+        await Vue.Native.FontLoader.load(this.fontFamily, this.fontUrl);
+        result = 'success';
+      } catch (error) {
+        result = error.message;
+      }
+      this.loadState = result;
+    },
+    fillExample() {
+      this.inputFontFaimly = 'HYHuaXianZi J';
+      this.fontUrl = 'https://zf.sc.chinaz.com/Files/DownLoad/upload/2024/1009/hanyihuaxianzijianti.ttf';
+    },
+    
     setCookie() {
-      Vue.Native.Cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
+      Vue.Native.Cookie.set('https://openhippy.com/', 'name=hippy;network=mobile');
       this.cookieString = '\'name=hippy;network=mobile\' is set';
     },
     getCookie() {
-      Vue.Native.Cookie.getAll('https://hippyjs.org').then((cookies) => {
+      Vue.Native.Cookie.getAll('https://openhippy.com/').then((cookies) => {
         this.cookiesValue = cookies;
       });
     },

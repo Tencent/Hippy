@@ -523,10 +523,10 @@ export const Native: NativeApiType = {
 
   FontLoader: {
     /**
-     * get image size before image rendering
+     * Download the font from the url.
      *
      * @param fontFamily
-     * @param url - image url
+     * @param url - font url
      */
     load(fontFamily, url): Promise<undefined> {
       return Native.callNativeWithPromise.call(

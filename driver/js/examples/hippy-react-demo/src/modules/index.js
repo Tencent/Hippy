@@ -5,3 +5,4 @@ export { default as AsyncStorage } from './AsyncStorage';
 export { default as NetInfo } from './NetInfo';
 export { default as WebSocket } from './WebSocket';
 export { default as UIManagerModule } from './UIManagerModule';
+export { default as FontLoader } from './FontLoader';

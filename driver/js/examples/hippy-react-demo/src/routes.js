@@ -185,6 +185,14 @@ export default [
     },
   },
   {
+    path: '/FontLoader',
+    name: 'FontLoader 模块',
+    component: PAGE_LIST.FontLoader,
+    meta: {
+      type: Type.MODULE,
+    },
+  },
+  {
     path: '/Others',
     name: 'Others',
     meta: {
