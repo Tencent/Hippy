@@ -24,6 +24,7 @@
 
 #import "HippyFont.h"
 #import "HippyLog.h"
+#import "HippyFontLoaderModule.h"
 
 
 static NSCache *fontCache;
@@ -102,7 +103,7 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
             [cache removeAllObjects];
         }];
     });
-    
+
     NSArray<NSString *> *names = [cache objectForKey:familyName];
     if (!names) {
         names = [UIFont fontNamesForFamilyName:familyName] ?: [NSArray new];
@@ -115,8 +116,9 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
-    return [HippyFont updateFont:nil 
+    return [HippyFont updateFont:nil
                       withFamily:[HippyConvert NSString:json[@"fontFamily"]]
+                             url:[HippyConvert NSString:json[@"fontUrl"]]
                             size:[HippyConvert NSNumber:json[@"fontSize"]]
                           weight:[HippyConvert NSString:json[@"fontWeight"]]
                            style:[HippyConvert NSString:json[@"fontStyle"]]
@@ -197,11 +199,29 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
 + (UIFont *)updateFont:(UIFont *)font
             withFamily:(NSString *)family
+                   url:(NSString *)url
                   size:(NSNumber *)size
                 weight:(NSString *)weight
                  style:(NSString *)style
                variant:(NSArray<NativeRenderFontVariantDescriptor *> *)variant
        scaleMultiplier:(CGFloat)scaleMultiplier {
+    // Defaults
+    if (url) {
+        HippyFontLoaderModule *fontLoader = [[HippyFontLoaderModule alloc] init];
+        NSString *fontPath = [fontLoader getFontPath:url];
+        if (fontPath) {
+            NSError *error = nil;
+            [fontLoader registerFontFromURL:fontPath error:error];
+            if (error) {
+                HippyLogError(@"register font failed: %@", error.description);
+            }
+        }
+        else {
+            NSDictionary *userInfo = @{@"fontUrl": url, @"fontFamily": family};
+            [[NSNotificationCenter defaultCenter] postNotificationName:HippyLoadFontNotification object:nil userInfo:userInfo];
+        }
+    }
+
     // Defaults
     static NSString *defaultFontFamily;
     static dispatch_once_t onceToken;
@@ -311,7 +331,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     if (!font && names.count > 0) {
         font = [UIFont fontWithName:names[0] size:fontSize];
     }
-    
+
     // Apply font variants to font object
     if (variant) {
         NSArray *fontFeatures = [HippyConvert NativeRenderFontVariantDescriptorArray:variant];

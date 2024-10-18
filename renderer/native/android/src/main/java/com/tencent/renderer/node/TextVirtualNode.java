@@ -44,6 +44,7 @@ import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.FontLoader;
 import com.tencent.renderer.component.text.TextDecorationSpan;
 import com.tencent.renderer.component.text.TextForegroundColorSpan;
 import com.tencent.renderer.component.text.TextGestureSpan;
@@ -110,6 +111,10 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected String mFontFamily;
     @Nullable
+    protected String mFontUrl;
+    @Nullable
+    protected FontLoader mFontLoader;
+    @Nullable
     protected SpannableStringBuilder mSpanned;
     @Nullable
     protected CharSequence mText;
@@ -124,11 +129,14 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected Layout mLayout;
     protected int mBackgroundColor = Color.TRANSPARENT;
+    protected NativeRender mNativeRender;
 
     public TextVirtualNode(int rootId, int id, int pid, int index,
             @NonNull NativeRender nativeRender) {
         super(rootId, id, pid, index);
+        mNativeRender = nativeRender;
         mFontAdapter = nativeRender.getFontAdapter();
+        mFontLoader = nativeRender.getFontLoader();
         if (I18nUtil.isRTL()) {
             mAlignment = Layout.Alignment.ALIGN_OPPOSITE;
         }
@@ -177,6 +185,14 @@ public class TextVirtualNode extends VirtualNode {
     public void setFontFamily(String family) {
         if (!Objects.equals(mFontFamily, family)) {
             mFontFamily = family;
+            markDirty();
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.FONT_URL, defaultType = HippyControllerProps.STRING)
+    public void setFontUrl(String fontUrl) {
+        if (!Objects.equals(mFontUrl, fontUrl)) {
+            mFontUrl = fontUrl;
             markDirty();
         }
     }
@@ -468,6 +484,9 @@ public class TextVirtualNode extends VirtualNode {
             int size = mFontSize;
             if (mFontAdapter != null && mEnableScale) {
                 size = (int) (size * mFontAdapter.getFontScale());
+            }
+            if (mFontUrl != null && mFontLoader != null) {
+                mFontLoader.loadIfNeeded(mFontFamily, mFontUrl, mNativeRender, getRootId());
             }
             ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
             ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));
