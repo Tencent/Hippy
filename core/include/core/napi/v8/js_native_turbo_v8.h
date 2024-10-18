@@ -50,6 +50,7 @@ class V8TurboEnv : public TurboEnv {
 
  private:
   struct IHostProxy {
+    virtual ~IHostProxy() {}
     virtual void Destroy() = 0;
   };
 
@@ -61,6 +62,8 @@ class V8TurboEnv : public TurboEnv {
         is_reset_ = true;
         if (host_proxy_) {
           host_proxy_->Destroy();
+          delete host_proxy_;
+          host_proxy_ = nullptr;
         }
         if (!object_tracker_.IsEmpty()) {
           object_tracker_.Reset();
