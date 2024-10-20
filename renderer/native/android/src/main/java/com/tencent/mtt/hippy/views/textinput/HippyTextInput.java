@@ -16,8 +16,6 @@
 
 package com.tencent.mtt.hippy.views.textinput;
 
-import static com.tencent.mtt.hippy.views.textinput.HippyTextInputController.UNSET;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.BlendMode;
@@ -43,8 +41,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
+
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -59,6 +59,7 @@ import com.tencent.renderer.component.text.FontLoader;
 import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.utils.EventUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -99,6 +100,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private String mFontFamily;
     private String mFontUrl;
     private Paint mTextPaint;
+    protected FontLoader mFontLoader;
+    protected boolean mFromFontLoader = false;
 
     public HippyTextInput(Context context) {
         super(context);
@@ -106,6 +109,10 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         setFocusableInTouchMode(true);
         setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(context);
+        if (nativeRenderer != null) {
+            mFontLoader = nativeRenderer.getFontLoader();
+        }
         mDefaultGravityHorizontal =
                 getGravity() & (Gravity.HORIZONTAL_GRAVITY_MASK
                         | Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
@@ -208,8 +215,13 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     }
 
     public void onBatchComplete() {
+        if (!mFromFontLoader && mFontLoader != null && mFontLoader.isFontLoaded(mFontFamily)) {
+            mShouldUpdateTypeface = true;
+            mFromFontLoader = true;
+        }
         if (mShouldUpdateTypeface) {
             updateTypeface();
+            mShouldUpdateTypeface = false;
         }
         if (!mShouldUpdateLineHeight) {
             return;
@@ -760,6 +772,9 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         if (!Objects.equals(mFontFamily, family)) {
             mFontFamily = family;
             mShouldUpdateTypeface = true;
+            if (mFromFontLoader && mFontLoader != null && !mFontLoader.isFontLoaded(mFontFamily)) {
+                mFromFontLoader = false;
+            }
         }
     }
 
@@ -788,11 +803,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             FontLoader loader = nativeRenderer == null ? null : nativeRenderer.getFontLoader();
             if (loader != null) {
                 int rootId = nativeRenderer.getRootView(this).getId();
-                mShouldUpdateTypeface = loader.loadIfNeeded(mFontFamily, mFontUrl, nativeRenderer, rootId);
+                loader.loadIfNeeded(mFontFamily, mFontUrl, nativeRenderer, rootId);
             }
-        }
-        else {
-            mShouldUpdateTypeface = false;
         }
         FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();
         TypeFaceUtil.apply(mTextPaint, mItalic, mFontWeight, mFontFamily, fontAdapter);

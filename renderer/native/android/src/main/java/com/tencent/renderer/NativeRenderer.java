@@ -20,8 +20,8 @@ import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_BOTTOM;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_LEFT;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_RIGHT;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_TOP;
-import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_ADD_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_ADD_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
@@ -29,12 +29,14 @@ import android.graphics.Rect;
 import android.text.Layout;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.view.ViewParent;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
+import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.BaseEngineContext;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.LogAdapter;
@@ -42,6 +44,8 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
@@ -58,23 +62,24 @@ import com.tencent.renderer.node.RootRenderNode;
 import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.VirtualNodeManager;
-
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
 import com.tencent.renderer.utils.ArrayUtils;
 import com.tencent.renderer.utils.ChoreographerUtils;
 import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
-
+import com.tencent.renderer.utils.FlexUtils;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.MapUtils;
 import com.tencent.vfs.VfsManager;
+
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -82,13 +87,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
-import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.renderer.utils.FlexUtils;
-import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NativeRenderer extends Renderer implements NativeRender, NativeRenderDelegate {
@@ -421,8 +419,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         mRenderProvider.markTextNodeDirty(rootId);
     }
 
-    public void freshWindow(int rootId) {
-        mRenderProvider.freshWindow(rootId);
+    public void refreshWindow(int rootId) {
+        mRenderProvider.refreshWindow(rootId);
     }
 
     @Override

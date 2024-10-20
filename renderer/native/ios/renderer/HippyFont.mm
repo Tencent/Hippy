@@ -207,16 +207,8 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
        scaleMultiplier:(CGFloat)scaleMultiplier {
     // Defaults
     if (url) {
-        HippyFontLoaderModule *fontLoader = [[HippyFontLoaderModule alloc] init];
-        NSString *fontPath = [fontLoader getFontPath:url];
-        if (fontPath) {
-            NSError *error = nil;
-            [fontLoader registerFontFromURL:fontPath error:error];
-            if (error) {
-                HippyLogError(@"register font failed: %@", error.description);
-            }
-        }
-        else {
+        NSString *fontPath = [HippyFontLoaderModule getFontPath:url];
+        if (!fontPath) {
             NSDictionary *userInfo = @{@"fontUrl": url, @"fontFamily": family};
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyLoadFontNotification object:nil userInfo:userInfo];
         }
@@ -251,11 +243,17 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     if (scaleMultiplier > 0.0 && scaleMultiplier != 1.0) {
         fontSize = round(fontSize * scaleMultiplier);
     }
-    familyName = [HippyConvert NSString:family] ?: familyName;
+    if ([HippyConvert NSString:family] && family.length != 0) {
+        familyName = family;
+    }
     isItalic = style ? [HippyConvert NativeRenderFontStyle:style] : isItalic;
     fontWeight = weight ? [HippyConvert NativeRenderFontWeight:weight] : fontWeight;
 
     BOOL didFindFont = NO;
+    
+    if (fontNamesForFamilyName(familyName).count == 0) {        
+        [HippyFontLoaderModule registerFontIfNeeded:familyName];
+    }
 
     // Handle system font as special case. This ensures that we preserve
     // the specific metrics of the standard system font as closely as possible.
