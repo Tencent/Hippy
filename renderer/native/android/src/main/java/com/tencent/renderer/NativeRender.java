@@ -53,7 +53,6 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
     @Nullable
     ImageLoaderAdapter getImageLoader();
 
-    @Nullable
     FontLoader getFontLoader();
 
     @Nullable
@@ -111,7 +110,7 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
 
     void markTextNodeDirty(int rootId);
 
-    void freshWindow(int rootId);
+    void refreshWindow(int rootId);
 
     void updateDimension(int width, int height);
 

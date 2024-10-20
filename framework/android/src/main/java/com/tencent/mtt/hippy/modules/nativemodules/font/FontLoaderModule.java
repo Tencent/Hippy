@@ -34,13 +34,13 @@ public class FontLoaderModule extends HippyNativeModuleBase {
 
     public FontLoaderModule(HippyEngineContext context) {
         super(context);
-        mFontLoader = new FontLoader(context.getVfsManager());
         mNativeRender = NativeRendererManager.getNativeRenderer(context.getRootView().getContext());
+        mFontLoader = mNativeRender.getFontLoader();
         rootId = context.getRootView().getId();
     }
 
     @HippyMethod(name = "load")
     public void load(final String fontFamily, final String fontUrl, final Promise promise) {
-        mFontLoader.loadAndFresh(fontFamily, fontUrl, mNativeRender, rootId, promise);
+        mFontLoader.loadAndRefresh(fontFamily, fontUrl, mNativeRender, rootId, promise);
     }
 }

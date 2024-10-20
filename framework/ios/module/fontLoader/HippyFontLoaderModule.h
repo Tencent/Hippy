@@ -23,14 +23,27 @@
 #import <Foundation/Foundation.h>
 #import "HippyBridgeModule.h"
 
-static NSString *const HippyLoadFontNotification = @"HippyLoadFontNotification";
+NS_ASSUME_NONNULL_BEGIN
+
+HIPPY_EXTERN NSString *const HippyLoadFontNotification;
 
 @interface HippyFontLoaderModule : NSObject<HippyBridgeModule>
 
-@property (nonatomic, readonly) NSString *fontDir;
-@property (nonatomic, readonly) NSString *fontUrlCachePath;
+/**
+ * Get the font file path according to url.
+ *
+ * @param url - The url where font file is downloaded
+ * @return The font file path. Null means the font file has't been downloaded from url.
+ */
++ (nullable NSString *)getFontPath:(NSString *)url;
 
-- (NSString *)getFontPath:(NSString *)url;
-- (BOOL)registerFontFromURL:(NSString *)urlString error:(NSError *)error;
+/**
+ * Register font files belong to the specific font family if needed.
+ *
+ * @param fontFamily - The font family needs to be registered
+ */
++ (void)registerFontIfNeeded:(NSString *)fontFamily;
 
 @end
+
+NS_ASSUME_NONNULL_END

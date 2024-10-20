@@ -21,9 +21,8 @@ import android.graphics.Typeface;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
-
-import android.util.Log;
 import android.util.SparseArray;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -43,7 +42,7 @@ public class TypeFaceUtil {
     private static final String TAG = "TypeFaceUtil";
     private static final String[] EXTENSIONS = {"", "_bold", "_italic", "_bold_italic"};
     private static final String[] FONT_EXTENSIONS = {".ttf", ".otf", ""};
-    private static final String FONTS_PATH = "fonts/";
+    private static final String FONTS_PATH = "HippyFonts/";
     private static final Map<String, SparseArray<Typeface>> sFontCache = new HashMap<>();
 
     /**

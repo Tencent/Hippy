@@ -36,6 +36,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class FontLoader {
 
@@ -43,27 +44,26 @@ public class FontLoader {
     private final File mFontDir;
     private final File mFontUrlDictPath;
     private HashMap<String, String> mFontUrlDict;
-    private static final String[] allowedExtensions = {"otf", "ttf"};
+    private HashSet<String> mFontsLoaded;
+    private static final String[] ALLOWED_EXTENSIONS = {"otf", "ttf"};
+    private static final String FONT_DIR_NAME = "HippyFonts";
+    private static final String FONT_URL_DICT_NAME = "fontUrlDict.ser";
+
 
     public FontLoader(VfsManager vfsManager) {
         mVfsManager = vfsManager;
-        mFontDir = new File(ContextHolder.getAppContext().getCacheDir(), "fonts");;
-        mFontUrlDictPath = new File(mFontDir, "fontUrlDict.ser");
-        try (FileInputStream fis = new FileInputStream(mFontUrlDictPath);
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            mFontUrlDict = (HashMap<String, String>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            mFontUrlDict = new HashMap<>();
-        }
+        mFontDir = new File(ContextHolder.getAppContext().getCacheDir(), FONT_DIR_NAME);
+        mFontUrlDictPath = new File(mFontDir, FONT_URL_DICT_NAME);
+        mFontsLoaded = new HashSet<>();
     }
 
-    private void saveFontFile(byte[] byteArray, String fileName, Promise promise) {
+    private boolean saveFontFile(byte[] byteArray, String fileName, Promise promise) {
         if (!mFontDir.exists()) {
             if (!mFontDir.mkdirs()) {
                 if (promise != null) {
                     promise.reject("Create font directory failed");
                 }
-                return;
+                return false;
             }
         }
         File fontFile = new File(mFontDir, fileName);
@@ -72,20 +72,26 @@ public class FontLoader {
             if (promise != null) {
                 promise.resolve(null);
             }
+            return true;
         } catch (IOException e) {
             if (promise != null) {
                 promise.reject("Write font file failed:" + e.getMessage());
             }
+            return false;
         }
+    }
+
+    public  boolean isFontLoaded(String fontFamily) {
+        return mFontsLoaded.contains(fontFamily);
     }
 
     private void saveFontUrlDictFile() {
         try (FileOutputStream fos = new FileOutputStream(mFontUrlDictPath);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(mFontUrlDict);
-            LogUtils.d("FontLoader", "save fontUrlDict.ser success");
+            LogUtils.d("FontLoader", "Save fontUrlDict.ser success");
         } catch (IOException e) {
-            LogUtils.d("FontLoader", "save fontUrlDict.ser failed");
+            LogUtils.d("FontLoader", "Save fontUrlDict.ser failed");
         }
     }
 
@@ -93,7 +99,7 @@ public class FontLoader {
         int dotIndex = url.lastIndexOf('.');
         if (dotIndex > 0 && dotIndex < url.length() - 1) {
             String ext = url.substring(dotIndex + 1).toLowerCase();
-            if (Arrays.asList(allowedExtensions).contains(ext)) {
+            if (Arrays.asList(ALLOWED_EXTENSIONS).contains(ext)) {
                 return "." + ext;
             }
         }
@@ -102,6 +108,14 @@ public class FontLoader {
 
     public boolean loadIfNeeded(final String fontFamily, final String fontUrl, NativeRender render,
                              int rootId) {
+        if (mFontUrlDict == null) {
+            try (FileInputStream fis = new FileInputStream(mFontUrlDictPath);
+                 ObjectInputStream ois = new ObjectInputStream(fis)) {
+                mFontUrlDict = (HashMap<String, String>) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                mFontUrlDict = new HashMap<>();
+            }
+        }
         String fontFileName = mFontUrlDict.get(fontUrl);
         if (fontFileName != null) {
             File fontFile = new File(mFontDir, fontFileName);
@@ -109,14 +123,14 @@ public class FontLoader {
                 return false;
             }
         }
-        loadAndFresh(fontFamily, fontUrl, render, rootId, null);
+        loadAndRefresh(fontFamily, fontUrl, render, rootId, null);
         return true;
     }
 
 
-    public void loadAndFresh(final String fontFamily, final String fontUrl, NativeRender render,
+    public void loadAndRefresh(final String fontFamily, final String fontUrl, NativeRender render,
                              int rootId, Promise promise) {
-        LogUtils.d("FontLoader", "start load" + fontUrl);
+        LogUtils.d("FontLoader", "Start load" + fontUrl);
         if (TextUtils.isEmpty(fontUrl)) {
             if (promise != null) {
                 promise.reject("Url parameter is empty!");
@@ -131,19 +145,20 @@ public class FontLoader {
                     if (dataHolder.resultCode
                         != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null
                         || bytes.length <= 0) {
-                        String message =
-                            dataHolder.errorMessage != null ? dataHolder.errorMessage : "";
                         if (promise != null) {
-                            promise.reject("Fetch font failed, url=" + fontUrl + ", msg=" + message);
+                            promise.reject("Fetch font file failed, url=" + fontUrl);
                         }
                     } else {
                         String fileName = fontFamily + getFileExtension(fontUrl);
-                        saveFontFile(bytes, fileName, promise);
-                        mFontUrlDict.put(fontUrl, fileName);
-                        saveFontUrlDictFile();
-                        TypeFaceUtil.clearFontCache(fontFamily);
-                        render.markTextNodeDirty(rootId);
-                        render.freshWindow(rootId);
+                        if (saveFontFile(bytes, fileName, promise)) {
+                            LogUtils.d("FontLoader", "Fetch font file success");
+                            mFontsLoaded.add(fontFamily);
+                            mFontUrlDict.put(fontUrl, fileName);
+                            saveFontUrlDictFile();
+                            TypeFaceUtil.clearFontCache(fontFamily);
+                            render.markTextNodeDirty(rootId);
+                            render.refreshWindow(rootId);
+                        }
                     }
                     dataHolder.recycle();
                 }

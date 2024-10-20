@@ -41,6 +41,7 @@ import androidx.annotation.RequiresApi;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.text.FontAdapter;
@@ -114,6 +115,7 @@ public class TextVirtualNode extends VirtualNode {
     protected String mFontUrl;
     @Nullable
     protected FontLoader mFontLoader;
+    protected boolean mFromFontLoader = false;
     @Nullable
     protected SpannableStringBuilder mSpanned;
     @Nullable
@@ -193,6 +195,7 @@ public class TextVirtualNode extends VirtualNode {
     public void setFontUrl(String fontUrl) {
         if (!Objects.equals(mFontUrl, fontUrl)) {
             mFontUrl = fontUrl;
+            LogUtils.d("TextVirtualNode", "fontUrl:"+fontUrl);
             markDirty();
         }
     }
@@ -554,6 +557,10 @@ public class TextVirtualNode extends VirtualNode {
 
     @NonNull
     protected Layout createLayout(final float width, final FlexMeasureMode widthMode) {
+        if (!mFromFontLoader && mFontLoader != null && mFontLoader.isFontLoaded(mFontFamily)) {
+            mDirty = true;
+            mFromFontLoader = true;
+        }
         if (mSpanned == null || mDirty) {
             mSpanned = createSpan(true);
             mDirty = false;
