@@ -16,31 +16,26 @@
 
 package com.tencent.mtt.hippy.modules.nativemodules.font;
 
+import com.openhippy.connector.RenderConnector;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.component.text.FontLoader;
 
 @HippyNativeModule(name = "FontLoaderModule")
 public class FontLoaderModule extends HippyNativeModuleBase {
 
-    private final FontLoader mFontLoader;
-    private final NativeRender mNativeRender;
     private final int rootId;
 
     public FontLoaderModule(HippyEngineContext context) {
         super(context);
-        mNativeRender = NativeRendererManager.getNativeRenderer(context.getRootView().getContext());
-        mFontLoader = mNativeRender.getFontLoader();
         rootId = context.getRootView().getId();
     }
 
     @HippyMethod(name = "load")
     public void load(final String fontFamily, final String fontUrl, final Promise promise) {
-        mFontLoader.loadAndRefresh(fontFamily, fontUrl, mNativeRender, rootId, promise);
+        RenderConnector renderer = mContext.getRenderer();
+        renderer.loadFontAndRefreshWindow(fontFamily, fontUrl, rootId, promise);
     }
 }

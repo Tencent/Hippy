@@ -57,6 +57,8 @@ import com.tencent.renderer.component.text.TextStyleSpan;
 import com.tencent.renderer.component.text.TextVerticalAlignSpan;
 import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +116,7 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected String mFontUrl;
     @Nullable
-    protected FontLoader mFontLoader;
+    protected WeakReference<FontLoader> mFontLoaderRef;
     protected boolean mFromFontLoader = false;
     @Nullable
     protected SpannableStringBuilder mSpanned;
@@ -131,14 +133,12 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected Layout mLayout;
     protected int mBackgroundColor = Color.TRANSPARENT;
-    protected NativeRender mNativeRender;
 
     public TextVirtualNode(int rootId, int id, int pid, int index,
             @NonNull NativeRender nativeRender) {
         super(rootId, id, pid, index);
-        mNativeRender = nativeRender;
         mFontAdapter = nativeRender.getFontAdapter();
-        mFontLoader = nativeRender.getFontLoader();
+        mFontLoaderRef = new WeakReference<>(nativeRender.getFontLoader());
         if (I18nUtil.isRTL()) {
             mAlignment = Layout.Alignment.ALIGN_OPPOSITE;
         }
@@ -488,8 +488,8 @@ public class TextVirtualNode extends VirtualNode {
             if (mFontAdapter != null && mEnableScale) {
                 size = (int) (size * mFontAdapter.getFontScale());
             }
-            if (mFontUrl != null && mFontLoader != null) {
-                mFontLoader.loadIfNeeded(mFontFamily, mFontUrl, mNativeRender, getRootId());
+            if (mFontUrl != null && !mFontUrl.isEmpty() && mFontLoaderRef.get() != null) {
+                mFontLoaderRef.get().loadIfNeeded(mFontFamily, mFontUrl, getRootId());
             }
             ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
             ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));
@@ -557,7 +557,8 @@ public class TextVirtualNode extends VirtualNode {
 
     @NonNull
     protected Layout createLayout(final float width, final FlexMeasureMode widthMode) {
-        if (!mFromFontLoader && mFontLoader != null && mFontLoader.isFontLoaded(mFontFamily)) {
+        FontLoader fontLoader = mFontLoaderRef.get();
+        if (!mFromFontLoader && fontLoader != null && fontLoader.isFontLoaded(mFontFamily)) {
             mDirty = true;
             mFromFontLoader = true;
         }

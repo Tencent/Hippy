@@ -100,7 +100,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private String mFontFamily;
     private String mFontUrl;
     private Paint mTextPaint;
-    protected FontLoader mFontLoader;
     protected boolean mFromFontLoader = false;
 
     public HippyTextInput(Context context) {
@@ -108,11 +107,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         setFocusable(true);
         setFocusableInTouchMode(true);
         setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
-
-        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(context);
-        if (nativeRenderer != null) {
-            mFontLoader = nativeRenderer.getFontLoader();
-        }
         mDefaultGravityHorizontal =
                 getGravity() & (Gravity.HORIZONTAL_GRAVITY_MASK
                         | Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
@@ -215,7 +209,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     }
 
     public void onBatchComplete() {
-        if (!mFromFontLoader && mFontLoader != null && mFontLoader.isFontLoaded(mFontFamily)) {
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(this.getContext());
+        FontLoader fontLoader = null;
+        if (nativeRenderer != null) {
+            fontLoader = nativeRenderer.getFontLoader();
+        }
+        if (!mFromFontLoader && fontLoader != null && fontLoader.isFontLoaded(mFontFamily)) {
             mShouldUpdateTypeface = true;
             mFromFontLoader = true;
         }
@@ -772,7 +771,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         if (!Objects.equals(mFontFamily, family)) {
             mFontFamily = family;
             mShouldUpdateTypeface = true;
-            if (mFromFontLoader && mFontLoader != null && !mFontLoader.isFontLoaded(mFontFamily)) {
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(this.getContext());
+            FontLoader fontLoader = null;
+            if (nativeRenderer != null) {
+                fontLoader = nativeRenderer.getFontLoader();
+            }
+            if (mFromFontLoader && fontLoader != null && !fontLoader.isFontLoaded(mFontFamily)) {
                 mFromFontLoader = false;
             }
         }
@@ -803,7 +807,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             FontLoader loader = nativeRenderer == null ? null : nativeRenderer.getFontLoader();
             if (loader != null) {
                 int rootId = nativeRenderer.getRootView(this).getId();
-                loader.loadIfNeeded(mFontFamily, mFontUrl, nativeRenderer, rootId);
+                loader.loadIfNeeded(mFontFamily, mFontUrl, rootId);
             }
         }
         FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();

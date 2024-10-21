@@ -78,14 +78,9 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              UpdateRootSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "refreshWindow",
+             "refreshTextWindow",
              "(II)V",
-             RefreshWindow)
-
-REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "markTextNodeDirty",
-             "(II)V",
-             MarkTextNodeDirty)
+             RefreshTextWindow)
 
 static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
@@ -173,17 +168,17 @@ void MarkTextNodeDirtyRecursive(const std::shared_ptr<DomNode>& node) {
     }
 }
 
-void MarkTextNodeDirty(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id) {
+void RefreshTextWindow(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id) {
     auto& map = NativeRenderManager::PersistentMap();
     std::shared_ptr<NativeRenderManager> render_manager;
     bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
     if (!ret) {
-        FOOTSTONE_DLOG(WARNING) << "MarkTextNodeDirty j_render_manager_id invalid";
+        FOOTSTONE_DLOG(WARNING) << "RefreshTextWindow j_render_manager_id invalid";
         return;
     }
     std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
     if (dom_manager == nullptr) {
-        FOOTSTONE_DLOG(WARNING) << "MarkTextNodeDirty dom_manager is nullptr";
+        FOOTSTONE_DLOG(WARNING) << "RefreshTextWindow dom_manager is nullptr";
         return;
     }
     auto& root_map = RootNode::PersistentMap();
@@ -191,40 +186,13 @@ void MarkTextNodeDirty(JNIEnv *j_env, jobject j_object, jint j_render_manager_id
     uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
     ret = root_map.Find(root_id, root_node);
     if (!ret) {
-        FOOTSTONE_DLOG(WARNING) << "MarkTextNodeDirty root_node is nullptr";
-        return;
-    }
-
-    std::vector<std::function<void()>> ops = {[root_node] {
-        MarkTextNodeDirtyRecursive(root_node);
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
-}
-
-void RefreshWindow(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id) {
-    auto& map = NativeRenderManager::PersistentMap();
-    std::shared_ptr<NativeRenderManager> render_manager;
-    bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
-    if (!ret) {
-        FOOTSTONE_DLOG(WARNING) << "RefreshWindow j_render_manager_id invalid";
-        return;
-    }
-    std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
-    if (dom_manager == nullptr) {
-        FOOTSTONE_DLOG(WARNING) << "RefreshWindow dom_manager is nullptr";
-        return;
-    }
-    auto& root_map = RootNode::PersistentMap();
-    std::shared_ptr<RootNode> root_node;
-    uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
-    ret = root_map.Find(root_id, root_node);
-    if (!ret) {
-        FOOTSTONE_DLOG(WARNING) << "RefreshWindow root_node is nullptr";
+        FOOTSTONE_DLOG(WARNING) << "RefreshTextWindow root_node is nullptr";
         return;
     }
 
     std::vector<std::function<void()>> ops;
     ops.emplace_back([dom_manager, root_node]{
+        MarkTextNodeDirtyRecursive(root_node);
         dom_manager->DoLayout(root_node);
         dom_manager->EndBatch(root_node);
     });

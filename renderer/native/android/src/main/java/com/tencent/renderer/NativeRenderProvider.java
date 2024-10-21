@@ -337,12 +337,8 @@ public class NativeRenderProvider {
         updateRootSize(mInstanceId, rootId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void refreshWindow(int rootId) {
-        refreshWindow(mInstanceId, rootId);
-    }
-
-    public void markTextNodeDirty(int rootId) {
-        markTextNodeDirty(mInstanceId, rootId);
+    public void refreshTextWindow(int rootId) {
+        refreshTextWindow(mInstanceId, rootId);
     }
 
     public void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync) {
@@ -449,16 +445,7 @@ public class NativeRenderProvider {
      * @param instanceId the unique id of native (C++) render manager
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    private native void refreshWindow(int instanceId, int rootId);
-
-    /**
-     * Call back from Android system when size changed, just like horizontal and vertical screen
-     * switching, call this jni interface to invoke dom tree relayout.
-     *
-     * @param rootId the root node id
-     */
-    @SuppressWarnings("JavaJniMissingFunction")
-    public native void markTextNodeDirty(int instanceId, int rootId);
+    private native void refreshTextWindow(int instanceId, int rootId);
 
     /**
      * Updates the size to the specified node, such as modal node, should set new window size before

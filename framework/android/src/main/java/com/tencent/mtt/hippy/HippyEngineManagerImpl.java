@@ -940,7 +940,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @NonNull
-        RenderConnector getRenderer() {
+        public RenderConnector getRenderer() {
             return mRenderer;
         }
 
