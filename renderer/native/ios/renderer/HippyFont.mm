@@ -208,7 +208,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     // Defaults
     if (url) {
         NSString *fontPath = [HippyFontLoaderModule getFontPath:url];
-        if (!fontPath) {
+        if (!fontPath && family) {
             NSDictionary *userInfo = @{@"fontUrl": url, @"fontFamily": family};
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyLoadFontNotification object:nil userInfo:userInfo];
         }
@@ -280,7 +280,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     // Gracefully handle being given a font name rather than font family, for
     // example: "Helvetica Light Oblique" rather than just "Helvetica".
     if (!didFindFont && familyName.length > 0 && fontNamesForFamilyName(familyName).count == 0) {
-        familyName = font.familyName;
+        familyName = [HippyFont familyNameWithCSSNameMatching:familyName] ?: familyName;
         fontWeight = weight ? fontWeight : weightOfFont(font);
         isItalic = style ? isItalic : isItalicFont(font);
         isCondensed = isCondensedFont(font);
