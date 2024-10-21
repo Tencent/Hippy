@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.renderer.FrameworkProxy;
 import com.tencent.renderer.RenderProxy;
 import java.util.List;
@@ -141,6 +142,17 @@ public class NativeRenderer implements NativeRenderConnector {
     public void destroy() {
         destroyNativeRenderManager(mInstanceId);
         mRenderer = null;
+    }
+
+    @Override
+    public void loadFontAndRefreshWindow(@NonNull String fontFamily, @NonNull String fontUrl,
+                                         int rootId, Object promise) {
+        if (!(promise instanceof Promise)) {
+            promise = null;
+        }
+        if (mRenderer != null) {
+            mRenderer.loadFontAndRefreshWindow(fontFamily, fontUrl, rootId, (Promise) promise);
+        }
     }
 
     @Override

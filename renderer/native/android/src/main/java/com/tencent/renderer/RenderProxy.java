@@ -23,6 +23,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.modules.Promise;
+
 import java.util.List;
 import java.util.Map;
 
@@ -130,5 +132,10 @@ public interface RenderProxy {
      * Notify renderer to remove snapshot view and delete snapshot node.
      */
     void removeSnapshotView();
+
+    /**
+     * Notify renderer to load font from url and refresh text window.
+     */
+    void loadFontAndRefreshWindow(@NonNull String fontFamily, @NonNull String fontUrl, int rootId, final Promise promise);
 
 }

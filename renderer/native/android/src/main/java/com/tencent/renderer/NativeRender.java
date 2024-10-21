@@ -108,9 +108,7 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
 
     void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync);
 
-    void markTextNodeDirty(int rootId);
-
-    void refreshWindow(int rootId);
+    void refreshTextWindow(int rootId);
 
     void updateDimension(int width, int height);
 

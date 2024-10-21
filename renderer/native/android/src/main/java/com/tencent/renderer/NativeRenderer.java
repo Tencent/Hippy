@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.BaseEngineContext;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.LogAdapter;
+import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
@@ -227,7 +228,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Nullable
     public FontLoader getFontLoader() {
         if (mFontLoader == null && getVfsManager() != null) {
-            mFontLoader = new FontLoader(getVfsManager());
+            mFontLoader = new FontLoader(getVfsManager(), this);
         }
         return mFontLoader;
     }
@@ -415,12 +416,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         mRenderProvider.onSizeChanged(rootId, w, h);
     }
 
-    public void markTextNodeDirty(int rootId) {
-        mRenderProvider.markTextNodeDirty(rootId);
-    }
-
-    public void refreshWindow(int rootId) {
-        mRenderProvider.refreshWindow(rootId);
+    public void refreshTextWindow(int rootId) {
+        mRenderProvider.refreshTextWindow(rootId);
     }
 
     @Override
@@ -1142,6 +1139,15 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             ((TextRenderNode) child).recordVirtualChildren(nodeInfoList);
         }
         return true;
+    }
+
+    @Override
+    public void loadFontAndRefreshWindow(@NonNull String fontFamily, @NonNull String fontUrl,
+                                         int rootId, final Promise promise) {
+        if (mFontLoader == null && getVfsManager() != null) {
+            mFontLoader = new FontLoader(getVfsManager(), this);
+        }
+        mFontLoader.loadAndRefresh(fontFamily, fontUrl, rootId, promise);
     }
 
     private interface UITaskExecutor {
