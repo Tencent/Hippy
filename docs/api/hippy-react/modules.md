@@ -281,6 +281,22 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ---
 
+# FontLoaderModule
+
+提供通过url动态下载远程字体的能力，下载的字体将保存在应用Cache目录下，由Hippy统一管理，可能被终端系统删除。常用字体不推荐使用该模块动态下载。
+
+
+## 方法
+
+### FontLoaderModule.load
+
+`(fontFamily: string, fontUrl: string) => Promise<void>` 通过fontUrl异步下载字体，下载完成后会刷新终端文本。
+
+> - fontFamily - 下载字体的字体家族，用于保存文件
+> - fontUrl - 下载字体的地址
+
+---
+
 # NetInfo
 
 [[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/NetInfo)
