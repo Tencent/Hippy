@@ -66,6 +66,9 @@ extern NSString *const HippySRHTTPResponseErrorKey;
 
 // Some helper constructors.
 - (instancetype)initWithURL:(NSURL *)url protocols:(NSArray<NSString *> *)protocols;
+- (instancetype)initWithURL:(NSURL *)url 
+               extraHeaders:(NSDictionary *)extraHeaders
+                  protocols:(NSArray<NSString *> *)protocols;
 - (instancetype)initWithURL:(NSURL *)url;
 
 // Delegate queue will be dispatch_main_queue by default.
