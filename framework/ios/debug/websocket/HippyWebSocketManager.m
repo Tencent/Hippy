@@ -28,6 +28,9 @@
 #import "HippyDefines.h"
 
 static NSUInteger socketIndex = 0;
+static NSString *const kHippyWebSocketUrlParamKey = @"url";
+static NSString *const kHippyWebSocketHeaderParamKey = @"headers";
+static NSString *const kHippySecWebSocketProtocolKey = @"Sec-WebSocket-Protocol";
 
 #pragma mark - HippyWebSocketManager
 
@@ -62,11 +65,16 @@ HIPPY_EXPORT_MODULE(websocket)
 }
 
 HIPPY_EXPORT_METHOD(connect:(NSDictionary *)params resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    NSDictionary *headers = params[@"headers"];
-    NSString *url = params[@"url"];
-    NSString *protocols = headers[@"Sec-WebSocket-Protocol"];
+    NSDictionary *headers = params[kHippyWebSocketHeaderParamKey];
+    NSString *url = params[kHippyWebSocketUrlParamKey];
+    NSString *protocols = headers[kHippySecWebSocketProtocolKey];
+    // prepare extra headers
+    NSMutableDictionary *extraHeaders = headers.mutableCopy;
+    [extraHeaders removeObjectForKey:kHippySecWebSocketProtocolKey];
     NSArray<NSString *> *protocolArray = [protocols componentsSeparatedByString:@","];
-    HippySRWebSocket *socket = [[HippySRWebSocket alloc] initWithURL:[NSURL URLWithString:url] protocols:protocolArray];
+    HippySRWebSocket *socket = [[HippySRWebSocket alloc] initWithURL:[NSURL URLWithString:url]
+                                                        extraHeaders:extraHeaders
+                                                           protocols:protocolArray];
     socket.delegate = self;
     socket.socketID = socketIndex++;
     NSNumber *socketId = @(socket.socketID);
