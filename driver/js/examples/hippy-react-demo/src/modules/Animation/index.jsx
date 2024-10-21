@@ -154,6 +154,7 @@ export default class AnimationExample extends React.Component {
             duration: 2000,
             delay: 0,
             mode: 'timing',
+            valueType: 'deg',
             timingFunction: 'linear',
           }),
           follow: false, // 配置子动画的执行是否跟随执行
@@ -165,6 +166,7 @@ export default class AnimationExample extends React.Component {
             duration: 2000,
             delay: 0,
             mode: 'timing',
+            valueType: 'deg',
             timingFunction: 'linear',
           }),
           follow: true,
@@ -182,6 +184,7 @@ export default class AnimationExample extends React.Component {
             duration: 2000,
             delay: 0,
             mode: 'timing',
+            valueType: 'deg',
             timingFunction: 'linear',
           }),
           follow: false, // 配置子动画的执行是否跟随执行
@@ -193,6 +196,7 @@ export default class AnimationExample extends React.Component {
             duration: 2000,
             delay: 0,
             mode: 'timing',
+            valueType: 'deg',
             timingFunction: 'linear',
           }),
           follow: true,
