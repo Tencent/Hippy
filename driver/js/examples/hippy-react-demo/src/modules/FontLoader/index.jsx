@@ -77,8 +77,8 @@ export default class LoadFontExample extends React.Component {
   async loadFont() {
     this.setState({ fontFamily: this.state.inputFontFamily });
     await FontLoaderModule.load(this.state.fontFamily, this.state.fontUrl)
-    .then(() => {
-      this.setState({ loadState: 'Success' });
+    .then((result) => {
+      this.setState({ loadState: result });
     })
     .catch((error) => {
       this.setState({ loadState: error });

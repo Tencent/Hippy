@@ -454,8 +454,7 @@ export default {
       console.log('fontUrl:', this.fontUrl)
       let result;
       try {
-        await Vue.Native.FontLoader.load(this.fontFamily, this.fontUrl);
-        result = 'success';
+        result = await Vue.Native.FontLoader.load(this.fontFamily, this.fontUrl);
       } catch (error) {
         result = error.message;
       }

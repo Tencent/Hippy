@@ -38,31 +38,32 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class FontLoader {
 
     private final WeakReference<NativeRender> mNativeRenderRef;
     private final WeakReference<VfsManager> mVfsManager;
     private final File mFontDir;
-    private final File mFontUrlDictPath;
-    private Map<String, String> mConcurrentFontUrlDict;
-    private final Set<String> mConcurrentFontsLoaded;
-    private final Set<String> mConcurrentUrlsLoading;
+    private final File mFontUrlMapPath;
+    private Map<String, String> mConcurrentFontUrlMap;
+    private final Map<String, FontLoadState> mConcurrentFontLoadStateMap;
     private static final String[] ALLOWED_EXTENSIONS = {"otf", "ttf"};
     private static final String FONT_DIR_NAME = "HippyFonts";
-    private static final String FONT_URL_DICT_NAME = "fontUrlDict.ser";
+    private static final String FONT_URL_MAP_NAME = "fontUrlMap.ser";
+
+    public enum FontLoadState {
+        FONT_LOADING,
+        FONT_LOADED
+    }
 
 
     public FontLoader(VfsManager vfsManager, NativeRender nativeRender) {
         mNativeRenderRef = new WeakReference<>(nativeRender);
         mVfsManager = new WeakReference<>(vfsManager);
         mFontDir = new File(ContextHolder.getAppContext().getCacheDir(), FONT_DIR_NAME);
-        mFontUrlDictPath = new File(mFontDir, FONT_URL_DICT_NAME);
-        mConcurrentFontsLoaded = new CopyOnWriteArraySet<>();
-        mConcurrentUrlsLoading = new CopyOnWriteArraySet<>();
+        mFontUrlMapPath = new File(mFontDir, FONT_URL_MAP_NAME);
+        mConcurrentFontLoadStateMap = new ConcurrentHashMap<>();
     }
 
     private boolean saveFontFile(byte[] byteArray, String fileName, Promise promise) {
@@ -78,7 +79,7 @@ public class FontLoader {
         try (FileOutputStream fos = new FileOutputStream(fontFile)) {
             fos.write(byteArray);
             if (promise != null) {
-                promise.resolve(null);
+                promise.resolve(fileName + " download success!");
             }
             return true;
         } catch (IOException e) {
@@ -90,16 +91,17 @@ public class FontLoader {
     }
 
     public boolean isFontLoaded(String fontFamily) {
-        return mConcurrentFontsLoaded.contains(fontFamily);
+        return fontFamily != null &&
+            mConcurrentFontLoadStateMap.get(fontFamily) == FontLoadState.FONT_LOADED;
     }
 
-    private void saveFontUrlDictFile() {
-        try (FileOutputStream fos = new FileOutputStream(mFontUrlDictPath);
+    private void saveFontUrlMapFile() {
+        try (FileOutputStream fos = new FileOutputStream(mFontUrlMapPath);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(mConcurrentFontUrlDict);
-            LogUtils.d("FontLoader", "Save fontUrlDict.ser success");
+            oos.writeObject(mConcurrentFontUrlMap);
+            LogUtils.d("FontLoader", "Save fontUrlMap.ser success");
         } catch (IOException e) {
-            LogUtils.d("FontLoader", "Save fontUrlDict.ser failed");
+            LogUtils.d("FontLoader", "Save fontUrlMap.ser failed");
         }
     }
 
@@ -115,24 +117,24 @@ public class FontLoader {
     }
 
     public boolean loadIfNeeded(final String fontFamily, final String fontUrl, int rootId) {
-        if (mConcurrentFontUrlDict == null) {
-            Map<String, String> fontUrlDict;
-            try (FileInputStream fis = new FileInputStream(mFontUrlDictPath);
+        if (mConcurrentFontUrlMap == null) {
+            Map<String, String> fontUrlMap;
+            try (FileInputStream fis = new FileInputStream(mFontUrlMapPath);
                  ObjectInputStream ois = new ObjectInputStream(fis)) {
-                fontUrlDict = (Map<String, String>) ois.readObject();
+                fontUrlMap = (Map<String, String>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                fontUrlDict = new HashMap<>();
+                fontUrlMap = new HashMap<>();
             }
-            mConcurrentFontUrlDict = new ConcurrentHashMap<>(fontUrlDict);
+            mConcurrentFontUrlMap = new ConcurrentHashMap<>(fontUrlMap);
         }
-        String fontFileName = mConcurrentFontUrlDict.get(fontUrl);
+        String fontFileName = mConcurrentFontUrlMap.get(fontUrl);
         if (fontFileName != null) {
             File fontFile = new File(mFontDir, fontFileName);
             if (fontFile.exists()) {
                 return false;
             }
         }
-        if (mConcurrentUrlsLoading.contains(fontUrl)) {
+        if (mConcurrentFontLoadStateMap.containsKey(fontFamily)) {
             return false;
         }
         loadAndRefresh(fontFamily, fontUrl, rootId, null);
@@ -149,7 +151,7 @@ public class FontLoader {
             }
             return;
         }
-        mConcurrentUrlsLoading.add(fontUrl);
+        mConcurrentFontLoadStateMap.put(fontFamily, FontLoadState.FONT_LOADING);
         mVfsManager.get().fetchResourceAsync(fontUrl, null, null,
             new FetchResourceCallback() {
                 @Override
@@ -158,6 +160,7 @@ public class FontLoader {
                     if (dataHolder.resultCode
                         != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null
                         || bytes.length <= 0) {
+                        mConcurrentFontLoadStateMap.remove(fontFamily);
                         if (promise != null) {
                             promise.reject("Fetch font file failed, url=" + fontUrl);
                         }
@@ -165,17 +168,19 @@ public class FontLoader {
                         String fileName = fontFamily + getFileExtension(fontUrl);
                         if (saveFontFile(bytes, fileName, promise)) {
                             LogUtils.d("FontLoader", "Fetch font file success");
-                            mConcurrentFontsLoaded.add(fontFamily);
-                            mConcurrentFontUrlDict.put(fontUrl, fileName);
-                            saveFontUrlDictFile();
+                            mConcurrentFontLoadStateMap.put(fontFamily, FontLoadState.FONT_LOADED);
+                            mConcurrentFontUrlMap.put(fontUrl, fileName);
+                            saveFontUrlMapFile();
                             TypeFaceUtil.clearFontCache(fontFamily);
                             NativeRender nativeRender = mNativeRenderRef.get();
                             if (nativeRender != null) {
                                 nativeRender.refreshTextWindow(rootId);
                             }
                         }
+                        else {
+                            mConcurrentFontLoadStateMap.remove(fontFamily);
+                        }
                     }
-                    mConcurrentUrlsLoading.remove(fontUrl);
                     dataHolder.recycle();
                 }
 
