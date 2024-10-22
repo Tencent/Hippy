@@ -140,6 +140,11 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
         pager.setOverflow(overflow);
     }
 
+    @HippyControllerProps(name = "offscreenPageLimit", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
+    public void setOffscreenPageLimit(HippyViewPager parent, int limit) {
+        parent.setOffscreenPageLimit(limit);
+    }
+
     private void resolveInvalidParams(@Nullable Promise promise) {
         if (promise != null) {
             String msg = "Invalid parameter!";
