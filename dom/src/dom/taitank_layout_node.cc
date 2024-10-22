@@ -98,7 +98,7 @@ public:
       {"inherit", DIRECTION_INHERIT}, {"ltr", DIRECTION_LTR}, {"rtl", DIRECTION_RTL}};
 };
 
-static std::shared_ptr<TaitankLayoutConsts> global_layout_consts = nullptr;
+static TaitankLayoutConsts* global_layout_consts = nullptr;
 
 #define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
   static TYPE GetStyle##NAME(const std::string& key) {   \
@@ -820,7 +820,7 @@ void TaitankLayoutNode::Deallocate() {
 
 void InitLayoutConsts() {
   if (global_layout_consts == nullptr) {
-    global_layout_consts = std::make_shared<TaitankLayoutConsts>();
+    global_layout_consts = new TaitankLayoutConsts();
   }
 }
 
