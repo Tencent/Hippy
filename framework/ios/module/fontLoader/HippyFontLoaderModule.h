@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 HIPPY_EXTERN NSString *const HippyLoadFontNotification;
 
+typedef NS_ENUM(NSInteger, HippyFontUrlState) {
+    HippyFontUrlLoading = 0,
+    HippyFontUrlLoaded = 1,
+    HippyFontUrlFailed = 2,
+};
+
 @interface HippyFontLoaderModule : NSObject<HippyBridgeModule>
 
 /**
@@ -43,6 +49,21 @@ HIPPY_EXTERN NSString *const HippyLoadFontNotification;
  * @param fontFamily - The font family needs to be registered
  */
 + (void)registerFontIfNeeded:(NSString *)fontFamily;
+
+/**
+ * Whether the font is downloading from the url.
+ *
+ * @param url - The font url needs to download from.
+ * @return Yes if the font is downloading from the url.
+ */
++ (BOOL) isUrlLoading:(NSString *)url;
+
+/**
+ * Get the serial queue in HippyFontLoaderModule for asyn serial operations.
+ *
+ * @return The serial dispatch_queue_t.
+ */
++ (dispatch_queue_t) getFontSerialQueue;
 
 @end
 
