@@ -429,8 +429,7 @@ export default defineComponent({
       console.log('load fontUrl:', fontUrl.value)
       let result;
       try {
-        await Native.FontLoader.load(fontFamily.value, fontUrl.value);
-        result = 'success';
+        result = await Native.FontLoader.load(fontFamily.value, fontUrl.value);
       } catch (error) {
         result = error.message;
       }

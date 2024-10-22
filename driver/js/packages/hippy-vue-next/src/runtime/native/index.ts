@@ -242,7 +242,7 @@ export interface NativeApiType {
   };
 
   FontLoader: {
-    load: (fontFamily: string, url: string) => Promise<undefined>;
+    load: (fontFamily: string, url: string) => Promise<string>;
   };
 
   // include window and screen info
@@ -528,7 +528,7 @@ export const Native: NativeApiType = {
      * @param fontFamily
      * @param url - font url
      */
-    load(fontFamily, url): Promise<undefined> {
+    load(fontFamily: string, url: string): Promise<string> {
       return Native.callNativeWithPromise.call(
         this,
         'FontLoaderModule',

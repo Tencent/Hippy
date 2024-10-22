@@ -19,5 +19,5 @@
  */
 
 export interface FontLoaderModule {
-  load: (fontFamily: string, url: string) => undefined;
+  load: (fontFamily: string, url: string) => string;
 }
