@@ -284,11 +284,16 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     // Gracefully handle being given a font name rather than font family, for
     // example: "Helvetica Light Oblique" rather than just "Helvetica".
     if (!didFindFont && familyName.length > 0 && fontNamesForFamilyName(familyName).count == 0) {
-        familyName = [HippyFont familyNameWithCSSNameMatching:familyName] ?: familyName;
-        fontWeight = weight ? fontWeight : weightOfFont(font);
-        isItalic = style ? isItalic : isItalicFont(font);
-        isCondensed = isCondensedFont(font);
-        font = cachedSystemFont(fontSize, fontWeight);
+        font = [UIFont fontWithName:familyName size:fontSize];
+        if (font) {
+            didFindFont = YES;
+        }
+        else {
+            fontWeight = weight ? fontWeight : weightOfFont(font);
+            isItalic = style ? isItalic : isItalicFont(font);
+            isCondensed = isCondensedFont(font);
+            font = cachedSystemFont(fontSize, fontWeight);
+        }
 
         if (font) {
             // It's actually a font name, not a font family name,
