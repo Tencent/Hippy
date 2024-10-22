@@ -238,6 +238,11 @@ void TaitankLayoutNode::SetLayoutStyles(
   Parser(style_update, style_delete);
 }
 
+void TaitankLayoutNode::ResetLayoutCache() {
+  FOOTSTONE_DLOG(INFO) << "do reset layout cache";
+  engine_node_->ResetLayoutRecursive();
+}
+
 void TaitankLayoutNode::Parser(
     const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
     const std::vector<std::string>& style_delete) {
