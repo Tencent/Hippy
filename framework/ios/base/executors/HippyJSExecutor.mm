@@ -249,7 +249,12 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
+        auto engineRsc = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:enginekey];
         [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Make a tiny delay to ensure the engine resource is released on the main thread
+            HippyLogInfo(@"Remove EngineRsc, UseCount:%ld", engineRsc.use_count());
+        });
     });
 }
 
