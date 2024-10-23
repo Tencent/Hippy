@@ -42,6 +42,7 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
 @property (nonatomic, assign) CGRect previousFrame;
 @property (nonatomic, assign) CGSize previousSize;
 @property (nonatomic, copy) NSHashTable<id<UIScrollViewDelegate>> *scrollViewListener;
+@property (nonatomic, strong) NSHashTable<id<HippyScrollableLayoutDelegate>> *layoutDelegates;
 @property (nonatomic, assign) NSUInteger lastPageIndex;
 @property (nonatomic, assign) CGFloat targetContentOffsetX;
 @property (nonatomic, assign) BOOL didFirstTimeLayout;
@@ -364,13 +365,35 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
     });
 }
 
-#pragma mark scrollview listener methods
+#pragma mark - scrollview listener methods
+
+- (UIScrollView *)realScrollView {
+    return self;
+}
+
+- (NSHashTable *)scrollListeners {
+    return _scrollViewListener;
+}
+
 - (void)addScrollListener:(id<UIScrollViewDelegate>)scrollListener {
     [_scrollViewListener addObject:scrollListener];
 }
 
 - (void)removeScrollListener:(id<UIScrollViewDelegate>)scrollListener {
     [_scrollViewListener removeObject:scrollListener];
+}
+
+- (void)addHippyScrollableLayoutDelegate:(id<HippyScrollableLayoutDelegate>)delegate {
+    HippyAssertMainThread();
+    if (!self.layoutDelegates) {
+        self.layoutDelegates = [NSHashTable weakObjectsHashTable];
+    }
+    [self.layoutDelegates addObject:delegate];
+}
+
+- (void)removeHippyScrollableLayoutDelegate:(id<HippyScrollableLayoutDelegate>)delegate {
+    HippyAssertMainThread();
+    [self.layoutDelegates removeObject:delegate];
 }
 
 #pragma mark other methods
@@ -497,6 +520,13 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
         if (self.needsResetPageIndex) {
             [self setPage:_lastPageIndex animated:NO];
             self.needsResetPageIndex= NO;
+        }
+    }
+    
+    // Notify delegates of HippyScrollableLayoutDelegate
+    for (id<HippyScrollableLayoutDelegate> layoutDelegate in self.layoutDelegates) {
+        if ([layoutDelegate respondsToSelector:@selector(scrollableDidLayout:)]) {
+            [layoutDelegate scrollableDidLayout:self];
         }
     }
 }
