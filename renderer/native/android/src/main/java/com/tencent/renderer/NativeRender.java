@@ -29,6 +29,7 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
 import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.FontLoader;
 import com.tencent.renderer.node.VirtualNode;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
@@ -51,6 +52,8 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
 
     @Nullable
     ImageLoaderAdapter getImageLoader();
+
+    FontLoader getFontLoader();
 
     @Nullable
     VfsManager getVfsManager();
@@ -104,6 +107,8 @@ public interface NativeRender extends RenderExceptionHandler, RenderLogHandler {
     void onSizeChanged(int rootId, int width, int height, int oldWidth, int oldHeight);
 
     void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync);
+
+    void refreshTextWindow(int rootId);
 
     void updateDimension(int width, int height);
 
