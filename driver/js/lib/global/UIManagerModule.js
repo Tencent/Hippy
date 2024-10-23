@@ -22,6 +22,7 @@
 /* eslint-disable no-underscore-dangle */
 
 const UIManagerModule = internalBinding('UIManagerModule');
+const LayoutModule = internalBinding('LayoutModule');
 
 Hippy.document = {
   createNode() {
@@ -41,6 +42,9 @@ Hippy.document = {
   },
   callUIFunction(id, name, param, cb) {
     UIManagerModule.CallUIFunction(id, name, param, cb);
+  },
+  ResetLayoutCache() {
+    LayoutModule.ResetLayoutCache();
   },
   sendRenderError(error) {
     if (error) {

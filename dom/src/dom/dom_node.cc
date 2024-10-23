@@ -326,6 +326,10 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
   return result;
 }
 
+void DomNode::ResetLayoutCache() {
+  layout_node_->ResetLayoutCache();
+}
+
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   auto not_equal = std::not_equal_to<>();
   bool changed =  layout_node_->IsDirty() || layout_node_->HasNewLayout();

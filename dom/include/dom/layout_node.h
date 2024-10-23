@@ -122,6 +122,11 @@ class LayoutNode {
   virtual void SetLayoutStyles(
       const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
       const std::vector<std::string>& style_delete) = 0;
+
+  /**
+   * @brief 清除节点layout缓存
+   */
+  virtual void ResetLayoutCache() = 0;
 };
 
 void InitLayoutConsts();
