@@ -47,6 +47,7 @@
 #include "driver/modules/scene_builder_module.h"
 #include "driver/modules/timer_module.h"
 #include "driver/modules/ui_manager_module.h"
+#include "driver/modules/ui_layout_module.h"
 #include "driver/vm/native_source_code.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
@@ -204,6 +205,7 @@ void Scope::BindModule() {
 #ifdef JS_V8
   module_object_map_["MemoryModule"] = std::make_shared<MemoryModule>();
 #endif
+  module_object_map_["LayoutModule"] = std::make_shared<LayoutModule>();
 }
 
 void Scope::Bootstrap() {

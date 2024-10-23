@@ -195,6 +195,11 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   void SetHasNewLayout(bool has_new_layout) override;
 
   /**
+   * @brief 清除节点layout缓存
+   */
+  void ResetLayoutCache() override;
+
+  /**
    * @brief 节点标脏
    */
   void MarkDirty() override;
