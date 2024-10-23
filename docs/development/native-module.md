@@ -43,13 +43,16 @@ public class TestModule extends HippyNativeModuleBase
 
 HippyNativeModuleBase 要求增加注解 `@HippyNativeModule` 。
 
-HippyNativeModule有两个注解参数：
+HippyNativeModule注解参数：
 
-- name：能力名称，js调用时需要通过此访问该能力。
-- thread：能力运行的线程。包括 `HippyNativeModule.Thread.DOM`（Dom线程）、`HippyNativeModule.Thread.MAIN`（主线程）、`HippyNativeModule.Thread.BRIDGE`（Bridge线程、默认值）。
+- name：module名称，js调用时需要通过此属性找到对应的module实例对象。
+- names：module别名，支持同一个module设置不同的名称。
+- init：默认为false，即module在首次调用的时候才会进行实例初始化，如果设置为true，在引擎创建时候就会马上创建实例并初始化
+
+> **注意：init参数在非必要的情况下不要设置为true，否则可能增加引擎启动的耗时。**
 
 ``` java
-@HippyNativeModule(name = "TestModule", thread = HippyNativeModule.Thread.BRIDGE)
+@HippyNativeModule(name = "TestModule")
 public class TestModule extends HippyNativeModuleBase
 {
     ...
@@ -65,7 +68,16 @@ public class TestModule extends HippyNativeModuleBase
 - Java基本数据类型。
 - HippyArray：类似于ArrayList，线程非安全。
 - HippyMap：类似于HashMap，线程非安全。
+- 基于JSValue的新数据类型：注解参数useJSValueType设置为true时适用。
 - Promise：回调JS的触发器，通过 `resolve` 方法返回成功信息给JS。通过 `reject` 方法返回失败实现给JS。
+
+HippyMethod注解参数：
+
+- name：接口名称，js调用时需要通过此参数找到对应的接口信息，并进行反射调用。
+- isSync：是否为JSI接口，JSI为同步调用接口，会卡住js线程，只适用于数据结构简单且size较小的数据传输，[JSI特性介绍](feature/feature2.0/jsi.md)
+- useJSValueType：接口参数是否使用新数据类型，默认为false，即使用老的HippyMap与HippyArray类型接收参数，设置为true以后参数需要使用基于JSValue为基类的扩展数据类型，[新数据类型介绍](development/type-mapping.md)
+
+> **注意：新数据类型不能与HippyMap或HippyArray相互嵌套混用， 否则会导致数据编解码产生错误。**
 
 ```java
 @HippyMethod(name="log")
@@ -104,6 +116,8 @@ public void helloNativeWithPromise(HippyMap hippyMap, Promise promise)
     }
 }
 ```
+
+
 
 ## 4. 注册Module
 
