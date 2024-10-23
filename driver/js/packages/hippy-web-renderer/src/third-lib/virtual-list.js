@@ -173,7 +173,7 @@ export  class VirtualizedList {
     });
     const fragment = document.createDocumentFragment();
 
-    for (let index = start; index <= stop&&stop>0; index++) {
+    for (let index = start; index <= stop; index++) {
       fragment.appendChild(renderRow(index));
     }
 
