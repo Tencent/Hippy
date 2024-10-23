@@ -157,6 +157,12 @@ import icon from './qb_icon_new.png';
 >
 >* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
+### expandPullHeader
+
+> 最低支持版本 `2.14.0`
+
+`() => void` 展开顶部下拉刷新条 PullHeader。当设置了`renderPullHeader`后，可以通过该方法来主动触发下拉刷新的效果。
+
 ### collapsePullFooter
 
 > 最低支持版本 `2.14.0`
@@ -503,6 +509,7 @@ import icon from './qb_icon_new.png';
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS、Voltron`    |
 | initialPage              | 指定一个数字，用于决定初始化后默认显示的页面 index，默认不指定的时候是0 | `number`                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| offscreenPageLimit       | 指定一个数字，用于设置最大挂载到view tree的page item数量，默认为1，如果在间隔较大的item之间切换遇到一些刷新闪动问题，可以尝试设置该属性为最大page item count来解决 | `number`    | `Android` |
 | scrollEnabled            | 指定 ViewPager 是否可以滑动，默认为 `true`                        | `boolean`                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onPageSelected           | 指定一个函数，当 page 被选中时进行回调。回调参数是一个 event 对象，回调参数： `position: number` - 表示即将滑到的目标 page 的索引 | `(obj: {position: number}) => void`      | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onPageScroll             | 指定一个函数，当 page 被滑动时进行回调。回调参数是一个 event 对象，回调参数 `position: number` - 表示即将滑到的目标 page 的索引，`offset: number` - 当前被选中的 page 的相对位移，取值范围 -1 到 1 | `(obj: {position: number, offset: number}) => void` | `Android、iOS、Web-Renderer、Voltron`    |
