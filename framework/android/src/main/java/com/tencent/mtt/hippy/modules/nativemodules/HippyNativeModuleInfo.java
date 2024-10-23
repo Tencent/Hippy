@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
-import com.tencent.mtt.hippy.annotation.HippyNativeModule.Thread;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.modules.HippyModulePromise;
@@ -35,7 +34,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,7 +42,6 @@ public final class HippyNativeModuleInfo {
     private static final String TAG = "HippyNativeModuleInfo";
     private String mName;
     private String[] mNames;
-    private HippyNativeModule.Thread mThread = Thread.BRIDGE;
     private final Provider<? extends HippyNativeModuleBase> mProvider;
     private final Class<?> mClass;
     @Nullable
@@ -61,7 +58,6 @@ public final class HippyNativeModuleInfo {
         if (annotation != null) {
             mName = annotation.name();
             mNames = annotation.names();
-            mThread = annotation.thread();
             initImmediately(annotation);
         }
     }
@@ -94,10 +90,6 @@ public final class HippyNativeModuleInfo {
 
     public HippyNativeModuleBase getInstance() {
         return mInstance;
-    }
-
-    public HippyNativeModule.Thread getThread() {
-        return mThread;
     }
 
     private void checkModuleMethods() {
@@ -198,7 +190,7 @@ public final class HippyNativeModuleInfo {
         @Nullable
         private Object[] prepareArguments(@NonNull Object args, PromiseImpl promise)
                 throws IllegalArgumentException {
-            if (mParamTypes == null || mParamTypes.length <= 0) {
+            if (mParamTypes == null || mParamTypes.length == 0) {
                 return null;
             }
             if (!checkArgumentType(args)) {

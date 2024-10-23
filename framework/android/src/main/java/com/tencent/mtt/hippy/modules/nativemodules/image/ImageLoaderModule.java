@@ -77,10 +77,10 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
     }
 
     private void handleFetchResult(final String url, final Promise promise, @NonNull final ResourceDataHolder dataHolder) {
-        byte[] bytes = dataHolder.getBytes();
-        Bitmap bitmap = dataHolder.bitmap;
         LogUtils.d(TAG, "handleFetchResult: url " + url + ", result " + dataHolder.resultCode);
         if (dataHolder.resultCode == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
+            byte[] bytes = dataHolder.getBytes();
+            Bitmap bitmap = dataHolder.bitmap;
             if (bitmap != null && !bitmap.isRecycled()) {
                 LogUtils.d(TAG, "handleFetchResult: url " + url
                         + ", bitmap width " + bitmap.getWidth() + ", bitmap height " + bitmap.getHeight());

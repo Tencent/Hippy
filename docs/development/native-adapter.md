@@ -21,6 +21,7 @@ Hippy SDK 现在所提供的 Adapter 包括：
 - `HippyStorageAdapter`：数据库（KEY-VALUE）Adapter。
 - `HippyExecutorSupplierAdapter`：线程池 Adapter。
 - `HippyEngineMonitorAdapter`：Hippy 引擎状态监控 Adapter。
+- `HippyFontScaleAdapter`：自定义字体 Adapter。
 
 
 ## HippyHttpAdapter
@@ -54,6 +55,25 @@ Hippy SDK 提供默认空实现 `DefaultEngineMonitorAdapter`。当你需要查�
 ## ImageDecoderAdapter
 
 用于支持开发者有自定义格式图片的解码需求，需要开发者自行提供接口类实例。
+
+## HippyFontScaleAdapter
+
+Hippy SDK 提供默认的实现 `DefaultFontScaleAdapter`，默认实现中未对字体做任何定制处理，如果需要加载自定义字体或者改变文字显示大小需要实现自定义font adapter并实现以下接口。
+
+``` java
+// 返回字体的缩放系数，开发者可以返回自定义缩放系数，来动态改变字体的显示大小
+float getFontScale();
+
+// 通过该方法可以替换text中自定义表情字符
+CharSequence getEmoticonText(CharSequence text, int fontSize)
+
+// 根据font family和style返回自定义字体的文件路径
+String getCustomFontFilePath(String fontFamily, int style);
+
+// 根据font family和style返回自定义字体的Typaeface对象
+Typeface getCustomTypeface(String fontFamily, int style);
+
+```
 
 
 
