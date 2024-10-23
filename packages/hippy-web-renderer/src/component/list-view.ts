@@ -570,7 +570,8 @@ export class ListViewItem extends HippyWebView<HTMLDivElement> {
   public handleReLayout(entries: ResizeObserverEntry[]) {
     const [entry] = entries;
     const { height } = entry.contentRect;
-    if ((height === 0 && Math.round(height) !== this.height) || Math.round(height) !== this.dom?.clientHeight) {
+    if ((Math.round(height) === this.height) && Math.round(height) === this.dom?.clientHeight) {
+      // no need to relayout ListViewItem when height is not changed
       return;
     }
     this.height = Math.round(height);
