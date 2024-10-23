@@ -280,7 +280,7 @@ void YogaLayoutNode::SetLayoutStyles(
   Parser(style_update, style_delete);
 }
 
-void TaitankLayoutNode::ResetLayoutCache() {
+void YogaLayoutNode::ResetLayoutCache() {
   FOOTSTONE_DLOG(INFO) << "ResetLayoutCache not impl in yoga";
 }
 
