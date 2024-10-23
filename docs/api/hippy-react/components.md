@@ -157,6 +157,12 @@ import icon from './qb_icon_new.png';
 >
 >* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
+### expandPullHeader
+
+> 最低支持版本 `2.14.0`
+
+`() => void` 展开顶部下拉刷新条 PullHeader。当设置了`renderPullHeader`后，可以通过该方法来主动触发下拉刷新的效果。
+
 ### collapsePullFooter
 
 > 最低支持版本 `2.14.0`
