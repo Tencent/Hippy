@@ -49,13 +49,13 @@ constexpr char16_t kSetStr[] = u"set";
 
 static std::once_flag global_class_flag;
 static JSClassRef global_class;
-static std::shared_ptr<ConstructorDataManager> global_constructor_data_mgr = nullptr;
+static ConstructorDataManager* global_constructor_data_mgr = nullptr;
 
 JSCCtx::JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm): vm_(vm) {
   std::call_once(global_class_flag, []() {
     JSClassDefinition global = kJSClassDefinitionEmpty;
     global_class = JSClassCreate(&global);
-    global_constructor_data_mgr = std::make_shared<ConstructorDataManager>();
+    global_constructor_data_mgr = new ConstructorDataManager();
   });
 
   context_ = JSGlobalContextCreateInGroup(group, global_class);
