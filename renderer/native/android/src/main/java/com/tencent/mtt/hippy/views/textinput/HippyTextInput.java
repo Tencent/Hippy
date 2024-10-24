@@ -803,11 +803,17 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             mTextPaint.reset();
         }
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
-        if (mFontUrl != null) {
+        if (mFontUrl != null && !mFontUrl.isEmpty()) {
             FontLoader loader = nativeRenderer == null ? null : nativeRenderer.getFontLoader();
             if (loader != null) {
                 int rootId = nativeRenderer.getRootView(this).getId();
-                loader.loadIfNeeded(mFontFamily, mFontUrl, rootId);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loader.loadIfNeeded(mFontFamily, mFontUrl, rootId);
+                    }
+                });
+                thread.start();
             }
         }
         FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();

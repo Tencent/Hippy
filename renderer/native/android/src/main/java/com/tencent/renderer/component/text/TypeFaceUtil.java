@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.vfs.UrlUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class TypeFaceUtil {
     private static final String TAG = "TypeFaceUtil";
     private static final String[] EXTENSIONS = {"", "_bold", "_italic", "_bold_italic"};
     private static final String[] FONT_EXTENSIONS = {".ttf", ".otf", ""};
-    private static final String FONTS_PATH = "HippyFonts/";
+    private static final String FONTS_PATH = "fonts/";
     private static final Map<String, SparseArray<Typeface>> sFontCache = new HashMap<>();
 
     /**
@@ -88,7 +89,7 @@ public class TypeFaceUtil {
         // create from assets
         Typeface typeface = null;
         try {
-            typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
+            typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(), FONTS_PATH+fileName);
         } catch (Exception e) {
             LogUtils.w(TAG, e.getMessage());
         }
@@ -96,9 +97,33 @@ public class TypeFaceUtil {
         if (typeface == null || typeface.equals(Typeface.DEFAULT)) {
             try {
                 File cacheDir = ContextHolder.getAppContext().getCacheDir();
-                typeface = Typeface.createFromFile(new File(cacheDir, fileName));
+                typeface = Typeface.createFromFile(new File(cacheDir, FONTS_PATH+fileName));
             } catch (Exception e) {
                 LogUtils.w(TAG, e.getMessage());
+            }
+        }
+        // create from local bundle file
+        if (typeface == null || typeface.equals(Typeface.DEFAULT)) {
+            String bundleFontPath = FontLoader.getFontPath(fileName);
+            if (bundleFontPath != null) {
+                if (bundleFontPath.startsWith(UrlUtils.PREFIX_ASSETS)) {
+                    try {
+                        typeface = Typeface.createFromAsset(ContextHolder.getAppContext().getAssets(),
+                            bundleFontPath.substring(UrlUtils.PREFIX_ASSETS.length()));
+                    } catch (Exception e) {
+                        LogUtils.w(TAG, e.getMessage());
+                    }
+                }
+                else {
+                    if (bundleFontPath.startsWith(UrlUtils.PREFIX_FILE)) {
+                        bundleFontPath = bundleFontPath.substring(UrlUtils.PREFIX_FILE.length());
+                    }
+                    try {
+                        typeface = Typeface.createFromFile(new File(bundleFontPath));
+                    } catch (Exception e) {
+                        LogUtils.w(TAG, e.getMessage());
+                    }
+                }
             }
         }
         return typeface;
@@ -118,7 +143,7 @@ public class TypeFaceUtil {
                 continue;
             }
             for (String fileExtension : FONT_EXTENSIONS) {
-                String fileName = FONTS_PATH + splitName + extension + fileExtension;
+                String fileName = splitName + extension + fileExtension;
                 Typeface typeface = createExactTypeFace(fileName);
                 if (typeface != null && !typeface.equals(Typeface.DEFAULT)) {
                     return typeface;
