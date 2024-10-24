@@ -18,19 +18,18 @@
  * limitations under the License.
  */
 const path = require('path');
+const fs = require('fs-extra');
 const dts = require('rollup-plugin-dts').default;
 
-function banner(name, version, extra = '', startYear = 2017) {
+function banner(name, version, extra = '', startYear = 2017, build = true) {
   const thisYear = new Date().getFullYear();
   let copyRightYears = thisYear;
   if (startYear !== thisYear) {
     copyRightYears = `${startYear}-${thisYear}`;
   }
+  const buildStr = build ? `\n * ${name} v${version}${extra}\n * Build at: ${new Date()}\n *\n ` : '';
 
-  return `/*!
- * ${name} v${version}${extra}
- * Build at: ${new Date()}
- *
+  return `/* !${buildStr}
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
@@ -57,15 +56,36 @@ function resolvePackage(src, extra = 'src') {
   return path.resolve(__dirname, '../packages/', src, extra);
 }
 
-function getDtsConfig(config) {
+// 全局类型不会自动打入文件，这里手动修复
+function fixHippyTypes(opts = {}) {
   return {
-    input: Array.isArray(config.entry) ? config.entry[0] : config.entry,
+    name: 'fix-hippy-types',
+    renderChunk: (code) => {
+      if (!opts.fix) {
+        return code;
+      }
+      const d = fs.readFileSync(path.resolve(__dirname, '../packages/global.d.ts'));
+      const codef = code.replace(/HippyTypes\$1/g, 'HippyTypes');
+      return `${codef}\n${d}`;
+    },
+  };
+}
+
+function getDtsConfig(config = {}) {
+  const file = config.dest.replace('.js', '.d.ts');
+  const entry = Array.isArray(config.entry) ? config.entry[0] : config.entry;
+  return {
+    input: entry,
     output: {
-      file: config.dest.replace('.js', '.d.ts'),
+      file,
       format: 'es',
     },
     external: config.external,
-    plugins: [dts()],
+    plugins: [dts({
+      tsconfig: config.tsconfig,
+    }), fixHippyTypes({
+      fix: config.fixHippyTypes,
+    })],
   };
 }
 

@@ -29,11 +29,11 @@ interface Size {
   height: number;
 }
 
-interface ImageSource {
+export interface ImageSource {
   uri: string;
 }
 
-interface ImageProps extends LayoutableProps, ClickableProps {
+export interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Single image source
    */
@@ -62,7 +62,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image style when `Image` have other children.
    */
-  imageStyle?: HippyTypes.Style;
+  imageStyle?: HippyTypes.ImageStyleProp;
 
   /**
    * Image ref when `Image` have other children.

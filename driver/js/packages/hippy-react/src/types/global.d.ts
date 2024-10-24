@@ -1,8 +1,8 @@
-/*
+/* !
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-2023 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,13 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { LayoutableProps } from '../types';
+/* eslint-disable */
+// // @ts-ignore
+declare var global: HippyTypes.HippyGlobal & typeof globalThis;
 
-export interface ListViewItemProps extends LayoutableProps {
-  [props: string]: any;
-  type?: number | string | undefined;
-  key?: string;
-  itemViewType?: string;
-  sticky?: boolean;
-  style?:  HippyTypes.StyleProp;
-}
-
-export function ListViewItem(props: ListViewItemProps) {
-  return (
-    // @ts-ignore
-    <li nativeName="ListViewItem" {...props} />
-  );
-}
-
-export default ListViewItem;
+declare global {
+  namespace NodeJS {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Global extends HippyTypes.HippyGlobal {};
+  }
+};

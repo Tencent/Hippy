@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     color: 'black',
-    fontWeight: 'normal'
+    fontWeight: 'normal',
   },
   buttonBar: {
     flexDirection: 'row',
@@ -98,7 +98,7 @@ export default class TextExpo extends React.Component {
     if (fontWeight == '1000') {
       return;
     }
-    var weightNumber = parseInt(fontWeight, 10);
+    let weightNumber = parseInt(fontWeight, 10);
     weightNumber += 100;
     this.setState({
       fontWeight: weightNumber.toString(),
@@ -110,7 +110,7 @@ export default class TextExpo extends React.Component {
     if (fontWeight === '100') {
       return;
     }
-    var weightNumber = parseInt(fontWeight, 10);
+    let weightNumber = parseInt(fontWeight, 10);
     weightNumber -= 100;
     this.setState({
       fontWeight: weightNumber.toString(),
