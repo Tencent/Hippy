@@ -72,6 +72,7 @@ export default class LoadFontExample extends React.Component {
   fillExample() {
     this.setState({ inputFontFamily: 'HYHuaXianZi J' });
     this.setState({ fontUrl: 'https://zf.sc.chinaz.com/Files/DownLoad/upload/2024/1009/hanyihuaxianzijianti.ttf' });
+    // this.setState({ fontUrl: 'hpfile://./assets/hanyihuaxianzijianti.ttf' }
   }
 
   async loadFont() {
