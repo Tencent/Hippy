@@ -45,7 +45,7 @@ NSString *const HippyFontFamilyCacheName = @"fontFaimilyToFiles.plist";
 static dispatch_queue_t serialQueue;
 static NSMutableDictionary *urlToFilePath;
 static NSMutableDictionary *fontFamilyToFiles;
-static NSMutableDictionary *urlLoadState;
+static NSMutableDictionary *urlLoadState = [NSMutableDictionary dictionary];
 static NSMutableArray *fontRegistered = [NSMutableArray array];
 static NSString *fontDirPath;
 static NSString *fontUrlSavePath;
@@ -122,7 +122,7 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
     return fontFilePath;
 }
 
-+ (void)registerFontIfNeeded:(NSString *)fontFamily {
++ (BOOL)registerFontIfNeeded:(NSString *)fontFamily {
     [self initDictIfNeeded];
     NSMutableArray *fontFiles = [fontFamilyToFiles objectForKey:fontFamily];
     BOOL isFontRegistered = NO;
@@ -149,6 +149,7 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyFontChangeTriggerNotification object:nil];
         }
     }
+    return isFontRegistered;
 }
 
 
