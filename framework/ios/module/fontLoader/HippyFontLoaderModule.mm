@@ -76,19 +76,19 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
     return self;
 }
 
-+ (dispatch_queue_t) getFontSerialQueue {
++ (dispatch_queue_t)getFontSerialQueue {
     return serialQueue;
 }
 
-+ (void) setUrl:(NSString *)url state:(HippyFontUrlState)state {
++ (void)setUrl:(NSString *)url state:(HippyFontUrlState)state {
     [urlLoadState setObject:@(state) forKey:url];
 }
 
-+ (BOOL) isUrlLoading:(NSString *)url {
++ (BOOL)isUrlLoading:(NSString *)url {
     return [[urlLoadState objectForKey:url] integerValue] == HippyFontUrlLoading;
 }
 
-+ (void) initDictIfNeeded {
++ (void)initDictIfNeeded {
     if (fontFamilyToFiles == nil) {
         fontFamilyToFiles = [NSMutableDictionary dictionaryWithContentsOfFile:fontFamilySavePath];
         if (fontFamilyToFiles == nil) {

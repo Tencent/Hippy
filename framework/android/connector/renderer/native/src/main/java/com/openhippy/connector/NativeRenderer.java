@@ -147,11 +147,9 @@ public class NativeRenderer implements NativeRenderConnector {
     @Override
     public void loadFontAndRefreshWindow(@NonNull String fontFamily, @NonNull String fontUrl,
                                          int rootId, Object promise) {
-        if (!(promise instanceof Promise)) {
-            promise = null;
-        }
+        Promise pm = (promise instanceof Promise) ? ((Promise) promise) : null;
         if (mRenderer != null) {
-            mRenderer.loadFontAndRefreshWindow(fontFamily, fontUrl, rootId, (Promise) promise);
+            mRenderer.loadFontAndRefreshWindow(fontFamily, fontUrl, rootId, pm);
         }
     }
 

@@ -337,8 +337,8 @@ public class NativeRenderProvider {
         updateRootSize(mInstanceId, rootId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void refreshTextWindow(int rootId) {
-        refreshTextWindow(mInstanceId, rootId);
+    public void onFontLoaded(int rootId) {
+        onFontLoaded(mInstanceId, rootId);
     }
 
     public void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync) {
@@ -445,7 +445,7 @@ public class NativeRenderProvider {
      * @param instanceId the unique id of native (C++) render manager
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    private native void refreshTextWindow(int instanceId, int rootId);
+    private native void onFontLoaded(int instanceId, int rootId);
 
     /**
      * Updates the size to the specified node, such as modal node, should set new window size before

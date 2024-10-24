@@ -56,14 +56,14 @@ typedef NS_ENUM(NSInteger, HippyFontUrlState) {
  * @param url - The font url needs to download from.
  * @return Yes if the font is downloading from the url.
  */
-+ (BOOL) isUrlLoading:(NSString *)url;
++ (BOOL)isUrlLoading:(NSString *)url;
 
 /**
  * Get the serial queue in HippyFontLoaderModule for asyn serial operations.
  *
  * @return The serial dispatch_queue_t.
  */
-+ (dispatch_queue_t) getFontSerialQueue;
++ (dispatch_queue_t)getFontSerialQueue;
 
 /**
  * Load font from the url.
@@ -72,7 +72,7 @@ typedef NS_ENUM(NSInteger, HippyFontUrlState) {
  * @param resolve - The callback block for downloading successful.
  * @param reject - The callback block for downloading failed.
  */
-- (void) load:(NSString *)fontFamily from:(NSString *)urlString resolver:(nullable HippyPromiseResolveBlock)resolve rejecter:(nullable HippyPromiseRejectBlock)reject;
+- (void)load:(NSString *)fontFamily from:(NSString *)urlString resolver:(nullable HippyPromiseResolveBlock)resolve rejecter:(nullable HippyPromiseRejectBlock)reject;
 
 @end
 

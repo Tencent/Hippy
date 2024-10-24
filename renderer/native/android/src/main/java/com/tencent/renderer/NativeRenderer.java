@@ -225,9 +225,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return mImageLoader;
     }
 
-    @Nullable
     public FontLoader getFontLoader() {
-        if (mFontLoader == null && getVfsManager() != null) {
+        if (mFontLoader == null) {
             mFontLoader = new FontLoader(getVfsManager(), this);
         }
         return mFontLoader;
@@ -416,8 +415,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         mRenderProvider.onSizeChanged(rootId, w, h);
     }
 
-    public void refreshTextWindow(int rootId) {
-        mRenderProvider.refreshTextWindow(rootId);
+    public void onFontLoaded(int rootId) {
+        mRenderProvider.onFontLoaded(rootId);
     }
 
     @Override
@@ -1144,7 +1143,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void loadFontAndRefreshWindow(@NonNull String fontFamily, @NonNull String fontUrl,
                                          int rootId, final Promise promise) {
-        if (mFontLoader == null && getVfsManager() != null) {
+        if (mFontLoader == null) {
             mFontLoader = new FontLoader(getVfsManager(), this);
         }
         mFontLoader.loadAndRefresh(fontFamily, fontUrl, rootId, promise);
