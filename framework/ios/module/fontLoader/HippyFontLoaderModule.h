@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 HIPPY_EXTERN NSString *const HippyLoadFontNotification;
 
 typedef NS_ENUM(NSInteger, HippyFontUrlState) {
-    HippyFontUrlLoading = 0,
-    HippyFontUrlLoaded = 1,
-    HippyFontUrlFailed = 2,
+    HippyFontUrlLoading = 1,
+    HippyFontUrlLoaded = 2,
+    HippyFontUrlFailed = 3,
 };
 
 @interface HippyFontLoaderModule : NSObject<HippyBridgeModule>

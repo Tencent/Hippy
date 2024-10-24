@@ -489,7 +489,13 @@ public class TextVirtualNode extends VirtualNode {
                 size = (int) (size * mFontAdapter.getFontScale());
             }
             if (mFontUrl != null && !mFontUrl.isEmpty() && mFontLoaderRef.get() != null) {
-                mFontLoaderRef.get().loadIfNeeded(mFontFamily, mFontUrl, getRootId());
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFontLoaderRef.get().loadIfNeeded(mFontFamily, mFontUrl, getRootId());
+                    }
+                });
+                thread.start();
             }
             ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
             ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));

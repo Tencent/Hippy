@@ -25,6 +25,9 @@
 #include "HippyFileHandler.h"
 #include "footstone/logging.h"
 
+NSString *const HippyVFSResponseAbsoluteURLStringKey = @"HippyVFSResponseAbsoluteURLStringKey";
+NSString *const HippyVFSResponseURLTypeKey = @"HippyVFSResponseURLTypeKey";
+
 HippyFileHandler::HippyFileHandler(HippyBridge *bridge) {
     bridge_ = bridge;
 }
@@ -82,12 +85,12 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
     }
     HippyBridge *bridge = bridge_;
     if (!bridge || !request) {
-        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeFile)}, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     NSURL *url = [request URL];
     if (!url) {
-        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeFile)}, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
         return;
     }
     
@@ -100,7 +103,7 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
                                                            MIMEType:nil
                                               expectedContentLength:fileData.length
                                                    textEncodingName:nil];
-            completion(fileData, nil, rsp, error);
+            completion(fileData, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeFile), HippyVFSResponseAbsoluteURLStringKey: [absoluteURL path]}, rsp, error);
         };
         if (queue) {
             [queue addOperationWithBlock:opBlock];
@@ -109,6 +112,6 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
         }
     } else {
         FOOTSTONE_DLOG(ERROR) << "HippyFileHandler cannot load url " << [[absoluteURL absoluteString] UTF8String];
-        completion(nil, nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
+        completion(nil, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeFile)}, nil, [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnsupportedURL userInfo:nil]);
     }
 }

@@ -39,6 +39,11 @@ enum HippyVFSRscType {
     HippyVFSRscTypeImage,
 };
 
+enum HippyVFSURLType {
+    HippyVFSURLTypeHTTP = 1,
+    HippyVFSURLTypeFile,
+};
+
 
 // Resource Type Key for VFS Request in `extraInfo` parameter,
 // Value is defined in HippyVFSRscType
@@ -52,6 +57,13 @@ FOUNDATION_EXPORT NSString *_Nonnull const kHippyVFSRequestExtraInfoForCustomIma
 
 // The image returned in `userInfo` parameter of VFSHandlerCompletionBlock
 FOUNDATION_EXPORT NSString *_Nonnull const HippyVFSResponseDecodedImageKey;
+
+// The absolute file url returned in `userInfo` parameter of VFSHandlerCompletionBlock
+FOUNDATION_EXPORT NSString *_Nonnull const HippyVFSResponseAbsoluteURLStringKey;
+
+// The type of url returned in `userInfo` parameter of VFSHandlerCompletionBlock
+// Value is defined in HippyVFSURLType
+FOUNDATION_EXPORT NSString *_Nonnull const HippyVFSResponseURLTypeKey;
 
 
 typedef void(^VFSHandlerProgressBlock)(NSUInteger current, NSUInteger total);
