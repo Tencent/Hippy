@@ -61,8 +61,9 @@ public class FontLoader {
     private static final String LOCAL_FONT_PATH_MAP_NAME = "localFontPathMap.ser";
 
     public enum FontLoadState {
+        FONT_UNLOAD,
         FONT_LOADING,
-        FONT_LOADED
+        FONT_LOADED,
     }
 
 
@@ -193,6 +194,9 @@ public class FontLoader {
 
     public boolean loadIfNeeded(final String fontFamily, final String fontUrl, int rootId) {
         initMapIfNeeded();
+        if (TextUtils.isEmpty(fontFamily) || TextUtils.isEmpty(fontUrl)) {
+            return false;
+        }
         String fontFileName = mConcurrentUrlFontMap.get(fontUrl);
         if (fontFileName != null) {
             if (fontFileName.startsWith(PREFIX_ASSETS) && isAssetFileExists(fontFileName)) {
@@ -206,7 +210,8 @@ public class FontLoader {
                 return false;
             }
         }
-        if (mConcurrentFontLoadStateMap.containsKey(fontFamily)) {
+        FontLoadState state = mConcurrentFontLoadStateMap.get(fontFamily);
+        if (state == FontLoadState.FONT_LOADING || state == FontLoadState.FONT_LOADED) {
             return false;
         }
         loadAndRefresh(fontFamily, fontUrl, rootId, null);
@@ -225,6 +230,12 @@ public class FontLoader {
         }
         mConcurrentFontLoadStateMap.put(fontFamily, FontLoadState.FONT_LOADING);
         String convertFontUrl = convertToLocalPathIfNeeded(fontUrl);
+        if (mVfsManager.get() == null) {
+            if (promise != null) {
+                promise.reject("Get vfsManager failed!");
+            }
+            return;
+        }
         mVfsManager.get().fetchResourceAsync(convertFontUrl, null, null,
             new FetchResourceCallback() {
                 @Override
@@ -233,7 +244,7 @@ public class FontLoader {
                     if (dataHolder.resultCode
                         != ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE || bytes == null
                         || bytes.length <= 0) {
-                        mConcurrentFontLoadStateMap.remove(fontFamily);
+                        mConcurrentFontLoadStateMap.put(fontFamily, FontLoadState.FONT_UNLOAD);
                         if (promise != null) {
                             promise.reject("Fetch font file failed, url=" + fontUrl);
                         }
@@ -273,7 +284,7 @@ public class FontLoader {
                         TypeFaceUtil.clearFontCache(fontFamily);
                         NativeRender nativeRender = mNativeRenderRef.get();
                         if (nativeRender != null && needRefresh) {
-                            nativeRender.refreshTextWindow(rootId);
+                            nativeRender.onFontLoaded(rootId);
                         }
                     }
                     dataHolder.recycle();

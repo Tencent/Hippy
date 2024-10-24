@@ -65,6 +65,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
@@ -100,7 +101,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     private String mFontFamily;
     private String mFontUrl;
     private Paint mTextPaint;
-    protected boolean mFromFontLoader = false;
+    private FontLoader.FontLoadState mFontLoadState;
 
     public HippyTextInput(Context context) {
         super(context);
@@ -214,9 +215,10 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         if (nativeRenderer != null) {
             fontLoader = nativeRenderer.getFontLoader();
         }
-        if (!mFromFontLoader && fontLoader != null && fontLoader.isFontLoaded(mFontFamily)) {
+        if (mFontLoadState == FontLoader.FontLoadState.FONT_UNLOAD && fontLoader != null &&
+            fontLoader.isFontLoaded(mFontFamily)) {
             mShouldUpdateTypeface = true;
-            mFromFontLoader = true;
+            mFontLoadState = FontLoader.FontLoadState.FONT_LOADED;
         }
         if (mShouldUpdateTypeface) {
             updateTypeface();
@@ -776,8 +778,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             if (nativeRenderer != null) {
                 fontLoader = nativeRenderer.getFontLoader();
             }
-            if (mFromFontLoader && fontLoader != null && !fontLoader.isFontLoaded(mFontFamily)) {
-                mFromFontLoader = false;
+            if (fontLoader != null && !fontLoader.isFontLoaded(mFontFamily)) {
+                mFontLoadState = FontLoader.FontLoadState.FONT_UNLOAD;
             }
         }
     }
@@ -803,17 +805,16 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
             mTextPaint.reset();
         }
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
-        if (mFontUrl != null && !mFontUrl.isEmpty()) {
+        if (!TextUtils.isEmpty(mFontUrl)) {
             FontLoader loader = nativeRenderer == null ? null : nativeRenderer.getFontLoader();
             if (loader != null) {
                 int rootId = nativeRenderer.getRootView(this).getId();
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
+                Executor executor = nativeRenderer.getBackgroundExecutor();
+                if (executor != null) {
+                    executor.execute(() -> {
                         loader.loadIfNeeded(mFontFamily, mFontUrl, rootId);
-                    }
-                });
-                thread.start();
+                    });
+                }
             }
         }
         FontAdapter fontAdapter = nativeRenderer == null ? null : nativeRenderer.getFontAdapter();
