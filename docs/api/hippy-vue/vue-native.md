@@ -292,16 +292,16 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 # FontLoaderModule
 
-提供通过url动态下载远程字体的能力，下载的字体将保存在应用Cache目录下，由Hippy统一管理，可能被终端系统删除。常用字体不推荐使用该模块动态下载。
+提供通过url动态下载远程字体或者动态加载JSBundle包中字体的能力，下载的远程字体将保存在应用Cache目录下，由Hippy统一管理，可能被终端系统删除。常用字体不推荐使用该模块动态远程下载。
 
 ## 方法
 
 ### FontLoader.load
 
-`(fontFamily: string, fontUrl: string) => Promise<void>` 通过fontUrl异步下载字体，下载完成后会刷新终端文本。
+`(fontFamily: string, fontUrl: string) => Promise<string>` 通过fontUrl异步下载字体，下载完成后会刷新终端文本。
 
-> * fontFamily - 下载字体的字体家族，用于保存文件
-> * fontUrl - 下载字体的地址
+> * fontFamily - 下载字体的字体家族，用于保存文件和检索字体文件
+> * fontUrl - 下载字体的地址，可以是http网络地址，也可以本地文件地址或者以“hpfile://./”为前缀的JSbundle包中的相对地址
 
 ---
 
