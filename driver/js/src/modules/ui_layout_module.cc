@@ -49,7 +49,8 @@ inline namespace module {
 GEN_INVOKE_CB(LayoutModule, ResetLayoutCache)
 
 void LayoutModule::ResetLayoutCache(CallbackInfo& info, void* data) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(&slot_any));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   if (!scope) {
