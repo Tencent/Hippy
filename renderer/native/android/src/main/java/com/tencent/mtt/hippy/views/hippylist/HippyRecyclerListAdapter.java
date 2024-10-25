@@ -183,6 +183,10 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         return headerRefreshHelper != null;
     }
 
+    public boolean hasPullFooter() {
+        return footerRefreshHelper != null;
+    }
+
     public boolean hasBannerView() {
         ListItemRenderNode node;
         if (hasPullHeader()) {
