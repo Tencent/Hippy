@@ -118,6 +118,11 @@ static NSString *const kHippyLocalizaitionValueUnknown = @"unknown";
 static NSString *const kHippyRemoteModuleConfigKey = @"remoteModuleConfig";
 static NSString *const kHippyBatchedBridgeConfigKey = @"__hpBatchedBridgeConfig";
 
+// key of launch options, to be deprecated
+static NSString *const kLaunchOptionsDebugMode = @"DebugMode";
+static NSString *const kLaunchOptionsEnableTurbo = @"EnableTurbo";
+static NSString *const kLaunchOptionsUseHermes = @"useHermesEngine";
+
 // Define constants for the URI handlers
 static NSString *const kFileUriScheme = @"file";
 static NSString *const kHpFileUriScheme = @"hpfile";
@@ -231,8 +236,9 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         _shareOptions = [NSMutableDictionary dictionary];
         if ([launchOptions isKindOfClass:NSDictionary.class]) {
             // Compatible with old versions
-            _debugMode = [launchOptions[kHippyLaunchOptionsDebugModeKey] boolValue];
-            _enableTurbo = !!launchOptions[kHippyLaunchOptionsEnableTurboKey] ? [launchOptions[kHippyLaunchOptionsEnableTurboKey] boolValue] : YES;
+            _debugMode = [launchOptions[kLaunchOptionsDebugMode] boolValue];
+            _enableTurbo = !!launchOptions[kLaunchOptionsEnableTurbo] ? [launchOptions[kLaunchOptionsEnableTurbo] boolValue] : YES;
+            _usingHermesEngine = !!launchOptions[kLaunchOptionsUseHermes] ? [launchOptions[kLaunchOptionsUseHermes] boolValue] : NO;
         } else if ([launchOptions isKindOfClass:HippyLaunchOptions.class]) {
             HippyLaunchOptions *options = launchOptions;
             _debugMode = options.debugMode;
@@ -600,9 +606,7 @@ static inline void registerLogDelegateToHippyCore() {
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsPartialBatchDidFlush) {
             [self dispatchBlock:^{
-                @autoreleasepool {
-                    [moduleData.instance partialBatchDidFlush];
-                }
+                [moduleData.instance partialBatchDidFlush];
             } queue:moduleData.methodQueue];
         }
     }
@@ -613,9 +617,7 @@ static inline void registerLogDelegateToHippyCore() {
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsBatchDidComplete) {
             [self dispatchBlock:^{
-                @autoreleasepool {
-                    [moduleData.instance batchDidComplete];
-                }
+                [moduleData.instance batchDidComplete];
             } queue:moduleData.methodQueue];
         }
     }
@@ -809,9 +811,7 @@ static inline void registerLogDelegateToHippyCore() {
         if ([instance respondsToSelector:@selector(invalidate)]) {
             dispatch_group_enter(group);
             [self dispatchBlock:^{
-                @autoreleasepool {
-                    [(id<HippyInvalidating>)instance invalidate];
-                }
+                [(id<HippyInvalidating>)instance invalidate];
                 dispatch_group_leave(group);
             } queue:moduleData.methodQueue];
         }
@@ -826,11 +826,9 @@ static inline void registerLogDelegateToHippyCore() {
     
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
-            @autoreleasepool {
-                [displayLink invalidate];
-                [jsExecutor invalidate];
-                [moduleSetup invalidate];
-            }
+            [displayLink invalidate];
+            [jsExecutor invalidate];
+            [moduleSetup invalidate];
         }];
     });
 }

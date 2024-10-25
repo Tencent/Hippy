@@ -93,7 +93,11 @@
 - (void)registerLogFunction {
     // Register your custom log function for Hippy,
     // use HippyDefaultLogFunction as an example, it outputs logs to stderr.
-    HippySetLogFunction(HippyDefaultLogFunction);
+    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+        // output hippy sdk's log to your App log
+        // this is a demo imp, output to console:
+        HippyDefaultLogFunction(level, source, fileName, lineNumber, message);
+    });
 }
 
 - (void)runHippyDemo {

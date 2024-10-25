@@ -63,8 +63,8 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
-GEN_INVOKE_CB(ContextifyModule, RunInThisContext)      // NOLINT(cert-err58-cpp)
-GEN_INVOKE_CB(ContextifyModule, LoadUntrustedContent)  // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
+GEN_INVOKE_CB(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
 
 void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo& info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
   std::any slot_any = info.GetSlot();
@@ -85,39 +85,26 @@ void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo& info, void* d
   }
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
-  const auto& source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+  const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       key, string_view::Encoding::Utf8).utf8_value()));
-  string_view str_view(reinterpret_cast<const string_view::char8_t_*>(source_code.data_), source_code.length_);
+  std::shared_ptr<TryCatch> try_catch = hippy::TryCatch::CreateTryCatchScope(true, context);
+  string_view str_view(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_), source_code.length_);
 #ifdef JS_V8
-  std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
   auto ret = context->RunScript(str_view, key, false, nullptr, false);
-  if (try_catch->HasCaught()) {
-    FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = " << try_catch->GetExceptionMessage();
-    info.GetExceptionValue()->Set(try_catch->Exception());
-  } else {
-    info.GetReturnValue()->Set(ret);
-  }
-#elif defined(JS_HERMES)
-  try {
-    auto ret = context->RunScript(str_view, key);
-    info.GetReturnValue()->Set(ret);
-  } catch (facebook::jsi::JSIException& err) {
-    auto exptr = std::current_exception();
-    std::string message(err.what());
-    info.GetExceptionValue()->Set(std::make_shared<HermesExceptionCtxValue>(exptr, message));
-  }
 #else
   auto ret = context->RunScript(str_view, key);
+#endif
   if (try_catch->HasCaught()) {
     FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = " << try_catch->GetExceptionMessage();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);
   }
-#endif
 }
 
-void ContextifyModule::RemoveCBFunc(const string_view& uri) { cb_func_map_.erase(uri); }
+void ContextifyModule::RemoveCBFunc(const string_view& uri) {
+  cb_func_map_.erase(uri);
+}
 
 void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
   std::any slot_any = info.GetSlot();

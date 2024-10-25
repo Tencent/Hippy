@@ -34,7 +34,18 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "jsi/jsi.h"
+
+#ifdef ENABLE_INSPECTOR
+#include "hermes/cdp/CDPAgent.h"
+#include "hermes/cdp/CDPDebugAPI.h"
+
+using CDPAgent = facebook::hermes::cdp::CDPAgent;
+using CDPDebugAPI = facebook::hermes::cdp::CDPDebugAPI;
+using ConsoleAPIType = facebook::hermes::cdp::ConsoleAPIType;
+#endif /* ENABLE_INSPECTOR */
+
 #pragma clang diagnostic pop
 
 namespace hippy {
@@ -50,14 +61,28 @@ using String = facebook::jsi::String;
 using Array = facebook::jsi::Array;
 
 class LocalNativeState : public NativeState {
- public:
+public:
   LocalNativeState() = default;
   ~LocalNativeState() = default;
+  
   void Set(void* address) { data_ = address; }
   void* Get() { return data_; }
-
- private:
+  
+  void Set(int key, void* address) {
+    data_map_[key] = address;
+  }
+  
+  void* Get(int key) {
+    auto it = data_map_.find(key);
+    if (it != data_map_.end()) {
+      return it->second;
+    }
+    return nullptr;
+  }
+  
+private:
   void* data_;
+  std::unordered_map<int, void*> data_map_;
 };
 
 class GlobalNativeState : public NativeState {
@@ -92,7 +117,7 @@ class HippyJsiBuffer : public facebook::jsi::Buffer {
 class HermesCtx : public Ctx {
  public:
   HermesCtx();
-  ~HermesCtx() = default;
+  ~HermesCtx();
 
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) override;
 
@@ -179,29 +204,41 @@ class HermesCtx : public Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(const string_view& data, const string_view& file_name) override;
 
-  virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
-  virtual void ThrowException(const string_view& exception) override;
 
   void SetExternalData(void* data) override;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
 
+  virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) override;
+  virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
+  virtual void ThrowException(const string_view& exception) override;
+  inline std::shared_ptr<HermesExceptionCtxValue> GetException() { return exception_; }
   string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
 
  public:
   const std::unique_ptr<HermesRuntime>& GetRuntime() { return runtime_; }
 
+#ifdef ENABLE_INSPECTOR
+  inline std::unique_ptr<CDPAgent> &GetCDPAgent() { return cdpAgent_; };
+  void SetupDebugAgent(facebook::hermes::debugger::EnqueueRuntimeTaskFunc enqueueRuntimeTask,
+                       facebook::hermes::cdp::OutboundMessageFunc messageCallback);
+#endif /* ENABLE_INSPECTOR */
+
  private:
   Value Eval(const char* code);
   Function EvalFunction(const std::string& code);
   void BuiltinModule();
-  void BuiltinFunction(facebook::jsi::Object& module, const std::string& name);
+  void BuiltinFunction(facebook::jsi::Object& module, const std::string& name, ConsoleAPIType type);
 
  private:
   std::unique_ptr<HermesRuntime> runtime_;
+#ifdef ENABLE_INSPECTOR
+  std::unique_ptr<CDPAgent> cdpAgent_;
+  std::unique_ptr<CDPDebugAPI> cdpDebugAPI_;
+#endif /* ENABLE_INSPECTOR */
   std::shared_ptr<GlobalNativeState> global_native_state_;
   std::unordered_map<string_view, std::shared_ptr<HermesClassDefinition>> template_map_;
-
+  std::shared_ptr<HermesExceptionCtxValue> exception_;
   friend class hippy::driver::vm::HermesVM;
 };
 

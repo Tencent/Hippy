@@ -50,6 +50,7 @@
 #endif
 
 #ifdef JS_HERMES
+#include "driver/napi/hermes/hermes_ctx.h"
 #include "driver/vm/hermes/hermes_vm.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
@@ -204,9 +205,9 @@ void RegisterCallHostObject(const std::shared_ptr<Scope>& scope, const JsCallbac
 }
 
 #ifdef ENABLE_INSPECTOR
-void InitDevTools(const std::shared_ptr<Scope>& scope,
-                  const std::shared_ptr<VM>& vm,
-                  const std::shared_ptr<DevtoolsDataSource>& source) {
+void JsDriverUtils::InitDevTools(const std::shared_ptr<Scope>& scope,
+                                 const std::shared_ptr<VM>& vm,
+                                 const std::shared_ptr<DevtoolsDataSource>& source) {
   if (vm->IsDebug()) {
     scope->SetDevtoolsDataSource(source);
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
@@ -230,10 +231,27 @@ void InitDevTools(const std::shared_ptr<Scope>& scope,
         inspector_client->SendMessageToV8(scope->GetInspectorContext(), std::move(u16str));
       }
     });
+#elif defined(JS_HERMES)
+    auto hermes_vm = std::static_pointer_cast<HermesVM>(vm);
+    std::weak_ptr<HermesVM> weak_hermes_vm = hermes_vm;
+    std::weak_ptr<Scope> weak_scope = scope;
+    scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_hermes_vm, weak_scope](const std::string& data) {
+      auto hermes_vm = weak_hermes_vm.lock();
+      if (!hermes_vm) {
+        return;
+      }
+      auto scope = weak_scope.lock();
+      if (!scope) {
+        return;
+      }
+      FOOTSTONE_DLOG(INFO) << "From Debugger:" << data.c_str();
+      auto hermesCtx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
+      hermesCtx->GetCDPAgent()->handleCommand(data);
+    });
 #endif
   }
 }
-#endif
+#endif /* ENABLE_INSPECTOR */
 
 void CreateScopeAndAsyncInitialize(const std::shared_ptr<Engine>& engine,
                                    const std::shared_ptr<VMInitParam>& param,
@@ -245,7 +263,7 @@ void CreateScopeAndAsyncInitialize(const std::shared_ptr<Engine>& engine,
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
 #ifdef ENABLE_INSPECTOR
-    InitDevTools(scope, engine->GetVM(), param->devtools_data_source);
+    JsDriverUtils::InitDevTools(scope, engine->GetVM(), param->devtools_data_source);
 #endif
     scope->CreateContext();
     RegisterGlobalObjectAndGlobalConfig(scope, global_config);

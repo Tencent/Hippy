@@ -21,11 +21,13 @@
  */
 
 #include "driver/napi/hermes/hermes_ctx.h"
+#include "driver/napi/hermes/hermes_try_catch.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
 #include "hermes/hermes.h"
 #include "jsi/jsi-inl.h"
+#include "hermes/cdp/CDPDebugAPI.h"
 #pragma clang diagnostic pop
 
 #include "driver/scope.h"
@@ -40,8 +42,12 @@ using CallbackInfo = hippy::CallbackInfo;
 using StringViewUtils = footstone::StringViewUtils;
 using Runtime = facebook::jsi::Runtime;
 using HermesRuntime = facebook::hermes::HermesRuntime;
+using CDPDebugAPI = facebook::hermes::cdp::CDPDebugAPI;
 
-constexpr static int kScopeWrapperIndex = 5;
+constexpr int kScopeWrapperIndex = 5;
+constexpr char kProtoKey[] = "__proto__";
+constexpr char kUniqueIdInLocalStateKey[] = "__uniqueID";
+std::atomic<int> unique_id_counter{0}; // used to save this_value to LocalNativeState
 
 constexpr char kConstructor[] = "function() {  this.hostfunction_constructor.apply(this, arguments); return this; }";
 constexpr char kProxyFunction[] = "function(handler) { return new Proxy(this, handler); }";
@@ -139,7 +145,7 @@ static Value InvokeConstructorJsCallback(Runtime& runtime, const Value& this_val
   cb_info.SetSlot(scope_any);
 
   if (this_value.isObject()) {
-    auto prototype = this_value.asObject(runtime).getProperty(runtime, "__proto__");
+    auto prototype = this_value.asObject(runtime).getProperty(runtime, kProtoKey);
     if (prototype.isObject()) {
       auto constructor_func = prototype.asObject(runtime).getProperty(runtime, "constructor");
       if (constructor_func.asObject(runtime).asFunction(runtime).hasNativeState<LocalNativeState>(runtime)) {
@@ -181,17 +187,28 @@ static Value InvokeConstructorJsCallback(Runtime& runtime, const Value& this_val
 
   // binding new constructor return value in proto
   if (this_value.isObject()) {
-    auto prototype = this_value.asObject(runtime).getProperty(runtime, "__proto__");
+    auto prototype = this_value.asObject(runtime).getProperty(runtime, kProtoKey);
     if (prototype.isObject()) {
       auto internal_data = cb_info.GetData();
       if (internal_data != nullptr) {
-        auto local_state = std::make_shared<LocalNativeState>();
-        local_state->Set(internal_data);
+        // Set a unique id for this_value and save this id in LocalNativeState as the key,
+        // which is used to retrieve the saved value in LocalNativeState based on the id.
+        // Sets the unique ID to an attribute of this_value.
+        int uniqueID = ++unique_id_counter;
+        this_value.asObject(runtime).setProperty(runtime, kUniqueIdInLocalStateKey, Value(uniqueID));
+        
+        std::shared_ptr<LocalNativeState> local_state = nullptr;
+        if (prototype.asObject(runtime).hasNativeState(runtime)) {
+          local_state = prototype.asObject(runtime).getNativeState<LocalNativeState>(runtime);
+        } else {
+          local_state = std::make_shared<LocalNativeState>();
+        }
+        local_state->Set(uniqueID, internal_data);
         prototype.asObject(runtime).setNativeState(runtime, local_state);
       }
     }
   }
-
+  
   auto ret_value = std::static_pointer_cast<HermesCtxValue>(cb_info.GetReturnValue()->Get());
   if (!ret_value) {
     return Value::undefined();
@@ -213,26 +230,33 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
   auto hermes_ctx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
   if (hermes_ctx == nullptr) return facebook::jsi::Value::undefined();
 
-  CallbackInfo cb_info;
-  cb_info.SetSlot(scope_any);
+    CallbackInfo cb_info;
+    cb_info.SetSlot(scope_any);
 
-  if (this_value.isObject()) {
-    auto instance_object = this_value.asObject(runtime);
-    if (instance_object.hasNativeState<LocalNativeState>(runtime)) {
-      auto local_native_state = instance_object.getNativeState<LocalNativeState>(runtime);
-      auto data = local_native_state->Get();
-      cb_info.SetData(data);
-    }
+    if (this_value.isObject()) {
+        auto instance_object = this_value.asObject(runtime);
+        
+        if (instance_object.hasNativeState<LocalNativeState>(runtime)) {
+            auto local_native_state = instance_object.getNativeState<LocalNativeState>(runtime);
+            auto data = local_native_state->Get();
+            cb_info.SetData(data);
+        }
 
-    if (instance_object.hasProperty(runtime, "__proto__")) {
-      auto proto_object = instance_object.getProperty(runtime, "__proto__").asObject(runtime);
-      if (proto_object.hasNativeState<LocalNativeState>(runtime)) {
-        auto local_native_state = proto_object.getNativeState<LocalNativeState>(runtime);
-        auto data = local_native_state->Get();
-        cb_info.SetData(data);
-      }
+        if (instance_object.hasProperty(runtime, kProtoKey)) {
+            auto proto_object = instance_object.getProperty(runtime, kProtoKey).asObject(runtime);
+            if (proto_object.hasNativeState<LocalNativeState>(runtime)) {
+                auto local_native_state = proto_object.getNativeState<LocalNativeState>(runtime);
+                void *data;
+                if (instance_object.hasProperty(runtime, kUniqueIdInLocalStateKey)) {
+                    int uniqueID = instance_object.getProperty(runtime, kUniqueIdInLocalStateKey).asNumber();
+                    data = local_native_state->Get(uniqueID);
+                } else {
+                    data = local_native_state->Get();
+                }
+                cb_info.SetData(data);
+            }
+        }
     }
-  }
 
   if (this_value.isObject()) {
     cb_info.SetReceiver(std::make_shared<HermesCtxValue>(runtime, this_value.asObject(runtime)));
@@ -270,14 +294,53 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
   return ret_value->GetValue(hermes_ctx->GetRuntime());
 }
 
+void fatalHandler(const std::string &message) {
+    FOOTSTONE_LOG(FATAL) << "Received Hermes Fatal Error: %s\n" << message.c_str();
+}
+
 HermesCtx::HermesCtx() {
-  auto config = hermes::vm::RuntimeConfig::Builder().withMicrotaskQueue(true).build();
-  runtime_ = facebook::hermes::makeHermesRuntime(config);
+  auto runtimeConfigBuilder = ::hermes::vm::RuntimeConfig::Builder()
+    .withGCConfig(::hermes::vm::GCConfig::Builder()
+                  // Default to 3GB
+                  .withMaxHeapSize(3072 << 20)
+                  .withName("HippyBridge")
+                  // For the next two arguments: avoid GC before TTI
+                  // by initializing the runtime to allocate directly
+                  // in the old generation, but revert to normal
+                  // operation when we reach the (first) TTI point.
+                  .withAllocInYoung(false)
+                  .withRevertToYGAtTTI(true)
+                  .build())
+    .withEnableSampleProfiling(true)
+    .withMicrotaskQueue(true);
+  
+  // TODO: Use Hermes's Crash Manager in future
+  // like: runtimeConfigBuilder.withCrashMgr(cm);
+
+  runtime_ = facebook::hermes::makeHermesRuntime(runtimeConfigBuilder.build());
+  facebook::hermes::HermesRuntime::setFatalHandler(fatalHandler);
+    
   global_native_state_ = std::make_shared<GlobalNativeState>();
   runtime_->global().setNativeState(*runtime_, global_native_state_);
 
   // Hermes doesn't support the console object, so we implement a console module
   BuiltinModule();
+}
+
+HermesCtx::~HermesCtx() {
+#ifdef ENABLE_INSPECTOR
+  cdpAgent_ = nullptr;
+  cdpDebugAPI_ = nullptr;
+#endif /* ENABLE_INSPECTOR */
+}
+
+void HermesCtx::SetupDebugAgent(facebook::hermes::debugger::EnqueueRuntimeTaskFunc enqueueRuntimeTask,
+                                facebook::hermes::cdp::OutboundMessageFunc messageCallback) {
+    cdpDebugAPI_ = CDPDebugAPI::create(*runtime_);
+    cdpAgent_ = CDPAgent::create(0,
+                                 *cdpDebugAPI_,
+                                 enqueueRuntimeTask,
+                                 messageCallback);
 }
 
 std::shared_ptr<CtxValue> HermesCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& getter) {
@@ -387,7 +450,7 @@ std::shared_ptr<CtxValue> HermesCtx::DefineClass(const string_view& name,
   if (parent) {
     auto parent_tpl = std::static_pointer_cast<HermesClassDefinition>(parent);
     auto parent_prototype = parent_tpl->GetTemplate().asObject(*runtime_).getProperty(*runtime_, "prototype");
-    ctor_prototype.setProperty(*runtime_, "__proto__", parent_prototype);
+    ctor_prototype.setProperty(*runtime_, kProtoKey, parent_prototype);
   }
 
   template_map_[name] = std::make_shared<HermesClassDefinition>(*runtime_, name, ctor_function);
@@ -476,8 +539,9 @@ bool HermesCtx::SetProperty(std::shared_ptr<CtxValue> object, std::shared_ptr<Ct
   auto hermes_object = std::static_pointer_cast<HermesCtxValue>(object);
   auto hermes_key = std::static_pointer_cast<HermesCtxValue>(key);
   auto hermes_value = std::static_pointer_cast<HermesCtxValue>(value);
-  auto get_value = hermes_key->GetValue(runtime_);
-  auto get_value_value = hermes_value->GetValue(runtime_);
+  const auto& get_value = hermes_key->GetValue(runtime_);
+  // FIXME: not used
+  const auto& get_value_value = hermes_value->GetValue(runtime_);
   auto ret = get_value.isString();
   if (!ret) return false;
   hermes_object->GetValue(runtime_).asObject(*runtime_).setProperty(
@@ -488,6 +552,7 @@ bool HermesCtx::SetProperty(std::shared_ptr<CtxValue> object, std::shared_ptr<Ct
 // key must be string
 bool HermesCtx::SetProperty(std::shared_ptr<CtxValue> object, std::shared_ptr<CtxValue> key,
                             std::shared_ptr<CtxValue> value, const PropertyAttribute& attr) {
+  // FIXME: attr 不用了？
   return SetProperty(object, key, value);
 }
 
@@ -507,6 +572,9 @@ std::shared_ptr<CtxValue> HermesCtx::GetProperty(const std::shared_ptr<CtxValue>
       *runtime_, hermes_key->GetValue(runtime_).asString(*runtime_));
   return std::make_shared<HermesCtxValue>(*runtime_, property);
 }
+
+
+// MARK: -  Create Funtions
 
 std::shared_ptr<CtxValue> HermesCtx::CreateObject() {
   auto obj = Object(*runtime_);
@@ -621,8 +689,10 @@ std::shared_ptr<CtxValue> HermesCtx::CreateException(const string_view& msg) {
   return std::make_shared<HermesExceptionCtxValue>(exptr, str);
 }
 
-// TODO: add create byte buffer
-std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t length) { return nullptr; }
+std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t length) {
+  // TODO: add create byte buffer
+  return nullptr;
+}
 
 std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue>& function,
                                                   const std::shared_ptr<CtxValue>& receiver, size_t argument_count,
@@ -635,23 +705,30 @@ std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue
   if (!jsi_value.asObject(*runtime_).isFunction(*runtime_)) {
     return nullptr;
   }
-  facebook::jsi::Function jsi_func = jsi_value.asObject(*runtime_).asFunction(*runtime_);
-  std::shared_ptr<HermesCtxValue> receiver_ctx_value = std::static_pointer_cast<HermesCtxValue>(receiver);
-  facebook::jsi::Value this_object = receiver_ctx_value->GetValue(runtime_);
-  const size_t jsi_arg_count = argument_count;
-  if (jsi_arg_count == 0) {
-    Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_));
-    return std::make_shared<HermesCtxValue>(*runtime_, value);
-  } else {
-    std::vector<Value> arg_vec;
-    arg_vec.resize(jsi_arg_count);
-    for (size_t i = 0; i < jsi_arg_count; i++) {
-      std::shared_ptr<HermesCtxValue> argument_ctx_val = std::static_pointer_cast<HermesCtxValue>(arguments[i]);
-      arg_vec[i] = argument_ctx_val->GetValue(runtime_);
+  try {
+    facebook::jsi::Function jsi_func = jsi_value.asObject(*runtime_).asFunction(*runtime_);
+    std::shared_ptr<HermesCtxValue> receiver_ctx_value = std::static_pointer_cast<HermesCtxValue>(receiver);
+    facebook::jsi::Value this_object = receiver_ctx_value->GetValue(runtime_);
+    const size_t jsi_arg_count = argument_count;
+    if (jsi_arg_count == 0) {
+      Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_));
+      return std::make_shared<HermesCtxValue>(*runtime_, value);
+    } else {
+      std::vector<Value> arg_vec;
+      arg_vec.resize(jsi_arg_count);
+      for (size_t i = 0; i < jsi_arg_count; i++) {
+        std::shared_ptr<HermesCtxValue> argument_ctx_val = std::static_pointer_cast<HermesCtxValue>(arguments[i]);
+        arg_vec[i] = argument_ctx_val->GetValue(runtime_);
+      }
+      const Value* jsi_arg = &arg_vec[0];
+      Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_), jsi_arg, jsi_arg_count);
+      return std::make_shared<HermesCtxValue>(*runtime_, value);
     }
-    const Value* jsi_arg = &arg_vec[0];
-    Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_), jsi_arg, jsi_arg_count);
-    return std::make_shared<HermesCtxValue>(*runtime_, value);
+  } catch (facebook::jsi::JSIException& err) {
+    auto exptr = std::current_exception();
+    std::string message(err.what());
+    exception_ = std::make_shared<HermesExceptionCtxValue>(exptr, message);
+    return nullptr;
   }
 }
 
@@ -941,31 +1018,38 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
   if (StringViewUtils::IsEmpty(data)) {
     return nullptr;
   }
-
   auto u8_file_name = StringViewUtils::CovertToUtf8(file_name, file_name.encoding());
   auto u8_script = StringViewUtils::CovertToUtf8(data, data.encoding());
-  bool is_hbc = facebook::hermes::HermesRuntime::isHermesBytecode(
-      reinterpret_cast<const uint8_t*>(u8_script.utf8_value().data()), u8_script.utf8_value().size());
+  bool is_hbc = facebook::hermes::HermesRuntime::isHermesBytecode(reinterpret_cast<const uint8_t*>(u8_script.utf8_value().data()),
+                                                                  u8_script.utf8_value().size());
   FOOTSTONE_DLOG(INFO) << "is hbc file " << is_hbc << ", file name " << u8_file_name.utf8_value().c_str();
-  if (is_hbc) {
-    auto jsi_file_name =
-        String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(), u8_file_name.utf8_value().size());
-    auto jsi_script = std::make_shared<HippyJsiBuffer>(static_cast<const uint8_t*>(u8_script.utf8_value().c_str()),
-                                                       u8_script.utf8_value().size());
-    facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
-    return std::make_shared<HermesCtxValue>(*runtime_, value);
-  } else {
-    auto jsi_file_name = facebook::jsi::String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(),
-                                                               u8_file_name.utf8_value().size());
-    std::shared_ptr<const facebook::jsi::PreparedJavaScript> prepare_js = nullptr;
-    auto jsi_script = String::createFromUtf8(*runtime_, u8_script.utf8_value().c_str(), u8_script.utf8_value().size());
-    auto buffer = std::make_shared<facebook::jsi::StringBuffer>(jsi_script.utf8(*runtime_));
-    prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
-    auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
-    return std::make_shared<HermesCtxValue>(*runtime_, value);
+  try {
+    if (is_hbc) {
+      auto jsi_file_name =
+      String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(), u8_file_name.utf8_value().size());
+      auto jsi_script = std::make_shared<HippyJsiBuffer>(static_cast<const uint8_t*>(u8_script.utf8_value().c_str()),
+                                                         u8_script.utf8_value().size());
+      facebook::jsi::Value value = runtime_->evaluateJavaScript(jsi_script, jsi_file_name.utf8(*runtime_));
+      return std::make_shared<HermesCtxValue>(*runtime_, value);
+    } else {
+      auto jsi_file_name = facebook::jsi::String::createFromUtf8(*runtime_, u8_file_name.utf8_value().c_str(),
+                                                                 u8_file_name.utf8_value().size());
+      std::shared_ptr<const facebook::jsi::PreparedJavaScript> prepare_js = nullptr;
+      auto jsi_script = String::createFromUtf8(*runtime_, u8_script.utf8_value().c_str(), u8_script.utf8_value().size());
+      auto buffer = std::make_shared<facebook::jsi::StringBuffer>(jsi_script.utf8(*runtime_));
+      prepare_js = runtime_->prepareJavaScript(buffer, jsi_file_name.utf8(*runtime_));
+      auto value = runtime_->evaluatePreparedJavaScript(prepare_js);
+      return std::make_shared<HermesCtxValue>(*runtime_, value);
+    }
+  } catch (facebook::jsi::JSIException& err) {
+    auto exptr = std::current_exception();
+    std::string message(err.what());
+    exception_ = std::make_shared<HermesExceptionCtxValue>(exptr, message);
+    return nullptr;
   }
 }
 
+// MARK: - Exception Handle
 
 // TODO: add throw exception
 void HermesCtx::ThrowException(const std::shared_ptr<CtxValue>& exception) {}
@@ -973,15 +1057,9 @@ void HermesCtx::ThrowException(const std::shared_ptr<CtxValue>& exception) {}
 // TODO: add throw exception
 void HermesCtx::ThrowException(const string_view& exception) {}
 
-void HermesCtx::SetExternalData(void* address) { global_native_state_->Set(kScopeWrapperIndex, address); }
-
-std::shared_ptr<ClassDefinition> HermesCtx::GetClassDefinition(const string_view& name) {
-  FOOTSTONE_DCHECK(template_map_.find(name) != template_map_.end());
-  return template_map_[name];
+std::shared_ptr<TryCatch> HermesCtx::CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
+  return std::make_shared<HermesTryCatch>(enable, ctx);
 }
-
-// TODO: add set weak
-void HermesCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) {}
 
 string_view HermesCtx::GetExceptionMessage(const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
@@ -991,6 +1069,22 @@ string_view HermesCtx::GetExceptionMessage(const std::shared_ptr<CtxValue>& exce
   std::string message = hermes_exception->Message();
   FOOTSTONE_DLOG(ERROR) << "GetExceptionMessage msg = " << message;
   return string_view(message);
+}
+
+// MARK: -
+
+void HermesCtx::SetExternalData(void* address) {
+  global_native_state_->Set(kScopeWrapperIndex, address);
+}
+
+std::shared_ptr<ClassDefinition> HermesCtx::GetClassDefinition(const string_view& name) {
+  FOOTSTONE_DCHECK(template_map_.find(name) != template_map_.end());
+  return template_map_[name];
+}
+
+// FIXME: add set weak
+void HermesCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) {
+    
 }
 
 Value HermesCtx::Eval(const char* code) {
@@ -1003,22 +1097,47 @@ Function HermesCtx::EvalFunction(const std::string& code) {
 
 void HermesCtx::BuiltinModule() {
   auto console = facebook::jsi::Object(*runtime_);
-  BuiltinFunction(console, "log");
-  BuiltinFunction(console, "error");
-  BuiltinFunction(console, "warn");
-  BuiltinFunction(console, "debug");
-  BuiltinFunction(console, "info");
-  BuiltinFunction(console, "trace");
-  BuiltinFunction(console, "clear");
+  BuiltinFunction(console, "log", facebook::hermes::cdp::ConsoleAPIType::kLog);
+  BuiltinFunction(console, "error", facebook::hermes::cdp::ConsoleAPIType::kError);
+  BuiltinFunction(console, "warn", facebook::hermes::cdp::ConsoleAPIType::kWarning);
+  BuiltinFunction(console, "debug", facebook::hermes::cdp::ConsoleAPIType::kDebug);
+  BuiltinFunction(console, "info", facebook::hermes::cdp::ConsoleAPIType::kInfo);
+  BuiltinFunction(console, "trace", facebook::hermes::cdp::ConsoleAPIType::kTrace);
+  BuiltinFunction(console, "clear", facebook::hermes::cdp::ConsoleAPIType::kClear);
   runtime_->global().setProperty(*runtime_, "console", console);
 }
 
-void HermesCtx::BuiltinFunction(facebook::jsi::Object& module, const std::string& name) {
+/**
+ * Get the current time in milliseconds as a double.
+ */
+double getTimestampMs() {
+  return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(std::chrono::system_clock::now().time_since_epoch())
+    .count();
+}
+
+void HermesCtx::BuiltinFunction(facebook::jsi::Object& module,
+                                const std::string& name,
+                                facebook::hermes::cdp::ConsoleAPIType type) {
   auto name_id = facebook::jsi::PropNameID::forUtf8(*runtime_, name);
   auto function = facebook::jsi::Function::createFromHostFunction(
-      *runtime_, name_id, 1,
-      [=](facebook::jsi::Runtime& runtime, const facebook::jsi::Value& thisVal, const facebook::jsi::Value* args,
-          size_t count) { return facebook::jsi::Value::undefined(); });
+                                                                  *runtime_, name_id, 1,
+                                                                  [=](facebook::jsi::Runtime& runtime,
+                                                                      const facebook::jsi::Value& thisVal,
+                                                                      const facebook::jsi::Value* args,
+                                                                      size_t count) {
+#ifdef ENABLE_INSPECTOR
+                                                                        std::vector<facebook::jsi::Value> argsVec;
+                                                                        auto timestampMs = getTimestampMs();
+                                                                        for (size_t i = 0; i != count; ++i) {
+                                                                          argsVec.emplace_back(runtime, args[i]);
+                                                                        }
+                                                                        auto stackTrace = runtime_->getDebugger().captureStackTrace();
+                                                                        if (cdpDebugAPI_) {
+                                                                          cdpDebugAPI_->addConsoleMessage({timestampMs, type, std::move(argsVec), stackTrace});
+                                                                        }
+#endif /* ENABLE_INSPECTOR */
+                                                                        return facebook::jsi::Value::undefined();
+                                                                      });
   module.setProperty(*runtime_, name_id, function);
 }
 

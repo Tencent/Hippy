@@ -74,20 +74,12 @@ void VM::HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& eve
   argv[0] = ctx->CreateString(event_name);
   argv[1] = exception;
 
-#ifdef JS_HERMES
-  try {
-    auto ret_value = ctx->CallFunction(exception_handler, ctx->GetGlobalObject(), 2, argv);
-  } catch (facebook::jsi::JSIException& err) {
-    FOOTSTONE_LOG(WARNING) << "hippy exceptionHandler error, description = " << err.what();
-  }
-#else
-  auto try_catch = CreateTryCatchScope(true, ctx);
+  auto try_catch = hippy::TryCatch::CreateTryCatchScope(true, ctx);
   auto ret_value = ctx->CallFunction(exception_handler, ctx->GetGlobalObject(), 2, argv);
   if (try_catch->HasCaught()) {
     auto message = try_catch->GetExceptionMessage();
     FOOTSTONE_LOG(WARNING) << "hippy exceptionHandler error, description = " << message;
   }
-#endif
 }
 
 std::shared_ptr<VM> VM::CreateVM(const std::shared_ptr<VMInitParam>& param) {

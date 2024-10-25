@@ -51,7 +51,8 @@
 
 - (void)runOCObject2CtxValueTestInEngine:(const std::string &)engineType {
     auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"
-                                                                            engineType:engineType];
+                                                                            engineType:engineType
+                                                                               isDebug:YES];
     auto scope = engine->GetEngine()->CreateScope("testKey");
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"ToCtxValue"];
