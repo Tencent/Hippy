@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '11.0'
 
   s.prepare_command = <<-CMD
-      ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
+    ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
   CMD
   
   s.subspec 'Base' do |base|
@@ -381,19 +381,18 @@ Pod::Spec.new do |s|
     end
   end
 
-  # TODO: build hermes with no rtti
   if js_engine == "hermes"
     s.subspec 'hermes' do |hermes|
       puts 'hippy subspec \'hermes\' read begin'
-      hermes.private_header_files = "hermesforios/ios/destroot/include/**/*.h"
-      hermes.header_mappings_dir = "hermesforios/ios/destroot/include"
+      hermes.private_header_files = "hermesforios/destroot/include/**/*.h"
+      hermes.header_mappings_dir = "hermesforios/destroot/include"
       hermes.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/hermesforios/ios/destroot/include',
+        'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/hermesforios/destroot/include',
         'GCC_ENABLE_CPP_EXCEPTIONS' => true,
         'GCC_ENABLE_CPP_RTTI' => true,
       }
-      hermes.ios.vendored_frameworks = "hermesforios/ios/destroot/Library/Frameworks/universal/hermes.xcframework"
+      hermes.ios.vendored_frameworks = "hermesforios/destroot/Library/Frameworks/universal/hermes.xcframework"
       puts 'hippy subspec \'hermes\' read end'
     end
   end

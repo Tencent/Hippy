@@ -74,7 +74,7 @@ elif [[ "hermes" == ${2} ]]; then
 	mkdir hermesforios
 
 	#download hermes
-	curl https://infra-packages.openhippy.com/hippy/global_packages/hermes/hermes-2023-09-26-RNv0.73.0-ee2922a50fb719bdb378025d95dbd32ad93cd679/ios.tgz --output hermesforios/ios.tgz
+	curl https://infra-packages.openhippy.com/hippy/global_packages/hermes/hermes-2024-09-09-RNv0.76.0-db6d12e202e15f7a446d8848d6ca8f7abb3cfb32/ios.tgz --output hermesforios/ios.tgz
 	tar zxvf hermesforios/ios.tgz -C ./hermesforios/
 	rm -f hermesforios/ios.tgz
 

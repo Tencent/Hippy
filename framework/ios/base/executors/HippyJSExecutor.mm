@@ -300,24 +300,24 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
 
 #if defined(ENABLE_INSPECTOR) && defined(JS_HERMES)
 static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy::Ctx> &context, HippyJSExecutor *const __weak weakSelf) {
-    if (bridge.usingHermesEngine) {
+    if (bridge.debugMode && bridge.usingHermesEngine) {
         // Create cdp agent for hermes
         auto hermesCtx = std::static_pointer_cast<hippy::HermesCtx>(context);
-        hermesCtx->SetupDebugAgent([weakSelf, &hermesCtx](facebook::hermes::debugger::RuntimeTask fn) {
+        hermesCtx->SetupDebugAgent([weakSelf](facebook::hermes::debugger::RuntimeTask fn) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             auto scope = strongSelf.pScope;
-            if (scope && scope->GetTaskRunner()) {
+            if (scope && scope->GetTaskRunner() && scope->GetContext()) {
+                auto hermes_ctx = std::static_pointer_cast<hippy::HermesCtx>(scope->GetContext());
                 scope->GetTaskRunner()->PostTask(^{
-                    fn(*hermesCtx->GetRuntime());
+                    fn(*hermes_ctx->GetRuntime());
                 });
             }
         }, [weakSelf](const std::string &message) {
             // Process CDP response or event and send message back to the Chrome debugger
             HippyLogTrace(@"To Debugger: %s\n", message.c_str());
             __strong __typeof(weakSelf)strongSelf = weakSelf;
-            auto scope = strongSelf->_pScope;
+            auto scope = strongSelf.pScope;
             if (scope) {
-                
                 auto devtoolsDataSource = scope->GetDevtoolsDataSource();
                 if (devtoolsDataSource) {
                     devtoolsDataSource->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(message);
