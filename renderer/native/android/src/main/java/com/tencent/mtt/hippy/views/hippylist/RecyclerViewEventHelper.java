@@ -57,6 +57,7 @@ import java.util.HashMap;
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
         OnAttachStateChangeListener, HippyOverPullListener {
 
+    private static final String TAG = "RecyclerViewEventHelper";
     private static final int WATERFALL_SCROLL_RELAYOUT_THRESHOLD = 4;
     protected final HippyRecyclerView hippyRecyclerView;
     private boolean scrollBeginDragEventEnable;
@@ -404,7 +405,6 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
                 first = positions[i];
             }
         }
-        scrollEvent.put("firstVisibleRowIndex", first);
         positions = layoutManager.findLastVisibleItemPositions(null);
         int end = positions[0];
         for (int i = 0; i < positions.length; ++i) {
@@ -412,6 +412,21 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
                 end = positions[i];
             }
         }
+        Adapter adapter = hippyRecyclerView.getAdapter();
+        if (adapter instanceof HippyRecyclerListAdapter) {
+            HippyRecyclerListAdapter listAdapter = ((HippyRecyclerListAdapter) adapter);
+            int count = listAdapter.getItemCount();
+            if (listAdapter.hasPullHeader()) {
+                first = Math.max(0, (first - 1));
+                end = Math.max(0, (end - 1));
+                count -= 1;
+            }
+            if (listAdapter.hasPullFooter() && (end == (count - 1))) {
+                end = Math.max(0, (end - 1));
+            }
+        }
+        LogUtils.d(TAG, "generateWaterfallViewScrollEvent: first " + first + ", end " + end);
+        scrollEvent.put("firstVisibleRowIndex", first);
         scrollEvent.put("lastVisibleRowIndex", end);
         ArrayList<Object> rowFrames = new ArrayList<>();
         int total = hippyRecyclerView.getChildCount();
