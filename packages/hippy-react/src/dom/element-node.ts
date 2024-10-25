@@ -190,6 +190,14 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
     });
     style.linearGradient.colorStopList = colorStopList;
   } else {
+    style.linearGradient = {
+      angle: '0',
+      colorStopList: [
+        { ratio: 0, color: 0 },
+        { ratio: 0, color: 0 },
+        { ratio: 0, color: 0 },
+      ],
+    };
     (style as any)[styleKey] = convertImgUrl(styleValue);
   }
   return style;
@@ -348,8 +356,20 @@ class ElementNode extends ViewNode {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
-      } else if (styleKey === 'backgroundImage' && styleValue) {
-        this.style = parseBackgroundImage(styleKey, styleValue, this.style);
+      } else if (styleKey === 'backgroundImage') {
+        if (styleValue) {
+          this.style = parseBackgroundImage(styleKey, styleValue, this.style);
+        } else {
+          this.style.linearGradient = {
+            angle: '0',
+            colorStopList: [
+              { ratio: 0, color: 0 },
+              { ratio: 0, color: 0 },
+              { ratio: 0, color: 0 },
+            ],
+          };
+          this.style.backgroundImage = '';
+        }
       } else if (styleKey === 'textShadowOffset') {
         const { x = 0, width = 0, y = 0, height = 0 } = styleValue || {};
         (this.style as any)[styleKey] = { width: x || width, height: y || height };
