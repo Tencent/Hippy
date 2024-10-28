@@ -402,10 +402,20 @@ std::unique_ptr<Task> Worker::GetNextTask() {
         }));
     return wrapper_idle_task;
   }
+  std::unique_lock<std::mutex> lock(driver_->Mutex());
   if (driver_->IsTerminated()) {
     return nullptr;
   }
-  driver_->WaitFor(min_wait_time_);
+  if (min_wait_time_ == TimeDelta::Max()) {
+    if (HasTask()) {
+      return nullptr;
+    }
+  } else {
+    if (HasMoreUrgentTask(min_wait_time_, now)) {
+      return nullptr;
+    }
+  }
+  driver_->WaitFor(min_wait_time_, lock);
   return nullptr;
 }
 
@@ -530,6 +540,64 @@ std::array<void *, Worker::kWorkerKeysMax> Worker::GetMovedSpecific(uint32_t tas
 void Worker::UpdateSpecific(uint32_t task_runner_id,
                             std::array<void *, Worker::kWorkerKeysMax> array) {
   specific_map_[task_runner_id] = array;  // insert or update
+}
+
+bool Worker::HasTask() {
+  bool has_found = false;
+  for (auto &group : running_group_list_) {
+    for (auto &runner : group) {
+      if (runner->HasTask()) {
+        has_found = true;
+        break;
+      }
+    }
+    if (has_found) {
+      break;
+    }
+  }
+  if (!has_found) {
+    for (auto &group : pending_group_list_) {
+      for (auto &runner : group) {
+        if (runner->HasTask()) {
+          has_found = true;
+          break;
+        }
+      }
+      if (has_found) {
+        break;
+      }
+    }
+  }
+  return has_found;
+}
+
+bool Worker::HasMoreUrgentTask(TimeDelta min_wait_time, TimePoint now) {
+  bool has_found = false;
+  for (auto &group : running_group_list_) {
+    for (auto &runner : group) {
+      if (runner->HasMoreUrgentTask(min_wait_time, now)) {
+        has_found = true;
+        break;
+      }
+    }
+    if (has_found) {
+      break;
+    }
+  }
+  if (!has_found) {
+    for (auto &group : pending_group_list_) {
+      for (auto &runner : group) {
+        if (runner->HasMoreUrgentTask(min_wait_time, now)) {
+          has_found = true;
+          break;
+        }
+      }
+      if (has_found) {
+        break;
+      }
+    }
+  }
+  return has_found;
 }
 
 } // namespace runner

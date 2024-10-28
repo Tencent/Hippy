@@ -102,6 +102,9 @@ class Worker {
   void BalanceNoLock();
   void SortNoLock();
 
+  bool HasTask();
+  bool HasMoreUrgentTask(TimeDelta min_wait_time, TimePoint now);
+
   int32_t WorkerKeyCreate(uint32_t task_runner_id, const std::function<void(void *)>& destruct);
   bool WorkerKeyDelete(uint32_t task_runner_id, int32_t key);
   bool WorkerSetSpecific(uint32_t task_runner_id, int32_t key, void *p);
