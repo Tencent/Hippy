@@ -122,6 +122,8 @@ class TaskRunner {
   std::unique_ptr<IdleTask> PopIdleTask();
   std::unique_ptr<Task> GetTopDelayTask();
   std::unique_ptr<Task> GetNext();
+  bool HasTask();
+  bool HasMoreUrgentTask(TimeDelta min_wait_time, TimePoint now);
 
   std::queue<std::unique_ptr<Task>> task_queue_;
   std::mutex queue_mutex_;
