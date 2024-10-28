@@ -35,15 +35,12 @@ class CVDriver: public Driver {
   virtual ~CVDriver() = default;
 
   virtual void Notify() override;
-  virtual void WaitFor(const TimeDelta& delta) override;
-  virtual std::mutex& Mutex() override;
   virtual void WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>& lock) override;
   virtual void Start() override;
   virtual void Terminate() override;
 
  private:
   std::condition_variable cv_;
-  std::mutex mutex_;
 };
 
 }

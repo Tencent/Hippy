@@ -36,7 +36,7 @@ class LooperDriver: public Driver {
   virtual ~LooperDriver();
 
   virtual void Notify() override;
-  virtual void WaitFor(const TimeDelta& delta) override;
+  virtual void WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>& lock) override;
   virtual void Start() override;
   virtual void Terminate() override;
 

@@ -35,8 +35,7 @@ class Driver {
   virtual ~Driver() = default;
 
   virtual void Notify() = 0;
-  virtual void WaitFor(const TimeDelta& delta) = 0;
-  virtual std::mutex& Mutex() = 0;
+  std::mutex& Mutex() { return mutex_; }
   virtual void WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>& lock) = 0;
   virtual void Start() = 0;
   virtual void Terminate() = 0;
@@ -62,6 +61,8 @@ class Driver {
    *
    */
   bool is_exit_immediately_;
+
+  std::mutex mutex_;
 };
 
 }
