@@ -266,5 +266,53 @@ void TaskRunner::RunnerDestroySpecifics() {
   return worker->WorkerDestroySpecific(task_runner_id);
 }
 
+bool TaskRunner::HasTask() {
+  {
+    std::lock_guard<std::mutex> lock(queue_mutex_);
+    if (!task_queue_.empty()) {
+      return true;
+    }
+  }
+  {
+    std::lock_guard<std::mutex> lock(delay_mutex_);
+    if (!delayed_task_queue_.empty()) {
+      return true;
+    }
+  }
+  {
+    std::lock_guard<std::mutex> lock(idle_mutex_);
+    if (!idle_task_queue_.empty()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool TaskRunner::HasMoreUrgentTask(TimeDelta min_wait_time, TimePoint now) {
+  {
+    std::lock_guard<std::mutex> lock(queue_mutex_);
+    if (!task_queue_.empty()) {
+      return true;
+    }
+  }
+  {
+    std::lock_guard<std::mutex> lock(idle_mutex_);
+    if (!idle_task_queue_.empty()) {
+      return true;
+    }
+  }
+  {
+    std::lock_guard<std::mutex> lock(delay_mutex_);
+    if (!delayed_task_queue_.empty()) {
+      const DelayedEntry& delayed_task = delayed_task_queue_.top();
+      if(delayed_task.first - now < min_wait_time) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 } // namespace runner
 }  // namespace footstone

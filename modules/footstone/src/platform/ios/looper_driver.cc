@@ -56,7 +56,7 @@ void LooperDriver::Notify() {
       CFAbsoluteTimeGetCurrent());
 }
 
-void LooperDriver::WaitFor(const TimeDelta& delta) {
+void LooperDriver::WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>& lock) {
   CFRunLoopTimerSetNextFireDate(
       delayed_wake_timer_,
       CFAbsoluteTimeGetCurrent() + delta.ToSecondsF());
