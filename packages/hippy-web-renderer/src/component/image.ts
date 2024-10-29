@@ -63,6 +63,13 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     return { boxSizing: 'border-box', zIndex: 0 };
   }
 
+  public replaceHpfile(value: string) {
+    if (value && /^(hpfile):\/\//.test(value) && value.indexOf('assets') > -1) {
+      return value.replace('hpfile://./', '');
+    }
+    return value ?? '';
+  }
+
   public set tintColor(value) {
     this.props[NodeProps.TINY_COLOR] = value;
     if (value !== undefined && value !== 0) {
@@ -108,17 +115,14 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
 
   public get src() {
     const value = this.props[NodeProps.SOURCE];
-    if (value && /^(hpfile):\/\//.test(value) && value.indexOf('assets') > -1) {
-      return value.replace('hpfile://./', '');
-    }
-
-    return value ?? '';
+    return this.replaceHpfile(value);
   }
 
   public set src(value: string) {
     if (value && this.src === value) {
       return;
     }
+    value = this.replaceHpfile(value);
     this.props[NodeProps.SOURCE] = value ?? '';
 
     if (value && value !== this.props[NodeProps.DEFAULT_SOURCE]) {
@@ -145,10 +149,12 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   }
 
   public get defaultSource() {
-    return this.props[NodeProps.DEFAULT_SOURCE];
+    const value = this.props[NodeProps.DEFAULT_SOURCE];
+    return this.replaceHpfile(value);
   }
 
   public set defaultSource(value: string) {
+    value = this.replaceHpfile(value);
     this.props[NodeProps.DEFAULT_SOURCE] = value;
     if (!this.isLoadSuccess) {
       this.renderImgDom!.src = value;
@@ -190,12 +196,12 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private handleLoad(_event: Event, loadUrl?: string) {
     this.isLoadSuccess = false;
     if ((!loadUrl && this.renderImgDom?.src === this.src) || loadUrl === this.src) {
-      this.onLoad(null);
+      this.onLoad({});
       if (this.renderImgDom?.src !== this.src) {
         this.renderImgDom!.src = this.src;
       }
     }
-    this.onLoadEnd(null);
+    this.onLoadEnd({});
   }
 
   private buildTintDomContainer() {
