@@ -73,8 +73,8 @@ public class JsDriver implements Connector {
         onNativeInitEnd(mInstanceId, startTime, endTime);
     }
 
-    public void recordFirstPaintEndTime(long time) {
-        onFirstPaintEnd(mInstanceId, time);
+    public void recordFirstPaintEndTime(long time, int rootId) {
+        onFirstPaintEnd(mInstanceId, time, rootId);
     }
 
     public void recordFirstContentfulPaintEndTime(long time) {
@@ -170,7 +170,7 @@ public class JsDriver implements Connector {
 
     private native void onNativeInitEnd(int instanceId, long startTime, long endTime);
 
-    private native void onFirstPaintEnd(int instanceId, long time);
+    private native void onFirstPaintEnd(int instanceId, long time, int rootId);
 
     private native void onFirstContentfulPaintEnd(int instanceId, long time);
 

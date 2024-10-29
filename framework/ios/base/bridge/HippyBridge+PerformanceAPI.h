@@ -29,10 +29,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HippyBridge (PerformanceAPI)
 
 /// Update perf records of FP, DOM_START/DOM_END etc.
-- (void)updatePerfRecordsOnRootContentDidAppear;
+/// - Parameter rootTag: Tag of rootView
+- (void)updatePerfRecordsOnRootContentDidAppear:(NSNumber *)rootTag;
 
 /// Update FCP perf record.
 - (void)updatePerfRecordOnFirstContentfulPaintEnd;
+
+/// Get all perf data
+- (NSDictionary *)getHippyInitPerformanceData;
+
+/// Get fcp perf data
+- (nullable NSDictionary *)getFCPPerformanceData;
 
 @end
 
