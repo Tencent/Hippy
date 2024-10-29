@@ -333,7 +333,7 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
   TDF_PERF_LOG("RootNode::DoAndFlushLayout Done");
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->RecordDomEndTimePoint();
+    dom_manager->RecordDomEndTimePoint(this->GetId());
   }
   render_manager->EndBatch(GetWeakSelf());
   TDF_PERF_LOG("RootNode::SyncWithRenderManager End");
