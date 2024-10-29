@@ -34,6 +34,7 @@
 
 #import <list>
 #import <vector>
+#import <unordered_map>
 
 #if !TARGET_OS_IPHONE
 #import <libkern/OSAtomic.h>

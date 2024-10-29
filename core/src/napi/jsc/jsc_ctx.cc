@@ -467,9 +467,6 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
 std::shared_ptr<CtxValue> JSCCtx::CreateArray(
     size_t count,
     std::shared_ptr<CtxValue> array[]) {
-  if (count <= 0) {
-    return nullptr;
-  }
 
   JSValueRef values[count];  // NOLINT(runtime/arrays)
   for (size_t i = 0; i < count; i++) {

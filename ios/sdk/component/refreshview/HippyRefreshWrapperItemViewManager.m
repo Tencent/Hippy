@@ -22,9 +22,24 @@
 
 #import "HippyRefreshWrapperItemViewManager.h"
 #import "HippyRefreshWrapperItemView.h"
+
 @implementation HippyRefreshWrapperItemViewManager
+
 HIPPY_EXPORT_MODULE(RefreshWrapperItemView)
+
 - (UIView *)view {
     return [HippyRefreshWrapperItemView new];
 }
+
+@end
+
+
+@implementation HippyRefreshWrapperFooterItemViewManager
+
+HIPPY_EXPORT_MODULE(RefreshWrapperFooterItemView)
+
+- (UIView *)view {
+    return [HippyRefreshWrapperFooterItemView new];
+}
+
 @end

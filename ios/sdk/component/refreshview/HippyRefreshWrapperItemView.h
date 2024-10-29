@@ -22,6 +22,12 @@
 
 #import <UIKit/UIKit.h>
 
+/// HeaderItem of RefreshWrapper
 @interface HippyRefreshWrapperItemView : UIView
+
+@end
+
+/// FooterItem of RefreshWrapper
+@interface HippyRefreshWrapperFooterItemView : UIView
 
 @end

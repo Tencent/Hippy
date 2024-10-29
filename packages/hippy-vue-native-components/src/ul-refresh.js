@@ -24,6 +24,17 @@ function registerUlRefresh(Vue) {
   Vue.registerElement('hi-ul-refresh-wrapper', {
     component: {
       name: 'RefreshWrapper',
+      processEventData(event, nativeEventName, nativeEventParams) {
+        switch (nativeEventName) {
+          case 'onScroll': {
+            event.offsetX = nativeEventParams.contentOffset.x;
+            event.offsetY = nativeEventParams.contentOffset.y;
+            break;
+          }
+          default:
+        }
+        return event;
+      },
     },
   });
 
@@ -53,6 +64,7 @@ function registerUlRefresh(Vue) {
     render(h) {
       const on = getEventRedirector.call(this, [
         'refresh',
+        'scroll',
       ]);
       return h('hi-ul-refresh-wrapper', {
         on,

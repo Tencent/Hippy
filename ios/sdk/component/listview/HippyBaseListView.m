@@ -33,12 +33,16 @@
 
 @interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
 
+/// Scrollable's scroll event delegates
+@property (nonatomic, strong) NSHashTable<id<UIScrollViewDelegate>> *scrollListeners;
+/// Scrollable's layout event delegates
+@property (nonatomic, strong) NSHashTable<id<HippyScrollableLayoutDelegate>> *layoutDelegates;
+
 @end
 
 @implementation HippyBaseListView {
     __weak HippyBridge *_bridge;
     __weak HippyRootView *_rootView;
-    NSHashTable *_scrollListeners;
     BOOL _isInitialListReady;
     NSUInteger _preNumberOfRows;
     BOOL _allowNextScrollNoMatterWhat;
@@ -55,7 +59,6 @@
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
     if (self = [super initWithFrame:CGRectZero]) {
         _bridge = bridge;
-        _scrollListeners = [NSHashTable weakObjectsHashTable];
         _dataSource = [HippyBaseListViewDataSource new];
         _isInitialListReady = NO;
         _preNumberOfRows = 0;
@@ -140,6 +143,13 @@
         });
         self.initialContentOffset = 0;
     }
+    if (self.initialContentIndex > 0) {
+        NSUInteger initialContentIndex = self.initialContentIndex;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self scrollToIndex:initialContentIndex animated:NO];
+        });
+        self.initialContentIndex = 0;
+    }
 
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
@@ -197,6 +207,9 @@
 }
 
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
+    if (!self.scrollListeners) {
+        self.scrollListeners = [NSHashTable weakObjectsHashTable];
+    }
     [_scrollListeners addObject:scrollListener];
 }
 
@@ -229,6 +242,19 @@
         _allowNextScrollNoMatterWhat = YES;
         [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
     }
+}
+
+- (void)addHippyScrollableLayoutDelegate:(id<HippyScrollableLayoutDelegate>)delegate {
+    HippyAssertMainThread();
+    if (!self.layoutDelegates) {
+        self.layoutDelegates = [NSHashTable weakObjectsHashTable];
+    }
+    [self.layoutDelegates addObject:delegate];
+}
+
+- (void)removeHippyScrollableLayoutDelegate:(id<HippyScrollableLayoutDelegate>)delegate {
+    HippyAssertMainThread();
+    [self.layoutDelegates removeObject:delegate];
 }
 
 #pragma mark - Delegate & Datasource
@@ -368,6 +394,13 @@
         }
     }
     _previousVisibleCells = visibleCells;
+    
+    // Notify delegates of HippyScrollableLayoutDelegate
+    for (id<HippyScrollableLayoutDelegate> layoutDelegate in self.layoutDelegates) {
+        if ([layoutDelegate respondsToSelector:@selector(scrollableDidLayout:)]) {
+            [layoutDelegate scrollableDidLayout:self];
+        }
+    }
 }
 
 #pragma mark - Scroll
