@@ -112,7 +112,7 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onFirstPaintEnd",
-             "(IJ)V",
+             "(IJI)V",
              OnFirstPaintEnd)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
@@ -192,7 +192,7 @@ void OnNativeInitEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong sta
   }
 }
 
-void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time) {
+void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong time, jint j_root_id) {
   auto scope = GetScope(j_scope_id);
   if (!scope) {
     return;
@@ -204,7 +204,7 @@ void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
   auto runner = engine->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
-    auto task = [weak_scope, time]() {
+    auto task = [weak_scope, time, j_root_id]() {
       auto scope = weak_scope.lock();
       if (!scope) {
         return;
@@ -214,10 +214,10 @@ void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
         return;
       }
       auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-      entry->SetHippyRunApplicationEnd(dom_manager->GetDomStartTimePoint());
-      entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint());
-      entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint());
-      entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint());
+      entry->SetHippyRunApplicationEnd(dom_manager->GetDomStartTimePoint(j_root_id));
+      entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint(j_root_id));
+      entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint(j_root_id));
+      entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint(j_root_id));
       entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
     };
     runner->PostTask(std::move(task));
