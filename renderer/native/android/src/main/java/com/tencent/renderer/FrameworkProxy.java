@@ -53,7 +53,7 @@ public interface FrameworkProxy {
 
     int getEngineId();
 
-    void onFirstPaint();
+    void onFirstPaint(int rootId);
 
     void onFirstContentfulPaint();
 

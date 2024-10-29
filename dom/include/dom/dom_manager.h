@@ -133,10 +133,10 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static byte_string GetSnapShot(const std::shared_ptr<RootNode>& root_node);
   bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const byte_string& buffer);
 
-  void RecordDomStartTimePoint();
-  void RecordDomEndTimePoint();
-  inline auto GetDomStartTimePoint() { return dom_start_time_point_; }
-  inline auto GetDomEndTimePoint() { return dom_end_time_point_; }
+  void RecordDomStartTimePoint(uint32_t root_id);
+  void RecordDomEndTimePoint(uint32_t root_id);
+  inline auto GetDomStartTimePoint(uint32_t root_id) { return dom_start_time_point_[root_id]; }
+  inline auto GetDomEndTimePoint(uint32_t root_id) { return dom_end_time_point_[root_id]; }
 
  private:
   friend class DomNode;
@@ -152,8 +152,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::shared_ptr<TaskRunner> task_runner_;
   std::shared_ptr<Worker> worker_;
 
-  footstone::TimePoint dom_start_time_point_;
-  footstone::TimePoint dom_end_time_point_;
+  std::unordered_map<uint32_t, footstone::TimePoint> dom_start_time_point_;
+  std::unordered_map<uint32_t, footstone::TimePoint> dom_end_time_point_;
 };
 
 }  // namespace dom
