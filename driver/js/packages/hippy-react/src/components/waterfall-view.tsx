@@ -64,8 +64,11 @@ interface WaterfallViewProps {
   // Declare whether banner view exists
   containBannerView?: boolean
 
-  // Return banner view element
+  // Return banner view element (header)
   renderBanner?: () => React.ReactElement;
+
+  // Return footer banner view element
+  renderFooter?:  () => React.ReactElement;
 
   /**
    * Passing the data and returns the row component.
@@ -253,6 +256,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     const {
       style = {},
       renderBanner,
+      renderFooter,
       numberOfColumns = 2,
       columnSpacing = 0,
       interItemSpacing = 0,
@@ -293,17 +297,18 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     if (typeof renderBanner === 'function') {
       const banner = renderBanner();
       if (banner) {
-        if (Device.platform.OS === 'ios' || Device.platform.OS === 'ohos') {
+        if (Device.platform.OS === 'ohos') {
           itemList.push((
             <View key="bannerView">
               {React.cloneElement(banner)}
             </View>
           ));
           nativeProps.containBannerView = true;
-        } else if (Device.platform.OS === 'android') {
+        } else {
           const itemProps = {
             key: 'bannerView',
-            fullSpan: true,
+            isHeader: true,
+            fullSpan: true, // only for android
             style: {},
           };
           itemList.push((
@@ -355,6 +360,23 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
       };
     } else {
       warn('Waterfall attribute [renderItem] is not Function');
+    }
+
+    // only ios support currently
+    if (typeof renderFooter === 'function') {
+      const footer = renderFooter();
+      if (footer) {
+        const itemProps = {
+          key: 'WaterfallFooterView',
+          isFooter: true,
+          style: {},
+        };
+        itemList.push((
+          <WaterfallViewItem{...itemProps}>
+            {React.cloneElement(footer)}
+          </WaterfallViewItem>
+        ));
+      }
     }
 
     return (

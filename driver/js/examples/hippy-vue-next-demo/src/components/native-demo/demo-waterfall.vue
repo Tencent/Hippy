@@ -4,7 +4,6 @@
       ref="gridView"
       :content-inset="contentInset"
       :column-spacing="columnSpacing"
-      :contain-banner-view="!isAndroid"
       :contain-pull-footer="true"
       :inter-item-spacing="interItemSpacing"
       :number-of-columns="numberOfColumns"
@@ -25,7 +24,7 @@
         </p>
       </pull-header>
       <div
-        v-if="!isAndroid"
+        v-if="!isAndroid && !isiOS"
         class="banner-view"
       >
         <span>BannerView</span>
@@ -33,9 +32,10 @@
       <waterfall-item
         v-else
         :full-span="true"
+        :isHeader="true"
         class="banner-view"
       >
-        <span>BannerView</span>
+        <span>Banner View</span>
       </waterfall-item>
       <waterfall-item
         v-for="(ui, index) in dataSource"
@@ -56,6 +56,12 @@
           v-if="ui.style === 5"
           :item-bean="ui.itemBean"
         />
+      </waterfall-item>
+      <waterfall-item
+        :isFooter="true"
+        class="banner-view"
+      >
+        <span>Footer View</span>
       </waterfall-item>
       <pull-footer
         ref="pullFooter"
@@ -95,6 +101,7 @@ const numberOfColumns = 2;
 // inner content padding
 const contentInset = { top: 0, left: 5, bottom: 0, right: 5 };
 const isAndroid = Native.Platform === 'android';
+const isiOS = Native.Platform === 'ios';
 
 const mockFetchData = async (): Promise<any> => new Promise((resolve) => {
   setTimeout(() => {
@@ -249,6 +256,7 @@ export default defineComponent({
       onEndReached,
       onClickItem,
       isAndroid,
+      isiOS,
       onHeaderPulling,
       onFooterPulling,
       onHeaderIdle,

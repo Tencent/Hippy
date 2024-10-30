@@ -28,7 +28,8 @@
 
 @interface HippyWaterfallViewDataSource () {
     BOOL _containBannerView;
-    HippyShadowView *_bannerView;
+    HippyShadowView *_headerView;
+    HippyShadowWaterfallItem *_footerView;
     NSString *_itemViewName;
 }
 
@@ -50,7 +51,7 @@
 - (id)copyWithZone:(nullable NSZone *)zone {
     HippyWaterfallViewDataSource *dataSource = [[[self class] allocWithZone:zone] init];
     dataSource->_containBannerView = self.containBannerView;
-    dataSource->_bannerView = _bannerView;
+    dataSource->_headerView = _headerView;
     NSMutableArray<NSArray<HippyShadowView *> *> *objectSectionViews = [NSMutableArray arrayWithCapacity:[_shadowCellViews count]];
     for (NSArray<HippyShadowView *> *objects in _shadowCellViews) {
         NSArray<HippyShadowView *> *copiedObjects = [objects copy];
@@ -61,129 +62,90 @@
     return dataSource;
 }
 
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource {
-    [self setDataSource:dataSource containBannerView:NO];
-}
-
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource
-    containBannerView:(BOOL)containBannerView {
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView {
     _containBannerView = containBannerView;
     if ([dataSource count] > 0) {
-        if (containBannerView) {
+        // find all cell item and header/footer in a loop
+        NSString *waterfallItemViewName = self.itemViewName;
+        NSMutableArray *cellItems = [NSMutableArray arrayWithCapacity:dataSource.count];
+        for (int i = 0; i < dataSource.count; i++) {
+            HippyShadowView *shadowView = [dataSource objectAtIndex:i];
+            if ([shadowView.viewName isEqualToString:waterfallItemViewName]) {
+                HippyShadowWaterfallItem *item = (HippyShadowWaterfallItem *)shadowView;
+                if ([item isHeader]) {
+                    _headerView = item;
+                    _containBannerView = YES;
+                } else if ([item isFooter]) {
+                    _footerView = item;
+                } else {
+                    [cellItems addObject:item];
+                }
+            }
+        }
+        
+        if (cellItems.count > 0) {
+            _shadowCellViews = [NSArray arrayWithObject:cellItems];
+        } else {
+            _shadowCellViews = nil;
+        }
+        
+        if (containBannerView && !_headerView) {
             // find the first shadowView that is not pull header or pull footer
+            // Old logic and is deprecated, keep it for some time to ensure js compatibility
+            // As of version 3.3.2, use the `isHeader` attribute to determine whether it is banner.
             for (int i = 0; i < dataSource.count; i++) {
                 HippyShadowView *subShadowView = [dataSource objectAtIndex:i];
                 if ([subShadowView.viewName isEqualToString:HippyHeaderRefreshManager.moduleName]) {
                     continue;
                 } else {
-                    _bannerView = subShadowView;
+                    _headerView = subShadowView;
                     break;
                 }
             }
         }
-        NSUInteger loc = _containBannerView ? 1 : 0;
-        NSArray<HippyShadowView *> *candidateRenderObjectViews = [dataSource subarrayWithRange:NSMakeRange(loc, [dataSource count] - loc)];
-        NSString *viewName = self.itemViewName;
-        static dispatch_once_t onceToken;
-        static NSPredicate *prediate = nil;
-        dispatch_once(&onceToken, ^{
-            prediate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-                HippyShadowView *renderObjectView = (HippyShadowView *)evaluatedObject;
-                if ([renderObjectView.viewName isEqualToString:viewName]) {
-                    return YES;
-                }
-                return NO;
-            }];
-        });
-        NSArray<HippyShadowView *> *objects = [candidateRenderObjectViews filteredArrayUsingPredicate:prediate];
-        if ([objects count]) {
-            _shadowCellViews = [NSArray arrayWithObject:objects];
-        }
-        else {
-            _shadowCellViews = nil;
-        }
     }
 }
 
--(HippyShadowView *)bannerView {
-    return _bannerView;
-}
+#pragma mark - Getters
 
 - (NSArray<NSArray<HippyShadowView *> *> *)shadowCellViews {
     return [_shadowCellViews copy];
 }
 
 - (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
-    if (_containBannerView && 0 == [indexPath section]) {
-        return _bannerView;
-    }
-    else {
-        return [[_shadowCellViews firstObject] objectAtIndex:[indexPath row]];
-    }
+    return [[_shadowCellViews firstObject] objectAtIndex:[indexPath row]];
 }
 
 - (HippyShadowView *)headerForSection:(NSInteger)section {
-    return nil;
+    return _headerView;
+}
+
+- (HippyShadowView *)footerForSection:(NSInteger)section {
+    return _footerView;
 }
 
 - (NSInteger)numberOfSection {
-    NSInteger count = _containBannerView ? 1  : 0;
-    count += [[_shadowCellViews firstObject] count] ? 1 : 0;
+    NSInteger count = [[_shadowCellViews firstObject] count] ? 1 : 0;
     return count;
 }
 
 - (NSInteger)numberOfCellForSection:(NSInteger)section {
-    if (_containBannerView) {
-        return 0 == section ? 1 : [[_shadowCellViews firstObject] count];
-    }
-    else {
-        return [[_shadowCellViews firstObject] count];
-    }
+    return [[_shadowCellViews firstObject] count];
 }
 
 - (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell {
-    NSInteger row = 0;
     NSInteger section = 0;
-    if (_containBannerView) {
-        if (_bannerView != cell) {
-            section = 1;
-            row = [[_shadowCellViews firstObject] indexOfObject:cell];
-        }
-    }
-    else {
-        row = [[_shadowCellViews firstObject] indexOfObject:cell];
-    }
+    NSInteger row = [[_shadowCellViews firstObject] indexOfObject:cell];
     return [NSIndexPath indexPathForRow:row inSection:section];
 }
 
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index {
-    NSInteger row = 0;
     NSInteger section = 0;
-    if (_containBannerView) {
-        if (0 != index) {
-            section = 1;
-            index -= 1;
-        }
-    }
-    else {
-        row = index;
-    }
-    return [NSIndexPath indexPathForRow:row inSection:section];
+    return [NSIndexPath indexPathForRow:index inSection:section];
 }
 
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath {
-    NSInteger row = [indexPath row];
-    NSInteger section = [indexPath section];
-    NSInteger index = 0;
-    if (_containBannerView) {
-        if (0 != section) {
-            index = row + 1;
-        }
-    }
-    else {
-        index = row;
-    }
-    return index;
+    return [indexPath row];
 }
 
 

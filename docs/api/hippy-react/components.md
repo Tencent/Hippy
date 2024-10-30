@@ -550,7 +550,8 @@ import icon from './qb_icon_new.png';
 | interItemSpacing  | item 间的垂直间距  | `number`   | `Android、iOS、Voltron`  |
 | contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS、Voltron`   |
 | renderItem             | 这里的入参是当前 item 的 index，在这里可以凭借 index 获取到瀑布流一个具体单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => React.ReactElement`                                   | `Android、iOS、Voltron`    |
-| renderBanner | 如何渲染 Banner。 | `() => React.ReactElement` |  `Android、iOS、Voltron`
+| renderBanner | 如何渲染 Banner (即Header，显示在内容顶部) | `() => React.ReactElement` |  `Android、iOS、Voltron` |
+| renderFooter | 如何渲染 Footer（与renderBanner对应，Footer显示在内容底部） | `() => React.ReactElement` |  `iOS`（3.3.2版本起支持） |
 | getItemStyle           | 设置`WaterfallItem`容器的样式。  | `(index: number) => styleObject`                                    | `Android、iOS、Voltron`    |
 | getItemType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `Android、iOS、Voltron`    |
 | getItemKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS、Voltron`    |
