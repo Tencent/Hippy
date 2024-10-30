@@ -30,6 +30,8 @@
 HIPPY_EXPORT_MODULE(WaterfallView)
 
 HIPPY_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
+HIPPY_EXPORT_VIEW_PROPERTY(headerInset, UIEdgeInsets)
+HIPPY_EXPORT_VIEW_PROPERTY(footerInset, UIEdgeInsets)
 HIPPY_EXPORT_VIEW_PROPERTY(numberOfColumns, NSInteger)
 HIPPY_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSInteger)
 HIPPY_EXPORT_VIEW_PROPERTY(columnSpacing, CGFloat)
