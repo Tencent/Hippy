@@ -280,7 +280,7 @@ export default {
 | columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `Android、iOS、Voltron`    |
 | interItemSpacing  | item 间的垂直间距                                        | `number`   | `Android、iOS、Voltron`    |
 | contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS、Voltron`    |
-| containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS、Voltron`    |
+| containBannerView | 是否包含`bannerView`，只能有一个bannerView， (`Android` 暂不支持，`iOS` 3.3.2版本起已废弃该属性，请使用`waterfall-item`组件`isHeader/isFooter`属性代替)  | `boolean`  | `iOS、Voltron`    |
 | containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS、Voltron`    |
 | containPullFooter | 是否包含 `pull-footer` | `boolean`  | `Android、iOS、Voltron` |
 | numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `Android、iOS、Voltron`    |
@@ -323,3 +323,5 @@ export default {
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS、Voltron`    |
 | key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |
+| isHeader | 指定该Item是否为Header（即bannerView，显示在内容区顶部） | `boolean` | `iOS`（3.3.2版本起支持） |
+| isFooter | 指定该Item是否为Footer（显示在内容区底部） | `boolean` | `iOS`（3.3.2版本起支持） |
