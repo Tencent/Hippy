@@ -186,7 +186,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
         if (layoutManager instanceof HippyStaggeredGridLayoutManager) {
             int[] firstVisibleItem = null;
-            firstVisibleItem = ((HippyStaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(firstVisibleItem);
+            firstVisibleItem = ((HippyStaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(
+                    firstVisibleItem);
             if (firstVisibleItem != null && (firstVisibleItem[0] <= WATERFALL_SCROLL_RELAYOUT_THRESHOLD)) {
                 Adapter adapter = hippyRecyclerView.getAdapter();
                 if (adapter != null) {
@@ -421,11 +422,16 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         if (adapter instanceof HippyRecyclerListAdapter) {
             HippyRecyclerListAdapter listAdapter = ((HippyRecyclerListAdapter) adapter);
             int count = listAdapter.getItemCount();
+            // Android includes a pull header and a pull footer when calculating the position of an item. In order to
+            // align with iOS, if a pull header is included, the first item and last item position needs to be
+            // subtracted by 1
             if (listAdapter.hasPullHeader()) {
                 first = Math.max(0, (first - 1));
                 end = Math.max(0, (end - 1));
                 count -= 1;
             }
+            // For align with iOS, if a pull footer is included, the last item position needs to be
+            // subtracted by 1
             if (listAdapter.hasPullFooter() && (end == (count - 1))) {
                 end = Math.max(0, (end - 1));
             }
