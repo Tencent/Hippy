@@ -275,6 +275,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
             overPullHelper.enableOverPullUp(!listAdapter.hasFooter());
             overPullHelper.enableOverPullDown(!listAdapter.hasHeader());
         }
+        if (currentNodeCount > renderNodeCount) {
+            getRecyclerViewEventHelper().onListDataChanged();
+        }
         renderNodeCount = currentNodeCount;
         if (renderNodeCount > 0 && mInitialContentOffset > 0) {
             scrollToInitContentOffset();
