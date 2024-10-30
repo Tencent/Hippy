@@ -41,7 +41,7 @@ void HippyFileHandler::RequestUntrustedContent(std::shared_ptr<hippy::RequestJob
     FOOTSTONE_UNIMPLEMENTED();
 }
 
-NSURL *HippyFileHandler::AbsoluteURLFromHippyFileURL(NSURL *fileUrl, NSURL *hippySandboxDirectory) {
+NSURL *HippyFileHandler::AbsoluteURLFromHippyFileURL(NSURL *fileUrl, HippyBridge *bridge) {
     static NSString *defaultHippyLocalFileURLPrefix = @"hpfile://";
     static NSString *hippyLocalRelativeFilePathPrefix = @"./";
     static NSString *hippyLocalAppBundleFilePathPrefix = @"appbundle/";
@@ -55,6 +55,7 @@ NSURL *HippyFileHandler::AbsoluteURLFromHippyFileURL(NSURL *fileUrl, NSURL *hipp
         if ([path hasPrefix:hippyLocalRelativeFilePathPrefix]) {
             // Hippy Sandbox Relative Path
             NSString *relativePath = [path substringFromIndex:hippyLocalRelativeFilePathPrefix.length];
+            NSURL *hippySandboxDirectory = [NSURL URLWithString:bridge.sandboxDirectory];
             absoluteURL = [NSURL fileURLWithPath:relativePath relativeToURL:hippySandboxDirectory];
         } else if ([path hasPrefix:hippyLocalAppBundleFilePathPrefix]) {
             // App Bundle Path
@@ -90,7 +91,7 @@ void HippyFileHandler::RequestUntrustedContent(NSURLRequest *request,
         return;
     }
     
-    NSURL *absoluteURL = AbsoluteURLFromHippyFileURL(url, [NSURL URLWithString:bridge.sandboxDirectory]);
+    NSURL *absoluteURL = AbsoluteURLFromHippyFileURL(url, bridge);
     if ([absoluteURL isFileURL] || [absoluteURL isFileReferenceURL]) {
         void (^opBlock)() = ^{
             NSError *error;
