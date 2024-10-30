@@ -28,6 +28,9 @@
 
 HIPPY_EXPORT_MODULE(WaterfallItem)
 
+HIPPY_EXPORT_SHADOW_PROPERTY(isHeader, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(isFooter, BOOL)
+
 - (UIView *)view {
     return [HippyWaterfallItemView new];
 }

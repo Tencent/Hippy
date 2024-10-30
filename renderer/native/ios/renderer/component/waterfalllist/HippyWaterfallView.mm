@@ -45,13 +45,16 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     BOOL _manualScroll;
 }
 
+/// Layout
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
 
-@property (nonatomic, assign) NSInteger initialListSize;
+/// Whether contain a bannerView, js set.
+/// As of version 3.3.2, use isHeader prop to determine whether it is banner,
+/// Deprecated, used only for compatibility with old js code.
 @property (nonatomic, assign) BOOL containBannerView;
 
+/// Hippy root view
 @property (nonatomic, weak) HippyRootView *rootView;
-@property (nonatomic, strong) UIView *loadingView;
 
 @end
 
@@ -98,7 +101,13 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (void)registerSupplementaryViews {
-    
+    Class cls = [self listItemClass];
+    [_collectionView registerClass:cls
+        forSupplementaryViewOfKind:HippyCollectionElementKindSectionHeader
+               withReuseIdentifier:HippyCollectionElementKindSectionHeader];
+    [_collectionView registerClass:cls
+        forSupplementaryViewOfKind:HippyCollectionElementKindSectionFooter
+               withReuseIdentifier:HippyCollectionElementKindSectionFooter];
 }
 
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
@@ -159,14 +168,24 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 - (void)setContainBannerView:(BOOL)containBannerView {
     _containBannerView = containBannerView;
+    [self reloadData];
 }
 
 #pragma mark Setter & Getter
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     _contentInset = contentInset;
-
     _layout.sectionInset = _contentInset;
+}
+
+- (void)setHeaderInset:(UIEdgeInsets)headerInset {
+    _headerInset = headerInset;
+    _layout.headerInset = headerInset;
+}
+
+- (void)setFooterInset:(UIEdgeInsets)footerInset {
+    _footerInset = footerInset;
+    _layout.footerInset = footerInset;
 }
 
 - (void)setNumberOfColumns:(NSInteger)numberOfColumns {
@@ -230,7 +249,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        _headerRefreshView.frame = subview.hippyShadowView.frame;
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -238,9 +256,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        _footerRefreshView.frame = subview.hippyShadowView.frame;
-        UIEdgeInsets insets = self.collectionView.contentInset;
-        self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
     }
 }
 
@@ -275,13 +290,42 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     return cell;
 }
 
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    HippyWaterfallViewCell *headOrFooterCell = nil;
+    HippyShadowView *shadowView = nil;
+    if ([kind isEqualToString:HippyCollectionElementKindSectionHeader]) {
+        headOrFooterCell = [collectionView dequeueReusableSupplementaryViewOfKind:HippyCollectionElementKindSectionHeader
+                                                              withReuseIdentifier:HippyCollectionElementKindSectionHeader
+                                                                     forIndexPath:indexPath];
+        shadowView = [_dataSource headerForSection:indexPath.section];
+    } else if ([kind isEqualToString:HippyCollectionElementKindSectionFooter]) {
+        headOrFooterCell = [collectionView dequeueReusableSupplementaryViewOfKind:HippyCollectionElementKindSectionFooter
+                                                              withReuseIdentifier:HippyCollectionElementKindSectionFooter
+                                                                     forIndexPath:indexPath];
+        shadowView = [_dataSource footerForSection:indexPath.section];
+    }
+    
+    UIView *cellView = nil;
+    UIView *cachedCellView = [_cachedWeakCellViews objectForKey:shadowView.hippyTag];
+    if (cachedCellView) {
+        cellView = cachedCellView;
+    } else {
+        cellView = [self.uiManager createViewForShadowListItem:shadowView];
+        [_cachedWeakCellViews setObject:cellView forKey:shadowView.hippyTag];
+    }
+    headOrFooterCell.cellView = cellView;
+    cellView.parent = self;
+    return headOrFooterCell;
+}
+
+#pragma mark - UICollectionViewDelegate
+
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (0 == [indexPath section] && _containBannerView) {
-        return;
-    }
-    NSInteger section = _containBannerView ? 1 : 0;
+    NSInteger section = 0;
     NSInteger count = [_dataSource numberOfCellForSection:section];
     NSInteger leftCnt = count - indexPath.item - 1;
     if (leftCnt == _preloadItemNumber) {
@@ -297,7 +341,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     }
 }
 
-#pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout
+#pragma mark - HippyCollectionViewDelegateWaterfallLayout
 
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout *)collectionViewLayout
@@ -314,19 +358,27 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (NSInteger)collectionView:(UICollectionView *)collectionView
                      layout:(UICollectionViewLayout *)collectionViewLayout
       columnCountForSection:(NSInteger)section {
-    if (_containBannerView && 0 == section) {
-        return 1;
-    }
     return _numberOfColumns;
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
                         layout:(UICollectionViewLayout *)collectionViewLayout
         insetForSectionAtIndex:(NSInteger)section {
-    if (0 == section && _containBannerView) {
-        return UIEdgeInsetsZero;
-    }
     return _contentInset;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView 
+                   layout:(UICollectionViewLayout *)collectionViewLayout
+ heightForHeaderInSection:(NSInteger)section {
+    HippyShadowView *shadowView = [_dataSource headerForSection:section];
+    return CGRectGetHeight(shadowView.frame);
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView
+                   layout:(UICollectionViewLayout *)collectionViewLayout
+ heightForFooterInSection:(NSInteger)section {
+    HippyShadowView *shadowView = [_dataSource footerForSection:section];
+    return CGRectGetHeight(shadowView.frame);
 }
 
 - (void)startLoadMore {
@@ -377,17 +429,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         CGFloat endEdgePos = offset.y + CGRectGetHeight(self.collectionView.frame);
         NSInteger firstVisibleRowIndex = [[visibleItems firstObject] row];
         NSInteger lastVisibleRowIndex = [[visibleItems lastObject] row];
-
-        if (_containBannerView) {
-            if ([visibleItems firstObject].section == 0) {
-                if ([visibleItems lastObject].section != 0) {
-                    lastVisibleRowIndex = lastVisibleRowIndex + 1;
-                }
-            } else {
-                firstVisibleRowIndex = firstVisibleRowIndex + 1;
-                lastVisibleRowIndex = lastVisibleRowIndex + 1;
-            }
-        }
 
         NSMutableArray *visibleRowsFrames = [NSMutableArray arrayWithCapacity:[visibleItems count]];
         for (NSIndexPath *indexPath in visibleItems) {
