@@ -373,10 +373,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void onFirstPaint() {
+    public void onFirstPaint(int rootId) {
         FrameworkProxy frameworkProxy = getFrameworkProxy();
         if (frameworkProxy != null) {
-            frameworkProxy.onFirstPaint();
+            frameworkProxy.onFirstPaint(rootId);
         }
     }
 

@@ -272,16 +272,16 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const b
   return true;
 }
 
-void DomManager::RecordDomStartTimePoint() {
-  if (dom_start_time_point_.ToEpochDelta() == TimeDelta::Zero()) {
-    dom_start_time_point_ = footstone::TimePoint::SystemNow();
+void DomManager::RecordDomStartTimePoint(uint32_t root_id) {
+  if (dom_start_time_point_[root_id].ToEpochDelta() == TimeDelta::Zero()) {
+    dom_start_time_point_[root_id] = footstone::TimePoint::SystemNow();
   }
 }
 
-void DomManager::RecordDomEndTimePoint() {
-  if (dom_end_time_point_.ToEpochDelta() == TimeDelta::Zero()
-  && dom_start_time_point_.ToEpochDelta() != TimeDelta::Zero()) {
-    dom_end_time_point_ = footstone::TimePoint::SystemNow();
+void DomManager::RecordDomEndTimePoint(uint32_t root_id) {
+  if (dom_end_time_point_[root_id].ToEpochDelta() == TimeDelta::Zero()
+  && dom_start_time_point_[root_id].ToEpochDelta() != TimeDelta::Zero()) {
+    dom_end_time_point_[root_id] = footstone::TimePoint::SystemNow();
   }
 }
 

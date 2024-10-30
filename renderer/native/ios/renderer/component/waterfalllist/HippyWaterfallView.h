@@ -56,10 +56,14 @@ typedef NS_ENUM(NSInteger, NativeRenderScrollState) {
     BOOL _allowNextScrollNoMatterWhat;
 }
 
-/**
- * Content inset for HippyWaterfallView
- */
-@property(nonatomic, assign) UIEdgeInsets contentInset;
+/// inset for items
+@property (nonatomic, assign) UIEdgeInsets contentInset;
+
+/// inset for Header
+@property (nonatomic, assign) UIEdgeInsets headerInset;
+
+/// inset for Footer
+@property (nonatomic, assign) UIEdgeInsets footerInset;
 
 /**
  * Number of columns for HippyWaterfallView
