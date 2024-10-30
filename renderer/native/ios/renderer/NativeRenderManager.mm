@@ -258,7 +258,7 @@ void NativeRenderManager::RegisterRootView(UIView *view,
             return;
         }
         HippyAssertParam(uiManager);
-        std::shared_lock<std::shared_mutex> lock(_mutex);
+        std::unique_lock<std::shared_mutex> lock(_mutex);
         _uiManagerMap[rootNode->GetId()] = uiManager;
         [uiManager registerRootView:view asRootNode:root_node];
     }
@@ -266,7 +266,7 @@ void NativeRenderManager::RegisterRootView(UIView *view,
 
 void NativeRenderManager::UnregisterRootView(uint32_t rootId) {
     @autoreleasepool {
-        std::shared_lock<std::shared_mutex> lock(_mutex);
+        std::unique_lock<std::shared_mutex> lock(_mutex);
         HippyUIManager *uiManager = _uiManagerMap[rootId];
         HippyAssertParam(uiManager);
         [uiManager unregisterRootViewFromTag:@(rootId)];
@@ -275,7 +275,7 @@ void NativeRenderManager::UnregisterRootView(uint32_t rootId) {
 }
 
 NativeRenderManager::~NativeRenderManager() {
-    std::shared_lock<std::shared_mutex> lock(_mutex);
+    std::unique_lock<std::shared_mutex> lock(_mutex);
     for (auto &pair : _uiManagerMap) {
         [pair.second invalidate];
     }
