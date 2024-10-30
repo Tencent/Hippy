@@ -214,10 +214,11 @@ void OnFirstPaintEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jlong tim
         return;
       }
       auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
-      entry->SetHippyRunApplicationEnd(dom_manager->GetDomStartTimePoint(j_root_id));
-      entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint(j_root_id));
-      entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint(j_root_id));
-      entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint(j_root_id));
+      auto rootId = footstone::checked_numeric_cast<jint, uint32_t>(j_root_id);
+      entry->SetHippyRunApplicationEnd(dom_manager->GetDomStartTimePoint(rootId));
+      entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint(rootId));
+      entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint(rootId));
+      entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint(rootId));
       entry->SetHippyFirstFrameEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
     };
     runner->PostTask(std::move(task));
