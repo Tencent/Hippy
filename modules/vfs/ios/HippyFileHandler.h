@@ -43,8 +43,8 @@ public:
     /// Convert relative addresses(such as hpfile://) to absolute paths
     /// - Parameters:
     ///   - hippyFileUrl: file url
-    ///   - hippySandboxDirectory: sandbox directory of hippy app
-    static NSURL *AbsoluteURLFromHippyFileURL(NSURL *hippyFileUrl, NSURL *hippySandboxDirectory);
+    ///   - bridge: HippyBridge, use to get sandbox url
+    static NSURL *AbsoluteURLFromHippyFileURL(NSURL *hippyFileUrl, HippyBridge *bridge);
 
     virtual void RequestUntrustedContent(NSURLRequest *request,
                                          NSDictionary *extraInfo,
