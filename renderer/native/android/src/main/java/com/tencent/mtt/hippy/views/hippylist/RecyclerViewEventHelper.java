@@ -80,7 +80,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private boolean isInitialListReadyNotified = false;
     private ViewTreeObserver viewTreeObserver;
     private OnPreDrawListener preDrawListener;
-    private boolean isLastTimeReachEnd;
+    private boolean hasEndReached = false;
     private int preloadItemNumber;
     private Rect reusableExposureStateRect = new Rect();
 
@@ -226,6 +226,10 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         return dx != 0 || dy != 0;
     }
 
+    public void onListDataChanged() {
+        hasEndReached = false;
+    }
+
     /**
      * 检查是否已经触底，发生onEndReached事件给前端 如果上次是没有到底，这次滑动底了，需要发事件通知，如果上一次已经是到底了，这次到底不会发事件
      */
@@ -236,10 +240,10 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         } else {
             isThisTimeReachEnd = isVerticalReachEnd();
         }
-        if (!isLastTimeReachEnd && isThisTimeReachEnd) {
+        if (!hasEndReached && isThisTimeReachEnd) {
             sendOnReachedEvent();
         }
-        isLastTimeReachEnd = isThisTimeReachEnd;
+        hasEndReached = isThisTimeReachEnd;
     }
 
     private int findLastVisibleItemMaxPosition() {
@@ -296,6 +300,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     protected void sendOnReachedEvent() {
+        LogUtils.d(TAG, "sendOnReachedEvent: ");
         EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
         EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
     }
@@ -425,7 +430,6 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
                 end = Math.max(0, (end - 1));
             }
         }
-        LogUtils.d(TAG, "generateWaterfallViewScrollEvent: first " + first + ", end " + end);
         scrollEvent.put("firstVisibleRowIndex", first);
         scrollEvent.put("lastVisibleRowIndex", end);
         ArrayList<Object> rowFrames = new ArrayList<>();

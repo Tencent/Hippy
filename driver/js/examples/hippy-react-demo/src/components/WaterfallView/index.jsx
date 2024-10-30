@@ -377,7 +377,7 @@ export default class ListExample extends React.Component {
               interItemSpacing={interItemSpacing}
               numberOfItems={dataSource.length}
               contentInset={contentInset}
-              preloadItemNumber={4}
+              preloadItemNumber={12}
               style={{ flex: 1 }}
               onScroll={this.onScroll}
               renderBanner={this.renderBanner}
