@@ -235,7 +235,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void onFirstPaint(int rootId) {
-        mEngineContext.getJsDriver().recordFirstPaintEndTime(System.currentTimeMillis(), rootId));
+        mEngineContext.getJsDriver().recordFirstPaintEndTime(System.currentTimeMillis(), rootId);
         mEngineContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_PAINT,
                 TimeMonitor.MONITOR_POINT_FIRST_CONTENTFUL_PAINT);
         mGlobalConfigs.getEngineMonitorAdapter().onFirstPaintCompleted(mEngineContext.getComponentName());
