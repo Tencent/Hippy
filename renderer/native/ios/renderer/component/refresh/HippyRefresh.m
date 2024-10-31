@@ -34,10 +34,12 @@
     [self removeFromSuperview];
 }
 
-- (void)scrollViewDidScroll {
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    // nop
 }
 
-- (void)scrollViewDidEndDragging {
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView {
+    //nop
 }
 
 - (void)setStatus:(HippyRefreshStatus)status {

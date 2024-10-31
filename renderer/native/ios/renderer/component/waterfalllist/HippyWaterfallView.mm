@@ -417,8 +417,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
-    [_headerRefreshView scrollViewDidScroll];
-    [_footerRefreshView scrollViewDidScroll];
+    [_headerRefreshView scrollViewDidScroll:scrollView];
+    [_footerRefreshView scrollViewDidScroll:scrollView];
 }
 
 - (NSDictionary *)scrollEventDataWithState:(NativeRenderScrollState)state {
@@ -517,8 +517,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         }
     }
     
-    [_headerRefreshView scrollViewDidEndDragging];
-    [_footerRefreshView scrollViewDidEndDragging];
+    [_headerRefreshView scrollViewDidEndDragging:scrollView];
+    [_footerRefreshView scrollViewDidEndDragging:scrollView];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {

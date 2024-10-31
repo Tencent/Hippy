@@ -22,6 +22,8 @@
 
 #import "HippyHeaderRefresh.h"
 
+static NSString *const kContentOffsetParamKey = @"contentOffset";
+
 @implementation HippyHeaderRefresh
 
 - (void)setFrame:(CGRect)frame {
@@ -34,23 +36,24 @@
     [super setFrame:properFrame];
 }
 
-- (void)scrollViewDidScroll {
-    if (_scrollView) {
-        if (self.onHeaderPulling && HippyRefreshStatusStartLoading != [self status] && HippyRefreshStatusFinishLoading != [self status]) {
-            CGFloat offset = _scrollView.contentOffset.y;
-            if (offset <= 0) {
-                self.onHeaderPulling(@{ @"contentOffset": @(-offset) });
-            }
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (self.onHeaderPulling &&
+        HippyRefreshStatusStartLoading != [self status] &&
+        HippyRefreshStatusFinishLoading != [self status]) {
+        CGFloat offset = scrollView.contentOffset.y;
+        if (offset <= 0) {
+            self.onHeaderPulling(@{ kContentOffsetParamKey : @(-offset) });
         }
     }
-    // Section cell will stick in wrong position while header is still refresh. in this scenario，the scrollview inset need to be reset.
-    if ([self status] == HippyRefreshStatusStartLoading || [self status] == HippyRefreshStatusFinishLoading) {
+    // Section cell will stick in wrong position while header is still refresh. 
+    // in this scenario，the scrollview inset need to be reset.
+    if ([self status] == HippyRefreshStatusStartLoading || 
+        [self status] == HippyRefreshStatusFinishLoading) {
         [self resetInset];
     }
 }
 
-- (void)resetInset
-{
+- (void)resetInset {
     CGFloat insetT = - self.scrollView.contentOffset.y > 0 ? - self.scrollView.contentOffset.y : 0;
     insetT = insetT > self.frame.size.height ? self.frame.size.height : insetT;
 
@@ -69,8 +72,8 @@
     }];
 }
 
-- (void)scrollViewDidEndDragging {
-    if (_scrollView && -_scrollView.contentOffset.y > CGRectGetHeight(self.bounds)) {
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView {
+    if (scrollView && -scrollView.contentOffset.y > CGRectGetHeight(self.bounds)) {
         self.status = HippyRefreshStatusStartLoading;
     }
 }
@@ -95,7 +98,7 @@
             } completion:^(BOOL finished) {
                 if (self.onHeaderReleased) {
                     CGFloat offset = self.scrollView.contentOffset.y;
-                    self.onHeaderReleased(@{@"contentOffset": @(offset)});
+                    self.onHeaderReleased(@{ kContentOffsetParamKey : @(offset) });
                 }
             }];
         } break;
