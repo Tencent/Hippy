@@ -193,7 +193,8 @@ public class TextVirtualNode extends VirtualNode {
         if (!Objects.equals(mFontFamily, family)) {
             mFontFamily = family;
             markDirty();
-            if (mFontLoaderRef.get() != null && !mFontLoaderRef.get().isFontLoaded(mFontFamily)) {
+            final FontLoader fontLoader = mFontLoaderRef.get();
+            if (fontLoader != null && !fontLoader.isFontLoaded(mFontFamily)) {
                 mFontLoadState = FontLoader.FontLoadState.FONT_UNLOAD;
             }
         }
@@ -496,12 +497,14 @@ public class TextVirtualNode extends VirtualNode {
             if (mFontAdapter != null && mEnableScale) {
                 size = (int) (size * mFontAdapter.getFontScale());
             }
-            if (!TextUtils.isEmpty(mFontUrl) && mFontLoaderRef.get() != null) {
-                if (mNativeRenderRef.get() != null) {
-                    Executor executor = mNativeRenderRef.get().getBackgroundExecutor();
+            final FontLoader fontLoader = mFontLoaderRef.get();
+            if (!TextUtils.isEmpty(mFontUrl) && fontLoader != null) {
+                final NativeRender nativeRender = mNativeRenderRef.get();
+                if (nativeRender != null) {
+                    Executor executor = nativeRender.getBackgroundExecutor();
                     if (executor != null) {
                         executor.execute(() -> {
-                            mFontLoaderRef.get().loadIfNeeded(mFontFamily, mFontUrl, getRootId());
+                            fontLoader.loadIfNeeded(mFontFamily, mFontUrl, getRootId());
                         });
                     }
                 }
@@ -572,7 +575,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @NonNull
     protected Layout createLayout(final float width, final FlexMeasureMode widthMode) {
-        FontLoader fontLoader = mFontLoaderRef.get();
+        final FontLoader fontLoader = mFontLoaderRef.get();
         if (mFontLoadState == FontLoader.FontLoadState.FONT_UNLOAD && fontLoader != null &&
             fontLoader.isFontLoaded(mFontFamily)) {
             mDirty = true;

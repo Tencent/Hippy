@@ -136,7 +136,11 @@ public class FontLoader {
     // Convert "hpfile://" to "file://" or "assets://"
     private String convertToLocalPathIfNeeded(String fontUrl) {
         if (fontUrl != null && fontUrl.startsWith("hpfile://")) {
-            String bundlePath = mNativeRenderRef.get().getBundlePath();
+            final NativeRender nativeRender = mNativeRenderRef.get();
+            String bundlePath = null;
+            if (nativeRender != null) {
+                bundlePath = mNativeRenderRef.get().getBundlePath();
+            }
             String relativePath = fontUrl.replace("hpfile://./", "");
             fontUrl = bundlePath == null ? null
                 : bundlePath.subSequence(0, bundlePath.lastIndexOf(File.separator) + 1)
@@ -230,13 +234,14 @@ public class FontLoader {
         }
         mConcurrentFontLoadStateMap.put(fontFamily, FontLoadState.FONT_LOADING);
         String convertFontUrl = convertToLocalPathIfNeeded(fontUrl);
-        if (mVfsManager.get() == null) {
+        final VfsManager vfsManager = mVfsManager.get();
+        if (vfsManager == null) {
             if (promise != null) {
                 promise.reject("Get vfsManager failed!");
             }
             return;
         }
-        mVfsManager.get().fetchResourceAsync(convertFontUrl, null, null,
+        vfsManager.fetchResourceAsync(convertFontUrl, null, null,
             new FetchResourceCallback() {
                 @Override
                 public void onFetchCompleted(@NonNull final ResourceDataHolder dataHolder) {
@@ -282,7 +287,7 @@ public class FontLoader {
                         saveMapFile(mUrlFontMapFile, mConcurrentUrlFontMap);
                         saveMapFile(mLocalFontPathMapFile, mConcurrentLocalFontPathMap);
                         TypeFaceUtil.clearFontCache(fontFamily);
-                        NativeRender nativeRender = mNativeRenderRef.get();
+                        final NativeRender nativeRender = mNativeRenderRef.get();
                         if (nativeRender != null && needRefresh) {
                             nativeRender.onFontLoaded(rootId);
                         }
