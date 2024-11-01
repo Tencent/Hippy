@@ -17,6 +17,7 @@
 - [数据类型映射](development/type-mapping.md)
 - [V8 API](development/v8-api.md)
 - [调试](development/debug.md)
+- [曝光上报](development/report.md)
 - [技术支持](development/support.md)
 - [隐私政策](development/privacy.md)
 - [开发者合规指南](development/privacy-developer-guide.md)
