@@ -129,7 +129,7 @@
                                                 delegate:self];
     }
     
-    // // Config whether jsc is inspectable, Highly recommended setting,
+    // Config whether jsc is inspectable, Highly recommended setting,
     // since inspectable of JSC is disabled by default since iOS 16.4
     [bridge setInspectable:YES];
     _hippyBridge = bridge;
@@ -201,6 +201,12 @@
 
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
     return bridge.debugMode;
+}
+
+- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
+    // You can customize to any url.
+    // By default, we resolve the devtools address from the debug url passed to the bridge.
+    return bridge.debugURL;
 }
 
 
