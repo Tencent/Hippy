@@ -231,6 +231,9 @@ dispatch_queue_t HippyJSThread;
         _bundleURLs = [NSMutableArray array];
         _shareOptions = [NSMutableDictionary dictionary];
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
+        if (_debugMode) {
+            _debugURL = bundleURL;
+        }
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _engineKey = executorKey.length > 0 ? executorKey : [NSString stringWithFormat:@"%p", self];
         HippyLogInfo(@"HippyBridge init begin, self:%p", self);

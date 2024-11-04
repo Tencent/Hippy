@@ -754,8 +754,8 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
         return @"";
     }
     HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
-    if (bridge.debugURL) {
-        NSURL *debugURL = bridge.debugURL;
+    if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+        NSURL *debugURL = [bridge.delegate inspectorSourceURLForBridge:bridge];
         devInfo.scheme = [debugURL scheme];
         devInfo.ipAddress = [debugURL host];
         devInfo.port = [NSString stringWithFormat:@"%@", [debugURL port]];
@@ -771,7 +771,6 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
     }
     NSString *deviceName = [[UIDevice currentDevice] name];
     NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
-
     return [devInfo assembleFullWSURLWithClientId:clientId contextName:bridge.contextName];
 }
 
