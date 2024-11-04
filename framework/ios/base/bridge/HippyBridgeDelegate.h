@@ -55,6 +55,13 @@
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge;
 
 /**
+ * Ask delegate URL for web inspector (devtools)
+ *
+ * To use remote debugging, must implement this method.
+ */
+- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
+
+/**
  * Get code cache, not working for Javascriptcore engine
  *
  * @param bridge HippyBridge requires code cache
