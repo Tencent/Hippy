@@ -1378,6 +1378,10 @@ std::shared_ptr<CtxValue> V8Ctx::DefineProxy(const std::unique_ptr<FunctionWrapp
   return std::make_shared<V8CtxValue>(isolate_, func_tpl->GetFunction(context).ToLocalChecked());
 }
 
+std::shared_ptr<CtxValue> V8Ctx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  return nullptr;
+}
+
 std::shared_ptr<CtxValue> V8Ctx::DefineClass(const string_view& name,
                                              const std::shared_ptr<ClassDefinition>& parent,
                                              const std::unique_ptr<FunctionWrapper>& constructor_wrapper,

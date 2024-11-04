@@ -52,7 +52,7 @@
 #include "driver/napi/js_ctx_value.h"
 #include "driver/napi/js_try_catch.h"
 #include "driver/napi/callback_info.h"
-#include "driver/vm/jsc/jsc_vm.h"
+#include "driver/vm/js_vm.h"
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
@@ -62,6 +62,16 @@
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
+#endif
+
+#ifdef JS_JSC
+#include "driver/napi/jsc/jsc_ctx.h"
+#include "driver/napi/jsc/jsc_ctx_value.h"
+#endif
+
+#ifdef JS_HERMES
+#include "driver/napi/hermes/hermes_ctx.h"
+#include "driver/napi/hermes/hermes_ctx_value.h"
 #endif
 
 
@@ -416,7 +426,9 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
             for (size_t i = 0; i < info.Length(); ++i) {
                 argv.push_back(info[i]);
             }
-            auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+        std::any slot_any = info.GetSlot();
+        auto any_pointer = std::any_cast<void*>(&slot_any);
+        auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(static_cast<void *>(*any_pointer));
             auto scope = scope_wrapper->scope.lock();
             FOOTSTONE_CHECK(scope);
             auto turbo_wrapper = reinterpret_cast<TurboWrapper*>(data);
@@ -426,7 +438,9 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
             info.GetReturnValue()->Set(result);
         }, turbo_wrapper.get());
         [turbo saveTurboWrapper:name turbo:std::move(turbo_wrapper)];
-        auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      std::any slot_any = info.GetSlot();
+      auto any_pointer = std::any_cast<void*>(&slot_any);
+      auto scope_wrapper = reinterpret_cast<hippy::ScopeWrapper*>(static_cast<void *>(*any_pointer));
         auto scope = scope_wrapper->scope.lock();
         FOOTSTONE_CHECK(scope);
         auto func = scope->GetContext()->CreateFunction(func_wrapper);
@@ -434,11 +448,24 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
         info.GetReturnValue()->Set(func);
         CFRelease(data);
     }, (void *)retainedTurboModule);
-    
+#ifdef JS_JSC
     auto obj = scope->GetContext()->DefineProxy(wrapper);
     scope->SaveFunctionWrapper(std::move(wrapper));
     scope->SetTurboInstance(turbo_name, obj);
     return obj;
+#elif defined(JS_HERMES)
+    auto proxy = scope->GetContext()->DefineProxy(nullptr);
+    auto handler = scope->GetContext()->DefineProxyHandler(wrapper);
+    auto proxy_ctx = std::static_pointer_cast<hippy::driver::napi::HermesCtxValue>(proxy);
+    auto handler_ctx = std::static_pointer_cast<hippy::driver::napi::HermesCtxValue>(handler);
+    auto& runtime = std::static_pointer_cast<hippy::driver::napi::HermesCtx>(scope->GetContext())->GetRuntime();
+    auto constructor = proxy_ctx->GetValue(runtime).asObject(*runtime).asFunction(*runtime);
+    auto instance = constructor.callAsConstructor(*runtime, { handler_ctx->GetValue(runtime) });
+    auto obj = std::make_shared<hippy::driver::napi::HermesCtxValue>(*runtime, instance);
+    scope->SaveFunctionWrapper(std::move(wrapper));
+    scope->SetTurboInstance(turbo_name, obj);
+    return obj;
+#endif
 }
 
 - (void)setContextName:(NSString *)contextName {
@@ -574,11 +601,19 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                                 id obj = arguments[i];
                                 function_params[i] = [obj convertToCtxValue:context];
                             }
+#ifdef JS_JSC
                             auto tryCatch = hippy::CreateTryCatchScope(true, context);
                             resultValue = context->CallFunction(method_value, context->GetGlobalObject(), arguments.count, function_params);
                             if (tryCatch->HasCaught()) {
                                 exception = tryCatch->GetExceptionMessage();
                             }
+#elif defined(JS_HERMES)
+                            try {
+                                resultValue = context->CallFunction(method_value, context->GetGlobalObject(), arguments.count, function_params);
+                            } catch (facebook::jsi::JSIException& err) {
+                                exception = err.what();
+                            }
+#endif
                         } else {
                             executeError
                                 = HippyErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
@@ -644,18 +679,27 @@ static NSLock *jslock() {
     return lock;
 }
 
-static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPtr context, NSError **error) {
+static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPtr context, __strong NSError **error) {
     const char *scriptBytes = reinterpret_cast<const char *>([script bytes]);
     string_view view = string_view::new_from_utf8(scriptBytes, [script length]);
     string_view fileName = NSStringToU16StringView([sourceURL absoluteString]);
     string_view errorMsg;
     NSLock *lock = jslock();
     BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+#ifdef JS_JSC
     auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
     SharedCtxValuePtr result = context->RunScript(view, fileName);
     if (tryCatch->HasCaught()) {
         errorMsg = std::move(tryCatch->GetExceptionMessage());
     }
+#elif defined(JS_HERMES)
+        SharedCtxValuePtr result = nullptr;
+        try {
+            result = context->RunScript(view, fileName);
+        } catch (facebook::jsi::JSIException& err) {
+            errorMsg = err.what();
+        }
+#endif
     if (lockSuccess) {
         [lock unlock];
     }
@@ -750,6 +794,41 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
                 return;
             }
             [strongSelf injectObjectSync:value asGlobalObjectNamed:objectName callback:onComplete];
+//=======
+//            string_view json_view = NSStringToU8StringView(script);
+//            string_view name_view = NSStringToU8StringView(objectName);
+//            auto context = strongSelf.pScope->GetContext();
+//#ifdef JS_JSC
+//            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
+//            auto global_object = context->GetGlobalObject();
+//            auto name_key = context->CreateString(name_view);
+//            auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:strongSelf.enginekey];
+//            auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
+//            context->SetProperty(global_object, name_key, json_value);
+//            if (tryCatch->HasCaught()) {
+//                string_view errorMsg = tryCatch->GetExceptionMessage();
+//                NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
+//                    NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
+//                onComplete(@(NO), error);
+//            }
+//            else {
+//                onComplete(@(YES), nil);
+//            }
+//#elif defined(JS_HERMES)
+//            try {
+//                auto global_object = context->GetGlobalObject();
+//                auto name_key = context->CreateString(name_view);
+//                auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:strongSelf.enginekey];
+//                auto json_value = engine->GetEngine()->GetVM()->ParseJson(context, json_view);
+//                context->SetProperty(global_object, name_key, json_value);
+//                onComplete(@(YES), nil);
+//            } catch (facebook::jsi::JSIException& err) {
+//                string_view errorMsg = err.what();
+//                NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
+//                    NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
+//                onComplete(@(NO), error);
+//            }
+//#endif
         }
     }];
 }

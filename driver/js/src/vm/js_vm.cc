@@ -22,9 +22,17 @@
 
 #include "driver/vm/js_vm.h"
 
-#include "footstone/string_view_utils.h"
-#include "driver/vm/native_source_code.h"
 #include "driver/napi/js_try_catch.h"
+#include "driver/vm/native_source_code.h"
+#include "footstone/string_view_utils.h"
+
+#ifdef JS_HERMES
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#include "hermes/hermes.h"
+#pragma clang diagnostic pop
+#endif
 
 namespace hippy {
 inline namespace driver {
@@ -36,8 +44,7 @@ constexpr char kHippyExceptionHandlerName[] = "HippyExceptionHandler";
 using Ctx = hippy::Ctx;
 using CtxValue = hippy::CtxValue;
 
-void VM::HandleException(const std::shared_ptr<Ctx>& ctx,
-                         const string_view& event_name,
+void VM::HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& event_name,
                          const std::shared_ptr<CtxValue>& exception) {
   auto global_object = ctx->GetGlobalObject();
   string_view error_handle_name(kHippyExceptionHandlerName);
@@ -55,14 +62,22 @@ void VM::HandleException(const std::shared_ptr<Ctx>& ctx,
   argv[0] = ctx->CreateString(event_name);
   argv[1] = exception;
 
+#ifdef JS_HERMES
+  try {
+    auto ret_value = ctx->CallFunction(exception_handler, ctx->GetGlobalObject(), 2, argv);
+  } catch (facebook::jsi::JSIException& err) {
+    FOOTSTONE_LOG(WARNING) << "hippy exceptionHandler error, description = " << err.what();
+  }
+#else
   auto try_catch = CreateTryCatchScope(true, ctx);
   auto ret_value = ctx->CallFunction(exception_handler, ctx->GetGlobalObject(), 2, argv);
   if (try_catch->HasCaught()) {
     auto message = try_catch->GetExceptionMessage();
     FOOTSTONE_LOG(WARNING) << "hippy exceptionHandler error, description = " << message;
   }
+#endif
 }
 
-}
-}
-}
+}  // namespace vm
+}  // namespace driver
+}  // namespace hippy

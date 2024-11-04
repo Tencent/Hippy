@@ -60,6 +60,11 @@
 #include "driver/vm/v8/v8_vm.h"
 #endif
 
+#ifdef JS_HERMES
+#include "driver/vm/hermes/hermes_vm.h"
+#include "driver/napi/hermes/hermes_ctx.h"
+#endif
+
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
@@ -93,7 +98,9 @@ inline namespace driver {
 
 
 static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();
@@ -491,28 +498,52 @@ void Scope::RunJS(const string_view& data,
                   const string_view& name,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
+#ifdef JS_V8
   auto callback = [WEAK_THIS, data, uri, name, is_copy, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
     entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-
-#ifdef JS_V8
+    
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }
-#else
-    auto context = weak_context.lock();
-    if (context) {
-      context->RunScript(data, name);
-    }
-#endif
 
     // perfromance end time
     entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
+#elif JS_HERMES
+  auto callback = [WEAK_THIS, data, uri, name, weak_context] {
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
 
+    auto context = weak_context.lock();
+    if (context) {
+      context->RunScript(data, name);
+    }
+
+    // perfromance end time
+    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
+  };
+#else
+  auto callback = [WEAK_THIS, data, uri, name, weak_context] {
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
+
+    auto context = weak_context.lock();
+    if (context) {
+      context->RunScript(data, name);
+    }
+
+    // perfromance end time
+    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();    
+  };
+#endif
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     callback();

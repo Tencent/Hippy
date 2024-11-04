@@ -71,9 +71,7 @@ bool ReadAsset(const string_view& path,
       bytes.back() = '\0';
     }
     AAsset_close(asset);
-    FOOTSTONE_DLOG(INFO) << "path = " << path << ", len = " << bytes.length()
-                         << ", file_data = "
-                         << reinterpret_cast<const char*>(bytes.c_str());
+    FOOTSTONE_DLOG(INFO) << "path = " << path << ", len = " << bytes.length();
     return true;
   }
   FOOTSTONE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;

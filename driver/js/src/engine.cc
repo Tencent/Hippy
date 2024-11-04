@@ -45,9 +45,13 @@ Engine::Engine()
 Engine::~Engine() {
   FOOTSTONE_DLOG(INFO) << "~Engine";
   for(auto& [key, template_map] : class_template_holder_map_) {
-    auto animation_template = std::any_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(template_map["Animation"]);
+    std::any animation_any = template_map["Animation"];
+    auto animation_any_pointer = std::any_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(&animation_any);
+    auto animation_template = static_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(*animation_any_pointer);
     animation_template->holder_ctx_values.clear();
-    auto animation_set_template = std::any_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(template_map["AnimationSet"]);
+    std::any animation_set_any = template_map["AnimationSet"];
+    auto animation_set_any_pointer = std::any_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(&animation_set_any);
+    auto animation_set_template = static_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(*animation_set_any_pointer);
     animation_set_template->holder_ctx_values.clear();
   }
 }

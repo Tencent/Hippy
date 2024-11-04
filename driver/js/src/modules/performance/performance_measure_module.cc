@@ -85,7 +85,9 @@ std::shared_ptr<ClassTemplate<PerformanceMeasure>> RegisterPerformanceMeasure(co
     if (!detail.has_value()) {
       return context->CreateNull();
     }
-    return std::any_cast<std::shared_ptr<CtxValue>>(detail);
+    auto any_pointer = std::any_cast<std::shared_ptr<CtxValue>>(&detail);
+    auto detail_ctx = static_cast<std::shared_ptr<CtxValue>>(*any_pointer);
+    return detail_ctx;
   };
   class_template.properties.push_back(std::move(name_property_define));
 

@@ -29,6 +29,7 @@ import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.openhippy.connector.NativeCallback;
 import com.openhippy.framework.BuildConfig;
+import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -53,6 +54,7 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -159,14 +161,21 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 serializer.writeValue(msg.obj);
                 buffer = safeDirectWriter.chunked();
             } else {
-                mStringBuilder.setLength(0);
-                byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
+                if (msg.obj instanceof JSValue) {
+                    try {
+                        String str = ((JSValue) msg.obj).dump().toString();
+                        byte[] bytes = str.getBytes(StandardCharsets.UTF_16LE);
+                        mHippyBridge.callFunction(functionId, mCallFunctionCallback, bytes);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    mStringBuilder.setLength(0);
+                    byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
                         StandardCharsets.UTF_16LE);
-                buffer = ByteBuffer.allocateDirect(bytes.length);
-                buffer.put(bytes);
+                    mHippyBridge.callFunction(functionId, mCallFunctionCallback, bytes);
+                }
             }
-
-            mHippyBridge.callFunction(functionId, mCallFunctionCallback, buffer);
         } else {
             if (mEnableV8Serialization) {
                 if (safeHeapWriter == null) {

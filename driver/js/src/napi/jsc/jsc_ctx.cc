@@ -250,6 +250,10 @@ std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWra
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
 }
 
+std::shared_ptr<CtxValue> JSCCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  return nullptr;
+}
+
 std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
                                               const std::shared_ptr<ClassDefinition>& parent,
                                               const std::unique_ptr<FunctionWrapper>& constructor_wrapper,

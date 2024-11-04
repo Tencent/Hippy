@@ -24,34 +24,6 @@ const readline = require('readline');
 const babel = require('@babel/core');
 
 /**
- * Babel configuration
- */
-const babelConfig = {
-  flutter: {
-    comments: false,
-    compact: false,
-  },
-  android: {
-    comments: false,
-    compact: false,
-  },
-  ios: {
-    presets: [
-      [
-        '@babel/env',
-        {
-          targets: {
-            safari: '8',
-          },
-        },
-      ],
-    ],
-    comments: false,
-    compact: false,
-  },
-};
-
-/**
  * Code header and content
  */
 const CodePieces = {
@@ -60,7 +32,8 @@ const CodePieces = {
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-${
+        new Date().getFullYear()} THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -154,7 +127,8 @@ const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
 /**
  * Initial the code git st buffer header and footer.
  */
-const wrapperBeginBuffer = Buffer.from('(function(exports, require, internalBinding) {');
+const wrapperBeginBuffer =
+    Buffer.from('(function(exports, require, internalBinding) {');
 const wraperBeginByteArr = [];
 for (let i = 0; i < wrapperBeginBuffer.length; i += 1) {
   wraperBeginByteArr.push(wrapperBeginBuffer[i]);
@@ -175,26 +149,32 @@ function getAbsolutePath(relativePath) {
 }
 
 /**
- * Get the core js files list for specific platform.
+ * Get the core js files list for specific renderer.
  *
- * @param {android|ios} platform - specific platform.
+ * @param {android|ios|flutter} renderer - specific renderer.
  */
-function getAllRequiredFiles(platform) {
+function getAllRequiredFiles(renderer, engine) {
   return new Promise((resole) => {
+    let hippyPath = getAbsolutePath(`../lib/entry/${renderer}/hippy.js`);
+    if (renderer == 'android' || renderer == 'ios') {
+      hippyPath = getAbsolutePath(`../lib/entry/${renderer}/${engine}/hippy.js`)
+    }
+
     const rl = readline.createInterface({
-      input: fs.createReadStream(getAbsolutePath(`../lib/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(hippyPath),
     });
     const filePaths = [
       getAbsolutePath('../lib/bootstrap.js'),
-      getAbsolutePath(`../lib/entry/${platform}/hippy.js`),
+      hippyPath,
       getAbsolutePath('../lib/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
       const lineSlice = line.split('//')[0];
-      if (lineSlice.indexOf('require(\'') > -1 || lineSlice.indexOf('require("') > -1) {
+      if (lineSlice.indexOf('require(\'') > -1 ||
+          lineSlice.indexOf('require("') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
-        filePaths.push(getAbsolutePath(`../lib/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../lib/entry/${renderer}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -206,17 +186,44 @@ function getAllRequiredFiles(platform) {
 /**
  * Read the file content to be a buffer.
  *
- * @param {android|ios} platform - specific platform.
+ * @param {android|ios|flutter} renderer - specific renderer.
+ * @param {v8|jsc|hermes} engine - js engine to use.
  * @param {string} filePath - the file path will read.
  */
-function readFileToBuffer(platform, filePath) {
-  switch (platform) {
-    case 'flutter':
-    case 'android':
-    case 'ios': {
+function readFileToBuffer(renderer, engine, filePath) {
+  switch (renderer) {
+    case 'flutter': {
       const code = fs.readFileSync(filePath).toString();
-      const compiled = babel.transform(code, babelConfig[platform]);
+      const babel_config = { comments: false, compact: false, };
+      const compiled = babel.transform(code, babel_config);
       return Buffer.from(compiled.code);
+    }
+    case 'android': {
+      if (engine == 'hermes') {
+        const code = fs.readFileSync(filePath).toString();
+        const babel_config = { presets: [ [ '@babel/env', { targets: { chrome: 41, }, }, ], ], comments: false, compact: false, };
+        const complied = babel.transform(code, babel_config);
+        return Buffer.from(complied.code);
+      }
+      if(engine == 'v8') {
+        const code = fs.readFileSync(filePath).toString();
+        const babel_config = { comments: false, compact: false, };
+        const compiled = babel.transform(code, babel_config);
+        return Buffer.from(compiled.code);
+      }
+    }
+    case 'ios': {
+      if (engine == 'hermes') {
+        const code = fs.readFileSync(filePath).toString();
+        const babel_config = { presets: [ [ '@babel/env', { targets: { chrome: 41, }, }, ], ], comments: false, compact: false, };
+        const complied = babel.transform(code, babel_config);
+        return Buffer.from(complied.code);
+      } else if (engine == 'jsc') {
+        const code = fs.readFileSync(filePath).toString();
+        const babel_config = { presets: [ [ '@babel/env', { targets: { safari: '8', }, }, ], ], comments: false, compact: false, };
+        const complied = babel.transform(code, babel_config);
+        return Buffer.from(complied.code);
+      }
     }
     default:
       return null;
@@ -226,16 +233,17 @@ function readFileToBuffer(platform, filePath) {
 /**
  * Read the js files and generate the core cpp files.
  *
- * @param {android|ios} platform - specific platform.
+ * @param {android|ios|flutter} renderer - specific renderer.
+ * @param {v8|jsc|hermes|null} engine - js engine to use.
  * @param {string} buildDirPath - output directory.
  */
-function generateCpp(platform, buildDirPath) {
-  let code = CodePieces.header(platform);
+function generateCpp(renderer, engine, buildDirPath) {
+  let code = CodePieces.header(renderer);
 
-  getAllRequiredFiles(platform).then((filesArr) => {
+  getAllRequiredFiles(renderer, engine).then((filesArr) => {
     filesArr.forEach((filePath) => {
       const fileName = path.basename(filePath, '.js');
-      const fileBuffer = readFileToBuffer(platform, filePath);
+      const fileBuffer = readFileToBuffer(renderer, engine, filePath);
       const byteArr = [];
       for (let i = 0; i < fileBuffer.length; i += 1) {
         byteArr.push(fileBuffer[i]);
@@ -245,21 +253,27 @@ function generateCpp(platform, buildDirPath) {
   const uint8_t k_${fileName}[] = { ${byteArr.join(',')},0 };  // NOLINT`;
       } else {
         code += `
-  const uint8_t k_${fileName}[] = { ${wraperBeginByteArr.join(',')},${byteArr.join(',')},${wraperEndByteArr.join(',')},0 };  // NOLINT`;
+  const uint8_t k_${fileName}[] = { ${wraperBeginByteArr.join(',')},${
+            byteArr.join(',')},${wraperEndByteArr.join(',')},0 };  // NOLINT`;
       }
     });
 
-    code += CodePieces[platform].piece1;
+    code += CodePieces[renderer].piece1;
 
     for (let i = 2; i < filesArr.length; i += 1) {
       const fileName = path.basename(filesArr[i], '.js');
       code += `
-      {"${fileName}.js", {k_${fileName}, ARRAY_SIZE(k_${fileName}) - 1}},  // NOLINT`;
+      {"${fileName}.js", {k_${fileName}, ARRAY_SIZE(k_${
+          fileName}) - 1}},  // NOLINT`;
     }
 
-    code += CodePieces[platform].piece2;
+    code += CodePieces[renderer].piece2;
 
-    const targetPath = `${buildDirPath}/native_source_code_${platform}.cc`;
+    let targetPath = `${buildDirPath}/native_source_code_${renderer}.cc`;
+    if (engine == 'hermes') {
+      targetPath = `${buildDirPath}/native_source_code_${engine}_${renderer}.cc`;
+    }
+
     fs.writeFile(targetPath, code, (err) => {
       if (err) {
         /* eslint-disable-next-line no-console */
@@ -267,12 +281,14 @@ function generateCpp(platform, buildDirPath) {
         return;
       }
       /* eslint-disable-next-line no-console */
-      console.log(`${platform} convert success, output ${targetPath}`);
+      console.log(`${renderer} convert success, output ${targetPath}`);
     });
   });
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
-generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/v8/'));
-generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));
+generateCpp('ios', 'jsc', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
+generateCpp('ios', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
+generateCpp('android', 'v8', getAbsolutePath('../../../driver/js/src/vm/v8/'));
+generateCpp('android', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
+generateCpp('flutter', null, getAbsolutePath('../../../framework/voltron/core/src/bridge/'));

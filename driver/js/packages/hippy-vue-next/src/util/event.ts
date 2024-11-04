@@ -49,7 +49,7 @@ function isNativeGesture(name: string) {
 }
 
 function translateToNativeEventName(name: string) {
-  return name.replace(/^(on)?/g, '').toLocaleLowerCase();
+  return name.replace(/^(on)?/g, '').tLowerCase();
 }
 
 const RelativeToRefType = {

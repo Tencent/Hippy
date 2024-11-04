@@ -31,7 +31,6 @@
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"
 #include "driver/napi/js_try_catch.h"
-#include "driver/napi/callback_info.h"
 #include "footstone/check.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
@@ -50,6 +49,15 @@
 #include "driver/napi/v8/serializer.h"
 #endif
 
+#ifdef JS_HERMES
+#include "driver/vm/hermes/hermes_vm.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#include "hermes/hermes.h"
+#pragma clang diagnostic pop
+#endif
+
 namespace hippy {
 inline namespace driver {
 
@@ -63,7 +71,6 @@ using u8string = string_view::u8string;
 using Ctx = hippy::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using Deserializer = footstone::value::Deserializer;
-using HippyValue = footstone::value::HippyValue;
 using HippyFile = hippy::vfs::HippyFile;
 using VMInitParam = hippy::VM::VMInitParam;
 using ScopeWrapper = hippy::ScopeWrapper;
@@ -74,12 +81,16 @@ using V8VM = hippy::V8VM;
 using V8Ctx = hippy::V8Ctx;
 #endif
 
+#ifdef JS_HERMES
+using HermesVM = hippy::HermesVM;
+#endif
+
 constexpr char kBridgeName[] = "hippyBridge";
-constexpr char kWorkerRunnerName[] = "hippy_worker";
 constexpr char kGlobalKey[] = "global";
 constexpr char kHippyKey[] = "Hippy";
 constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kCallHostKey[] = "hippyCallNatives";
+constexpr char kWorkerRunnerName[] = "hippy_worker";
 
 #if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
@@ -325,9 +336,14 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
     code_cache_content = read_file_future.get();
   }
 
+#ifdef JS_HERMES
+  FOOTSTONE_DLOG(INFO) << "uri = " << uri
+                       << "read_script_flag = " << read_script_flag;
+#else
   FOOTSTONE_DLOG(INFO) << "uri = " << uri
                        << "read_script_flag = " << read_script_flag
                        << ", script content = " << script_content;
+#endif
 
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     FOOTSTONE_LOG(WARNING) << "read_script_flag = " << read_script_flag
@@ -341,7 +357,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
 
 #ifdef JS_V8
   auto ret = std::static_pointer_cast<V8Ctx>(scope->GetContext())->RunScript(
-      script_content, file_name, is_use_code_cache,&code_cache_content, true);
+      script_content, file_name, is_use_code_cache, &code_cache_content, true);
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       auto func = [code_cache_path, code_cache_dir, code_cache_content] {
@@ -369,6 +385,17 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
       FOOTSTONE_CHECK(engine);
       worker_task_runner->PostTask(std::move(func));
     }
+  }
+#elif defined(JS_HERMES)
+  std::shared_ptr<CtxValue> ret = nullptr;
+  try {
+    ret = scope->GetContext()->RunScript(script_content, file_name);
+  } catch (facebook::jsi::JSIException& err) {
+    auto engine = scope->GetEngine().lock();
+    FOOTSTONE_CHECK(engine);
+    auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+    auto context = scope->GetContext();
+    callback(scope->GetBridge(), "Hermes Exception", err.what());
   }
 #else
   auto ret = scope->GetContext()->RunScript(script_content, file_name);
@@ -418,8 +445,8 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
   // the scope and engine into the scope_destroy_callback, which will be released
   // when the callback is executed, ensuring no other tasks can be added to the
   // task runner.
-  auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), is_reload, callback] {
 #if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), is_reload, callback] {
     auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
     if (v8_vm->IsDebug()) {
       auto inspector_client = v8_vm->GetInspectorClient();
@@ -430,12 +457,16 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
     } else {
       scope->WillExit();
     }
-#else
-    scope->WillExit();
-#endif
     FOOTSTONE_LOG(INFO) << "js destroy end";
     callback(true);
   };
+#else
+  auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), callback] {
+    scope->WillExit();
+    FOOTSTONE_LOG(INFO) << "js destroy end";
+    callback(true);
+  };
+#endif
   runner->PostTask(std::move(scope_destroy_callback));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
 }
@@ -524,7 +555,9 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
     bool,
     byte_string)>& callback) {
   FOOTSTONE_DLOG(INFO) << "CallHost";
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();
@@ -532,7 +565,7 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
   string_view module_name;
   if (info[0]) {
     if (!context->GetValueString(info[0], &module_name)) {
-      info.GetExceptionValue()->Set(context,"module name error");
+      info.GetExceptionValue()->Set(context, "module name error");
       return;
     }
     FOOTSTONE_DLOG(INFO) << "CallJava module_name = " << module_name;
@@ -544,7 +577,7 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
   string_view fn_name;
   if (info[1]) {
     if (!context->GetValueString(info[1], &fn_name)) {
-      info.GetExceptionValue()->Set(context,"func name error");
+      info.GetExceptionValue()->Set(context, "func name error");
       return;
     }
     FOOTSTONE_DLOG(INFO) << "CallJava fn_name = " << fn_name;
@@ -565,8 +598,8 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
   }
 
   std::string buffer_data;
-  if (info[3] && context->IsObject(info[3])) {
 #ifdef JS_V8
+  if (info[3] && context->IsObject(info[3])) {
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_DCHECK(engine);
     if (!engine) {
@@ -577,7 +610,6 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
     if (v8_vm->IsEnableV8Serialization()) {
       auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
       buffer_data = v8_ctx->GetSerializationBuffer(info[3], v8_vm->GetBuffer());
-#endif
     } else {
       string_view json;
       auto flag = context->GetValueJson(info[3], &json);
@@ -585,10 +617,28 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
       FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
       buffer_data = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
-#ifdef JS_V8
     }
-#endif
   }
+#elif defined(JS_HERMES)
+  if (info[3] && context->IsObject(info[3])) {
+    string_view json;
+    auto flag = context->GetValueJson(info[3], &json);
+    FOOTSTONE_DCHECK(flag);
+    FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
+    buffer_data =
+        StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
+  }
+#else
+  if (info[3] && context->IsObject(info[3])) {
+  } else {
+    string_view json;
+    auto flag = context->GetValueJson(info[3], &json);
+    FOOTSTONE_DCHECK(flag);
+    FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
+    buffer_data =
+        StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
+  }
+#endif
 
   int32_t transfer_type = 0;
   if (info[4]) {
@@ -605,6 +655,7 @@ void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_strin
     if (!scope) {
       return;
     }
+#ifdef JS_V8
     Deserializer deserializer(
         reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
         buffer_data_.length());
@@ -616,6 +667,24 @@ void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_strin
     } else {
       scope->GetContext()->ThrowException("LoadInstance param error");
     }
+ #elif defined(JS_HERMES)
+    std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]), buffer_data_.length() / sizeof(char16_t));
+    string_view buf_str(std::move(str));
+    auto engine = scope->GetEngine().lock();
+    if (!engine) {
+      return;
+    }
+    auto vm = engine->GetVM();
+    auto hermes_vm = std::static_pointer_cast<HermesVM>(vm);
+    auto context = scope->GetContext();
+    HippyValue hippy_value;
+    auto ret = hermes_vm->ParseHippyValue(context, buf_str, hippy_value);
+    if (ret) {
+      scope->LoadInstance(std::make_shared<HippyValue>(std::move(hippy_value)));
+    } else {
+      scope->GetContext()->ThrowException("LoadInstance param error");
+    }
+#endif
   };
   runner->PostTask(std::move(callback));
 }
@@ -631,11 +700,11 @@ void JsDriverUtils::UnloadInstance(const std::shared_ptr<Scope>& scope, byte_str
         Deserializer deserializer(
                 reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
                 buffer_data_.length());
-        HippyValue value;
+        footstone::value::HippyValue value;
         deserializer.ReadHeader();
         auto ret = deserializer.ReadValue(value);
         if (ret) {
-            scope->UnloadInstance(std::make_shared<HippyValue>(std::move(value)));
+            scope->UnloadInstance(std::make_shared<footstone::value::HippyValue>(std::move(value)));
         } else {
             scope->GetContext()->ThrowException("UnloadInstance param error");
         }
@@ -643,5 +712,5 @@ void JsDriverUtils::UnloadInstance(const std::shared_ptr<Scope>& scope, byte_str
     runner->PostTask(std::move(callback));
 }
 
-}
-}
+}  // namespace driver
+}  // namespace hippy

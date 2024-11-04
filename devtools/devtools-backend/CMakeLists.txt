@@ -46,6 +46,8 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_V8")
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
+elseif ("${JS_ENGINE}" STREQUAL "HERMES")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
 endif ()
 # endregion
 
