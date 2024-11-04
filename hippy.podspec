@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
   
   s.name             = 'hippy'
-  s.version          = '3.0.0-hermes'
+  s.version          = '3.3.0-hermes'
   s.summary          = 'Hippy Cross Platform Framework'
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform 
@@ -153,16 +153,6 @@ Pod::Spec.new do |s|
         'driver/js/src/napi/hermes',
         'driver/js/include/driver/vm/hermes',
         'driver/js/src/vm/hermes']
-    elsif js_engine == "v8"
-      driver.exclude_files = [
-        'driver/js/include/driver/napi/jsc',
-        'driver/js/src/napi/jsc', 
-        'driver/js/include/driver/vm/jsc',
-        'driver/js/src/vm/jsc',
-        'driver/js/include/driver/napi/hermes',
-        'driver/js/src/napi/hermes',
-        'driver/js/include/driver/vm/hermes',
-        'driver/js/src/vm/hermes']
     elsif js_engine == "hermes"
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
@@ -171,27 +161,11 @@ Pod::Spec.new do |s|
         'driver/js/src/vm/v8',
         'driver/js/src/vm/hermes/native_source_code_hermes_android.cc'
         ]
-    else
-      driver.exclude_files = [
-        'driver/js/include/driver/napi/v8',
-        'driver/js/src/napi/v8',
-        'driver/js/include/driver/vm/v8',
-        'driver/js/src/vm/v8', 
-        'driver/js/include/driver/napi/jsc',
-        'driver/js/src/napi/jsc', 
-        'driver/js/include/driver/vm/jsc',
-        'driver/js/src/vm/jsc',
-        'driver/js/include/driver/napi/hermes',
-        'driver/js/src/napi/hermes',
-        'driver/js/include/driver/vm/hermes',
-        'driver/js/src/vm/hermes']
     end
 
     definition_engine = ''
     if js_engine == "jsc"
       definition_engine = 'JS_JSC=1'
-    elsif js_engine == "v8" 
-      definition_engine = 'JS_V8=1'
     elsif js_engine == "hermes"
       definition_engine = 'JS_HERMES=1 JS_JSC=1'
     else
@@ -316,12 +290,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'devtools\' read begin'
     devtools.libraries = 'c++'
     devtools_exclude_files = Array.new;
-    if js_engine == "jsc"
-      devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
-    elsif js_engine == "v8"
-    else
-      devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
-    end
+    devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
     devtools.exclude_files = devtools_exclude_files
     devtools.project_header_files = [
       #devtools_integration/native
@@ -362,23 +331,6 @@ Pod::Spec.new do |s|
     devtools.dependency 'hippy/Dom'
     devtools.dependency 'hippy/VFS'
     puts 'hippy subspec \'devtools\' read end'
-  end
-
-  if js_engine == "v8"
-    s.subspec 'v8' do |v8|
-      puts 'hippy subspec \'v8\' read begin'
-      v8.source_files = ['v8forios/v8/include']
-      v8.private_header_files = ['v8forios/v8/include']
-      v8.pod_target_xcconfig = {
-        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/v8forios/v8/include $(PODS_TARGET_SRCROOT)/v8forios/v8/include/v8',
-        'GCC_ENABLE_CPP_EXCEPTIONS' => true,
-        'GCC_ENABLE_CPP_RTTI' => true,
-      }
-      v8.libraries = 'c++'
-      v8.vendored_library = 'v8forios/v8/libv8.a'
-      puts 'hippy subspec \'v8\' read end'
-    end
   end
 
   if js_engine == "hermes"

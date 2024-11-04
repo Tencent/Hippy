@@ -153,56 +153,11 @@ rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizin
 
 Hippy 3.x的一个重要特性是支持了多引擎的便捷切换，目前，可切换的引擎有两个，一是布局引擎，二是JS引擎。默认配置下，Hippy使用布局引擎是[Taitank](https://github.com/Tencent/Taitank)，JS引擎是iOS系统内置的`JavaScriptCore`。
 
-如需使用其他布局引擎，如[Yoga](https://github.com/facebook/yoga)，或使用其他JS引擎，如V8，可参考如下指引调整Hippy接入配置。
-
-> Hippy3.x提供了iOS环境下默认的v8引擎实现，如需使用其他JS引擎需用户自行实现相关napi接口。
+如需使用其他布局引擎，如[Yoga](https://github.com/facebook/yoga)，或使用其他JS引擎，可参考如下指引调整Hippy接入配置。
 
 ### 4.1 切换JS引擎
 
-如需使用V8引擎，在Podfile文件中添加如下环境变量即可：
-
-```ruby
-ENV['js_engine'] = 'v8'
-```
-
-修改后的Podfile应该看起来像这样:
-
-```text
-#use_frameworks!
-platform :ios, '11.0'
-ENV['js_engine'] = 'v8' #切换为V8引擎
-
-# TargetName大概率是您的项目名称
-target TargetName do
-
-    pod 'hippy', 'your_specified_version'
-
-end
-```
-
-之后，重新执行`pod install`命令更新项目依赖即可。
-
-如需使用其他第三方JS引擎，需要做如下操作：
-
-#### 1.修改Podfile配置为第三方JS引擎
-
-将Podfile中的js_engine环境变量配置为other，这样在拉取代码时，jsc或者v8的代码将不会被添加到工程中。
-
-```ruby
-ENV['js_engine'] = 'other'
-```
-
-> Hippy3.0中使用napi抽象了不同JS引擎的接口。其中，JSC与V8的接口进行了实现。用户若使用JSC或者V8，可直接切换，Hippy默认进行了实现。
-
-#### 2.自行实现napi抽象接口
-
-napi将js引擎接口抽象化，由js driver层调用。接入方自行实现napi接口，即可实现对第三方JS引擎的支持。
-
-napi文件位于 `/driver/js/napi*` 目录下。
-
-#### 3.将实现文件添加到工程中
-
-接入方自行将对应的napi实现文件添加到工程中。
+TODO: 切换Hermes引擎
 
 ## 4.2 切换布局引擎
 
