@@ -120,24 +120,12 @@
 		0632A691275B124491E38EA7 /* HippyDemo */ = {
 			isa = PBXGroup;
 			children = (
-				EF558AABDC113B410B8ED69C /* AppDelegate.h */,
-				6094F1F80FD70F9F9853EE15 /* AppDelegate.m */,
-				427F60D1B98DA953328F4E71 /* DemoBaseViewController.h */,
-				4708C41E8571123282E2B806 /* DemoBaseViewController.m */,
-				80D715362B1A0B0DCEAA813D /* DemoNavigationViewController.h */,
-				16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */,
-				6045C301C6CFDC6C2E87AA66 /* IconUtils.h */,
-				17AB7FB6346FE861C9D953F5 /* IconUtils.m */,
 				177A9E8373F2682A9A831991 /* Info.plist */,
-				D2EE3455BE6DD7D2ADA20093 /* main.m */,
-				DDD052D2760E830B1E0095EA /* UIViewController+Title.h */,
-				C412B5D210F1E3359523628C /* UIViewController+Title.m */,
-				4CF6648308C60D57DD274D30 /* HomePage */,
-				DE44248AB3BFFAAE044EAB9E /* myview */,
-				73EF815F203E15B86205DFC3 /* PageManager */,
-				57D9249C5EA211061816F73B /* RenderPage */,
-				09FA8898DDD429EC19584446 /* SettingsPage */,
-				529ECDFF8342B9C9D950B1FA /* turbomodule */,
+				71EA01A72CD87C0500ED4D29 /* Others */,
+				DE44248AB3BFFAAE044EAB9E /* MyViewDemo */,
+				28C2DA6A96B596294158B364 /* HippyDemoViewController.h */,
+				9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */,
+				529ECDFF8342B9C9D950B1FA /* TurboModuleDemo */,
 			);
 			path = HippyDemo;
 			sourceTree = "<group>";
@@ -184,7 +172,7 @@
 			path = HomePage;
 			sourceTree = "<group>";
 		};
-		529ECDFF8342B9C9D950B1FA /* turbomodule */ = {
+		529ECDFF8342B9C9D950B1FA /* TurboModuleDemo */ = {
 			isa = PBXGroup;
 			children = (
 				C629FDE26F7B6DBC976FB63A /* TurboBaseModule.h */,
@@ -192,16 +180,28 @@
 				041D598BDAC3735B5A06ECE7 /* TurboConfig.h */,
 				46034630F6D4A25199673157 /* TurboConfig.m */,
 			);
-			path = turbomodule;
+			path = TurboModuleDemo;
 			sourceTree = "<group>";
 		};
-		57D9249C5EA211061816F73B /* RenderPage */ = {
+		71EA01A72CD87C0500ED4D29 /* Others */ = {
 			isa = PBXGroup;
 			children = (
-				28C2DA6A96B596294158B364 /* HippyDemoViewController.h */,
-				9EB0CD5FCC3F38E3C7DC5E00 /* HippyDemoViewController.m */,
+				D2EE3455BE6DD7D2ADA20093 /* main.m */,
+				EF558AABDC113B410B8ED69C /* AppDelegate.h */,
+				6094F1F80FD70F9F9853EE15 /* AppDelegate.m */,
+				09FA8898DDD429EC19584446 /* SettingsPage */,
+				73EF815F203E15B86205DFC3 /* PageManager */,
+				4CF6648308C60D57DD274D30 /* HomePage */,
+				6045C301C6CFDC6C2E87AA66 /* IconUtils.h */,
+				17AB7FB6346FE861C9D953F5 /* IconUtils.m */,
+				427F60D1B98DA953328F4E71 /* DemoBaseViewController.h */,
+				4708C41E8571123282E2B806 /* DemoBaseViewController.m */,
+				80D715362B1A0B0DCEAA813D /* DemoNavigationViewController.h */,
+				16348E2DEBFF10ADD6FCF7A9 /* DemoNavigationViewController.m */,
+				DDD052D2760E830B1E0095EA /* UIViewController+Title.h */,
+				C412B5D210F1E3359523628C /* UIViewController+Title.m */,
 			);
-			path = RenderPage;
+			name = Others;
 			sourceTree = "<group>";
 		};
 		73EF815F203E15B86205DFC3 /* PageManager */ = {
@@ -244,7 +244,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		DE44248AB3BFFAAE044EAB9E /* myview */ = {
+		DE44248AB3BFFAAE044EAB9E /* MyViewDemo */ = {
 			isa = PBXGroup;
 			children = (
 				16E50FF2E97E0CF6CD4B1EE1 /* MyView.h */,
@@ -252,7 +252,7 @@
 				73A859BDC9C3189E38FD082F /* MyViewManager.h */,
 				834EC46509EC221C787A9F23 /* MyViewManager.mm */,
 			);
-			path = myview;
+			path = MyViewDemo;
 			sourceTree = "<group>";
 		};
 		F3C07E1B41FBB8BA0834C6BC /* fonts */ = {
