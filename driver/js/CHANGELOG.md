@@ -3,6 +3,75 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.2](https://github.com/Tencent/Hippy/compare/3.3.2-rc.3...3.3.2) (2024-11-05)
+
+
+### Bug Fixes
+
+* **android:** add buildTruncateAtEndStaticLayout impl ([5468642](https://github.com/Tencent/Hippy/commit/5468642c83374b374069b2714c85e32083d46875))
+* **android:** add comments for waterfall onScroll event params ([517848e](https://github.com/Tencent/Hippy/commit/517848e7e192245385ae352eae461bf3392a18dc))
+* **android:** add ControllerRegistry destroy ([2c73ba0](https://github.com/Tencent/Hippy/commit/2c73ba0360f50d7bd274b48bcd34d6208e408629))
+* **android:** add custom display metrics ([#3965](https://github.com/Tencent/Hippy/issues/3965)) ([ca405ec](https://github.com/Tencent/Hippy/commit/ca405ecf37999fcf9710d2b7d8f6e29cf0b0cbcd))
+* **android:** add padding left to waterfall item layout ([a84fda7](https://github.com/Tencent/Hippy/commit/a84fda7b90dfee4afce3c487a6a4eea1f7c5b7b9))
+* **android:** add try catch for vfs processor chain get ([718cc9c](https://github.com/Tencent/Hippy/commit/718cc9c674798a362c90b96424132f1cb28b2dbd))
+* **android:** append init props for image load ([298abf5](https://github.com/Tencent/Hippy/commit/298abf587b28db33f1cf05b3af3f9552a66f94ba))
+* **android:** change to using global image cache ([a6cc90d](https://github.com/Tencent/Hippy/commit/a6cc90dbb4b67f672eb9a296ff0be4df068da297))
+* **android:** correct waterfall first and end item index in onScroll ([e06b31f](https://github.com/Tencent/Hippy/commit/e06b31f55e06f929fadbe1a6a9fe58686f376db1))
+* **android:** delete virtual child node when parent deleted ([7e66250](https://github.com/Tencent/Hippy/commit/7e66250c295febc25ae74f3092098d830a8c5112))
+* **android:** different sticky item position crash ([#3930](https://github.com/Tencent/Hippy/issues/3930)) ([0f71972](https://github.com/Tencent/Hippy/commit/0f719727305313f2d413c47459ed64b43206204e))
+* **android:** document improvement and update ([2bc9bd6](https://github.com/Tencent/Hippy/commit/2bc9bd6da6cffb703530d83f542c27784578c5b3))
+* **android:** end reach check failed when set preloadItemNumber ([6573f21](https://github.com/Tencent/Hippy/commit/6573f2124be99ee4f0968779c88b5b1dd9701e85))
+* **android:** erase NativeRenderManager when destroy ([5bed94e](https://github.com/Tencent/Hippy/commit/5bed94e5526ac8d4fdad78c450d0197a2b975c6f))
+* **android:** font weight compatible with version 2.x ([#3948](https://github.com/Tencent/Hippy/issues/3948)) ([12ffb0a](https://github.com/Tencent/Hippy/commit/12ffb0a130f9ced7209db07c42d3893409d2873b))
+* **android:** image module get size support return bitmap ([4a3fe34](https://github.com/Tencent/Hippy/commit/4a3fe34f9b709fdf03a125c4f8bea5e91526b7cc))
+* **android:** lru cache is thread safe ([15eef03](https://github.com/Tencent/Hippy/commit/15eef0322b9a27cf1517539775a867ce4d4b8c02))
+* **android:** modal host view crash ([b7f820b](https://github.com/Tencent/Hippy/commit/b7f820b9de6dd9a3e50a4d845055711b466df66a))
+* **android:** onGlobalLayout use root view size ([#3982](https://github.com/Tencent/Hippy/issues/3982)) ([4a58eaf](https://github.com/Tencent/Hippy/commit/4a58eaf638f65bd3ba72336fea1b7fda992dbb77))
+* **android:** recordNativeInitEndTime after initJSBridge ([82eaecf](https://github.com/Tencent/Hippy/commit/82eaecf25bd2fd14b09fd108335bc5a88139719d))
+* **android:** relayout waterfall when scroll idle and back top ([efe22eb](https://github.com/Tencent/Hippy/commit/efe22eb9577becf51019ce31de89fa0b8c7007f2))
+* **android:** removeRootView params may be null ([b43eeb6](https://github.com/Tencent/Hippy/commit/b43eeb6eeb52d0424be60aa8af2e15394d957894))
+* **android:** sticky item type calculate using node id ([9576889](https://github.com/Tencent/Hippy/commit/957688935622d99b73b7cd4678c4f8c484f5bdf8))
+* **android:** support set custom image pool size ([248b541](https://github.com/Tencent/Hippy/commit/248b541e770f17ba048fedab902ade7698bebf8c))
+* **android:** support work reuse with group id ([cfc0b59](https://github.com/Tencent/Hippy/commit/cfc0b59fc49d2d896cddae2e3023efe258699a67))
+* **android:** to use WeakReference as much as possible ([d300443](https://github.com/Tencent/Hippy/commit/d30044315fa40761cb4fe66a4309a260ab78cd12))
+* **android:** use Spanned to getSpans ([ebd4841](https://github.com/Tencent/Hippy/commit/ebd4841c93dc12d75fe83948d89ccd8010633cca))
+* **android:** use weak reference replace strong ([#3975](https://github.com/Tencent/Hippy/issues/3975)) ([1e07b8b](https://github.com/Tencent/Hippy/commit/1e07b8b7f50a8e8baefc19e307d54cba87068175))
+* **android:** waterfall scroll offset after dispatch layout ([0ce4d47](https://github.com/Tencent/Hippy/commit/0ce4d47eb09f0c165ca32a4bb2bc5f775e268e4a))
+* **core:** check crash on config SetScaleFactor ([#3967](https://github.com/Tencent/Hippy/issues/3967)) ([4cb7bc1](https://github.com/Tencent/Hippy/commit/4cb7bc16100100a3e5122dced5ea83c254ddd1da))
+* **core:** LoadUntrustedContent crash protect ([ad58331](https://github.com/Tencent/Hippy/commit/ad58331830b8e0651c9767d3afcc0ce87e57c3dd))
+* **core:** static destruct crash in main thread for ios ([#4085](https://github.com/Tencent/Hippy/issues/4085)) ([fcaa1cb](https://github.com/Tencent/Hippy/commit/fcaa1cbf569c06a2964fec9cc59b6d009f09b740))
+* **devtools:** fix DOM tree flickering for animation page ([6faf581](https://github.com/Tencent/Hippy/commit/6faf58185a287068f64bb0e9fc0942f5dc3cdb45))
+* **ios:** abnormal onFooterPulling callback ([#4106](https://github.com/Tencent/Hippy/issues/4106)) ([11a0ee5](https://github.com/Tencent/Hippy/commit/11a0ee50210a68d320ee03cd623b8327735f1703))
+* **ios:** add nil protection when bridge released during loading bundle ([4fb3980](https://github.com/Tencent/Hippy/commit/4fb39809b47cf4628bf7dbd6d95ded7ada642145))
+* **ios:** delay release engine resource to avoid deadlock ([#4090](https://github.com/Tencent/Hippy/issues/4090)) ([2d07005](https://github.com/Tencent/Hippy/commit/2d070054d069771491c54aec67b02427bbeb3716))
+* **ios:** potential thread race in vfs file module ([f7b17e1](https://github.com/Tencent/Hippy/commit/f7b17e1ef08a186c19bdcf20ffcc0576812a335a))
+* **ios:** thread race when getting uiManager ([4b00876](https://github.com/Tencent/Hippy/commit/4b00876d2431878527f7be4822f1cc6bf0bf2cfa))
+* **ios:** websocket module support extra headers ([#4069](https://github.com/Tencent/Hippy/issues/4069)) ([#4081](https://github.com/Tencent/Hippy/issues/4081)) ([ca3967f](https://github.com/Tencent/Hippy/commit/ca3967f9988e05fffbe82ec791c63e8598b6f8fc))
+* **vue-next:** fix vuejs ugrade issue ([#4004](https://github.com/Tencent/Hippy/issues/4004)) ([6a5026d](https://github.com/Tencent/Hippy/commit/6a5026d66a635b05d5866ea91f270e9bec0cf21f))
+* **web:** fix webrender listview item relayout ([d48be7a](https://github.com/Tencent/Hippy/commit/d48be7a383d2720306b4af27db129b19547199e6))
+* **web:** fix webrender not show when length is 1 ([00e15af](https://github.com/Tencent/Hippy/commit/00e15afa368a5b36c533f88ba7b3129c5077f1d6))
+
+
+### Features
+
+* **android:** add layout module for reset layout cache ([#4089](https://github.com/Tencent/Hippy/issues/4089)) ([6a67d9c](https://github.com/Tencent/Hippy/commit/6a67d9cf07529f4707317f94c5303de64729e25e))
+* **android:** add offscreenPageLimit property for view pager ([78e5fe0](https://github.com/Tencent/Hippy/commit/78e5fe07d4dfab0e4847516e308569b0772cbe2a))
+* **android:** compatible with custom event register ([99ed1ff](https://github.com/Tencent/Hippy/commit/99ed1ff69ab9cf661cb999514abb22e4d5fe75c9))
+* **android:** text input support lineHeight ([#3936](https://github.com/Tencent/Hippy/issues/3936)) ([a5f4220](https://github.com/Tencent/Hippy/commit/a5f4220895f142e6833c3e9b2033172337ebfefb))
+* **android:** vfs support custom image loader ([#3947](https://github.com/Tencent/Hippy/issues/3947)) ([d9478f4](https://github.com/Tencent/Hippy/commit/d9478f499d2c2820772fba78325295292e710232))
+* **devtools:** add v8 js profile ([d58a106](https://github.com/Tencent/Hippy/commit/d58a1067c2a7a983b28651fce9425b588de173c9))
+* **devtools:** fix devtools element not show ([cf6c1ab](https://github.com/Tencent/Hippy/commit/cf6c1abcb0cea549cdd8abc03e93e58c33891fac))
+* **ios:** waterfall component support footer view ([#4098](https://github.com/Tencent/Hippy/issues/4098)) ([8e59529](https://github.com/Tencent/Hippy/commit/8e59529f72946aa5585742a517f7b99a75bc199e))
+* **vue-next:** fix vue next version on 3.4.32 ([ed596b7](https://github.com/Tencent/Hippy/commit/ed596b7032c793b3f43437a42d09c64f1766265c))
+* **vue-next:** minify webpack bundle size ([#3983](https://github.com/Tencent/Hippy/issues/3983)) ([5aee7f7](https://github.com/Tencent/Hippy/commit/5aee7f754e4e87aa76b8df3bbcd02a2ca6692eba))
+* **vue:** support ul refresh scroll ([f4a5d22](https://github.com/Tencent/Hippy/commit/f4a5d22c073d30112a544b7861ffec7658a81f6d))
+* **web:** fix webrender image not show ([8ee86ff](https://github.com/Tencent/Hippy/commit/8ee86ffffbd0334199833ee4428c6d3e17b09636))
+* **web:** fix webrender scawX scawY animation ([3dc2aa9](https://github.com/Tencent/Hippy/commit/3dc2aa9fec253a4c7b031d37cd3f13768192238b))
+
+
+
+
+
 ## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
 
 

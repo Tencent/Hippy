@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.2](https://github.com/Tencent/Hippy/compare/3.3.2-rc.3...3.3.2) (2024-11-05)
+
+
+### Features
+
+* **ios:** waterfall component support footer view ([#4098](https://github.com/Tencent/Hippy/issues/4098)) ([8e59529](https://github.com/Tencent/Hippy/commit/8e59529f72946aa5585742a517f7b99a75bc199e))
+
+
+
+
+
 ## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
 
 

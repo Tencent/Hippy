@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.2](https://github.com/Tencent/Hippy/compare/3.3.2-rc.3...3.3.2) (2024-11-05)
+
+
+### Features
+
+* **devtools:** fix devtools element not show ([cf6c1ab](https://github.com/Tencent/Hippy/commit/cf6c1abcb0cea549cdd8abc03e93e58c33891fac))
+
+
+
+
+
 ## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-next-server-renderer",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Vue-Next server renderer for Hippy native framework",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",
@@ -25,13 +25,13 @@
     "README.md"
   ],
   "peerDependencies": {
-    "@vue/server-renderer": "3.4.32",
     "@vue/runtime-core": "3.4.32",
+    "@vue/server-renderer": "3.4.32",
     "@vue/shared": "3.4.32"
   },
   "devDependencies": {
-    "@vue/server-renderer": "3.4.32",
     "@vue/runtime-core": "3.4.32",
+    "@vue/server-renderer": "3.4.32",
     "@vue/shared": "3.4.32"
   },
   "jest": {

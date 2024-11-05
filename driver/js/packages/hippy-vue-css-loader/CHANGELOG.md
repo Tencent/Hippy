@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.2](https://github.com/Tencent/Hippy/compare/3.3.2-rc.3...3.3.2) (2024-11-05)
+
+
+### Features
+
+* **vue-next:** minify webpack bundle size ([#3983](https://github.com/Tencent/Hippy/issues/3983)) ([5aee7f7](https://github.com/Tencent/Hippy/commit/5aee7f754e4e87aa76b8df3bbcd02a2ca6692eba))
+
+
+
+
+
 ## [3.3.1](https://github.com/Tencent/Hippy/compare/3.3.0...3.3.1) (2024-08-26)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
