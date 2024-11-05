@@ -22,6 +22,8 @@
 
 #include "driver/napi/hermes/hermes_ctx.h"
 #include "driver/napi/hermes/hermes_try_catch.h"
+#include "driver/scope.h"
+#include "footstone/string_view_utils.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
@@ -30,8 +32,6 @@
 #include "hermes/cdp/CDPDebugAPI.h"
 #pragma clang diagnostic pop
 
-#include "driver/scope.h"
-#include "footstone/string_view_utils.h"
 
 namespace hippy {
 inline namespace driver {
@@ -47,9 +47,9 @@ using CDPDebugAPI = facebook::hermes::cdp::CDPDebugAPI;
 constexpr int kScopeWrapperIndex = 5;
 constexpr char kProtoKey[] = "__proto__";
 constexpr char kUniqueIdInLocalStateKey[] = "__uniqueID";
-std::atomic<int> unique_id_counter{0}; // used to save this_value to LocalNativeState
+std::atomic<int> unique_id_counter{0}; // for saving this_value to LocalNativeState
 
-constexpr char kConstructor[] = "function() {  this.hostfunction_constructor.apply(this, arguments); return this; }";
+constexpr char kConstructor[] = "function() { this.hostfunction_constructor.apply(this, arguments); return this; }";
 constexpr char kProxyFunction[] = "function(handler) { return new Proxy(this, handler); }";
 constexpr char kProxyTargetObject[] = "proxy_target_object";
 constexpr char kIsProxyObject[] = "is_proxy_object";
@@ -92,7 +92,9 @@ static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<Herm
   callback(scope->GetBridge(), description, stack);
 }
 
-static Value InvokePropertyCallback(Runtime& runtime, const Value& this_value, const std::string& property,
+static Value InvokePropertyCallback(Runtime& runtime, 
+                                    const Value& this_value,
+                                    const std::string& property,
                                     void* function_pointer) {
   auto global_native_state = runtime.global().getNativeState<GlobalNativeState>(runtime);
   std::any scope_any;
@@ -127,7 +129,10 @@ static Value InvokePropertyCallback(Runtime& runtime, const Value& this_value, c
   return ret_value->GetValue(hermes_ctx->GetRuntime());
 }
 
-static Value InvokeConstructorJsCallback(Runtime& runtime, const Value& this_value, const Value* args, size_t count,
+static Value InvokeConstructorJsCallback(Runtime& runtime, 
+                                         const Value& this_value,
+                                         const Value* args,
+                                         size_t count,
                                          void* function_pointer) {
   auto global_native_state = runtime.global().getNativeState<GlobalNativeState>(runtime);
   std::any scope_any;

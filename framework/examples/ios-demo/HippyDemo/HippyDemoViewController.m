@@ -38,12 +38,14 @@
 
 - (instancetype)initWithDriverType:(DriverType)driverType
                         renderType:(RenderType)renderType
+                   useHermesEngine:(BOOL)usingHermes
                           debugURL:(NSURL *)debugURL
                        isDebugMode:(BOOL)isDebugMode {
     self = [super init];
     if (self) {
         _driverType = driverType;
         _renderType = renderType;
+        _useHermesEngine = usingHermes;
         _debugURL = debugURL;
         _debugMode = isDebugMode;
     }
@@ -106,7 +108,7 @@
     // Set launch options for hippy bridge
     HippyLaunchOptions *launchOptions = [HippyLaunchOptions new];
     launchOptions.debugMode = _debugMode;
-    launchOptions.useHermesEngine = YES;
+    launchOptions.useHermesEngine = _useHermesEngine;
     // Prepare initial properties for js side
     NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
