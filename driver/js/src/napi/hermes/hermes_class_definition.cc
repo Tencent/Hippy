@@ -26,7 +26,9 @@ namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-HermesClassDefinition::HermesClassDefinition(Runtime& runtime, const string_view& name, Function& function)
+HermesClassDefinition::HermesClassDefinition(Runtime& runtime,
+                                             const footstone::stringview::string_view& name,
+                                             Function& function)
     : name_(name), function_(runtime, function) {}
 
 HermesClassDefinition::~HermesClassDefinition() {}

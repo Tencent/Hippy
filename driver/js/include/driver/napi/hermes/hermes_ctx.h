@@ -43,7 +43,6 @@
 
 using CDPAgent = facebook::hermes::cdp::CDPAgent;
 using CDPDebugAPI = facebook::hermes::cdp::CDPDebugAPI;
-using ConsoleAPIType = facebook::hermes::cdp::ConsoleAPIType;
 #endif /* ENABLE_INSPECTOR */
 
 #pragma clang diagnostic pop
@@ -228,7 +227,7 @@ class HermesCtx : public Ctx {
   Value Eval(const char* code);
   Function EvalFunction(const std::string& code);
   void BuiltinModule();
-  void BuiltinFunction(facebook::jsi::Object& module, const std::string& name, ConsoleAPIType type);
+  void BuiltinFunction(facebook::jsi::Object& module, const std::string& name);
 
  private:
   std::unique_ptr<HermesRuntime> runtime_;

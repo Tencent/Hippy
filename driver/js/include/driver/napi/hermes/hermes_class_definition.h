@@ -38,17 +38,16 @@ inline namespace napi {
 using Runtime = facebook::jsi::Runtime;
 using Function = facebook::jsi::Function;
 using Value = facebook::jsi::Value;
-using string_view = footstone::stringview::string_view;
 
 class HermesClassDefinition : public ClassDefinition {
  public:
-  HermesClassDefinition(Runtime& runtime, const string_view& name, Function& function);
+  HermesClassDefinition(Runtime& runtime, const footstone::stringview::string_view& name, Function& function);
   virtual ~HermesClassDefinition();
 
   Value& GetTemplate() { return function_; }
 
  private:
-  string_view name_;
+  footstone::stringview::string_view name_;
   Value function_;
 };
 

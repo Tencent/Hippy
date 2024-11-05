@@ -23,6 +23,7 @@
 #include "driver/napi/hermes/hermes_ctx.h"
 #include "driver/napi/hermes/hermes_try_catch.h"
 #include "driver/scope.h"
+#include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 
 #pragma clang diagnostic push
@@ -39,10 +40,11 @@ inline namespace napi {
 
 using Scope = driver::Scope;
 using CallbackInfo = hippy::CallbackInfo;
+using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
 using Runtime = facebook::jsi::Runtime;
 using HermesRuntime = facebook::hermes::HermesRuntime;
-using CDPDebugAPI = facebook::hermes::cdp::CDPDebugAPI;
+using ConsoleAPIType = facebook::hermes::cdp::ConsoleAPIType;
 
 constexpr int kScopeWrapperIndex = 5;
 constexpr char kProtoKey[] = "__proto__";
@@ -791,7 +793,7 @@ bool HermesCtx::GetValueString(const std::shared_ptr<CtxValue>& value, string_vi
   }
   String jsi_str = ctx_value->GetValue(runtime_).asString(*runtime_);
   const std::string utf8_string = jsi_str.utf8(*runtime_);
-  *result = hippy::string_view ::new_from_utf8(utf8_string.data(), utf8_string.size());
+  *result = string_view::new_from_utf8(utf8_string.data(), utf8_string.size());
   return true;
 }
 
@@ -809,7 +811,7 @@ bool HermesCtx::GetValueJson(const std::shared_ptr<CtxValue>& value, string_view
     Value ret = stringify.call(*runtime_, ctx_value->GetValue(runtime_).asObject(*runtime_));
     if (!ret.isString()) return false;
     const std::string utf8_string = ret.asString(*runtime_).utf8(*runtime_);
-    *result = hippy::string_view(utf8_string);
+    *result = string_view(utf8_string);
     return true;
   } else {
     return false;
@@ -1102,27 +1104,48 @@ Function HermesCtx::EvalFunction(const std::string& code) {
 
 void HermesCtx::BuiltinModule() {
   auto console = facebook::jsi::Object(*runtime_);
-  BuiltinFunction(console, "log", facebook::hermes::cdp::ConsoleAPIType::kLog);
-  BuiltinFunction(console, "error", facebook::hermes::cdp::ConsoleAPIType::kError);
-  BuiltinFunction(console, "warn", facebook::hermes::cdp::ConsoleAPIType::kWarning);
-  BuiltinFunction(console, "debug", facebook::hermes::cdp::ConsoleAPIType::kDebug);
-  BuiltinFunction(console, "info", facebook::hermes::cdp::ConsoleAPIType::kInfo);
-  BuiltinFunction(console, "trace", facebook::hermes::cdp::ConsoleAPIType::kTrace);
-  BuiltinFunction(console, "clear", facebook::hermes::cdp::ConsoleAPIType::kClear);
+  BuiltinFunction(console, "log");
+  BuiltinFunction(console, "error");
+  BuiltinFunction(console, "warn");
+  BuiltinFunction(console, "debug");
+  BuiltinFunction(console, "info");
+  BuiltinFunction(console, "trace");
+  BuiltinFunction(console, "clear");
   runtime_->global().setProperty(*runtime_, "console", console);
 }
 
-/**
- * Get the current time in milliseconds as a double.
- */
-double getTimestampMs() {
-  return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(std::chrono::system_clock::now().time_since_epoch())
-    .count();
+// MARK: - Inspector Helper Functions
+
+#ifdef ENABLE_INSPECTOR
+// Get the current time in milliseconds as a double.
+inline double getTimestampMs() {
+  return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(std::chrono::system_clock::now()
+                                                                               .time_since_epoch()).count();
 }
 
+inline ConsoleAPIType consoleTypeForName(const std::string& name) {
+  static const std::unordered_map<std::string, facebook::hermes::cdp::ConsoleAPIType> nameToTypeMap = {
+    {"log", facebook::hermes::cdp::ConsoleAPIType::kLog},
+    {"error", facebook::hermes::cdp::ConsoleAPIType::kError},
+    {"warn", facebook::hermes::cdp::ConsoleAPIType::kWarning},
+    {"debug", facebook::hermes::cdp::ConsoleAPIType::kDebug},
+    {"info", facebook::hermes::cdp::ConsoleAPIType::kInfo},
+    {"trace", facebook::hermes::cdp::ConsoleAPIType::kTrace},
+    {"clear", facebook::hermes::cdp::ConsoleAPIType::kClear}
+  };
+  
+  auto it = nameToTypeMap.find(name);
+  if (it != nameToTypeMap.end()) {
+    return it->second;
+  } else {
+    throw std::invalid_argument("Unknown console function name: " + name);
+  }
+}
+
+#endif /* ENABLE_INSPECTOR */
+
 void HermesCtx::BuiltinFunction(facebook::jsi::Object& module,
-                                const std::string& name,
-                                facebook::hermes::cdp::ConsoleAPIType type) {
+                                const std::string& name) {
   auto name_id = facebook::jsi::PropNameID::forUtf8(*runtime_, name);
   auto function = facebook::jsi::Function::createFromHostFunction(
                                                                   *runtime_, name_id, 1,
@@ -1138,6 +1161,7 @@ void HermesCtx::BuiltinFunction(facebook::jsi::Object& module,
                                                                         }
                                                                         auto stackTrace = runtime_->getDebugger().captureStackTrace();
                                                                         if (cdpDebugAPI_) {
+                                                                          auto type = consoleTypeForName(name);
                                                                           cdpDebugAPI_->addConsoleMessage({timestampMs, type, std::move(argsVec), stackTrace});
                                                                         }
 #endif /* ENABLE_INSPECTOR */
