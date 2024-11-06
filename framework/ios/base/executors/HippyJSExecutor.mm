@@ -722,7 +722,6 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
         id result = executeApplicationScript(script,
                                              sourceURL,
                                              strongSelf.pScope->GetContext(),
-                                             self.bridge.usingHermesEngine,
                                              &error);
         entry->BundleInfoOfUrl(url).execute_source_end_ = footstone::TimePoint::SystemNow();
         if (onComplete) {
@@ -743,7 +742,6 @@ static NSLock *jslock() {
 static NSError *executeApplicationScript(NSData *script, 
                                          NSURL *sourceURL,
                                          SharedCtxPtr context,
-                                         BOOL usingHermes,
                                          __strong NSError **error) {
     const char *scriptBytes = reinterpret_cast<const char *>([script bytes]);
     string_view view = string_view::new_from_utf8(scriptBytes, [script length]);

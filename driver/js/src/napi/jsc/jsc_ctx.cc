@@ -399,7 +399,7 @@ std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
 std::shared_ptr<CtxValue> JSCCtx::NewInstance(const std::shared_ptr<CtxValue>& cls, int argc, std::shared_ptr<CtxValue> argv[], void* external) {
   auto jsc_cls = std::static_pointer_cast<JSCCtxValue>(cls);
   JSValueRef values[argc];  // NOLINT(runtime/arrays)
-  for (size_t i = 0; i < argc; i++) {
+  for (int i = 0; i < argc; i++) {
     auto arg_value = std::static_pointer_cast<JSCCtxValue>(argv[i]);
     values[i] = arg_value->value_;
   }
@@ -921,7 +921,8 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   JSValueRef values[argc];  // NOLINT(runtime/arrays)
   for (size_t i = 0; i < argc; i++) {
     auto arg_value = std::static_pointer_cast<JSCCtxValue>(argv[i]);
-    values[i] = arg_value->value_;
+    FOOTSTONE_DCHECK(arg_value);
+    values[i] = arg_value ? arg_value->value_ : JSValueMakeNull(context_);
   }
 
   auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, argc, values, &exception);

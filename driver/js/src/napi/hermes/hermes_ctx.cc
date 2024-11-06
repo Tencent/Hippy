@@ -677,7 +677,7 @@ std::shared_ptr<CtxValue> HermesCtx::CreateMap(
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateArray(size_t count, std::shared_ptr<CtxValue> values[]) {
-  if (count <= 0) {
+  if (count < 0) {
     return nullptr;
   }
   facebook::jsi::Array array = facebook::jsi::Array(*runtime_, count);
@@ -725,7 +725,8 @@ std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue
       arg_vec.resize(jsi_arg_count);
       for (size_t i = 0; i < jsi_arg_count; i++) {
         std::shared_ptr<HermesCtxValue> argument_ctx_val = std::static_pointer_cast<HermesCtxValue>(arguments[i]);
-        arg_vec[i] = argument_ctx_val->GetValue(runtime_);
+        FOOTSTONE_DCHECK(argument_ctx_val);
+        arg_vec[i] = argument_ctx_val ? argument_ctx_val->GetValue(runtime_) : facebook::jsi::Value::null();
       }
       const Value* jsi_arg = &arg_vec[0];
       Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_), jsi_arg, jsi_arg_count);
