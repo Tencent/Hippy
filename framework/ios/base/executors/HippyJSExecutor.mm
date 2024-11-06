@@ -265,9 +265,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                                     context:(const std::shared_ptr<hippy::Ctx> &)context
                                globalObject:(const std::shared_ptr<hippy::CtxValue> &)globalObject {
     NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[bridge deviceInfo]];
-    NSString *deviceName = [[UIDevice currentDevice] name];
-    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, self]);
-    NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+    NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : [self getClientID]}};
     [deviceInfo addEntriesFromDictionary:debugInfo];
     
     auto key = context->CreateString(kHippyNativeGlobalKey);
@@ -353,6 +351,12 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
 
 
 #pragma mark -
+
+- (NSString *)getClientID {
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, self]);
+    return clientId;
+}
 
 - (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
     if (self.pScope->GetUriLoader().lock() != uriLoader.lock()) {
@@ -769,9 +773,7 @@ static id executeApplicationScript(NSData *script, NSURL *sourceURL, SharedCtxPt
         devInfo.versionId = bundleURLProvider.versionId;
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
-    NSString *deviceName = [[UIDevice currentDevice] name];
-    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
-    return [devInfo assembleFullWSURLWithClientId:clientId contextName:bridge.contextName];
+    return [devInfo assembleFullWSURLWithClientId:[self getClientID] contextName:bridge.contextName];
 }
 
 
