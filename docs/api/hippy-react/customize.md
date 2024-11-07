@@ -36,13 +36,19 @@ export class MyView extends React.Component {
 
 # 自定义模块
 
-> 该范例仅可以在 Android 下运行。
-
 前端扩展模块分为三步：
 
 1. 第一步导入 callNative 或者 callNativeWithPromise 接口
 2. 封装调用接口
 3. 导出模块
+
+注: callNative 代表前端调用客户端接口，无需返回
+callNativeWithPromise 代表前端调用客户端接口，需要返回，返回一个 Promise 对象
+
+callNtive/callNativeWithPromise 参数含义:
+moduleName: 代表和终端约定的模块名字，为 string 类型
+functionName: 代表和终端约定的模块函数名字，为 string 类型
+params: 实际携带参数, 为 Object 类型
 
 ```javascript
 // TestModule.js
