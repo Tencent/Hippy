@@ -396,9 +396,14 @@ void AnimationManager::UpdateAnimations() {
   auto now = footstone::time::MonotonicallyIncreasingTime();
   std::unordered_map<uint32_t, std::shared_ptr<DomNode>> update_node_map;
   // xcode crash if we change for to loop
-  for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < active_animations_.size(); ++i) {
-    UpdateAnimation(active_animations_[i], now, update_node_map);
+  std::vector<std::shared_ptr<Animation>> loop_animations = active_animations_;
+  for (size_t i = 0; i < loop_animations.size(); ++i) {
+    auto it = std::find(active_animations_.begin(), active_animations_.end(), loop_animations[i]);
+    if (it != active_animations_.end()) {
+      UpdateAnimation(loop_animations[i], now, update_node_map);
+    }
   }
+  loop_animations.clear();
   std::vector<std::shared_ptr<DomNode>> update_nodes;
   update_nodes.reserve(update_node_map.size());
   for (const auto& [key, value]: update_node_map) {
