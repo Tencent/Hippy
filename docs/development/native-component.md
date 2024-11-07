@@ -632,20 +632,30 @@ Widget build(BuildContext context) {
 
 扩展组件主要包括：
 
-1. 扩展 `HippyView`
+1. 扩展 `HippyWebView`
 2. 实现构造方法
 3. 实现设置自定义组件的 `tagName`
 4. 实现构造自定义组件的 `dom`
 5. 实现自定义组件的 `API 能力`
 6. 实现自定义组件的属性
 
-其中 `HippyView` 类，实现了一些 HippyBaseView 的接口和属性定义，在一个自定义组件中有几个比较重要的属性：
+其中 `HippyWebView` 类，实现了一些 HippyBaseView 的接口和属性定义，在一个自定义组件中有几个比较重要的属性：
 
 - id: 每一个实例化 component 的唯一标识，默认会赋值给组件 dom 的 id 属性
 - pId: 每一个实例化 component 的父组件标识
 - tagName: 是用来区分组件的类型，也是业务侧代码使用该组件时在 `nativeName` 属性上填写的值，用来关联自定义组件的 key
 - dom: 真正挂载到document上的节点
 - props: 承载了从业务侧传递过来的属性和style的记录
+
+注: tagName 用来和 React/Vue 注册的自定义组件的 nativeName 关联，可参考:
+
+### 如果您使用的是`hippy-vue`
+
+可以参考 [hippy-vue/customize](api/hippy-vue/customize)
+
+### 如果您是用的是`hippy-react`
+
+可以参考 [hippy-react/customize](api/hippy-react/customize)
 
 ### 例子
 
@@ -655,10 +665,10 @@ Widget build(BuildContext context) {
 
 ```javascript
 
-import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
+import { HippyWebView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 
-// 继承自 `HippyView`
-class CustomView extends HippyView {
+// 继承自 `HippyWebView`
+class CustomView extends HippyWebView {
   // 实现构造方法
   constructor(context, id, pId) {
     super(context, id, pId);
@@ -682,9 +692,9 @@ class CustomView extends HippyView {
 
 ```javascript
 
-import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
+import { HippyWebView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 
-class CustomView extends HippyView {
+class CustomView extends HippyWebView {
   
    set src(value) {
      this.dom.src = value;
@@ -735,7 +745,7 @@ Node.removeChild<T extends Node>(child: T): T;
 - 如果组件不希望以这种默认的形式来实现，可以自行通过 `insertChild` 和 `removeChild` 方法管理节点的插入和移除逻辑。
 
 ```javascript
-class CustomView extends HippyView{
+class CustomView extends HippyWebView{
     insertChild (child: HippyBaseView, childPosition: number) {
       // ...
     }
@@ -750,7 +760,7 @@ class CustomView extends HippyView{
 > 例子中，`data` 是组件本次更新的 `props` 数据信息，`defaultProcess()` 是 `HippyWebRenderer` 默认处理 `props` 更新的方法，开发者可以在这里拦截修改更新的数据后，依然使用默认的 `props` 进行更新，也可以不用默认的方法自行进行属性更新的遍历操作。
 
 ```javascript
-class CustomView extends HippyView{
+class CustomView extends HippyWebView{
     
     updateProps (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
       // ...
