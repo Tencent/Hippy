@@ -214,8 +214,10 @@ class HermesCtx : public Ctx {
   inline std::shared_ptr<HermesExceptionCtxValue> GetException() { return exception_; }
   string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
 
- public:
   const std::unique_ptr<HermesRuntime>& GetRuntime() { return runtime_; }
+  
+  // Get platform-specific internal embedded code
+  std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const override;
 
 #ifdef ENABLE_INSPECTOR
   inline std::unique_ptr<CDPAgent> &GetCDPAgent() { return cdpAgent_; };

@@ -26,9 +26,9 @@
 #include "driver/napi/jsc/jsc_ctx_value.h"
 #include "driver/napi/jsc/jsc_class_definition.h"
 #include "driver/napi/callback_info.h"
-#include "driver/vm/native_source_code.h"
-#include "driver/vm/jsc/jsc_vm.h"
 #include "driver/napi/jsc/jsc_try_catch.h"
+#include "driver/vm/jsc/jsc_vm.h"
+#include "driver/vm/jsc/native_source_code_jsc.h"
 
 
 namespace hippy {
@@ -1247,6 +1247,10 @@ void JSCCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<Weak
     auto constructor_data = reinterpret_cast<ConstructorData*>(private_data);
     constructor_data->weak_callback_wrapper = wrapper.get();
   }
+}
+
+std::unique_ptr<NativeSourceCodeProvider> JSCCtx::GetNativeSourceCodeProvider() const {
+  return std::make_unique<NativeSourceCodeProviderJSC>();
 }
 
 }  // namespace napi

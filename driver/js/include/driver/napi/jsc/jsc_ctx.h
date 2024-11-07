@@ -232,6 +232,9 @@ public:
   void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data);
   std::shared_ptr<JSCCtxValue> GetClassPrototype(JSClassRef ref);
   
+  // Get platform-specific internal embedded code
+  std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const override;
+  
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;

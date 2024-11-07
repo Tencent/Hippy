@@ -63,7 +63,8 @@ void VM::HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& eve
   auto error_handle_key = ctx->CreateString(error_handle_name);
   auto exception_handler = ctx->GetProperty(global_object, error_handle_key);
   if (!ctx->IsFunction(exception_handler)) {
-    const auto& source_code = hippy::GetNativeSourceCode(kExceptionHandlerJSName);
+    auto source_code_provider = ctx->GetNativeSourceCodeProvider();
+    const auto &source_code = source_code_provider->GetNativeSourceCode(kExceptionHandlerJSName);
     FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
     string_view str_view(source_code.data_, source_code.length_);
     exception_handler = ctx->RunScript(str_view, error_handle_name);

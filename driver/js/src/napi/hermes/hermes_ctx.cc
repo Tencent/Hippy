@@ -25,6 +25,7 @@
 #include "driver/scope.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
+#include "driver/vm/hermes/native_source_code_hermes.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
@@ -1170,6 +1171,11 @@ void HermesCtx::BuiltinFunction(facebook::jsi::Object& module,
                                                                       });
   module.setProperty(*runtime_, name_id, function);
 }
+
+std::unique_ptr<NativeSourceCodeProvider> HermesCtx::GetNativeSourceCodeProvider() const {
+  return std::make_unique<NativeSourceCodeProviderHermes>();
+}
+
 
 }  // namespace napi
 }  // namespace driver

@@ -29,7 +29,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/vm/v8/v8_vm.h"
 #include "driver/vm/v8/serializer.h"
-#include "driver/vm/native_source_code.h"
+#include "driver/vm/jsc/native_source_code_v8.h"
 #include "footstone/check.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
@@ -1521,6 +1521,10 @@ void  V8Ctx::SetWeak(std::shared_ptr<CtxValue> value,
       wrapper->callback(wrapper->data, internal);
     });
   }, v8::WeakCallbackType::kParameter);
+}
+
+std::unique_ptr<NativeSourceCodeProvider> V8Ctx::GetNativeSourceCodeProvider() const {
+  return std::make_unique<NativeSourceCodeProviderV8>();
 }
 
 }  // namespace napi

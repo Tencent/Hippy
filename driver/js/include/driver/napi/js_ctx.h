@@ -34,7 +34,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/napi/js_class_definition.h"
 #include "driver/napi/js_ctx_value.h"
-
+#include "driver/vm/native_source_code.h"
 #include "dom/dom_event.h"
 
 namespace hippy {
@@ -226,6 +226,9 @@ class Ctx {
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) = 0;
   virtual void SetWeak(std::shared_ptr<CtxValue> value,
                        const std::unique_ptr<WeakCallbackWrapper>& wrapper) = 0;
+
+  // Get platform-specific internal embedded code
+  virtual std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const = 0;
 };
 
 }

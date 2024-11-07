@@ -218,7 +218,8 @@ void Scope::BindModule() {
 
 void Scope::Bootstrap() {
   FOOTSTONE_LOG(INFO) << "Bootstrap begin";
-  auto source_code = hippy::GetNativeSourceCode(kBootstrapJSName);
+  auto source_code_provider = context_->GetNativeSourceCodeProvider();
+  const auto &source_code = source_code_provider->GetNativeSourceCode(kBootstrapJSName);
   FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
   string_view str_view(source_code.data_, source_code.length_);
   auto function = context_->RunScript(str_view, kBootstrapJSName);

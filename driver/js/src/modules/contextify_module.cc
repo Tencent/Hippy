@@ -72,12 +72,7 @@ void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo& info, void* d
   auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
-#ifdef JS_V8
-  auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
-#else
   auto context = scope->GetContext();
-#endif
-
   string_view key;
   if (!context->GetValueString(info[0], &key)) {
     info.GetExceptionValue()->Set(context, "The first argument must be non-empty string.");
@@ -85,12 +80,14 @@ void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo& info, void* d
   }
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
-  const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      key, string_view::Encoding::Utf8).utf8_value()));
+  auto file_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(key, string_view::Encoding::Utf8).utf8_value());
+  auto source_code_provider = context->GetNativeSourceCodeProvider();
+  const auto &source_code = source_code_provider->GetNativeSourceCode(file_name);
   std::shared_ptr<TryCatch> try_catch = hippy::TryCatch::CreateTryCatchScope(true, context);
   string_view str_view(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_), source_code.length_);
 #ifdef JS_V8
-  auto ret = context->RunScript(str_view, key, false, nullptr, false);
+  auto v8_context = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  auto ret = v8_context->RunScript(str_view, key, false, nullptr, false);
 #else
   auto ret = context->RunScript(str_view, key);
 #endif
@@ -190,12 +187,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         FOOTSTONE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
         auto cur_dir_value = ctx->CreateString(cur_dir);
         ctx->SetProperty(global_object, cur_dir_key, cur_dir_value);
-#ifdef JS_HERMES
-        string_view view_code(reinterpret_cast<const string_view::char8_t_*>(move_code.c_str()), move_code.length());
-        scope->RunJS(view_code, uri, file_name);
-        ctx->SetProperty(global_object, cur_dir_key, last_dir_str_obj, hippy::napi::PropertyAttribute::ReadOnly);
-#else
-        auto try_catch = CreateTryCatchScope(true, scope->GetContext());
+        auto try_catch = hippy::TryCatch::CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
         string_view view_code(reinterpret_cast<const string_view::char8_t_*>(move_code.c_str()), move_code.length());
         scope->RunJS(view_code, uri, file_name);
@@ -206,7 +198,6 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
           error = try_catch->Exception();
           FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = " << try_catch->GetExceptionMessage();
         }
-#endif
       } else {
         string_view err_msg = uri + " not found";
         error = ctx->CreateException(string_view(err_msg));

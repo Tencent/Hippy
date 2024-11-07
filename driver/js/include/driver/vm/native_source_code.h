@@ -35,7 +35,11 @@ struct NativeSourceCode {
   size_t length_;
 };
 
-const NativeSourceCode GetNativeSourceCode(const std::string& filename);
+class NativeSourceCodeProvider {
+public:
+  virtual ~NativeSourceCodeProvider() = default;
+  virtual NativeSourceCode GetNativeSourceCode(const std::string& filename) const = 0;
+};
 
 }
 }  // namespace hippy

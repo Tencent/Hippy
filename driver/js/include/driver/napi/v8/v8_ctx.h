@@ -27,9 +27,9 @@
 #include "driver/base/js_value_wrapper.h"
 #include "driver/napi/js_ctx.h"
 #include "driver/napi/js_ctx_value.h"
-
 #include "driver/napi/v8/v8_ctx_value.h"
 #include "driver/napi/v8/v8_class_definition.h"
+#include "driver/vm/native_source_code.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
@@ -184,6 +184,9 @@ class V8Ctx : public Ctx {
   std::string GetSerializationBuffer(const std::shared_ptr<CtxValue>& value,
                                      std::string& reused_buffer);
   void SetAlignedPointerInEmbedderData(int index, intptr_t address);
+
+  // Get platform-specific internal embedded code
+  std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const override;
 
   v8::Isolate* isolate_;
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
