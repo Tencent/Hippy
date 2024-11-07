@@ -117,35 +117,19 @@ public void helloNativeWithPromise(HippyMap hippyMap, Promise promise)
 }
 ```
 
-
-
 ## 4. 注册Module
 
-然后需要注册这个Module。需要在 `HippyPackage` 的 `getNativeModules` 方法中添加这个 Module，这样它才能在JS中被访问到。
+需要自定义'APIProvider'类，并实现SDK HippyAPIProvider interface，然后在`getNativeModules` 方法中添加这个 Module，这样它才能在JS中被访问到。
 
 ```java
-import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.HippyPackage;
-import com.tencent.mtt.hippy.common.Provider;
-import com.tencent.mtt.hippy.example.module.TestModule;
+public class MyAPIProvider implements HippyAPIProvider {
 
-import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
-import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-import com.tencent.mtt.hippy.uimanager.HippyViewController;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class ExamplePackages implements HippyPackage
-{
     @Override
-    public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends     HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context)
+    public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(final HippyEngineContext context)
     {
         Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> modules = new HashMap<>();
-
-        // regist the LogModule
-        modules.put(ToastModule.class, new Provider<HippyNativeModuleBase>()
+        //regist the MyModule
+        modules.put(TestModule.class, new Provider<HippyNativeModuleBase>() 
         {
             @Override
             public HippyNativeModuleBase get()
@@ -153,10 +137,26 @@ public class ExamplePackages implements HippyPackage
                 return new TestModule(context);
             }
         });
-
-        return modules;
     }
+
+    @Override
+    public List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules() {return null;}
+
+    @Override
+    public List<Class<? extends HippyViewController>> getControllers() {return null;}
+}
 ```
+
+## 5. 注册APIProvider
+
+在HippyEngine初始化的EngineInitParams参数属性中设置providers。
+
+``` java
+List<HippyAPIProvider> providers = new ArrayList<>();
+providers.add(new MyAPIProvider());
+initParams.providers = providers;
+```
+
 
 ## 注意事项
 
