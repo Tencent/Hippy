@@ -194,6 +194,10 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 > * method：方法名称，如 ListView 的 `scrollToIndex`
 > * options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`
 
+注: 也可以传入 callback 参数，这个是 Hippy 内部 API, 不推荐使用，源码可参考：
+
+[callUIFunction接口实现源码](https://github.com/Tencent/Hippy/blob/main/driver/js/packages/hippy-vue/src/runtime/native.ts)
+
 ---
 
 # Clipboard
