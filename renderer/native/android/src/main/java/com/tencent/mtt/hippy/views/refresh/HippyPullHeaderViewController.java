@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.ControllerRegistry;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.node.PullHeaderRenderNode;
 import com.tencent.renderer.node.RenderNode;
@@ -98,6 +99,26 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
             }
             default: {
                 LogUtils.w(TAG, "Unknown function name: " + functionName);
+            }
+        }
+    }
+
+
+    @Override
+    public void updateLayout(int rootId, int id, int x, int y, int width, int height,
+            ControllerRegistry componentHolder) {
+        super.updateLayout(rootId, id, x, y, width, height, componentHolder);
+        View view = componentHolder.getView(rootId, id);
+        if (view instanceof HippyPullHeaderView && view.getParent() instanceof ViewGroup) {
+            int w = view.getWidth();
+            int h = view.getHeight();
+            ViewGroup.LayoutParams lp = view.getLayoutParams();
+            if (lp != null) {
+                LogUtils.d(TAG, "updateLayout: id " + id + ", w " + w + ", h " + h
+                        + ", width " + width + ", height " + height + ", lp.width " + lp.width + ", lp.height "
+                        + lp.height);
+                lp.width = width;
+                lp.height = height;
             }
         }
     }
