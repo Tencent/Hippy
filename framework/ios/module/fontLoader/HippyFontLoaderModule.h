@@ -28,11 +28,19 @@ NS_ASSUME_NONNULL_BEGIN
 HIPPY_EXTERN NSString *const HippyLoadFontNotification;
 
 typedef NS_ENUM(NSInteger, HippyFontUrlState) {
+    HippyFontUrlPending = 0,
     HippyFontUrlLoading = 1,
     HippyFontUrlLoaded = 2,
     HippyFontUrlFailed = 3,
 };
 
+/**
+ * @class HippyFontLoaderModule
+ * @brief This class is responsible for loading and registering fonts.
+ *
+ * This class is a hippy module, providing a load method for the front end to download and register fonts.
+ * It also provides method for native side to register font.
+ */
 @interface HippyFontLoaderModule : NSObject<HippyBridgeModule>
 
 /**
@@ -72,7 +80,8 @@ typedef NS_ENUM(NSInteger, HippyFontUrlState) {
  * @param resolve - The callback block for downloading successful.
  * @param reject - The callback block for downloading failed.
  */
-- (void)load:(NSString *)fontFamily from:(NSString *)urlString resolver:(nullable HippyPromiseResolveBlock)resolve rejecter:(nullable HippyPromiseRejectBlock)reject;
+- (void)load:(NSString *)fontFamily from:(NSString *)urlString resolver:(nullable HippyPromiseResolveBlock)resolve
+    rejecter:(nullable HippyPromiseRejectBlock)reject;
 
 @end
 

@@ -40,7 +40,8 @@ enum HippyVFSRscType {
 };
 
 enum HippyVFSURLType {
-    HippyVFSURLTypeHTTP = 1,
+    HippyVFSURLTypeUnknown = 0,
+    HippyVFSURLTypeHTTP,
     HippyVFSURLTypeFile,
 };
 

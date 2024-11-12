@@ -287,8 +287,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
         font = [UIFont fontWithName:familyName size:fontSize];
         if (font) {
             didFindFont = YES;
-        }
-        else {
+        } else {
             fontWeight = weight ? fontWeight : weightOfFont(font);
             isItalic = style ? isItalic : isItalicFont(font);
             isCondensed = isCondensedFont(font);

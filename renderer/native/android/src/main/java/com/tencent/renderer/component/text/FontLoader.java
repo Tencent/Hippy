@@ -261,21 +261,18 @@ public class FontLoader {
                             String fileName = fontFamily + getFileExtension(fontUrl);
                             if (convertFontUrl.equals(mConcurrentLocalFontPathMap.get(fileName))) {
                                 needRefresh = false;
-                            }
-                            else {
+                            } else {
                                 mConcurrentLocalFontPathMap.put(fileName, convertFontUrl);
                             }
                             if (promise != null) {
                                 promise.resolve(String.format("Load local font %s success", convertFontUrl));
                             }
-                        }
-                        else {
+                        } else {
                             String fileName = fontFamily + getFileExtension(fontUrl);
                             if (!saveFontFile(bytes, fileName, promise)) {
                                 mConcurrentFontLoadStateMap.remove(fontFamily);
                                 return;
-                            }
-                            else {
+                            } else {
                                 File fontFile = new File(mFontDir, fileName);
                                 mConcurrentUrlFontMap.put(fontUrl, fontFile.getAbsolutePath());
                                 if (promise != null) {

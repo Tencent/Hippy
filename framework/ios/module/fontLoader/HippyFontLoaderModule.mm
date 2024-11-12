@@ -135,8 +135,7 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
                     [fontRegistered addObject:fontFile];
                     isFontRegistered = YES;
                     HippyLogInfo(@"register font \"%@\" success!", fontFile);
-                }
-                else {
+                } else {
                     if (error.domain == kFontLoaderModuleErrorDomain && error.code == FontLoaderErrorRegisterError) {
                         [fileNotExist addObject:fontFile];
                     }
@@ -180,8 +179,7 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
     if (!fontFiles) {
         fontFiles = [NSMutableArray arrayWithObject:filePath];
         [fontFamilyToFiles setObject:fontFiles forKey:fontFamily];
-    }
-    else {
+    } else {
         [fontFiles addObject:filePath];
     }
     [urlToFilePath writeToFile:fontUrlSavePath atomically:YES];
@@ -236,9 +234,7 @@ HIPPY_EXPORT_METHOD(load:(NSString *)fontFamily from:(NSString *)urlString resol
                 resolve([NSString stringWithFormat:@"load local font file \"%@\" success!", fontFilePath]);
             }
             [HippyFontLoaderModule setUrl:urlString state:HippyFontUrlLoaded];
-        }
-        // is http url
-        else {
+        } else {  // is http url
             NSFileManager *fileManager = [NSFileManager defaultManager];
             if (![fileManager fileExistsAtPath:fontDirPath]) {
                 NSError *error;
@@ -263,8 +259,7 @@ HIPPY_EXPORT_METHOD(load:(NSString *)fontFamily from:(NSString *)urlString resol
                     resolve([NSString stringWithFormat:@"download font file \"%@\" success!", fileName]);
                 }
                 [HippyFontLoaderModule setUrl:urlString state:HippyFontUrlLoaded];
-            }
-            else {
+            } else {
                 if (reject) {
                     NSString *errorKey = [NSString stringWithFormat:@"%lu", FontLoaderErrorWriteFileError];
                     reject(errorKey, @"font request error", error);

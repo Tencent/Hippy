@@ -70,8 +70,8 @@ export default class LoadFontExample extends React.Component {
   }
 
   fillExample() {
-    this.setState({ inputFontFamily: 'HYHuaXianZi J' });
-    this.setState({ fontUrl: 'https://zf.sc.chinaz.com/Files/DownLoad/upload/2024/1009/hanyihuaxianzijianti.ttf' });
+    this.setState({ inputFontFamily: 'TencentSans W7' });
+    this.setState({ fontUrl: 'https://infra-packages.openhippy.com/test/resources/TencentSans_W7.ttf' });
     // this.setState({ fontUrl: 'hpfile://./assets/hanyihuaxianzijianti.ttf' }
   }
 
@@ -93,13 +93,13 @@ export default class LoadFontExample extends React.Component {
           <Text>通过组件fontUrl属性动态下载并使用字体</Text>
         </View>
         <Text style={styles.text_style}
-              fontFamily='HYHuaXianZi F' 
-              fontUrl='https://zf.sc.chinaz.com/Files/DownLoad/upload/2024/1009/hanyihuaxianzifanti.ttf'>
-          This sentence will use font 'HYHuaXianZi F' downloaded dynamically according to 'fontUrl' property.
+              fontFamily='TencentSans W3' 
+              fontUrl='https://infra-packages.openhippy.com/test/resources/TencentSans_W3.otf'>
+          This sentence will use font 'TencentSans W3' downloaded dynamically according to 'fontUrl' property.
         </Text>
         <Text style={styles.text_style}
-              fontFamily='HYHuaXianZi F'>
-          这句话将使用通过fontUrl属性下载的汉仪花仙子繁体字体.
+              fontFamily='TencentSans W3'>
+          这句话将使用通过fontUrl属性下载的'TencentSans W3'字体.
         </Text>
         <View style={styles.itemTitle}>
           <Text>下载并使用字体</Text>

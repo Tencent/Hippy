@@ -113,8 +113,7 @@ public class TypeFaceUtil {
                     } catch (Exception e) {
                         LogUtils.w(TAG, e.getMessage());
                     }
-                }
-                else {
+                } else {
                     if (bundleFontPath.startsWith(UrlUtils.PREFIX_FILE)) {
                         bundleFontPath = bundleFontPath.substring(UrlUtils.PREFIX_FILE.length());
                     }
