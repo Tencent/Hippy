@@ -244,7 +244,7 @@ void JsDriverUtils::InitDevTools(const std::shared_ptr<Scope>& scope,
       if (!scope) {
         return;
       }
-      FOOTSTONE_DLOG(INFO) << "From Debugger:" << data.c_str();
+      // FOOTSTONE_DLOG(INFO) << "From Debugger:" << data.c_str();
       auto hermesCtx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
       hermesCtx->GetCDPAgent()->handleCommand(data);
     });

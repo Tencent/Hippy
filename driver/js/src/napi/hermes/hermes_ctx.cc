@@ -306,20 +306,24 @@ void fatalHandler(const std::string &message) {
     FOOTSTONE_LOG(FATAL) << "Received Hermes Fatal Error: %s\n" << message.c_str();
 }
 
+constexpr char kHippyHermes[] = "HippyHermesBridge";
 HermesCtx::HermesCtx() {
   auto runtimeConfigBuilder = ::hermes::vm::RuntimeConfig::Builder()
     .withGCConfig(::hermes::vm::GCConfig::Builder()
                   // Default to 3GB
                   .withMaxHeapSize(3072 << 20)
-                  .withName("HippyBridge")
+                  .withName(kHippyHermes)
                   // For the next two arguments: avoid GC before TTI
                   // by initializing the runtime to allocate directly
                   // in the old generation, but revert to normal
                   // operation when we reach the (first) TTI point.
-                  .withAllocInYoung(false)
-                  .withRevertToYGAtTTI(true)
+                  //.withAllocInYoung(false)
+                  //.withRevertToYGAtTTI(true)
                   .build())
     .withEnableSampleProfiling(true)
+    .withES6Class(true)
+    .withES6Proxy(true)
+    .withES6Promise(false)
     .withMicrotaskQueue(true);
   
   // TODO: Use Hermes's Crash Manager in future
@@ -703,7 +707,8 @@ std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t lengt
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue>& function,
-                                                  const std::shared_ptr<CtxValue>& receiver, size_t argument_count,
+                                                  const std::shared_ptr<CtxValue>& receiver, 
+                                                  size_t argument_count,
                                                   const std::shared_ptr<CtxValue> arguments[]) {
   std::shared_ptr<HermesCtxValue> ctx_value = std::static_pointer_cast<HermesCtxValue>(function);
   auto jsi_value = ctx_value->GetValue(runtime_);

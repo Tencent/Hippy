@@ -32,24 +32,24 @@ using string_view = footstone::string_view;
 HermesTryCatch::HermesTryCatch(bool enable, std::shared_ptr<Ctx>& ctx) : TryCatch(enable, ctx) {}
 
 bool HermesTryCatch::HasCaught() {
-    if (enable_) {
-        std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-        return !!ctx->GetException();
-    }
-    return false;
+  if (enable_) {
+    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+    return !!ctx->GetException();
+  }
+  return false;
 }
 
 std::shared_ptr<CtxValue> HermesTryCatch::Exception() {
-    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-    return ctx->GetException();
+  std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+  return ctx->GetException();
 }
 
 string_view HermesTryCatch::GetExceptionMessage() {
-    if (enable_) {
-        std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
-        return ctx->GetExceptionMessage(ctx->GetException());
-    }
-    return "";
+  if (enable_) {
+    std::shared_ptr<HermesCtx> ctx = std::static_pointer_cast<HermesCtx>(ctx_);
+    return ctx->GetExceptionMessage(ctx->GetException());
+  }
+  return "";
 }
 
 void HermesTryCatch::ReThrow() { FOOTSTONE_UNIMPLEMENTED(); }
@@ -60,8 +60,9 @@ bool HermesTryCatch::HasTerminated() { return false; }
 
 bool HermesTryCatch::IsVerbose() { return false; }
 
-void HermesTryCatch::SetVerbose(bool is_verbose) { FOOTSTONE_UNIMPLEMENTED(); }
+void HermesTryCatch::SetVerbose(__unused bool is_verbose) {}
 
 }  // namespace napi
 }  // namespace driver
 }  // namespace hippy
+

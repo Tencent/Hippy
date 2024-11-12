@@ -201,6 +201,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
       } else {
         string_view err_msg = uri + " not found";
         error = ctx->CreateException(string_view(err_msg));
+        FOOTSTONE_LOG(ERROR) << err_msg;;
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
@@ -208,9 +209,9 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         FOOTSTONE_DLOG(INFO) << "run js cb";
         if (!error) {
           error = ctx->CreateNull();
+          std::shared_ptr<CtxValue> argv[] = {error};
+          ctx->CallFunction(function, ctx->GetGlobalObject(), 1, argv);
         }
-        std::shared_ptr<CtxValue> argv[] = {error};
-        ctx->CallFunction(function, ctx->GetGlobalObject(), 1, argv);
         RemoveCBFunc(uri);
       }
     };

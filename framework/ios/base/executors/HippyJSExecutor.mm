@@ -314,7 +314,7 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
             }
         }, [weakSelf](const std::string &message) {
             // Process CDP response or event and send message back to the Chrome debugger
-            HippyLogTrace(@"To Debugger: %s\n", message.c_str());
+            // HippyLogTrace(@"To Debugger: %s\n", message.c_str());
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             auto scope = strongSelf.pScope;
             if (scope) {
@@ -867,8 +867,8 @@ static NSError *executeApplicationScript(NSData *script,
 }
 
 - (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {
-    if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)] ||
-        ![bridge.delegate shouldStartInspector:bridge]) {
+    if ([bridge.delegate respondsToSelector:@selector(shouldStartInspector:)] &&
+        [bridge.delegate shouldStartInspector:bridge] == NO) {
         return @"";
     }
     HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];

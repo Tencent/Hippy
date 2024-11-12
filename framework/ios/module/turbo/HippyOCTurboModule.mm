@@ -84,7 +84,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
   // get argument
   NSMutableArray *argumentArray = @[].mutableCopy;
-  for (NSInteger i = 0; i < count; ++i) {
+  for (NSUInteger i = 0; i < count; ++i) {
       std::shared_ptr<napi::CtxValue> ctxValue = *(args + i);
       [argumentArray addObject:convertCtxValueToObjcObject(ctx, ctxValue, weakSelf)?: [NSNull null]];
   }
