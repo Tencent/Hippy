@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.serialization.nio.writer;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.nio.ByteBuffer;
 
 @SuppressWarnings({"unused"})
@@ -73,22 +74,38 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
   }
 
   @SuppressWarnings("SpellCheckingInspection")
+  // After upgrading to AGP version 8 or above, R8 compilation will be started. Due to the optimization
+  // of R8 compilation code, it will affect the logic of the code here, causing encoding and decoding
+  // failures and white screen problems. Therefore, it is necessary to add some logs in the implementation
+  // of this function to avoid R8 compilation optimization.
   @Override
   public int putVarint(long l) {
     if (count + 10 > value.length) {
       enlargeBuffer(count + 10);
     }
-
+    if (LogUtils.isDebugMode()) {
+      LogUtils.d("CallFunction", "putVarint l " + l + ", count " + count);
+    }
     long rest = l;
     int bytes = 0;
     byte b;
     do {
       b = (byte) rest;
+      if (LogUtils.isDebugMode()) {
+        LogUtils.d("CallFunction", "putVarint origin b " + b + ", count " + count);
+      }
       b |= 0x80;
+      if (LogUtils.isDebugMode()) {
+        LogUtils.d("CallFunction", "putVarint b " + Byte.toUnsignedInt(b) + ", count " + count);
+      }
       value[count++] = b;
       rest >>>= 7;
       bytes++;
     } while (rest != 0);
+    if (LogUtils.isDebugMode()) {
+      LogUtils.d("CallFunction",
+              "putVarint bb " + Byte.toUnsignedInt((byte) (b & 0x7f)) + ", bytes " + bytes + ", count " + count);
+    }
     value[count - 1] = (byte) (b & 0x7f);
     return bytes;
   }

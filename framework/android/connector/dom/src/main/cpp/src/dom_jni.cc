@@ -163,18 +163,16 @@ jint CreateDomManager(JNIEnv* j_env, jobject j_obj, jint j_group_id, jint j_shar
   if (share_dom_id > 0) {
     flag = hippy::global_data_holder.Find(static_cast<uint32_t>(share_dom_id), share_dom_manager);
   }
-  FOOTSTONE_DLOG(ERROR) << "CreateDomManager flag " << flag << ", dom_id " << dom_id << ", share_dom_id " << share_dom_id;
+  FOOTSTONE_DLOG(INFO) << "CreateDomManager flag " << flag << ", dom_id " << dom_id<< ", share_dom_id " << share_dom_id << ", group_id " << group_id;
   if (flag && group_id != kDefaultGroupId) {
-    FOOTSTONE_DLOG(ERROR) << "CreateDomManager share ";
     auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(share_dom_manager);
     auto worker = dom_manager_object->GetWorker();
     auto runner = dom_manager_object->GetTaskRunner();
     dom_manager->SetTaskRunner(runner);
     dom_manager->SetWorker(worker);
     auto count = worker->FetchAndAddReuseCount();
-    FOOTSTONE_DLOG(ERROR) << "CreateDomManager worker reuse count " << count << ", dom manager id " << dom_id;
+    FOOTSTONE_DLOG(INFO) << "CreateDomManager worker reuse count " << count << ", dom manager id " << dom_id;
   } else {
-    FOOTSTONE_DLOG(ERROR) << "CreateDomManager create new ";
     auto worker = std::make_shared<WorkerImpl>(kDomWorkerName, false);
     auto callback = std::make_shared<JavaRef>(j_env, j_obj);
     worker->BeforeStart([callback]() {

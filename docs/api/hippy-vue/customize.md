@@ -124,9 +124,15 @@ component: {
 
 # 自定义模块
 
-> 该范例仅可以在 Android 下运行。
-
 hippy-vue 的模块其实只是一个 `Vue.Native.callNative` 调用，写个 `function` 即可。
+
+注: callNative 代表前端调用客户端接口，无需返回
+callNativeWithPromise 代表前端调用客户端接口，需要返回，返回一个 Promise 对象
+
+callNtive/callNativeWithPromise 参数含义:
+moduleName: 代表和终端约定的模块名字，为 string 类型
+functionName: 代表和终端约定的模块函数名字，为 string 类型
+params: 实际携带参数, 为 Object 类型
 
 ```js
 import Vue from 'vue';
