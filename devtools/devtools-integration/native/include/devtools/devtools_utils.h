@@ -56,7 +56,7 @@ class DevToolsUtil {
   static bool ShouldAvoidPostDomManagerTask(const std::string& event_name);
 
  private:
-    static hippy::dom::DomArgument makeLocationArgument(double x, double y);
+  static hippy::dom::DomArgument makeLocationArgument(double x, double y);
   static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<RootNode>& root_node, double x, double y);
   static std::string ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const NodePropsUnorderedMap& node_props);

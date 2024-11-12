@@ -64,6 +64,11 @@ HIPPY_EXPORT_MODULE(View);
 
 static NSString * const HippyViewManagerGetBoundingRelToContainerKey = @"relToContainer";
 static NSString * const HippyViewManagerGetBoundingErrMsgrKey = @"errMsg";
+static NSString * const HippyXOnScreenKey = @"xOnScreen";
+static NSString * const HippyYOnScreenKey = @"yOnScreen";
+static NSString * const HippyViewWidthKey = @"viewWidth";
+static NSString * const HippyViewHeightKey = @"viewHeight";
+static NSString * const HippyTagKey = @"hippyTag";
 HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
                     options:(nullable NSDictionary *)options
                     callback:(HippyPromiseResolveBlock)callback ) {
@@ -182,22 +187,25 @@ HIPPY_EXPORT_METHOD(getViewTagByLocation:(nonnull NSNumber *)componentTag
                     params:(NSDictionary *__nonnull)params
                     callback:(HippyPromiseResolveBlock)callback) {
   [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+      NSMutableDictionary *locationDict = [NSMutableDictionary dictionaryWithDictionary:@{
+        HippyTagKey: @(-1),
+    }];
       UIView *view = viewRegistry[componentTag];
       if (view == nil) {
-          callback(@[]);
+          callback(locationDict);
           return;
       }
       UIView *rootView = viewRegistry[view.rootTag];
       if (rootView == nil) {
-          callback(@[]);
+          callback(locationDict);
           return;
       }
-      double locationX = [params[@"xOnScreen"] doubleValue];
-      double locationY = [params[@"yOnScreen"] doubleValue];
+      double locationX = [params[HippyXOnScreenKey] doubleValue];
+      double locationY = [params[HippyYOnScreenKey] doubleValue];
       UIView* hitView = [rootView hitTest:{locationX, locationY} withEvent:nil];
-      NSDictionary *locationDict = @{
-          @"hippyTag": hitView.hippyTag,
-      };
+      if (hitView != nil && [hitView respondsToSelector:@selector(hippyTag)]) {
+          [locationDict setObject:hitView.hippyTag forKey:HippyTagKey];
+      }
       callback(@[locationDict]);
   }];
 }
@@ -220,10 +228,10 @@ HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
         }
         CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         NSDictionary *locationDict = @{
-            @"xOnScreen": @(static_cast<int>(windowFrame.origin.x - rootX)),
-            @"yOnScreen": @(static_cast<int>(windowFrame.origin.y - rootY)),
-            @"viewWidth": @(static_cast<int>(CGRectGetWidth(windowFrame))),
-            @"viewHeight": @(static_cast<int>(CGRectGetHeight(windowFrame)))
+            HippyXOnScreenKey: @(static_cast<int>(windowFrame.origin.x - rootX)),
+            HippyYOnScreenKey: @(static_cast<int>(windowFrame.origin.y - rootY)),
+            HippyViewWidthKey: @(static_cast<int>(CGRectGetWidth(windowFrame))),
+            HippyViewHeightKey: @(static_cast<int>(CGRectGetHeight(windowFrame)))
         };
         callback(@[locationDict]);
     }];
