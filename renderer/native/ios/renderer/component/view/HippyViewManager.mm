@@ -178,6 +178,30 @@ HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
     }];
 }
 
+HIPPY_EXPORT_METHOD(getViewTagByLocation:(nonnull NSNumber *)componentTag
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyPromiseResolveBlock)callback) {
+  [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+      UIView *view = viewRegistry[componentTag];
+      if (view == nil) {
+          callback(@[]);
+          return;
+      }
+      UIView *rootView = viewRegistry[view.rootTag];
+      if (rootView == nil) {
+          callback(@[]);
+          return;
+      }
+      double locationX = [params[@"xOnScreen"] doubleValue];
+      double locationY = [params[@"yOnScreen"] doubleValue];
+      UIView* hitView = [rootView hitTest:{locationX, locationY} withEvent:nil];
+      NSDictionary *locationDict = @{
+          @"hippyTag": hitView.hippyTag,
+      };
+      callback(@[locationDict]);
+  }];
+}
+
 HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
                     params:(NSDictionary *__nonnull)params
                     callback:(HippyPromiseResolveBlock)callback) {
@@ -187,12 +211,19 @@ HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
             callback(@[]);
             return;
         }
+        UIView *rootView = viewRegistry[view.rootTag];
+        CGFloat rootX = 0, rootY = 0;
+        if (rootView) {
+            CGRect windowFrame = [rootView.window convertRect:rootView.frame fromView:rootView.superview];
+            rootX = windowFrame.origin.x;
+            rootY = windowFrame.origin.y;
+        }
         CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         NSDictionary *locationDict = @{
-            @"xOnScreen": @(static_cast<int>(windowFrame.origin.x)),
-            @"yOnScreen": @(static_cast<int>(windowFrame.origin.y)),
-            @"viewWidth": @(static_cast<int>(CGRectGetHeight(windowFrame))),
-            @"viewHeight": @(static_cast<int>(CGRectGetWidth(windowFrame)))
+            @"xOnScreen": @(static_cast<int>(windowFrame.origin.x - rootX)),
+            @"yOnScreen": @(static_cast<int>(windowFrame.origin.y - rootY)),
+            @"viewWidth": @(static_cast<int>(CGRectGetWidth(windowFrame))),
+            @"viewHeight": @(static_cast<int>(CGRectGetHeight(windowFrame)))
         };
         callback(@[locationDict]);
     }];
