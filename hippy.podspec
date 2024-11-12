@@ -365,6 +365,7 @@ Pod::Spec.new do |s|
 
   s.test_spec 'UnitTests' do |test_spec|
     test_spec.source_files = 'tests/ios/**/*.{h,m,mm}'
+    test_spec.resources = 'framework/examples/ios-demo/fonts/TTTGB-Medium.otf'
     test_spec.dependency 'OCMock'
   end
   

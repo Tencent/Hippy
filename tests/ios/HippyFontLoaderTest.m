@@ -44,8 +44,10 @@
 - (void)testHippyFontLoaderModule {
     NSString* invalidURL = @"https://example.url";
     // set arbitrary valid font file url
-    NSString* validURL = @"https://zf.sc.chinaz.com/Files/DownLoad/upload/2024/1009/hanyihuaxianzijianti.ttf";
-    NSString* fontFamily = @"HYHuaXianZi J";
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString* filePath = [testBundle pathForResource:@"TTTGB-Medium" ofType:@"otf"];
+    NSString* validURL = [@"file://" stringByAppendingString:filePath];
+    NSString* fontFamily = @"TTTGB Medium";
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:nil moduleProvider:nil launchOptions:nil executorKey:nil];
     HippyFontLoaderModule *fontLoader = [[HippyFontLoaderModule alloc] init];
     [fontLoader setValue:bridge forKey:@"bridge"];
@@ -107,13 +109,6 @@
     
     // delete font directory
     [[NSFileManager defaultManager] removeItemAtPath:[fontPath stringByDeletingLastPathComponent] error:nil];
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
 }
 
 @end
