@@ -69,6 +69,8 @@ static NSString * const HippyYOnScreenKey = @"yOnScreen";
 static NSString * const HippyViewWidthKey = @"viewWidth";
 static NSString * const HippyViewHeightKey = @"viewHeight";
 static NSString * const HippyTagKey = @"hippyTag";
+static int const InvalidTag = -1;
+
 HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
                     options:(nullable NSDictionary *)options
                     callback:(HippyPromiseResolveBlock)callback ) {
@@ -188,7 +190,7 @@ HIPPY_EXPORT_METHOD(getViewTagByLocation:(nonnull NSNumber *)componentTag
                     callback:(HippyPromiseResolveBlock)callback) {
   [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
       NSMutableDictionary *locationDict = [NSMutableDictionary dictionaryWithDictionary:@{
-        HippyTagKey: @(-1),
+        HippyTagKey: @(InvalidTag),
     }];
       UIView *view = viewRegistry[componentTag];
       if (view == nil) {
