@@ -285,6 +285,11 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     }
 }
 
+- (UIView *)rootContentViewForTag:(NSNumber *)rootTag {
+    AssertMainQueue();
+    return [_viewRegistry rootComponentForTag:rootTag];
+}
+
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag {
     AssertMainQueue();
     return [_viewRegistry componentForTag:hippyTag onRootTag:rootTag];
