@@ -21,10 +21,13 @@
  */
 
 #import "UIView+MountEvent.h"
-#import "objc/runtime.h"
+#import "HippyUIManager.h"
 #import "UIView+Hippy.h"
+#import "UIView+Render.h"
 #import "HippyRootView.h"
 #import "HippyBridge+PerformanceAPI.h"
+#import <objc/runtime.h>
+
 
 /// The FCP Notification Imp
 const NSNotificationName HippyFirstContentfulPaintEndNotification = @"HippyFirstContentfulPaintEndNotification";
@@ -95,8 +98,10 @@ MountEvent(setOnDetachedFromWindow, onDetachedFromWindow)
 
 - (void)sendAttachedToWindowEvent {
     if (HippyPaintTypeFCP == self.paintType) {
-        HippyRootView *rootView = (HippyRootView *)[self hippyRootView];
-        [rootView sendFCPNotiIfNeeded:self];
+        NSNumber *rootTag = [self rootTag];
+        HippyUIManager *uiManager = [self uiManager];
+        UIView *rootContentView = [uiManager rootContentViewForTag:rootTag];
+        [(HippyRootView *)rootContentView.superview sendFCPNotiIfNeeded:self];
     }
     if (self.onAttachedToWindow) {
         self.onAttachedToWindow(nil);
