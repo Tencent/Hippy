@@ -34,6 +34,13 @@
 
 - (void)parseWsURLWithURLQuery:(NSString *)query;
 
--(NSString *)assembleFullWSURLWithClientId:(NSString *)clientId contextName:(NSString *) contextName;
+/// Assemble full websocket url for devtools
+/// - Parameters:
+///   - clientId: unique id of client
+///   - contextName: context name
+///   - usingHermes: whether using hermes as js engine
+- (NSString *)assembleFullWSURLWithClientId:(NSString *)clientId
+                                contextName:(NSString *)contextName
+                             isHermesEngine:(BOOL)usingHermes;
 
 @end

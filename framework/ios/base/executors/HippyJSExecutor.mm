@@ -887,7 +887,7 @@ static NSError *executeApplicationScript(NSData *script,
         devInfo.versionId = bundleURLProvider.versionId;
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
-    return [devInfo assembleFullWSURLWithClientId:[self getClientID] contextName:bridge.contextName];
+    return [devInfo assembleFullWSURLWithClientId:[self getClientID] contextName:bridge.contextName isHermesEngine:bridge.usingHermesEngine];
 }
 
 
