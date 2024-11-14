@@ -346,6 +346,7 @@ HermesCtx::~HermesCtx() {
 #endif /* ENABLE_INSPECTOR */
 }
 
+#ifdef ENABLE_INSPECTOR
 void HermesCtx::SetupDebugAgent(facebook::hermes::debugger::EnqueueRuntimeTaskFunc enqueueRuntimeTask,
                                 facebook::hermes::cdp::OutboundMessageFunc messageCallback) {
     cdpDebugAPI_ = CDPDebugAPI::create(*runtime_);
@@ -354,6 +355,7 @@ void HermesCtx::SetupDebugAgent(facebook::hermes::debugger::EnqueueRuntimeTaskFu
                                  enqueueRuntimeTask,
                                  messageCallback);
 }
+#endif /* ENABLE_INSPECTOR */
 
 std::shared_ptr<CtxValue> HermesCtx::DefineProxy(const std::unique_ptr<FunctionWrapper>& getter) {
   auto constructor = EvalFunction(kProxyFunction);
