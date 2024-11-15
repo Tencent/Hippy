@@ -26,6 +26,8 @@ constexpr char kDefaultNodeName[] = "DefaultNode";
 constexpr char kAttributes[] = "attributes";
 constexpr char kText[] = "text";
 constexpr char kGetLocationOnScreen[] = "getLocationOnScreen";
+constexpr char kGetViewTagByLocation[] = "getViewTagByLocation";
+constexpr char kHippyTag[] = "hippyTag";
 constexpr char kXOnScreen[] = "xOnScreen";
 constexpr char kYOnScreen[] = "yOnScreen";
 constexpr char kViewWidth[] = "viewWidth";
@@ -91,8 +93,8 @@ DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& root_
   return metas;
 }
 
-DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& root_node, double x, double y) {
-  auto hit_node = GetHitNode(root_node, root_node, x, y);
+DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(const std::shared_ptr<RootNode>& root_node, double x, double y) {
+  auto hit_node = GetHitNode(root_node, x, y);
   FOOTSTONE_LOG(INFO) << "GetNodeIdByDomLocation hit_node:" << hit_node << ", " << x << ",y:" << y;
   if (hit_node == nullptr) {
     hit_node = root_node;
@@ -127,42 +129,66 @@ DomPushNodePathMetas DevToolsUtil::GetPushNodeByPath(const std::shared_ptr<DomNo
   return metas;
 }
 
-std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& node, double x, double y) {
-  if (node == nullptr || !IsLocationHitNode(root_node, node, x, y)) {
-    return nullptr;
-  }
-  std::shared_ptr<DomNode> hit_node = node;
-  for (auto& child : node->GetChildren()) {
-    if (!IsLocationHitNode(root_node, child, x, y)) {
-      continue;
-    }
-    auto new_node = GetHitNode(root_node, child, x, y);
-    if (hit_node == nullptr) {
-      hit_node = new_node;
-    } else if (new_node != nullptr) {
-      auto hit_node_area = hit_node->GetLayoutNode()->GetWidth() * hit_node->GetLayoutNode()->GetHeight();
-      auto new_node_area = new_node->GetLayoutNode()->GetWidth() * new_node->GetLayoutNode()->GetHeight();
-      hit_node = hit_node_area > new_node_area ? new_node : hit_node;
-    }
-  }
-  return hit_node;
-}
-
-bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node, double x, double y) {
-  LayoutResult layout_result = GetLayoutOnScreen(root_node, dom_node);
-  double self_x = static_cast<uint32_t>(layout_result.left);
-  double self_y = static_cast<uint32_t>(layout_result.top);
-  bool in_top_offset = (x >= self_x) && (y >= self_y);
-  bool in_bottom_offset = (x <= self_x + layout_result.width) && (y <= self_y + layout_result.height);
-  return in_top_offset && in_bottom_offset;
-}
-
 template <class F>
 auto MakeCopyable(F&& f) {
   auto s = std::make_shared<std::decay_t<F>>(std::forward<F>(f));
   return [s](auto&&... args) -> decltype(auto) {
     return (*s)(decltype(args)(args)...);
   };
+}
+
+hippy::dom::DomArgument DevToolsUtil::MakeLocationArgument(double x, double y) {
+  footstone::value::HippyValue::HippyValueObjectType hippy_value_object;
+  hippy_value_object[kXOnScreen] = footstone::value::HippyValue(x);
+  hippy_value_object[kYOnScreen] = footstone::value::HippyValue(y);
+  footstone::value::HippyValue::HippyValueArrayType hippy_value_array;
+  hippy_value_array.push_back(footstone::value::HippyValue(hippy_value_object));
+  footstone::value::HippyValue argument_hippy_value(hippy_value_array);
+  hippy::dom::DomArgument argument(argument_hippy_value);
+  return argument;
+}
+
+std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<RootNode>& root_node, double x, double y) {
+    std::shared_ptr<DomNode> base_node = nullptr;
+    auto children = root_node->GetChildren();
+    if (!children.empty()) {
+      base_node = children[0];
+    }
+    std::promise<int> layout_promise;
+    std::future<int> read_file_future = layout_promise.get_future();
+    if (!base_node) {
+      return root_node;
+    }
+
+    hippy::dom::DomArgument argument = MakeLocationArgument(x, y);
+    auto get_view_tag_callback =
+        MakeCopyable([promise = std::move(layout_promise)](std::shared_ptr<hippy::dom::DomArgument> arg) mutable {
+          footstone::value::HippyValue result_hippy_value;
+          arg->ToObject(result_hippy_value);
+          footstone::value::HippyValue::HippyValueObjectType result_dom_object;
+          if (result_hippy_value.IsArray() && !result_hippy_value.ToArrayChecked().empty()) {
+            result_dom_object = result_hippy_value.ToArrayChecked()[0].ToObjectChecked();
+          } else if (result_hippy_value.IsObject()) {
+            result_dom_object = result_hippy_value.ToObjectChecked();
+          } else {
+            promise.set_value(-1);
+            return;
+          }
+          int hippyTag = static_cast<int>(result_dom_object.find(kHippyTag)->second.ToInt32Checked());
+          promise.set_value(hippyTag);
+        });
+    base_node->CallFunction(kGetViewTagByLocation, argument, get_view_tag_callback);
+    std::chrono::milliseconds span(10);
+    if (read_file_future.wait_for(span) == std::future_status::timeout) {
+      FOOTSTONE_DLOG(WARNING) << kDevToolsTag << "GetHitNode wait_for timeout";
+      return base_node;
+    }
+    std::shared_ptr<DomNode> targetNode = base_node;
+    int hippyTag = read_file_future.get();
+    if (hippyTag > 0) {
+        targetNode = root_node->GetNode(static_cast<uint32_t>(hippyTag));
+    }
+    return targetNode;
 }
 
 LayoutResult DevToolsUtil::GetLayoutOnScreen(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node) {
@@ -343,7 +369,7 @@ void DevToolsUtil::PostDomTask(const std::weak_ptr<DomManager>& weak_dom_manager
  * callback must not be posted in the same task runner.
  */
 bool DevToolsUtil::ShouldAvoidPostDomManagerTask(const std::string& event_name) {
-  return event_name == kGetLocationOnScreen;
+  return event_name == kGetLocationOnScreen || event_name == kGetViewTagByLocation;
 }
 
 }  // namespace hippy::devtools
