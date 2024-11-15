@@ -32,6 +32,7 @@ import android.util.DisplayMetrics;
 import android.view.PixelCopy;
 import android.view.PixelCopy.OnPixelCopyFinishedListener;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnDrawListener;
 import android.view.Window;
@@ -59,12 +60,14 @@ public class DevtoolsUtil {
     public static final String ADD_FRAME_CALLBACK = "addFrameCallback";
     public static final String REMOVE_FRAME_CALLBACK = "removeFrameCallback";
     public static final String GET_LOCATION_IN_SCREEN = "getLocationOnScreen";
+    public static final String GET_VIEW_TAG_BY_LOCATION = "getViewTagByLocation";
     private static final String TAG = "tdf_DevtoolsUtil";
     private static final String SCREEN_SHOT = "screenShot";
     private static final String SCREEN_WIDTH = "width";
     private static final String SCREEN_HEIGHT = "height";
     private static final String VIEW_WIDTH = "viewWidth";
     private static final String VIEW_HEIGHT = "viewHeight";
+    private static final String HIPPY_TAG = "hippyTag";
     private static final String SCREEN_SCALE = "screenScale";
     private static final String FRAME_CALLBACK_ID = "frameCallbackId";
     private static final String X_ON_SCREEN = "xOnScreen";
@@ -96,6 +99,9 @@ public class DevtoolsUtil {
             case DevtoolsUtil.GET_LOCATION_IN_SCREEN:
                 DevtoolsUtil.getLocationOnScreen(view, promise);
                 break;
+            case DevtoolsUtil.GET_VIEW_TAG_BY_LOCATION:
+                DevtoolsUtil.getViewTagByLocation(params, view, promise);
+                break;
             default:
                 break;
         }
@@ -117,6 +123,54 @@ public class DevtoolsUtil {
         resultMap.pushInt(Y_ON_SCREEN, viewLocation[1]);
         resultMap.pushInt(VIEW_WIDTH, view.getWidth());
         resultMap.pushInt(VIEW_HEIGHT, view.getHeight());
+        promise.resolve(resultMap);
+    }
+
+    private static View findSmallestViewContainingPoint(@NonNull View rootView, int x, int y) {
+        Rect rect = new Rect();
+        rootView.getGlobalVisibleRect(rect);
+        if (!rect.contains(x, y)) {
+            return null;
+        }
+        View targetView = rootView;
+        if (rootView instanceof ViewGroup) {
+            ViewGroup rootViewGroup = (ViewGroup) rootView;
+            for (int i = 0; i < rootViewGroup.getChildCount(); i++) {
+                View child = rootViewGroup.getChildAt(i);
+                View subview = findSmallestViewContainingPoint(child, x, y);
+                if (subview != null) {
+                    int subArea = subview.getWidth() * subview.getHeight();
+                    int targetArea = targetView.getWidth() * targetView.getHeight();
+                    if (subArea < targetArea) {
+                        targetView = subview;
+                    }
+                }
+            }
+        }
+        return targetView;
+    }
+
+    private static void getViewTagByLocation(@NonNull List params, @NonNull View view, @NonNull Promise promise) {
+        HippyMap resultMap = new HippyMap();
+        resultMap.pushInt(HIPPY_TAG, -1);
+        NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
+        View rootView = renderer == null ? null : renderer.getRootView(view);
+        if (params.isEmpty() || rootView == null) {
+            promise.resolve(resultMap);
+            return;
+        }
+        Map<String, Object> param = ArrayUtils.getMapValue(params, 0);
+        if (param != null) {
+            int xOnScreen = (int) MapUtils.getDoubleValue(param, X_ON_SCREEN, 0);
+            int yOnScreen = (int) MapUtils.getDoubleValue(param, Y_ON_SCREEN, 0);
+            int[] rootLocation = new int[2];
+            rootView.getLocationOnScreen(rootLocation);
+            View targetView = findSmallestViewContainingPoint(rootView, xOnScreen + rootLocation[0],
+                yOnScreen + rootLocation[1]);
+            if (targetView != null) {
+                resultMap.pushInt(HIPPY_TAG, targetView.getId());
+            }
+        }
         promise.resolve(resultMap);
     }
 

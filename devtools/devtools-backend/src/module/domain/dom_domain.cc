@@ -172,8 +172,8 @@ void DomDomain::GetBoxModel(const DomNodeDataRequest& request) {
 }
 
 void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
-  if (!dom_data_call_back_) {
-    ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetNodeForLocation, dom_data_callback is null");
+  if (!location_for_node_call_back_) {
+    ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetNodeForLocation, location_for_node_call_back is null");
     return;
   }
   if (!request.HasSetXY()) {
