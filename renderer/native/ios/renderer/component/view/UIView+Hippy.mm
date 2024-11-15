@@ -286,10 +286,6 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, OnTouchEventHandler)
     self.frame = frame;
 }
 
-- (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
-    // Does nothing by default
-}
-
 - (UIViewController *)hippyViewController {
     id responder = [self nextResponder];
     while (responder) {
