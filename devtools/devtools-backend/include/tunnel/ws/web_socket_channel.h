@@ -60,6 +60,7 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   void HandleSocketConnectOpen(const websocketpp::connection_hdl& handle);
   void HandleSocketConnectMessage(const websocketpp::connection_hdl& handle, const WSMessagePtr& message_ptr);
   void HandleSocketConnectClose(const websocketpp::connection_hdl& handle);
+  void attempt_reconnect();
 
   WSClient ws_client_;
   websocketpp::connection_hdl connection_hdl_;
@@ -67,6 +68,9 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   ReceiveDataHandler data_handler_;
   WSThread ws_thread_;
   std::vector<std::string> unset_messages_{};
+  bool ws_should_reconnect;
+  static const int MAX_RECONNECT_ATTEMPTS = 10;
+  int ws_reconnect_attempts;
 };
 }  // namespace hippy::devtools
 
