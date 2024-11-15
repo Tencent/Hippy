@@ -31,8 +31,6 @@
 #import "HippyRenderUtils.h"
 
 
-static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
-
 @implementation HippyShadowView
 
 @synthesize hippyTag = _hippyTag;
@@ -45,14 +43,17 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
     if (NativeRenderUpdateLifecycleComputed == _propagationLifecycle) {
         return;
     }
+    
+    // do some additional layout adjust
+    [self processUpdatedPropertiesBeforeMount:blocks];
+    
     _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
-    for (HippyShadowView *renderObjectView in self.hippySubviews) {
-        [renderObjectView amendLayoutBeforeMount:blocks];
+    for (HippyShadowView *subShadowView in self.hippySubviews) {
+        [subShadowView amendLayoutBeforeMount:blocks];
     }
 }
 
-- (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
+- (void)processUpdatedPropertiesBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks {
     if (_didUpdateSubviews) {
         _didUpdateSubviews = NO;
         [self didUpdateHippySubviews];
@@ -70,27 +71,6 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
         }];
         _confirmedLayoutDirectionDidUpdated = NO;
     }
-    if (!_backgroundColor) {
-        UIColor *parentBackgroundColor = parentProperties[HippyBackgroundColorPropKey];
-        if (parentBackgroundColor) {
-            [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {
-                UIView *view = lazyCreatedView ?: viewRegistry[self->_hippyTag];
-                [view hippySetInheritedBackgroundColor:parentBackgroundColor];
-            }];
-        }
-    } else {
-        // Update parent properties for children
-        NSMutableDictionary<NSString *, id> *properties = [NSMutableDictionary dictionaryWithDictionary:parentProperties];
-        CGFloat alpha = CGColorGetAlpha(_backgroundColor.CGColor);
-        if (alpha < 1.0) {
-            // If bg is non-opaque, don't propagate further
-            properties[HippyBackgroundColorPropKey] = [UIColor clearColor];
-        } else {
-            properties[HippyBackgroundColorPropKey] = _backgroundColor;
-        }
-        return properties;
-    }
-    return parentProperties;
 }
 
 - (instancetype)init {
@@ -326,6 +306,16 @@ static NSString *const HippyBackgroundColorPropKey = @"backgroundColor";
 - (void)setBackgroundColor:(UIColor *)color {
     _backgroundColor = color;
     [self dirtyPropagation:NativeRenderUpdateLifecyclePropsDirtied];
+}
+
+- (void)setZIndex:(NSInteger)zIndex {
+    _zIndex = zIndex;
+    HippyShadowView *superShadowView = _superview;
+    if (superShadowView) {
+        // Changing zIndex means the subview order of the parent needs updating
+        superShadowView->_didUpdateSubviews = YES;
+        [superShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+    }
 }
 
 - (void)didUpdateHippySubviews {
