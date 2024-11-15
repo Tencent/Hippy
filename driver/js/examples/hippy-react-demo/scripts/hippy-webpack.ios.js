@@ -22,6 +22,7 @@ module.exports = {
     // publicPath: 'https://xxx/hippy/hippyReactDemo/',
   },
   plugins: [
+    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
       __PLATFORM__: JSON.stringify(platform),

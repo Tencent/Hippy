@@ -27,14 +27,19 @@
 @interface HippyFileHandlerTest : XCTestCase
 
 /// Test sandboxDirectory for file handler
-@property (nonatomic, strong) NSURL *sandboxDirectory;
+@property (nonatomic, strong) NSString *sandboxDirectory;
+
+/// HippyBridge
+@property (nonatomic, strong) HippyBridge *bridge;
 
 @end
 
 @implementation HippyFileHandlerTest
 
 - (void)setUp {
-    self.sandboxDirectory = [NSURL fileURLWithPath:@"/path/to/sandbox"];
+    self.sandboxDirectory = @"/path/to/sandbox";
+    self.bridge = [[HippyBridge alloc] initWithDelegate:nil moduleProvider:nil launchOptions:nil executorKey:nil];
+    self.bridge.sandboxDirectory = self.sandboxDirectory;
 }
 
 - (void)tearDown {
@@ -44,7 +49,7 @@
 - (void)testAbsoluteURLFromHippyFileURL_AppBundlePath {
     NSURL *fileUrl = [NSURL URLWithString:@"hpfile://appbundle/testfile.txt"];
     NSURL *expectedURL = [[NSBundle mainBundle] URLForResource:@"testfile" withExtension:@"txt"];
-    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl,self.sandboxDirectory);
+    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl, self.bridge);
     XCTAssertEqualObjects(resultURL, expectedURL, @"The URLs should be equal for app bundle paths.");
 }
 
@@ -52,21 +57,21 @@
     NSURL *fileUrl = [NSURL URLWithString:@"hpfile://container/Documents/testfile.txt"];
     NSString *containerPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/testfile.txt"];
     NSURL *expectedURL = [NSURL fileURLWithPath:containerPath];
-    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl,self.sandboxDirectory);
+    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl, self.bridge);
     XCTAssertEqualObjects(resultURL, expectedURL, @"The URLs should be equal for container paths.");
 }
 
 - (void)testAbsoluteURLFromHippyFileURL_SandboxRelativePath {
     NSURL *fileUrl = [NSURL URLWithString:@"hpfile://./testfile.txt"];
-    NSURL *expectedURL = [NSURL fileURLWithPath:@"testfile.txt" relativeToURL:self.sandboxDirectory];
-    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl,self.sandboxDirectory);
+    NSURL *expectedURL = [NSURL fileURLWithPath:@"testfile.txt" relativeToURL:[NSURL URLWithString:self.sandboxDirectory]];
+    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl, self.bridge);
     XCTAssertEqualObjects(resultURL, expectedURL, @"The URLs should be equal for sandbox relative paths.");
 }
 
 - (void)testAbsoluteURLFromHippyFileURL_InvalidPrefix {
     NSURL *fileUrl = [NSURL URLWithString:@"invalid://testfile.txt"];
     NSURL *expectedURL = fileUrl;
-    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl,self.sandboxDirectory);
+    NSURL *resultURL = HippyFileHandler::AbsoluteURLFromHippyFileURL(fileUrl, self.bridge);
     XCTAssertEqualObjects(resultURL, expectedURL, @"The URLs should be equal for invalid prefixes.");
 }
 

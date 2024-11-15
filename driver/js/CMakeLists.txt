@@ -199,7 +199,8 @@ set(SOURCE_SET_STANDALONE
         src/modules/performance/performance_paint_timing_module.cc
         src/modules/performance/performance_resource_timing_module.cc
         src/modules/timer_module.cc
-        src/modules/ui_manager_module.cc)
+        src/modules/ui_manager_module.cc
+        src/modules/ui_layout_module.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.

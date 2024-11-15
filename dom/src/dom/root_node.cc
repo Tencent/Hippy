@@ -306,8 +306,9 @@ void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     auto event = std::make_shared<DomEvent>(kDomUpdated, node, nullptr);
     node->HandleEvent(event);
   }
-  auto event = std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr);
-  HandleEvent(event);
+  // TODO: update properties instead of dom tree in debug front end
+  // auto event = std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr);
+  // HandleEvent(event);
   if (!nodes_to_update.empty()) {
     dom_operations_.push_back({DomOperation::Op::kOpUpdate, nodes_to_update});
   }
@@ -333,7 +334,7 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
   TDF_PERF_LOG("RootNode::DoAndFlushLayout Done");
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->RecordDomEndTimePoint();
+    dom_manager->RecordDomEndTimePoint(this->GetId());
   }
   render_manager->EndBatch(GetWeakSelf());
   TDF_PERF_LOG("RootNode::SyncWithRenderManager End");

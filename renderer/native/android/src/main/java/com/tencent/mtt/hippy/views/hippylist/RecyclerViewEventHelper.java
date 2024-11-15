@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.HippyOverPullListener;
 import androidx.recyclerview.widget.HippyStaggeredGridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
@@ -56,6 +57,8 @@ import java.util.HashMap;
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
         OnAttachStateChangeListener, HippyOverPullListener {
 
+    private static final String TAG = "RecyclerViewEventHelper";
+    private static final int WATERFALL_SCROLL_RELAYOUT_THRESHOLD = 4;
     protected final HippyRecyclerView hippyRecyclerView;
     private boolean scrollBeginDragEventEnable;
     private boolean scrollEndDragEventEnable;
@@ -77,7 +80,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private boolean isInitialListReadyNotified = false;
     private ViewTreeObserver viewTreeObserver;
     private OnPreDrawListener preDrawListener;
-    private boolean isLastTimeReachEnd;
+    private boolean hasEndReached = false;
     private int preloadItemNumber;
     private Rect reusableExposureStateRect = new Rect();
 
@@ -179,6 +182,22 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         return onScrollDragEndedEvent;
     }
 
+    private void relayoutWaterfallIfNeeded() {
+        LayoutManager layoutManager = hippyRecyclerView.getLayoutManager();
+        if (layoutManager instanceof HippyStaggeredGridLayoutManager) {
+            int[] firstVisibleItem = null;
+            firstVisibleItem = ((HippyStaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(
+                    firstVisibleItem);
+            if (firstVisibleItem != null && (firstVisibleItem[0] <= WATERFALL_SCROLL_RELAYOUT_THRESHOLD)) {
+                Adapter adapter = hippyRecyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                    hippyRecyclerView.dispatchLayout();
+                }
+            }
+        }
+    }
+
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         int oldState = currentState;
@@ -190,6 +209,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
         sendFlingEndEvent(oldState, currentState);
+        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+            relayoutWaterfallIfNeeded();
+        }
     }
 
     @Override
@@ -205,6 +227,10 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         return dx != 0 || dy != 0;
     }
 
+    public void onListDataChanged() {
+        hasEndReached = false;
+    }
+
     /**
      * 检查是否已经触底，发生onEndReached事件给前端 如果上次是没有到底，这次滑动底了，需要发事件通知，如果上一次已经是到底了，这次到底不会发事件
      */
@@ -215,10 +241,10 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         } else {
             isThisTimeReachEnd = isVerticalReachEnd();
         }
-        if (!isLastTimeReachEnd && isThisTimeReachEnd) {
+        if (!hasEndReached && isThisTimeReachEnd) {
             sendOnReachedEvent();
         }
-        isLastTimeReachEnd = isThisTimeReachEnd;
+        hasEndReached = isThisTimeReachEnd;
     }
 
     private int findLastVisibleItemMaxPosition() {
@@ -275,6 +301,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     protected void sendOnReachedEvent() {
+        LogUtils.d(TAG, "sendOnReachedEvent: ");
         EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
         EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
     }
@@ -384,7 +411,6 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
                 first = positions[i];
             }
         }
-        scrollEvent.put("firstVisibleRowIndex", first);
         positions = layoutManager.findLastVisibleItemPositions(null);
         int end = positions[0];
         for (int i = 0; i < positions.length; ++i) {
@@ -392,6 +418,25 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
                 end = positions[i];
             }
         }
+        Adapter adapter = hippyRecyclerView.getAdapter();
+        if (adapter instanceof HippyRecyclerListAdapter) {
+            HippyRecyclerListAdapter listAdapter = ((HippyRecyclerListAdapter) adapter);
+            int count = listAdapter.getItemCount();
+            // Android includes a pull header and a pull footer when calculating the position of an item. In order to
+            // align with iOS, if a pull header is included, the first item and last item position needs to be
+            // subtracted by 1
+            if (listAdapter.hasPullHeader()) {
+                first = Math.max(0, (first - 1));
+                end = Math.max(0, (end - 1));
+                count -= 1;
+            }
+            // For align with iOS, if a pull footer is included, the last item position needs to be
+            // subtracted by 1
+            if (listAdapter.hasPullFooter() && (end == (count - 1))) {
+                end = Math.max(0, (end - 1));
+            }
+        }
+        scrollEvent.put("firstVisibleRowIndex", first);
         scrollEvent.put("lastVisibleRowIndex", end);
         ArrayList<Object> rowFrames = new ArrayList<>();
         int total = hippyRecyclerView.getChildCount();

@@ -25,6 +25,7 @@ module.exports = {
     path: path.resolve(`./dist/${platform}/`),
   },
   plugins: [
+    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development'),
       __PLATFORM__: JSON.stringify(platform),

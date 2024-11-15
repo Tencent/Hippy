@@ -54,6 +54,9 @@
 
     }
     ```
+
+7. module注解HippyNativeModule中取消了线程属性的自定义 <br>
+   3.0中非JSI module调用将统一走hippy-module-Thread线程调用module对应接口，开发者可以根据自己的需要自行切换线程。    
     
 </br>
 

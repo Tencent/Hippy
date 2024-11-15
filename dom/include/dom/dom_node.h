@@ -157,7 +157,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateLayoutStyleInfo(
       const std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_update,
       const std::vector<std::string>& style_delete);
-
+  void ResetLayoutCache();
   /**
    * this method should run in dom taskrunner
    * */

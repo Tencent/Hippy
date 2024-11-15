@@ -23,24 +23,27 @@
 #import "HippyNextBaseListItemViewManager.h"
 #import "HippyNextBaseListItemView.h"
 #import "HippyShadowWaterfallItem.h"
+#import "HippyNextShadowListItem.h"
+
 
 @implementation HippyNextBaseListItemViewManager
 
 HIPPY_EXPORT_MODULE(ListViewItem)
 
 HIPPY_EXPORT_VIEW_PROPERTY(type, id)
-HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
+HIPPY_EXPORT_SHADOW_PROPERTY(sticky, BOOL)
+HIPPY_EXPORT_SHADOW_PROPERTY(keepAlive, BOOL)
 
 - (UIView *)view {
     return [[HippyNextBaseListItemView alloc] init];
 }
 
 - (HippyShadowView *)shadowView {
-    return [[HippyShadowWaterfallItem alloc] init];
+    return [[HippyNextShadowListItem alloc] init];
 }
 
 @end

@@ -26,8 +26,4 @@
 
 @interface HippyNextBaseListItemView : HippyView <ViewAppearStateProtocol>
 
-@property (nonatomic, strong) id type;
-@property (nonatomic, assign) BOOL isSticky;
-
-
 @end

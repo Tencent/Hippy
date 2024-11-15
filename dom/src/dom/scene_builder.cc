@@ -19,9 +19,8 @@
  */
 
 #include "dom/scene_builder.h"
-
 #include "dom/dom_listener.h"
-
+#include "dom/root_node.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 
@@ -33,8 +32,9 @@ void SceneBuilder::Create(const std::weak_ptr<DomManager>& weak_dom_manager,
                           std::vector<std::shared_ptr<DomInfo>>&& nodes,
                           bool needSortByIndex) {
   auto dom_manager = weak_dom_manager.lock();
-  if (dom_manager) {
-    dom_manager->RecordDomStartTimePoint();
+  auto rootNode = root_node.lock();
+  if (dom_manager && rootNode) {
+    dom_manager->RecordDomStartTimePoint(rootNode->GetId());
     dom_manager->CreateDomNodes(root_node, std::move(nodes), needSortByIndex);
   }
 }

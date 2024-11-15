@@ -28,16 +28,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface HippyNativeModule {
 
-  enum Thread {
-    BRIDGE,
-    MAIN
-  }
-
   String name();
 
   String[] names() default {};
-
-  Thread thread() default Thread.BRIDGE;
 
   boolean init() default false;
 }

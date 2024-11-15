@@ -67,6 +67,15 @@ void TraceControl::StartTracing() {
     auto trace_config = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
     trace_config->SetTraceRecordMode(v8::platform::tracing::TraceRecordMode::RECORD_CONTINUOUSLY);
     trace_config->AddIncludedCategory(kTraceIncludedCategoryV8);
+    trace_config->EnableSystrace();
+    trace_config->AddIncludedCategory("devtools.timeline");
+    trace_config->AddIncludedCategory("v8.execute");
+    trace_config->AddIncludedCategory("disabled-by-default-devtools.timeline");
+    trace_config->AddIncludedCategory("disabled-by-default-devtools.timeline.frame");
+    trace_config->AddIncludedCategory("disabled-by-default-devtools.timeline.stack");
+    trace_config->AddIncludedCategory("disabled-by-default-v8.cpu_profiler");
+    trace_config->AddIncludedCategory("disabled-by-default-v8.cpu_profiler.hires");
+    trace_config->AddIncludedCategory("latencyInfo");
     v8_trace_control_->StartTracing(trace_config);
     tracing_has_start_ = true;
   }

@@ -50,8 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Whether contain bannerView, currently used by the waterfall component.
 @property(nonatomic, readonly) BOOL containBannerView;
-/// The BannerView, currently waterfall component has.
-@property(nonatomic, readonly) HippyShadowView *bannerView;
+
 /// The shadowViews of Cells
 @property(nonatomic, readonly) NSArray<NSArray<HippyShadowView *> *> *shadowCellViews;
 /// The view name of cell item
@@ -64,12 +63,35 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setDataSource:(NSArray<__kindof HippyShadowView *> *)dataSource
     containBannerView:(BOOL)containBannerView;
 
+/// Get shadowView for given indexPath
+/// - Parameter indexPath: NSIndexPath
 - (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
+
+/// Get header shadowView (old bannerView)
+/// - Parameter section: unused, currently only one section
 - (HippyShadowView *)headerForSection:(NSInteger)section;
+
+/// Get footer shadowView
+/// - Parameter section: unused, currently only one section
+- (HippyShadowView *)footerForSection:(NSInteger)section;
+
+/// Get section number
 - (NSInteger)numberOfSection;
+
+/// Cell count of given section
+/// - Parameter section: NSInteger
 - (NSInteger)numberOfCellForSection:(NSInteger)section;
+
+/// Get indexPath of given shadowView
+/// - Parameter cell: shadowView
 - (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell;
+
+/// Get the NSIndexPath for given `flat` index.
+/// - Parameter index: NSInteger
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
+
+/// Get `flat` index (take header into account) for given IndexPath
+/// - Parameter indexPath: NSIndexPath
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 
 

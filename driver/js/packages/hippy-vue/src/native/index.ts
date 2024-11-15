@@ -379,6 +379,13 @@ function getTargetNodeAttributes(targetNode: NeedToTyped) {
     };
     delete attributes.text;
     delete attributes.value;
+
+    Object.keys(attributes).forEach((key) => {
+      if (key !== 'id' && key !== 'hippyNodeId' && key !== 'class') {
+        // value may big int that iOS do not support, should delete
+        delete attributes[key];
+      }
+    });
     return attributes;
   } catch (e) {
     warn('getTargetNodeAttributes error:', e);

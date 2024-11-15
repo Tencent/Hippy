@@ -25,17 +25,18 @@
           </p>
         </pull-header>
         <div
-          v-if="!isAndroid"
+          v-if="!isAndroid && !isiOS"
           class="banner-view"
         >
           <span>BannerView</span>
-        </div>  
+        </div>
         <waterfall-item
-          v-else 
+          v-else
           :fullSpan="true",
+          :isHeader="true",
           class="banner-view"
         >
-          <span>BannerView</span>
+          <span>Banner View</span>
         </waterfall-item>
         <waterfall-item
           v-for="(ui, index) in dataSource"
@@ -56,6 +57,13 @@
             v-if="ui.style === 5"
             :item-bean="ui.itemBean"
           />
+        </waterfall-item>
+        <waterfall-item
+          :fullSpan="true",
+          :isFooter="true",
+          class="banner-view"
+        >
+          <span>Footer View</span>
         </waterfall-item>
         <pull-footer
           ref="pullFooter"
@@ -91,6 +99,7 @@ export default {
       footerRefreshText: '正在加载...',
       isLoading: false,
       isAndroid: Vue.Native.Platform === 'android',
+      isiOS: Vue.Native.Platform === 'android',
     };
   },
   mounted() {

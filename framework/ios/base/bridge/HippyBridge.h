@@ -214,7 +214,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, copy, readonly) NSArray<NSURL *> *bundleURLs;
 
 /// Path of sandbox directory
-@property (nonatomic, strong) NSString *sandboxDirectory;
+@property (nonatomic, copy) NSString *sandboxDirectory;
 
 /// Shared data between different rootViews on same bridge.
 /// Set by HippyRootView when runHippyApplication.
@@ -388,8 +388,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, assign) BOOL debugMode;
 
 /// Debug URL for devtools
-/// TODO: debugURL not working ?
-@property (nonatomic, strong, readonly) NSURL *debugURL;
+@property (nonatomic, strong, nullable, readonly) NSURL *debugURL;
 
 /// Sets whether the context is inspectable in Web Inspector.
 /// Default value is NO.

@@ -424,7 +424,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
         if (strongSelf && !strongSelf->_contentHasAppeared) {
             strongSelf->_contentHasAppeared = YES;
             static NSString *const kHippyContentAppearCostKey = @"cost";
-            [[(HippyRootView *)strongSelf.superview bridge] updatePerfRecordsOnRootContentDidAppear];
+            [[(HippyRootView *)strongSelf.superview bridge] updatePerfRecordsOnRootContentDidAppear:self.hippyTag];
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyContentDidAppearNotification
                                                                 object:self.superview userInfo:@{
                 kHippyContentAppearCostKey : @(CACurrentMediaTime() * 1000 - strongSelf.startTimpStamp)

@@ -433,6 +433,10 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 > - method：方法名称，如 ListView 的 `scrollToIndex`
 > - options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`，空时显式写 `[]`
 
+注: 也可以传入 callback 参数，这个是 Hippy 内部 API, 不推荐使用，源码可参考：
+
+[callUIFunction接口实现源码](https://github.com/Tencent/Hippy/blob/main/driver/js/packages/hippy-react/src/modules/ui-manager-module.ts)
+
 ### UIManagerModule.getElementFromFiberRef
 
 获取元素 Ref 对应的 Element(类似DOM)。`hippy-react-web` 不支持。
