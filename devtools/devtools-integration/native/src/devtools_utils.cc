@@ -137,7 +137,7 @@ auto MakeCopyable(F&& f) {
   };
 }
 
-hippy::dom::DomArgument DevToolsUtil::makeLocationArgument(double x, double y) {
+hippy::dom::DomArgument DevToolsUtil::MakeLocationArgument(double x, double y) {
   footstone::value::HippyValue::HippyValueObjectType hippy_value_object;
   hippy_value_object[kXOnScreen] = footstone::value::HippyValue(x);
   hippy_value_object[kYOnScreen] = footstone::value::HippyValue(y);
@@ -160,8 +160,8 @@ std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<RootNode
       return root_node;
     }
 
-    hippy::dom::DomArgument argument = makeLocationArgument(x, y);
-    auto screen_shot_callback =
+    hippy::dom::DomArgument argument = MakeLocationArgument(x, y);
+    auto get_view_tag_callback =
         MakeCopyable([promise = std::move(layout_promise)](std::shared_ptr<hippy::dom::DomArgument> arg) mutable {
           footstone::value::HippyValue result_hippy_value;
           arg->ToObject(result_hippy_value);
@@ -177,7 +177,7 @@ std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<RootNode
           int hippyTag = static_cast<int>(result_dom_object.find(kHippyTag)->second.ToInt32Checked());
           promise.set_value(hippyTag);
         });
-    base_node->CallFunction(kGetViewTagByLocation, argument, screen_shot_callback);
+    base_node->CallFunction(kGetViewTagByLocation, argument, get_view_tag_callback);
     std::chrono::milliseconds span(10);
     if (read_file_future.wait_for(span) == std::future_status::timeout) {
       FOOTSTONE_DLOG(WARNING) << kDevToolsTag << "GetHitNode wait_for timeout";
