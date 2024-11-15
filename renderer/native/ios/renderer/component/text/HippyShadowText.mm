@@ -191,13 +191,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     [self dirtyText:YES];
 }
 
-- (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                                          parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
+- (void)processUpdatedPropertiesBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks {
     if ([[self parent] isKindOfClass:[HippyShadowText class]]) {
-        return parentProperties;
+        return;
     }
-
-//    parentProperties = [super processUpdatedProperties:applierBlocks parentProperties:parentProperties];
 
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
@@ -232,7 +229,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [(HippyTextView *)parentView performTextUpdate];
         }
     }];
-    return parentProperties;
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
@@ -322,7 +318,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     } @catch (NSException *exception) {
         HippyLogError(@"Exception while doing %s: %@, %@", __func__, exception.description, self);
     }
-    [self processUpdatedProperties:blocks parentProperties:nil];
+    [self processUpdatedPropertiesBeforeMount:blocks];
 }
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(hippy::Direction)confirmedLayoutDirection {

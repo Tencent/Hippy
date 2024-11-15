@@ -77,11 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)hippySetFrame:(CGRect)frame;
 
 /**
- * Used to improve performance when compositing views with translucent content.
- */
-- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor;
-
-/**
  * This method finds and returns the containing view controller for the view.
  */
 - (nullable UIViewController *)hippyViewController;
