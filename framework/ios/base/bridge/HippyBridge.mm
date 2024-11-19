@@ -271,6 +271,10 @@ dispatch_queue_t HippyJSThread;
     if (_rootNode) {
         _rootNode->ReleaseResources();
     }
+    if (self.uiManager) {
+        // Prevents multi-threading from accessing weak properties
+        [self.uiManager setBridge:nil];
+    }
 }
 
 - (std::shared_ptr<VFSUriLoader>)createURILoaderIfNeeded {
