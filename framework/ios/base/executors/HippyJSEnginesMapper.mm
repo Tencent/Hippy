@@ -60,7 +60,14 @@ EngineResource::EngineResource(const std::string name) {
 }
 
 EngineResource::~EngineResource() {
-    dom_worker_->Terminate();
+    auto runner = engine_->GetJsTaskRunner();
+    if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            dom_worker_->Terminate();
+        });
+    } else {
+        dom_worker_->Terminate();
+    }
 }
 
 using EngineRef = std::pair<std::shared_ptr<EngineResource>, NSUInteger>;
