@@ -646,12 +646,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSNumber *componentTag = @(domNode->GetId());
     NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
     NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
-    NSMutableDictionary *props = [StylesFromDomNode(domNode) mutableCopy];
+    NSMutableDictionary *props = [HippyStylesFromDomNode(domNode) mutableCopy];
     HippyComponentData *componentData = [self componentDataForViewName:viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:componentTag];
     shadowView.rootNode = rootNode;
-    NSAssert(componentData && shadowView, @"componentData and renderObject must not be nil");
-    [props setValue: rootTag forKey: @"rootTag"];
+    HippyAssert(componentData && shadowView, @"componentData and shadowView must not be nil");
+    [props setValue:rootTag forKey:@"rootTag"];
     // Register shadow view
     if (shadowView) {
         shadowView.hippyTag = componentTag;
