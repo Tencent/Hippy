@@ -880,8 +880,7 @@ dispatch_queue_t HippyJSThread;
 
 - (void)handleBuffer:(NSArray *)buffer {
     NSArray *requestsArray = [HippyConvert NSArray:buffer];
-
-    if (HIPPY_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
+    if (requestsArray.count <= HippyBridgeFieldParams) {
         HippyLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
         return;
     }
