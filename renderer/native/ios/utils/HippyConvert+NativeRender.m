@@ -76,13 +76,14 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
     }
     // legacy matrix support
     if ([(NSArray *)json count] == kMatrixArrayLength && [json[0] isKindOfClass:[NSNumber class]]) {
-        HippyLogWarn(
-            @"[HippyConvert CATransform3D:] has deprecated a matrix as input. Pass an array of configs (which can contain a matrix key) instead.");
+        HippyLogWarn(@"[HippyConvert CATransform3D:] has deprecated a matrix as input. \
+                     Pass an array of configs (which can contain a matrix key) instead.");
         return [self CATransform3DFromMatrix:json];
     }
 
     CGFloat zeroScaleThreshold = FLT_EPSILON;
 
+    CATransform3D next;
     for (NSDictionary *transformConfig in (NSArray<NSDictionary *> *)json) {
         if (transformConfig.count != 1) {
             HippyLogError(@"[%@], a CATransform3D. You must specify exactly one property per transform object.", json);
@@ -91,10 +92,13 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
         NSString *property = transformConfig.allKeys[0];
         id value = HippyNilIfNull(transformConfig[property]);
         if ([property isEqualToString:@"matrix"]) {
-            transform = [self CATransform3DFromMatrix:value];
+            next = [self CATransform3DFromMatrix:value];
+            transform = CATransform3DConcat(next, transform);
 
         } else if ([property isEqualToString:@"perspective"]) {
-            transform.m34 = -1 / [value floatValue];
+            next = CATransform3DIdentity;
+            next.m34 = -1 / [value floatValue];
+            transform = CATransform3DConcat(next, transform);
 
         } else if ([property isEqualToString:@"rotateX"]) {
             CGFloat rotate = [self convertToRadians:value];
@@ -111,18 +115,16 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
         } else if ([property isEqualToString:@"scale"]) {
             CGFloat scale = [value floatValue];
             scale = ABS(scale) < zeroScaleThreshold ? zeroScaleThreshold : scale;
-            transform.m34 = 0.f;
-            transform = CATransform3DScale(transform, scale, scale, scale);
+            transform = CATransform3DScale(transform, scale, scale, 1);
+
         } else if ([property isEqualToString:@"scaleX"]) {
             CGFloat scale = [value floatValue];
             scale = ABS(scale) < zeroScaleThreshold ? zeroScaleThreshold : scale;
-            transform.m34 = 0.f;
             transform = CATransform3DScale(transform, scale, 1, 1);
 
         } else if ([property isEqualToString:@"scaleY"]) {
             CGFloat scale = [value floatValue];
             scale = ABS(scale) < zeroScaleThreshold ? zeroScaleThreshold : scale;
-            transform.m34 = 0.f;
             transform = CATransform3DScale(transform, 1, scale, 1);
 
         } else if ([property isEqualToString:@"translate"]) {
@@ -146,11 +148,15 @@ static const NSUInteger kMatrixArrayLength = 4 * 4;
 
         } else if ([property isEqualToString:@"skewX"]) {
             CGFloat skew = [self convertToRadians:value];
-            transform.m21 = tanf(skew);
+            next = CATransform3DIdentity;
+            next.m21 = tanf(skew);
+            transform = CATransform3DConcat(next, transform);
 
         } else if ([property isEqualToString:@"skewY"]) {
             CGFloat skew = [self convertToRadians:value];
-            transform.m12 = tanf(skew);
+            next = CATransform3DIdentity;
+            next.m12 = tanf(skew);
+            transform = CATransform3DConcat(next, transform);
 
         } else {
             HippyLogError(@"Unsupported transform type for a CATransform3D: %@.", property);
