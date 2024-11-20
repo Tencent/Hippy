@@ -29,7 +29,8 @@
 
 namespace hippy::devtools {
 DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig& devtools_config,
-                                               std::shared_ptr<footstone::WorkerManager> worker_manager) {
+                                               std::shared_ptr<footstone::WorkerManager> worker_manager,
+                                               std::function<void()> reconnect_handler) {
   FOOTSTONE_DLOG(INFO) << kDevToolsTag << "DevtoolsBackendService create framework:" << devtools_config.framework
                        << ",tunnel:" << devtools_config.tunnel;
   auto data_provider = std::make_shared<DataProvider>();
@@ -38,7 +39,7 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig& devtools_co
   domain_dispatch_ = std::make_shared<DomainDispatch>(data_channel_, worker_manager);
   domain_dispatch_->RegisterDefaultDomainListener();
   tunnel_service_ = std::make_shared<TunnelService>(domain_dispatch_, devtools_config);
-  tunnel_service_->Connect();
+  tunnel_service_->Connect(reconnect_handler);
   notification_center->runtime_notification = std::make_shared<DefaultRuntimeNotification>(tunnel_service_);
 
   if (devtools_config.framework == Framework::kHippy) {

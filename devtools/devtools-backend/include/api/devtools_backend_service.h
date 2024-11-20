@@ -42,7 +42,7 @@ namespace hippy::devtools {
 class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBackendService> {
  public:
   DevtoolsBackendService(const DevtoolsConfig& devtools_config,
-                         std::shared_ptr<footstone::WorkerManager> worker_manager);
+                         std::shared_ptr<footstone::WorkerManager> worker_manager, std::function<void()> reconnect_handler);
 
   ~DevtoolsBackendService();
 

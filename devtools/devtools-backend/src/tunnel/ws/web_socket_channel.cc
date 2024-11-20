@@ -45,7 +45,7 @@ WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_client_.start_perpetual();
 }
 
-void WebSocketChannel::Connect(ReceiveDataHandler handler) {
+void WebSocketChannel::Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) {
   if (ws_uri_.empty()) {
     FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "websocket uri is empty, connect error";
     return;
@@ -57,9 +57,9 @@ void WebSocketChannel::Connect(ReceiveDataHandler handler) {
         DEFINE_AND_CHECK_SELF(WebSocketChannel)
         self->HandleSocketInit(handle);
       });
-  ws_client_.set_open_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
+  ws_client_.set_open_handler([WEAK_THIS, reconnect_handler](const websocketpp::connection_hdl& handle) {
     DEFINE_AND_CHECK_SELF(WebSocketChannel)
-    self->HandleSocketConnectOpen(handle);
+    self->HandleSocketConnectOpen(handle, reconnect_handler);
   });
   ws_client_.set_close_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
     DEFINE_AND_CHECK_SELF(WebSocketChannel)
@@ -131,8 +131,8 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
                        << ", remote close reason:" << con->get_remote_close_reason().c_str();
 }
 
-void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
-  ws_reconnect_attempts = 0;
+void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle,
+                                               ReconnectHandler reconnect_handler) {
   connection_hdl_ = handle.lock();
   FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect open";
   if (!connection_hdl_.lock() || unset_messages_.empty()) {
@@ -143,6 +143,10 @@ void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl
     ws_client_.send(connection_hdl_, message, websocketpp::frame::opcode::text, error_code);
   }
   unset_messages_.clear();
+  if (0 < ws_reconnect_attempts && ws_reconnect_attempts < MAX_RECONNECT_ATTEMPTS) {
+    reconnect_handler();
+  }
+  ws_reconnect_attempts = 0;
 }
 
 void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_hdl& handle,
@@ -174,8 +178,8 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
 }
 
 void WebSocketChannel::attempt_reconnect() {
+  ws_reconnect_attempts++;
   if (ws_reconnect_attempts < MAX_RECONNECT_ATTEMPTS) {
-    ws_reconnect_attempts++;
     FOOTSTONE_DLOG(INFO) << "Attempting to reconnect (" << ws_reconnect_attempts << "/"
                          << MAX_RECONNECT_ATTEMPTS << ")...";
     StartConnect(ws_uri_);

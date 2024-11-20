@@ -194,7 +194,8 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
         if (wsURL.length > 0) {
             auto workerManager = std::make_shared<footstone::WorkerManager>(1);
-            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
+            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>();
+            devtools_data_source->create_devtools_service([wsURL UTF8String], workerManager);
             self.pScope->SetDevtoolsDataSource(devtools_data_source);
         }
     }
