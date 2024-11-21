@@ -88,7 +88,7 @@ jint OnCreateDevtools(JNIEnv* j_env,
   DevtoolsDataSource::SetFileCacheDir(StringViewUtils::ToStdString(
       StringViewUtils::ConvertEncoding(data_dir, string_view::Encoding::Utf8).utf8_value()));
   auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>();
-  devtools_data_source->create_devtools_service(
+  devtools_data_source->CreateDevtoolsService(
       StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(ws_url, string_view::Encoding::Utf8).utf8_value()),
       worker_manager);
   uint32_t id = devtools::DevtoolsDataSource::Insert(devtools_data_source);
