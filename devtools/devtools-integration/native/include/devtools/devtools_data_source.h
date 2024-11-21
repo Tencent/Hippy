@@ -51,7 +51,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
    * @param ws_url websocket url, if empty then use other tunnel
    * @param worker_manager worker thread for devtools
    */
-  void create_devtools_service(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
+  void CreateDevtoolsService(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
   /**
    * @brief bind dom, so that devtools can access and collect data
    */

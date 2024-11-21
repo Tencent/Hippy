@@ -168,7 +168,7 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
                        << ", remote close code:" << con->get_remote_close_code()
                        << ", remote close reason:" << con->get_remote_close_reason().c_str();
   if (ws_should_reconnect) {
-    attempt_reconnect();
+    AttemptReconnect();
   }
   else {
     // set handle nullptr when connect fail
@@ -177,7 +177,7 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
   }
 }
 
-void WebSocketChannel::attempt_reconnect() {
+void WebSocketChannel::AttemptReconnect() {
   ws_reconnect_attempts++;
   if (ws_reconnect_attempts < MAX_RECONNECT_ATTEMPTS) {
     FOOTSTONE_DLOG(INFO) << "Attempting to reconnect (" << ws_reconnect_attempts << "/"

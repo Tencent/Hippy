@@ -43,7 +43,7 @@ using StringViewUtils = footstone::stringview::StringViewUtils;
 static std::atomic<uint32_t> global_devtools_data_key{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<DevtoolsDataSource>> devtools_data_map;
 
-void DevtoolsDataSource::create_devtools_service(const std::string& ws_url,
+void DevtoolsDataSource::CreateDevtoolsService(const std::string& ws_url,
                                        std::shared_ptr<footstone::WorkerManager> worker_manager) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;

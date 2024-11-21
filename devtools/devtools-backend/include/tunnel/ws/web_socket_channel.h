@@ -60,7 +60,7 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   void HandleSocketConnectOpen(const websocketpp::connection_hdl& handle, ReconnectHandler reconnect_handler);
   void HandleSocketConnectMessage(const websocketpp::connection_hdl& handle, const WSMessagePtr& message_ptr);
   void HandleSocketConnectClose(const websocketpp::connection_hdl& handle);
-  void attempt_reconnect();
+  void AttemptReconnect();
 
   WSClient ws_client_;
   websocketpp::connection_hdl connection_hdl_;
