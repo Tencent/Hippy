@@ -44,13 +44,14 @@ namespace hippy::devtools {
  */
 class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolsDataSource> {
  public:
+  DevtoolsDataSource() = default;
+  ~DevtoolsDataSource() = default;
   /**
-   * create devtools data source instance
+   * create devtools service
    * @param ws_url websocket url, if empty then use other tunnel
    * @param worker_manager worker thread for devtools
    */
-  DevtoolsDataSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
-  ~DevtoolsDataSource() = default;
+  void CreateDevtoolsService(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
   /**
    * @brief bind dom, so that devtools can access and collect data
    */
@@ -110,5 +111,6 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   std::shared_ptr<HippyDomData> hippy_dom_;
   uint64_t listener_id_{};
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
+  std::string context_name_;
 };
 }  // namespace hippy::devtools
