@@ -43,7 +43,7 @@ using StringViewUtils = footstone::stringview::StringViewUtils;
 static std::atomic<uint32_t> global_devtools_data_key{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<DevtoolsDataSource>> devtools_data_map;
 
-DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url,
+void DevtoolsDataSource::CreateDevtoolsService(const std::string& ws_url,
                                        std::shared_ptr<footstone::WorkerManager> worker_manager) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
@@ -53,7 +53,11 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url,
   } else {  // empty websocket url, then use tcp tunnel by usb channel
     devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
   }
-  devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config, worker_manager);
+  auto reconnect_handler = [WEAK_THIS] {
+    DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+    self->SetContextName(self->context_name_);
+  };
+  devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config, worker_manager, reconnect_handler);
   devtools_service_->Create();
   hippy_dom_ = std::make_shared<HippyDomData>();
 }
@@ -78,6 +82,7 @@ void DevtoolsDataSource::Destroy(bool is_reload) {
 }
 
 void DevtoolsDataSource::SetContextName(const std::string& context_name) {
+  context_name_ = context_name;
   GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 

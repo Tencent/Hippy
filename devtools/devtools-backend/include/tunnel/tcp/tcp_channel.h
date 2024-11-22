@@ -36,7 +36,7 @@ constexpr int32_t kBufferSize = 32 * 1024;
 class TcpChannel : public hippy::devtools::NetChannel, public std::enable_shared_from_this<TcpChannel> {
  public:
   TcpChannel();
-  void Connect(ReceiveDataHandler handler) override;
+  void Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) override;
   void Send(const std::string& data) override;
   void Close(int32_t code, const std::string& reason) override;
 
