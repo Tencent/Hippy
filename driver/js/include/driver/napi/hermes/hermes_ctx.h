@@ -113,15 +113,26 @@ class HippyJsiBuffer : public facebook::jsi::Buffer {
   size_t len_;
 };
 
+class HippyMutableBuffer : public facebook::jsi::MutableBuffer {
+public:
+  HippyMutableBuffer(void* buffer, size_t length)
+  : buffer_(static_cast<uint8_t*>(buffer)), length_(length) {}
+  
+  size_t size() const override { return length_; }
+  uint8_t* data() override { return buffer_; }
+  
+private:
+  uint8_t* buffer_;
+  size_t length_;
+};
+
 class HermesCtx : public Ctx {
  public:
   HermesCtx();
   ~HermesCtx();
 
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) override;
-
   virtual std::shared_ptr<CtxValue> DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) override;
-
   virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name, const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
                                                 size_t property_count,
@@ -130,14 +141,20 @@ class HermesCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> NewInstance(const std::shared_ptr<CtxValue>& cls, int argc,
                                                 std::shared_ptr<CtxValue> argv[], void* external) override;
 
-  virtual void* GetObjectExternalData(const std::shared_ptr<CtxValue>& object) override;
-
   virtual std::shared_ptr<CtxValue> GetGlobalObject() override;
+  void SetExternalData(void* data) override;
+  virtual void* GetObjectExternalData(const std::shared_ptr<CtxValue>& object) override;
+  virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
+  virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
 
-  virtual bool SetProperty(std::shared_ptr<CtxValue> object, std::shared_ptr<CtxValue> key,
+  // Get and Set property to object
+  virtual bool SetProperty(std::shared_ptr<CtxValue> object,
+                           std::shared_ptr<CtxValue> key,
                            std::shared_ptr<CtxValue> value) override;
-  virtual bool SetProperty(std::shared_ptr<CtxValue> object, std::shared_ptr<CtxValue> key,
-                           std::shared_ptr<CtxValue> value, const PropertyAttribute& attr) override;
+  virtual bool SetProperty(std::shared_ptr<CtxValue> object, 
+                           std::shared_ptr<CtxValue> key,
+                           std::shared_ptr<CtxValue> value, 
+                           const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetProperty(const std::shared_ptr<CtxValue>& object,
                                                 std::shared_ptr<CtxValue> key) override;
   virtual std::shared_ptr<CtxValue> GetProperty(const std::shared_ptr<CtxValue>& object,
@@ -151,19 +168,12 @@ class HermesCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
   virtual std::shared_ptr<CtxValue> CreateFunction(const std::unique_ptr<FunctionWrapper>& wrapper) override;
-  virtual std::shared_ptr<CtxValue> CreateObject(
-      const std::unordered_map<string_view, std::shared_ptr<CtxValue>>& object) override;
-  virtual std::shared_ptr<CtxValue> CreateObject(
-      const std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& object) override;
-  virtual std::shared_ptr<CtxValue> CreateMap(
-      const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<string_view, std::shared_ptr<CtxValue>>& object) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& object) override;
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
   virtual std::shared_ptr<CtxValue> CreateArray(size_t count, std::shared_ptr<CtxValue> value[]) override;
   virtual std::shared_ptr<CtxValue> CreateException(const string_view& msg) override;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(void* buffer, size_t length) override;
-
-  virtual std::shared_ptr<CtxValue> CallFunction(const std::shared_ptr<CtxValue>& function,
-                                                 const std::shared_ptr<CtxValue>& receiver, size_t argument_count,
-                                                 const std::shared_ptr<CtxValue> arguments[]) override;
 
   // Get From Value
   virtual bool GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) override;
@@ -171,12 +181,14 @@ class HermesCtx : public Ctx {
   virtual bool GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result) override;
   virtual bool GetValueString(const std::shared_ptr<CtxValue>& value, string_view* result) override;
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value, string_view* result) override;
-  virtual bool GetEntriesFromObject(
-      const std::shared_ptr<CtxValue>& value,
-      std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
-  virtual bool GetEntriesFromMap(
-      const std::shared_ptr<CtxValue>& value,
-      std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
+  virtual bool GetEntriesFromMap(const std::shared_ptr<CtxValue>& value,
+                                 std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
+  virtual bool GetByteBuffer(const std::shared_ptr<CtxValue>& value,
+                             void** out_data, size_t& out_length, uint32_t& out_type) override;
+  virtual uint32_t GetArrayLength(const std::shared_ptr<CtxValue>& value) override;
+  
 
   // Check Value type
   virtual bool IsNull(const std::shared_ptr<CtxValue>& value) override;
@@ -190,30 +202,30 @@ class HermesCtx : public Ctx {
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsArray(const std::shared_ptr<CtxValue>& value) override;
   virtual bool IsByteBuffer(const std::shared_ptr<CtxValue>& value) override;
-
-  virtual bool GetByteBuffer(const std::shared_ptr<CtxValue>& value, void** out_data, size_t& out_length,
-                             uint32_t& out_type) override;
-  virtual uint32_t GetArrayLength(const std::shared_ptr<CtxValue>& value) override;
-  virtual std::shared_ptr<CtxValue> CopyArrayElement(const std::shared_ptr<CtxValue>& value, uint32_t index) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value, const string_view& utf8name) override;
-  virtual std::shared_ptr<CtxValue> CopyNamedProperty(const std::shared_ptr<CtxValue>& value,
-                                                      const string_view& name) override;
-  virtual string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) override;
   virtual bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) override;
-
+  
+  // Copy operations
+  virtual std::shared_ptr<CtxValue> CopyArrayElement(const std::shared_ptr<CtxValue>& value, uint32_t index) override;
+  virtual std::shared_ptr<CtxValue> CopyNamedProperty(const std::shared_ptr<CtxValue>& value, const string_view& name) override;
+  virtual string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) override;
+  
+  // Run Script and Call Function
   virtual std::shared_ptr<CtxValue> RunScript(const string_view& data, const string_view& file_name) override;
+  virtual std::shared_ptr<CtxValue> CallFunction(const std::shared_ptr<CtxValue>& function,
+                                                 const std::shared_ptr<CtxValue>& receiver,
+                                                 size_t argument_count,
+                                                 const std::shared_ptr<CtxValue> arguments[]) override;
 
 
-  void SetExternalData(void* data) override;
-  virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
-  virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
-
+  // TryCatch and Exception Related
   virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) override;
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
   virtual void ThrowException(const string_view& exception) override;
   inline std::shared_ptr<HermesExceptionCtxValue> GetException() { return exception_; }
   string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
 
+  // Get hermes runtime
   const std::unique_ptr<HermesRuntime>& GetRuntime() { return runtime_; }
   
   // Get platform-specific internal embedded code

@@ -588,21 +588,18 @@ std::shared_ptr<CtxValue> HermesCtx::GetProperty(const std::shared_ptr<CtxValue>
 }
 
 
-// MARK: -  Create Funtions
+// MARK: - Create Funtions
 
 std::shared_ptr<CtxValue> HermesCtx::CreateObject() {
-  auto obj = Object(*runtime_);
-  return std::make_shared<HermesCtxValue>(*runtime_, obj);
+  return std::make_shared<HermesCtxValue>(*runtime_, Object(*runtime_));
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateNumber(double number) {
-  auto obj = Value(number);
-  return std::make_shared<HermesCtxValue>(*runtime_, obj);
+  return std::make_shared<HermesCtxValue>(*runtime_, Value(number));
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateBoolean(bool b) {
-  auto obj = Value(b);
-  return std::make_shared<HermesCtxValue>(*runtime_, obj);
+  return std::make_shared<HermesCtxValue>(*runtime_, Value(b));
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateString(const string_view& string_view) {
@@ -704,8 +701,9 @@ std::shared_ptr<CtxValue> HermesCtx::CreateException(const string_view& msg) {
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t length) {
-  // TODO: add create byte buffer
-  return nullptr;
+  auto mutableBuffer = std::make_shared<HippyMutableBuffer>(buffer, length);
+  auto arrayBuffer = facebook::jsi::ArrayBuffer(*runtime_, std::move(mutableBuffer));
+  return std::make_shared<HermesCtxValue>(*runtime_, std::move(arrayBuffer));
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue>& function,
@@ -971,13 +969,31 @@ bool HermesCtx::IsArray(const std::shared_ptr<CtxValue>& value) {
   return false;
 }
 
-// TODO: add is byte buffer
-bool HermesCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) { return false; }
+bool HermesCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
+  if (!value) return false;
+  std::shared_ptr<HermesCtxValue> ctx_value = std::static_pointer_cast<HermesCtxValue>(value);
+  const auto &jsi_value = ctx_value->GetValue(runtime_);
+  return jsi_value.isObject() && jsi_value.asObject(*runtime_).isArrayBuffer(*runtime_);
+}
 
-// TODO: add get byte buffer
-bool HermesCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value, void** out_data, size_t& out_length,
+bool HermesCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value, 
+                              void** out_data,
+                              size_t& out_length,
                               uint32_t& out_type) {
-  return false;
+  if (!value || *out_data) {
+    return false;
+  }
+  // Get ArrayBuffer Object
+  // Assume that type has already been checked using IsByteBuffer for performance.
+  auto ctx_value = std::dynamic_pointer_cast<HermesCtxValue>(value);
+  const auto &jsi_value = ctx_value->GetValue(runtime_);
+  auto arrayBuffer = jsi_value.getObject(*runtime_).getArrayBuffer(*runtime_);;
+  
+  // Extract data and length
+  *out_data = arrayBuffer.data(*runtime_);
+  out_length = arrayBuffer.size(*runtime_);
+  out_type = 0; // hermes not support
+  return true;
 }
 
 uint32_t HermesCtx::GetArrayLength(const std::shared_ptr<CtxValue>& value) {
@@ -1007,22 +1023,24 @@ std::shared_ptr<CtxValue> HermesCtx::CopyArrayElement(const std::shared_ptr<CtxV
   return std::make_shared<HermesCtxValue>(*runtime_, index_val);
 }
 
-// Map Helpers
-// size_t HermesCtx::GetMapLength(std::shared_ptr<CtxValue>& value) {}
-// std::shared_ptr<CtxValue> HermesCtx::ConvertMapToArray(const std::shared_ptr<CtxValue>& value) {}
+bool HermesCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value, const string_view& name) {
+  // TODO: add has named property, currently unused
+  FOOTSTONE_UNIMPLEMENTED();
+  return false;
+}
 
-// Object Helpers
-// TODO: add has named property
-bool HermesCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value, const string_view& name) { return false; }
-
-// TODO: add copy named property
 std::shared_ptr<CtxValue> HermesCtx::CopyNamedProperty(const std::shared_ptr<CtxValue>& value,
                                                        const string_view& name) {
+  // TODO: add copy named property, currently unused
+  FOOTSTONE_UNIMPLEMENTED();
   return nullptr;
 }
 
-// TODO: add copy function name
-string_view HermesCtx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) { return ""; }
+string_view HermesCtx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) {
+  // TODO: add copy function name, currently unused
+  FOOTSTONE_UNIMPLEMENTED();
+  return "";
+}
 
 bool HermesCtx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) {
   auto l = std::static_pointer_cast<HermesCtxValue>(lhs);
