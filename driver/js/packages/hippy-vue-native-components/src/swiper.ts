@@ -63,11 +63,11 @@ function registerSwiper(Vue: any) {
     props: {
       current: {
         type: Number,
-        defaultValue: 0,
+        default: 0,
       },
       needAnimation: {
         type: Boolean,
-        defaultValue: true,
+        default: true,
       },
     },
     watch: {
