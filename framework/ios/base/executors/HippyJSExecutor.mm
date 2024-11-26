@@ -39,6 +39,7 @@
 #import "NSObject+CtxValue.h"
 #import "TypeConverter.h"
 #import "HippyBridge+Private.h"
+#import "HippyBridge+ModuleManage.h"
 
 #include <cinttypes>
 #include <memory>
@@ -603,7 +604,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                 [userInfo setObject:moduleName forKey:HippyFatalModuleName];
                 [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
                 NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
-                HippyBridgeHandleException(reportException, self.bridge);
+                HippyHandleException(reportException);
             }
         }
     }];

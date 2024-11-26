@@ -21,7 +21,6 @@
  */
 
 #import "HippyBridge.h"
-#import "HippyBridge+PerformanceAPI.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

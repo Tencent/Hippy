@@ -26,6 +26,16 @@
 #import "driver/scope.h"
 #import "footstone/string_view_utils.h"
 
+
+static NSString *const kHippyPerfKeyFP = @"FP";
+static NSString *const kHippyPerfKeyFCP = @"FCP";
+static NSString *const kHippyPerfKeyInit = @"NativeInit";
+static NSString *const kHippyPerfKeyJSInit = @"JsEngineInit";
+static NSString *const kHippyPerfKeyRunApp = @"RunApplication";
+static NSString *const kHippyPerfKeyDomCreate = @"DomCreate";
+static NSString *const kHippyPerfKeyFirstFrame = @"FirstFrame";
+
+
 using namespace footstone;
 
 @implementation HippyBridge (PerformanceAPI)
@@ -96,12 +106,12 @@ using namespace footstone;
         int64_t runApplication = (entry->GetHippyRunApplicationEnd() - entry->GetHippyRunApplicationStart()).ToMilliseconds();
         int64_t domCreate = (entry->GetHippyDomEnd() - entry->GetHippyDomStart()).ToMilliseconds();
         int64_t firstFrame = (entry->GetHippyFirstFrameEnd() - entry->GetHippyFirstFrameStart()).ToMilliseconds();
-        dic[@"0.FP"] = @(totalFPTime);
-        dic[@"1.NativeInit"] = @(nativeInit);
-        dic[@"2.JsEngineInit"] = @(jsEngineInit);
-        dic[@"3.RunApplication"] = @(runApplication);
-        dic[@"4.DomCreate"] = @(domCreate);
-        dic[@"5.FirstFrame"] = @(firstFrame);
+        dic[kHippyPerfKeyFP] = @(totalFPTime);
+        dic[kHippyPerfKeyInit] = @(nativeInit);
+        dic[kHippyPerfKeyJSInit] = @(jsEngineInit);
+        dic[kHippyPerfKeyRunApp] = @(runApplication);
+        dic[kHippyPerfKeyDomCreate] = @(domCreate);
+        dic[kHippyPerfKeyFirstFrame] = @(firstFrame);
         
         auto bundle_info_array = entry->GetBundleInfoArray();
         for (size_t i = 0; i < bundle_info_array.size(); ++i) {
@@ -129,7 +139,7 @@ using namespace footstone;
             return nil;
         }
         int64_t fcpTime = (entry->GetHippyFirstContentfulPaintEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
-        return @{ @"FCP" : @(fcpTime) };
+        return @{ kHippyPerfKeyFCP : @(fcpTime) };
     }
     return nil;
 }

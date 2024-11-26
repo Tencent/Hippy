@@ -43,6 +43,7 @@
 #import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
 #import "HippyModulesSetup.h"
+#import "HippyBridge+ModuleManage.h"
 #import "NativeRenderManager.h"
 #import "HippyShadowListView.h"
 #import "HippyModuleData.h"
@@ -50,7 +51,7 @@
 #import "HippyBridge+Private.h"
 #import "HippyJSExecutor.h"
 #import "dom/root_node.h"
-#import "objc/runtime.h"
+#import <objc/runtime.h>
 #import <os/lock.h>
 #import <unordered_map>
 
@@ -447,7 +448,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }
         
         if (!HippyCGRectRoundInPixelNearlyEqual(frame, renderObject.frame)) {
-            //renderObject.frame = frame;
             [renderObject setLayoutFrame:frame];
             std::weak_ptr<RootNode> rootNode = [strongSelf->_shadowViewRegistry rootNodeForTag:rootTag];
             [strongSelf batchOnRootNode:rootNode];

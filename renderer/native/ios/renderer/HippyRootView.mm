@@ -27,6 +27,7 @@
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
 #import "Hippybridge+PerformanceAPI.h"
+#import "HippyBridge+BundleLoad.h"
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyDeviceBaseInfo.h"

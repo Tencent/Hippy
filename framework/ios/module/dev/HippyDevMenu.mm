@@ -27,7 +27,7 @@
 #import "HippyAssert.h"
 #import "HippyUtils.h"
 #import "HippyDefines.h"
-
+#import "HippyBridge+ModuleManage.h"
 #include <objc/runtime.h>
 
 #if HIPPY_DEV

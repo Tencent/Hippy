@@ -30,7 +30,7 @@
 #import "HippyUtils.h"
 #import "NSObject+CtxValue.h"
 #import "NSObject+HippyTurbo.h"
-
+#import "HippyBridge+ModuleManage.h"
 #include <objc/message.h>
 
 #include "footstone/string_view_utils.h"
@@ -135,7 +135,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
         NSError *error = HippyErrorWithMessageAndModuleName(message, self.bridge.moduleName);
-        HippyBridgeFatal(error, self.bridge);
+        HippyFatal(error);
         return nil;
     }
 }
