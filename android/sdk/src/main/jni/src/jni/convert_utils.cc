@@ -200,6 +200,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     j_env->DeleteLocalRef(method_name_str);
     j_env->DeleteLocalRef(call_id_str);
     auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+    j_env->DeleteLocalRef(j_obj);
     global_refs.push_back(ref);
     j_args.l = ref->GetObj();
     return std::make_tuple(true, "", true);
@@ -214,7 +215,9 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     if (!std::get<0>(to_array_tuple)) {
       return std::make_tuple(false, std::get<1>(to_array_tuple), false);
     }
-    auto ref = std::make_shared<JavaRef>(j_env, std::get<2>(to_array_tuple));
+    auto j_obj = std::get<2>(to_array_tuple);
+    auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+    j_env->DeleteLocalRef(j_obj);
     global_refs.push_back(ref);
     j_args.l = ref->GetObj();
     return std::make_tuple(true, "", true);
@@ -229,7 +232,9 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     if (!std::get<0>(to_map_tuple)) {
       return std::make_tuple(false, std::get<1>(to_map_tuple), false);
     }
-    auto ref = std::make_shared<JavaRef>(j_env, std::get<2>(to_map_tuple));
+    auto j_obj = std::get<2>(to_map_tuple);
+    auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+    j_env->DeleteLocalRef(j_obj);
     global_refs.push_back(ref);
     j_args.l = ref->GetObj();
     return std::make_tuple(true, "", true);
@@ -241,8 +246,9 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     if (!context->GetValueBoolean(value, &b)) {
       return std::make_tuple(false, "value must be boolean", false);
     }
-    auto ref = std::make_shared<JavaRef>(j_env,
-                                         j_env->NewObject(boolean_clazz, boolean_constructor, b));
+    auto j_obj = j_env->NewObject(boolean_clazz, boolean_constructor, b);
+    auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+    j_env->DeleteLocalRef(j_obj);
     global_refs.push_back(ref);
     j_args.l = ref->GetObj();
     return std::make_tuple(true, "", true);
@@ -257,8 +263,9 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
-
-    auto ref = std::make_shared<JavaRef>(j_env, j_env->NewStringUTF(str.c_str()));
+    auto j_obj = j_env->NewStringUTF(str.c_str());
+    auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+    j_env->DeleteLocalRef(j_obj);
     global_refs.push_back(ref);
     j_args.l = ref->GetObj();
     return std::make_tuple(true, "", true);
@@ -271,8 +278,10 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
       if (!context->GetValueNumber(value, &num)) {
         return std::make_tuple(true, "value must be int", false);
       }
-      auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-          integer_clazz, integer_constructor, num));
+      auto j_obj = j_env->NewObject(
+          integer_clazz, integer_constructor, num);
+      auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+      j_env->DeleteLocalRef(j_obj);
       global_refs.push_back(ref);
       j_args.l = ref->GetObj();
     } else {
@@ -282,13 +291,17 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
       }
 
       if (type == kDoubleObject) {
-        auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-            double_clazz, double_constructor, num));
+        auto j_obj = j_env->NewObject(
+            double_clazz, double_constructor, num);
+        auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+        j_env->DeleteLocalRef(j_obj);
         global_refs.push_back(ref);
         j_args.l = ref->GetObj();
       } else if (type == kFloatObject) {
-        auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-            float_clazz, float_constructor, static_cast<float>(num)));
+        auto j_obj = j_env->NewObject(
+            float_clazz, float_constructor, static_cast<float>(num));
+        auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+        j_env->DeleteLocalRef(j_obj);
         global_refs.push_back(ref);
         j_args.l = ref->GetObj();
       } else if (type == kLongObject) {
@@ -296,8 +309,10 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
         if (!hippy::base::numeric_cast<double, jlong>(num, jlong_value)) {
           return std::make_tuple(true, "value out of jlong boundary", false);
         }
-        auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
-            long_clazz, long_constructor, jlong_value));
+        auto j_obj = j_env->NewObject(
+            long_clazz, long_constructor, jlong_value);
+        auto ref = std::make_shared<JavaRef>(j_env, j_obj);
+        j_env->DeleteLocalRef(j_obj);
         global_refs.push_back(ref);
         j_args.l = ref->GetObj();
       } else {
