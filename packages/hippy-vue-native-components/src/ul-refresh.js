@@ -49,7 +49,7 @@ function registerUlRefresh(Vue) {
     props: {
       bounceTime: {
         type: Number,
-        defaultValue: 100,
+        default: 100,
       },
     },
     methods: {
