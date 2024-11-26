@@ -137,12 +137,12 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 
 /**
- * Manully create views recursively from renderObject
+ * Manully create views recursively from shadowView
  *
- * @param renderObject HippyShadowView corresponding to UIView
+ * @param shadowView HippyShadowView corresponding to UIView
  * @return view created by HippyShadowView
  */
-- (UIView *)createViewForShadowListItem:(HippyShadowView *)renderObject;
+- (UIView *)createViewForShadowListItem:(HippyShadowView *)shadowView;
 
 /// Register extra components
 /// @param extraComponents extra components classes

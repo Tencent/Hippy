@@ -25,6 +25,7 @@
 #import "HippyBridgeModule.h"
 #import "TurboConfig.h"
 #import "HippyBridge.h"
+#import "HippyBridge+ModuleManage.h"
 #import "HippyDefines.h"
 
 @implementation TurboBaseModule

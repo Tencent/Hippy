@@ -68,6 +68,11 @@
 #define HIPPY_CONCAT(A, B) HIPPY_CONCAT2(A, B)
 
 /**
+ * Make sure C string non null.
+ */
+#define HIPPY_CSTR_NOT_NULL(p) (p ? p : "")
+
+/**
  * Convert number macro to string
  */
 #define HIPPY_STR(x) HIPPY_STR_EXPAND(x)

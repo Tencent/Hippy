@@ -39,22 +39,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Indicate hippy sdk version
- * 注意：为兼容2.0版本，保持的相同的下划线前缀命名，不可修改
+ * Note: To be compatible with version 2.0,
+ * the same underscore prefix is ​​used and cannot be modified.
  */
 HIPPY_EXTERN NSString *const _HippySDKVersion;
 
-/**
- * This notification triggers a reload of all bridges currently running.
- * Deprecated, use HippyBridge::requestReload instead.
- */
-HIPPY_EXTERN NSString *const HippyReloadNotification;
+/// Launch Options Key: DebugMode
+/// Set to YES will automatically start debugger.
+/// Default is NO.
+HIPPY_EXTERN NSString *const kHippyLaunchOptionsDebugModeKey;
+
+/// Launch Options Key: EnableTurbo
+/// Set to YES will enable jsi mode.
+/// Default is YES.
+HIPPY_EXTERN NSString *const kHippyLaunchOptionsEnableTurboKey;
 
 
 // Keys of userInfo for the following notifications
+/// key of bridge in userInfo
 HIPPY_EXTERN NSString *const kHippyNotiBridgeKey;
+/// url key in userInfo
 HIPPY_EXTERN NSString *const kHippyNotiBundleUrlKey;
+/// bundle type key in userInfo
 HIPPY_EXTERN NSString *const kHippyNotiBundleTypeKey;
+/// error key in userInfo
 HIPPY_EXTERN NSString *const kHippyNotiErrorKey;
+
 
 /// Bundle Type of Vendor (or Common Bundle),
 /// used in kHippyNotiBundleTypeKey
@@ -74,8 +84,9 @@ HIPPY_EXTERN const NSUInteger HippyBridgeBundleTypeBusiness;
  *     kHippyNotiBundleTypeKey : $(bundleType),
  *  }
  *
- * 备注：bundle包开始加载的通知, 注意与Hippy2不同的是，不仅指代`Common包`，`Business包`同样会发送该通知，
- * 可通过userInfo中bundleType参数进行区分，see: HippyBridgeBundleTypeVendor
+ * Note: Notification of bundle loading. 
+ * Note that unlike Hippy2, this notification is sent not only for `Common package`, but also for `Business package`.
+ * It can be distinguished by the bundleType parameter in userInfo, see: HippyBridgeBundleTypeVendor for more.
   */
 HIPPY_EXTERN NSString *const HippyJavaScriptWillStartLoadingNotification;
 
@@ -91,12 +102,12 @@ HIPPY_EXTERN NSString *const HippyJavaScriptWillStartLoadingNotification;
  *     kHippyNotiErrorKey : $(error), // NSError object
  *  }
  *
- * 备注：获取到Bundle包的source code data时的通知
+ * Note: Notification when the source code data of the Bundle package is obtained.
  */
 HIPPY_EXTERN NSString *const HippyJavaScripDidLoadSourceCodeNotification;
 
 /**
- * This notification fires when the bridge has finished loading the JS bundle.
+ * This notification fires when bridge has finished loading JS bundle.
  * @discussion
  * Notification.object: instance of HippyBridge
  * Notification.userInfo:
@@ -106,7 +117,7 @@ HIPPY_EXTERN NSString *const HippyJavaScripDidLoadSourceCodeNotification;
  *     kHippyNotiBundleTypeKey : $(bundleType),
  *  }
  *
- * 备注：Bundle包`加载和执行`结束的通知
+ * Note: Notification of the end of Bundle `loading and execution`
  */
 HIPPY_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
 
@@ -123,7 +134,7 @@ HIPPY_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
  *     kHippyNotiErrorKey : $(error), // NSError object
  *  }
  *
- * 备注：Bundle包`加载和执行`失败的通知
+ * Note: Notification of Bundle package `loading and execution` failure
  */
 HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
 
@@ -136,10 +147,14 @@ HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
 HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
 
 /**
+ * This notification is sent when hippy bridge is reloaded.
+ */
+HIPPY_EXTERN NSString *const HippyReloadNotification;
+
+/**
  * This function returns the module name for a given class.
  */
 HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
-
 
 
 #pragma mark -
@@ -154,8 +169,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// @param launchOptions launch options, will not be sent to frontend
 /// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
 ///
-/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
-/// 传空时默认不共享，SDK内部默认分配一随机key。
+/// Note: When multiple bridges use the same shared engineKey, 
+/// the engine resources will be released only when all bridge instances are destroyed.
+/// Therefore, please use it properly to avoid unexpected memory leaks.
+/// When executorKey is empty, it is not shared by default. A random key is assigned by default in the SDK.
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(nullable NSDictionary *)launchOptions
@@ -172,13 +189,19 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// @param launchOptions launch options, will not be sent to frontend
 /// @param executorKey key to engine instance. HippyBridge with same engine key will share same engine intance.
 ///
-/// Note: 多个bridge使用相同的共享engineKey时，只有全部bridge实例销毁时engine资源才将释放，因此，请注意合理使用，避免出现意外的内存泄漏。
-/// 传空时默认不共享，SDK内部默认分配一随机key。
+/// Note: When multiple bridges use the same shared engineKey,
+/// the engine resources will be released only when all bridge instances are destroyed.
+/// Therefore, please use it properly to avoid unexpected memory leaks.
+/// When executorKey is empty, it is not shared by default. A random key is assigned by default in the SDK.
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                        bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
                    launchOptions:(nullable NSDictionary *)launchOptions
-                     executorKey:(nullable NSString *)executorKey;
+                     executorKey:(nullable NSString *)executorKey NS_DESIGNATED_INITIALIZER;
+
+// Not available
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /// The delegate of bridge
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
@@ -207,9 +230,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// Reason for bridge invalidate state
 @property (nonatomic, assign) HippyInvalidateReason invalidateReason;
 
-/// Whether the bridge is loading bundle
-@property (nonatomic, readonly, getter=isLoading) BOOL loading;
-
 /// All loaded bundle urls
 @property (nonatomic, copy, readonly) NSArray<NSURL *> *bundleURLs;
 
@@ -225,6 +245,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /// Get Device Info
 - (NSDictionary *)deviceInfo;
+
 
 #pragma mark - Image Related
 
@@ -318,45 +339,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
 
-/// Get all native module info.
-- (NSDictionary *)nativeModuleConfig;
-
-/// Get config info for given module name
-/// - Parameter moduleName: name of module
-- (NSArray *)configForModuleName:(NSString *)moduleName;
-
-- (BOOL)moduleSetupComplete;
-/**
- * Retrieve a bridge module instance by name or class. Note that modules are
- * lazily instantiated, so calling these methods for the first time with a given
- * module name/class may cause the class to be sychronously instantiated,
- * potentially blocking both the calling thread and main thread for a short time.
- */
-- (id)moduleForName:(NSString *)moduleName;
-- (id)moduleForClass:(Class)moduleClass;
-
-/// Get ModuleData by name
-/// - Parameter moduleName: JS name of module
-- (nullable HippyModuleData *)moduleDataForName:(NSString *)moduleName;
-
-/**
- * Convenience method for retrieving all modules conforming to a given protocol.
- * Modules will be sychronously instantiated if they haven't already been,
- * potentially blocking both the calling thread and main thread for a short time.
- */
-- (NSArray *)modulesConformingToProtocol:(Protocol *)protocol;
-
-/**
- * Test if a module has been initialized. Use this prior to calling
- * `moduleForClass:` or `moduleForName:` if you do not want to cause the module
- * to be instantiated if it hasn't been already.
- */
-- (BOOL)moduleIsInitialized:(Class)moduleClass;
-
-/// Get turbo module by name.
-/// - Parameter name: name of turbo module
-- (id)turboModuleWithName:(NSString *)name;
-
 
 #pragma mark - Snapshot
 
@@ -405,35 +387,13 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 #pragma mark - Advanced Usages
 
-/* 说明：
- * 以下方法一般情况下无需调用，仅供高级定制化使用。
- * Following methods are only used for advanced customization, no need to be invoked in general.
- */
-
 /// Interceptor for methods
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 
-
-typedef NSUInteger HippyBridgeBundleType;
-typedef void (^HippyBridgeBundleLoadCompletionBlock)(NSURL * _Nullable bundleURL, NSError * _Nullable error);
-
-/// Load and Execute bundle from the given bundle URL
-/// - Parameters:
-///   - bundleURL: bundle url
-///   - bundleType: type of bundle, e.g.: whether is `Vendor Bundle`(Common Bundle) or `Business Bundle`
-///   - completion: Completion block
-///
-/// - Disscusion: HippyBridge makes sure bundles will be loaded and execute in order.
-- (void)loadBundleURL:(NSURL *)bundleURL
-           bundleType:(HippyBridgeBundleType)bundleType
-           completion:(HippyBridgeBundleLoadCompletionBlock)completion;
-
-
 @end
 
-
-HIPPY_EXTERN void HippyBridgeFatal(NSError *, HippyBridge *);
-
-HIPPY_EXTERN void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);
+/// Same as `HippyFatal`, with moduleName in userinfo.
+/// see `HippyFatalModuleName` for more.
+HIPPY_EXTERN void HippyBridgeFatal(NSError *error, HippyBridge *bridge);
 
 NS_ASSUME_NONNULL_END
