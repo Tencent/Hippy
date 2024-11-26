@@ -77,7 +77,7 @@ HIPPY_EXTERN NSString *const HippyFontChangeTriggerNotification;
 @interface HippyUIManager : NSObject <HippyInvalidating>
 
 /// HippyBridge instance
-@property (nonatomic, weak, readonly) HippyBridge *bridge;
+@property (weak, readonly) HippyBridge *bridge;
 
 /// View Registry of all nodes
 @property (nonatomic, readonly) HippyComponentMap *viewRegistry;
@@ -92,6 +92,18 @@ HIPPY_EXTERN NSString *const HippyFontChangeTriggerNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
+/// Set hippyBridge for UIManager
+/// - Parameter bridge: HippyBridge instance
+- (void)setBridge:(HippyBridge * _Nullable)bridge;
+
+/// Get all rootView
+- (NSArray<__kindof UIView *> *)rootViews;
+
+/// Get rootView with given tag
+/// Note: this is root's contentView, 
+/// NOT the HippyRootView instance!
+- (UIView *)rootContentViewForTag:(NSNumber *)rootTag;
 
 /// Gets the view associated with a hippyTag.
 /// - Parameters:
@@ -128,9 +140,6 @@ HIPPY_EXTERN NSString *const HippyFontChangeTriggerNotification;
 /// Hippy won't be aware of this, so we need to make sure it happens.
 /// - Parameter tag: root tag
 - (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag;
-
-/// Get all rootView
-- (NSArray<__kindof UIView *> *)rootViews;
 
 /// Update view with props
 - (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;

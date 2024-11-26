@@ -385,17 +385,6 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     return YES;
 }
 
-static BOOL NativeRenderLayerHasShadow(CALayer *layer) {
-    return layer.shadowOpacity * CGColorGetAlpha(layer.shadowColor) > 0;
-}
-
-- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor {
-    // Inherit background color if a shadow has been set, as an optimization
-    if (NativeRenderLayerHasShadow(self.layer)) {
-        self.backgroundColor = inheritedBackgroundColor;
-    }
-}
-
 - (void)updateClippingForLayer:(CALayer *)layer {
     CALayer *mask = nil;
     CGFloat cornerRadius = 0;

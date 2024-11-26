@@ -135,7 +135,8 @@ id DomValueToOCType(const HippyValue *const pDomValue) {
     return value;
 }
 
-NSDictionary *UnorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> &domValuesObject) {
+NSDictionary *UnorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, 
+                                               std::shared_ptr<HippyValue>>> &domValuesObject) {
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject->size()];
     for (auto it = domValuesObject->begin(); it != domValuesObject->end(); it++) {
         NSString *key = [NSString stringWithUTF8String:it->first.c_str()];
@@ -143,7 +144,7 @@ NSDictionary *UnorderedMapDomValueToDictionary(const std::shared_ptr<std::unorde
         id value = DomValueToOCType(domValue.get());
         [dic setObject:value forKey:key];
     }
-    return [dic copy];
+    return dic;
 }
 
 NSNumber *DomValueToNumber(const HippyValue *const pDomValue) {

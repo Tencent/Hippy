@@ -85,13 +85,6 @@ NSArray<Class> *HippyGetViewManagerClasses(HippyBridge *bridge) {
     return HippyViewManagerClasses;
 }
 
-static NSString *viewNameFromViewManagerClass(Class cls) {
-    HippyAssert([cls respondsToSelector:@selector(moduleName)],
-                @"%@ must respond to selector moduleName", NSStringFromClass(cls));
-    NSString *viewName = [cls performSelector:@selector(moduleName)];
-    return viewName;
-}
-
 using HPViewBinding = std::map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
 
 constexpr char kVSyncKey[] = "frameupdate";
@@ -186,9 +179,14 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNotification";
 
 @interface HippyUIManager() {
-    NSMutableArray<HippyViewManagerUIBlock> *_pendingUIBlocks;
-
+    // lock for weak bridge access
+    os_unfair_lock _bridgeLock;
+    // HippyBridge's weak reference
+    __weak HippyBridge *_bridge;
+    
+    // View Registry
     HippyComponentMap *_viewRegistry;
+    // ShadowView Registry
     HippyComponentMap *_shadowViewRegistry;
 
     // lock for componentDataByName
@@ -200,7 +198,10 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     // The implementation here needs to be improved to provide a registration mechanism.
     NSHashTable<id<HippyComponent>> *_componentTransactionListeners;
     
+    // Lock for render operations
     std::mutex _renderQueueLock;
+    // UIBlocks waiting for executing
+    NSMutableArray<HippyViewManagerUIBlock> *_pendingUIBlocks;
 }
 
 /// All managed ViewManagers
@@ -233,6 +234,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSHashTable weakObjectsHashTable];
     _componentDataByName = [NSMutableDictionary dictionary];
+    _bridgeLock = OS_UNFAIR_LOCK_INIT;
     _componentDataLock = OS_UNFAIR_LOCK_INIT;
     HippyScreenScale();
     HippyScreenSize();
@@ -260,6 +262,21 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 
 #pragma mark Setter & Getter
 
+- (HippyBridge *)bridge {
+    os_unfair_lock_lock(&_bridgeLock);
+    HippyBridge *bridge = _bridge;
+    os_unfair_lock_unlock(&_bridgeLock);
+    return bridge;
+}
+
+- (void)setBridge:(HippyBridge *)bridge {
+    // Called when HippyBridge dealloc
+    // Avoid multi-threading accessing the weak bridge by setting it to nil.
+    os_unfair_lock_lock(&_bridgeLock);
+    _bridge = bridge;
+    os_unfair_lock_unlock(&_bridgeLock);
+}
+
 - (void)setDomManager:(std::weak_ptr<DomManager>)domManager {
     _domManager = domManager;
 }
@@ -283,6 +300,11 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
             domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
         }
     }
+}
+
+- (UIView *)rootContentViewForTag:(NSNumber *)rootTag {
+    AssertMainQueue();
+    return [_viewRegistry rootComponentForTag:rootTag];
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag {
@@ -406,9 +428,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
                 domManager->PostTask(hippy::Scene({func}));
                 
                 HippyBridge *bridge = self.bridge;
-                if (bridge) {
-                    [bridge sendEvent:@(hippyOnSizeChangedKey) params:params];
-                }
+                [bridge sendEvent:@(hippyOnSizeChangedKey) params:params];
             }
         }
     }
@@ -620,40 +640,40 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 }
 
 
-#pragma mark -
+#pragma mark - ShadowView Related
 
-- (HippyShadowView *)createRenderObjectFromNode:(const std::shared_ptr<hippy::DomNode> &)domNode
-                                     onRootNode:(std::weak_ptr<RootNode>)rootNode {
+- (HippyShadowView *)createShadowViewFromNode:(const std::shared_ptr<hippy::DomNode> &)domNode
+                                   onRootNode:(std::weak_ptr<RootNode>)rootNode {
     auto strongRootNode = rootNode.lock();
     if (!strongRootNode || !domNode) {
         return nil;
     }
-    int32_t root_id = strongRootNode->GetId();
-    NSNumber *rootTag = @(root_id);
+    int32_t rootId = strongRootNode->GetId();
+    NSNumber *rootTag = @(rootId);
     NSNumber *componentTag = @(domNode->GetId());
     NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
     NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
-    NSMutableDictionary *props = [StylesFromDomNode(domNode) mutableCopy];
+    NSMutableDictionary *props = [HippyStylesFromDomNode(domNode) mutableCopy];
     HippyComponentData *componentData = [self componentDataForViewName:viewName];
-    HippyShadowView *renderObject = [componentData createShadowViewWithTag:componentTag];
-    renderObject.rootNode = rootNode;
-    NSAssert(componentData && renderObject, @"componentData and renderObject must not be nil");
-    [props setValue: rootTag forKey: @"rootTag"];
+    HippyShadowView *shadowView = [componentData createShadowViewWithTag:componentTag];
+    shadowView.rootNode = rootNode;
+    HippyAssert(componentData && shadowView, @"componentData and shadowView must not be nil");
+    [props setValue:rootTag forKey:@"rootTag"];
     // Register shadow view
-    if (renderObject) {
-        renderObject.hippyTag = componentTag;
-        renderObject.rootTag = rootTag;
-        renderObject.viewName = viewName;
-        renderObject.tagName = tagName;
-        renderObject.props = props;
-        renderObject.domNode = domNode;
-        renderObject.rootNode = rootNode;
-        renderObject.domManager = _domManager;
-        renderObject.nodeLayoutResult = domNode->GetLayoutResult();
-        renderObject.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
-        [componentData setProps:props forShadowView:renderObject];
+    if (shadowView) {
+        shadowView.hippyTag = componentTag;
+        shadowView.rootTag = rootTag;
+        shadowView.viewName = viewName;
+        shadowView.tagName = tagName;
+        shadowView.props = props;
+        shadowView.domNode = domNode;
+        shadowView.rootNode = rootNode;
+        shadowView.domManager = _domManager;
+        shadowView.nodeLayoutResult = domNode->GetLayoutResult();
+        shadowView.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
+        [componentData setProps:props forShadowView:shadowView];
     }
-    return renderObject;
+    return shadowView;
 }
 
 - (void)updateView:(nonnull NSNumber *)componentTag
@@ -674,12 +694,14 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 }
 
 - (__kindof HippyViewManager *)viewManagerForViewName:(NSString *)viewName {
-    HippyBridge *strongBridge = self.bridge;
     if (!self.viewManagers) {
         NSMutableDictionary *viewManagers = [NSMutableDictionary dictionary];
+        // First, read all extra components.
         if (self.extraComponents) {
             for (Class cls in self.extraComponents) {
-                NSString *viewName = viewNameFromViewManagerClass(cls);
+                HippyAssert([cls respondsToSelector:@selector(moduleName)],
+                            @"%@ must respond to selector moduleName", NSStringFromClass(cls));
+                NSString *viewName = [cls performSelector:@selector(moduleName)];
                 HippyAssert(![viewManagers objectForKey:viewName],
                          @"duplicated component %@ for class %@ and %@", viewName,
                          NSStringFromClass(cls),
@@ -687,24 +709,32 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
                 [viewManagers setObject:cls forKey:viewName];
             }
         }
+
+        // Second, read the default view manager classes.
+        HippyBridge *strongBridge = self.bridge;
         NSArray<Class> *classes = HippyGetViewManagerClasses(strongBridge);
         NSMutableDictionary *defaultViewManagerClasses = [NSMutableDictionary dictionaryWithCapacity:[classes count]];
         for (Class cls in classes) {
-            NSString *viewName = viewNameFromViewManagerClass(cls);
+            HippyAssert([cls respondsToSelector:@selector(moduleName)],
+                        @"%@ must respond to selector moduleName", NSStringFromClass(cls));
+            NSString *viewName = [cls performSelector:@selector(moduleName)];
             if ([viewManagers objectForKey:viewName]) {
                 continue;
             }
             [defaultViewManagerClasses setObject:cls forKey:viewName];
         }
+
         [viewManagers addEntriesFromDictionary:defaultViewManagerClasses];
         self.viewManagers = viewManagers;
     }
+
     // Get and instantiate the class
     id object = [self.viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
+        HippyBridge *strongBridge = self.bridge;
         viewManager.bridge = strongBridge;
-        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"Must be a HippyViewManager instance");
+        HippyAssert([viewManager isKindOfClass:[HippyViewManager class]], @"Must be a HippyViewManager instance");
         [self.viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
@@ -789,7 +819,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     for (const std::shared_ptr<DomNode> &node : nodes) {
         const auto& render_info = node->GetRenderInfo();
         [manager addViewTag:render_info.id forSuperViewTag:render_info.pid atIndex:render_info.index];
-        HippyShadowView *shadowView = [self createRenderObjectFromNode:node onRootNode:rootNode];
+        HippyShadowView *shadowView = [self createShadowViewFromNode:node onRootNode:rootNode];
         [_shadowViewRegistry addComponent:shadowView forRootTag:shadowView.rootTag];
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
@@ -1112,7 +1142,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     id<HippyBridgeMethod> method = moduleData.methodsByName[name];
     if (method) {
         @try {
-            [method invokeWithBridge:_bridge module:componentData.manager arguments:finalParams];
+            [method invokeWithBridge:self.bridge module:componentData.manager arguments:finalParams];
         } @catch (NSException *exception) {
             NSString *errMsg = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component %@ with params %@",
                                 exception, name, nativeModuleName, finalParams];
@@ -1178,9 +1208,6 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
                 [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
                     HippyBridge *bridge = strongSelf.bridge;
-                    if (!bridge) {
-                        return;
-                    }
                     [bridge.javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
                         auto strongNode = weakNode.lock();
                         if (strongNode) {
