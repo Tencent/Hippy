@@ -604,12 +604,6 @@ static inline void registerLogDelegateToHippyCore() {
     NSArray<NSNumber *> *methodIDs = [HippyConvert NSNumberArray:requestsArray[HippyBridgeFieldMethodIDs]];
     NSArray<NSArray *> *paramsArrays = [HippyConvert NSArrayArray:requestsArray[HippyBridgeFieldParams]];
 
-    int64_t callID = -1;
-
-    if (requestsArray.count > 3) {
-        callID = [requestsArray[HippyBridgeFieldCallID] longLongValue];
-    }
-
     if (HIPPY_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
         HippyLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
         return;
@@ -659,9 +653,6 @@ static inline void registerLogDelegateToHippyCore() {
     // hippy will send 'destroyInstance' event to JS.
     // JS may call actions after that.
     // so HippyBatchBridge needs to be valid
-    //    if (!_valid) {
-    //        return nil;
-    //    }
     BOOL isValid = [self isValid];
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleSetup moduleDataByID];
     if (moduleID >= [moduleDataByID count]) {
@@ -958,28 +949,6 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     [self.eventDispatcher dispatchEvent:@"EventDispatcher"
                              methodName:@"receiveNativeEvent"
                                    args:@{@"eventName": eventName, @"extra": params ? : @{}}];
-}
-
-- (NSData *)snapShotData {
-    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
-    if (!rootNode) {
-        return nil;
-    }
-    std::string data = hippy::DomManager::GetSnapShot(rootNode);
-    return [NSData dataWithBytes:reinterpret_cast<const void *>(data.c_str()) length:data.length()];
-}
-
-- (void)setSnapShotData:(NSData *)data {
-    auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
-    if (!domManager) {
-        return;
-    }
-    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
-    if (!rootNode) {
-        return;
-    }
-    std::string string(reinterpret_cast<const char *>([data bytes]), [data length]);
-    domManager->SetSnapShot(rootNode, string);
 }
 
 
