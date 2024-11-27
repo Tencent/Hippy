@@ -32,13 +32,11 @@
 
 HIPPY_EXPORT_MODULE(EventObserver)
 
-- (dispatch_queue_t)methodQueue
-{
+- (dispatch_queue_t)methodQueue {
     return dispatch_get_main_queue();
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     if (self = [super init]) {
         _config = [NSMutableDictionary new];
     }
@@ -68,26 +66,18 @@ HIPPY_EXPORT_METHOD(removeListener:(NSString *)eventName) {
     }
 }
 
-- (void)addEventObserverForName:(__unused NSString *)eventName
-{
+- (void)addEventObserverForName:(__unused NSString *)eventName {
     // should override by subclass
     // do sth
 }
 
-- (void)removeEventObserverForName:(__unused NSString *)eventName
-{
+- (void)removeEventObserverForName:(__unused NSString *)eventName {
     // should override by subclass
     // do sth
 }
 
-- (void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver: self];
-}
-
-- (void)sendEvent:(NSString *)eventName params:(NSDictionary *)params
-{
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *)params {
 	HippyAssertParam(eventName);
-	[self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:@{@"eventName": eventName, @"extra": params ? : @{}}];
+	[self.bridge.eventDispatcher dispatchNativeEvent:eventName withParams:params];
 }
 @end
