@@ -340,13 +340,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
 
 
-#pragma mark - Snapshot
-
-- (NSData *)snapShotData;
-
-- (void)setSnapShotData:(NSData *)data;
-
-
 #pragma mark - App UI State Related
 
 /// NightMode or not, default is NO.
