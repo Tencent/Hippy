@@ -298,7 +298,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)requestReload;
 
 
-#pragma mark -
+#pragma mark - JS Communication Related
 
 /// Access the underlying JavaScript executor.
 /// You can use this in unit tests to detect when the executor has been invalidated,
