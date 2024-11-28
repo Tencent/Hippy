@@ -199,7 +199,7 @@ static std::shared_ptr<hippy::napi::CtxValue> convertNSObjectToCtxValue(const st
                                                                 HippyOCTurboModule *module) {
     HippyJSExecutor *jsExecutor = (HippyJSExecutor *)module.bridge.javaScriptExecutor;
     if ([objcObject isKindOfClass:[HippyOCTurboModule class]]) {
-        NSString *name = [[objcObject class] turoboModuleName];
+        NSString *name = [[objcObject class] turboModuleName];
         std::shared_ptr<hippy::napi::CtxValue> value = [jsExecutor JSTurboObjectWithName:name];
         HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
         [turboManager bindJSObject:value toModuleName:name];
