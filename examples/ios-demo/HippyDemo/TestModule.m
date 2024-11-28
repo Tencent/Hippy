@@ -21,12 +21,17 @@
 */
 
 #import "TestModule.h"
-#import "HippyRootView.h"
+#import <hippy/HippyRootView.h>
+#import <hippy/HippyBridge.h>
+#import <hippy/HippyBridgeDelegate.h>
 #import "AppDelegate.h"
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
 
 @interface TestModule ()<HippyBridgeDelegate>
+
+/// The debug bundle url
+@property (nonatomic, strong) NSURL *debugBundleUrl;
 
 @end
 
@@ -78,6 +83,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     }
 
     NSURL *url = [NSURL URLWithString:urlString];
+    self.debugBundleUrl = url;
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self 
                                                       bundleURL:url
@@ -101,7 +107,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
 }
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    return bridge.bundleURL;
+    return self.debugBundleUrl;
 }
 
 #pragma mark - Hippy Bridge Delegate
