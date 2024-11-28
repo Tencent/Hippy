@@ -21,11 +21,12 @@
 */
 
 #import "ViewController.h"
-#import "HippyRootView.h"
-#import "HippyLog.h"
-#import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
-#import "HippyBridge.h"
+#import <hippy/HippyBundleURLProvider.h>
+#import <hippy/HippyRootView.h>
+#import <hippy/HippyLog.h>
+#import <hippy/HippyBridge.h>
+#import <hippy/HippyAssert.h>
 #import <sys/utsname.h>
 
 
@@ -37,6 +38,9 @@
 
 /// Hippy Root View
 @property (nonatomic, strong) HippyRootView *hippyRootView;
+
+/// The debug bundle URL
+@property (nonatomic, strong) NSURL *debugBundleUrl;
 
 @end
 
@@ -92,6 +96,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    self.debugBundleUrl = bundleUrl;
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
                                                       bundleURL:bundleUrl
                                                  moduleProvider:nil
@@ -171,7 +176,7 @@ static NSString *formatLog(NSDate *timestamp, HippyLogLevel level, NSString *fil
 }
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    return bridge.bundleURL;
+    return self.debugBundleUrl;
 }
 
 
