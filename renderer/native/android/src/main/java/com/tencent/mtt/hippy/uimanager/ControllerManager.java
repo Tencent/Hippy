@@ -442,8 +442,9 @@ public class ControllerManager {
             @NonNull String className,
             @Nullable Map<String, Object> props) {
         HippyViewController<?> controller = mControllerRegistry.getViewController(className);
-        if (controller != null) {
-            return controller.createVirtualNode(rootId, id, pid, index, props);
+        Renderer renderer = mRendererWeakRef.get();
+        if (controller != null && renderer instanceof NativeRender) {
+            return controller.createVirtualNode(rootId, id, pid, index, props, (NativeRender) renderer);
         }
         return null;
     }

@@ -25,6 +25,7 @@
 #import "HippyBridgeModule.h"
 #import "TurboConfig.h"
 #import "HippyBridge.h"
+#import "HippyBridge+ModuleManage.h"
 #import "HippyDefines.h"
 
 @implementation TurboBaseModule
@@ -56,11 +57,11 @@ HIPPY_EXPORT_TURBO_METHOD(getArray:(NSArray *)array) {
 }
 
 HIPPY_EXPORT_TURBO_METHOD(getTurboConfig) {
-    return [self.bridge turboModuleWithName:[TurboConfig turoboModuleName]];
+    return [self.bridge turboModuleWithName:[TurboConfig turboModuleName]];
 }
 
 HIPPY_EXPORT_TURBO_METHOD(printTurboConfig:(TurboConfig *)turboConfig) {
-    TurboConfig *localConfig = (TurboConfig *)[self.bridge turboModuleWithName:[TurboConfig turoboModuleName]];
+    TurboConfig *localConfig = (TurboConfig *)[self.bridge turboModuleWithName:[TurboConfig turboModuleName]];
     NSLog(@"====> turboConfig:%@, self.turboConfig:%@", turboConfig, localConfig);
     return [turboConfig description];
 }

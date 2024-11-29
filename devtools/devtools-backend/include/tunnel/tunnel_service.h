@@ -38,7 +38,7 @@ class TunnelService : public std::enable_shared_from_this<TunnelService> {
   /**
    * @brief connect to frontend
    */
-  void Connect();
+  void Connect(std::function<void()> reconnect_handler);
 
   /**
    * @brief send data to frontend

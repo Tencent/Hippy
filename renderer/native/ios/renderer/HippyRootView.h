@@ -184,6 +184,16 @@ extern NSString *const HippySecondaryBundleDidLoadNotification DEPRECATED_MSG_AT
 /// you don't want any touch to be registered as soon as the UIScrollView starts scrolling.
 - (void)cancelTouches;
 
+
+#pragma mark - Snapshot
+
+/// Retrieves the current snapshot data.
+- (nullable NSData *)retrieveCurrentSnapshotData;
+
+/// Restores the snapshot data with the provided NSData object.
+/// - Parameter data: NSData object
+- (BOOL)restoreSnapshotData:(nullable NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END

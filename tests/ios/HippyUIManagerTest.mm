@@ -49,7 +49,7 @@
 }
 
 - (void)testGetComponentDataForViewName {
-    HippyBridge *bridge = [[HippyBridge alloc] init];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:nil moduleProvider:nil launchOptions:nil executorKey:nil];
     HippyUIManager *manager = [[HippyUIManager alloc] initWithBridge:bridge];
     [manager registerExtraComponent:@[ HippyViewManager.class ]];
     

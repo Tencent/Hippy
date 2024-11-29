@@ -57,7 +57,7 @@ void LooperDriver::Notify() {
   timerfd_settime(fd_, TFD_TIMER_ABSTIME, &spec, nullptr);
 }
 
-void LooperDriver::WaitFor(const TimeDelta& delta) {
+void LooperDriver::WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>& lock) {
   auto nano_secs = delta.ToNanoseconds();
   if (nano_secs < 1) {
     nano_secs = 1;

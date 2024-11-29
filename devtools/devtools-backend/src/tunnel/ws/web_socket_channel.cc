@@ -33,6 +33,8 @@ typedef WSClient::connection_ptr WSConnectionPtr;
 namespace hippy::devtools {
 
 WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
+  ws_reconnect_attempts = 0;
+  ws_should_reconnect = true;
   ws_uri_ = ws_uri;
   ws_client_.clear_access_channels(websocketpp::log::alevel::all);
   ws_client_.set_access_channels(websocketpp::log::alevel::fail);
@@ -43,7 +45,7 @@ WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_client_.start_perpetual();
 }
 
-void WebSocketChannel::Connect(ReceiveDataHandler handler) {
+void WebSocketChannel::Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) {
   if (ws_uri_.empty()) {
     FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "websocket uri is empty, connect error";
     return;
@@ -55,9 +57,9 @@ void WebSocketChannel::Connect(ReceiveDataHandler handler) {
         DEFINE_AND_CHECK_SELF(WebSocketChannel)
         self->HandleSocketInit(handle);
       });
-  ws_client_.set_open_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
+  ws_client_.set_open_handler([WEAK_THIS, reconnect_handler](const websocketpp::connection_hdl& handle) {
     DEFINE_AND_CHECK_SELF(WebSocketChannel)
-    self->HandleSocketConnectOpen(handle);
+    self->HandleSocketConnectOpen(handle, reconnect_handler);
   });
   ws_client_.set_close_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
     DEFINE_AND_CHECK_SELF(WebSocketChannel)
@@ -87,6 +89,7 @@ void WebSocketChannel::Send(const std::string& rsp_data) {
 }
 
 void WebSocketChannel::Close(int32_t code, const std::string& reason) {
+  ws_should_reconnect = false;
   if (!connection_hdl_.lock()) {
     FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "send message error, handler is null";
     return;
@@ -128,7 +131,8 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
                        << ", remote close reason:" << con->get_remote_close_reason().c_str();
 }
 
-void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
+void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle,
+                                               ReconnectHandler reconnect_handler) {
   connection_hdl_ = handle.lock();
   FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect open";
   if (!connection_hdl_.lock() || unset_messages_.empty()) {
@@ -139,6 +143,10 @@ void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl
     ws_client_.send(connection_hdl_, message, websocketpp::frame::opcode::text, error_code);
   }
   unset_messages_.clear();
+  if (0 < ws_reconnect_attempts && ws_reconnect_attempts < MAX_RECONNECT_ATTEMPTS) {
+    reconnect_handler();
+  }
+  ws_reconnect_attempts = 0;
 }
 
 void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_hdl& handle,
@@ -153,14 +161,32 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
 void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hdl& handle) {
   websocketpp::lib::error_code error_code;
   auto con = ws_client_.get_con_from_hdl(handle, error_code);
-  // set handle nullptr when connect fail
-  data_handler_ = nullptr;
-  unset_messages_.clear();
   FOOTSTONE_DLOG(INFO) << kDevToolsTag << "websocket connect close, state: " << con->get_state()
                        << ", error message:" << con->get_ec().message().c_str()
                        << ", local close code:" << con->get_local_close_code()
                        << ", local close reason: " << con->get_local_close_reason().c_str()
                        << ", remote close code:" << con->get_remote_close_code()
                        << ", remote close reason:" << con->get_remote_close_reason().c_str();
+  if (ws_should_reconnect) {
+    AttemptReconnect();
+  }
+  else {
+    // set handle nullptr when connect fail
+    data_handler_ = nullptr;
+    unset_messages_.clear();
+  }
 }
+
+void WebSocketChannel::AttemptReconnect() {
+  ws_reconnect_attempts++;
+  if (ws_reconnect_attempts < MAX_RECONNECT_ATTEMPTS) {
+    FOOTSTONE_DLOG(INFO) << "Attempting to reconnect (" << ws_reconnect_attempts << "/"
+                         << MAX_RECONNECT_ATTEMPTS << ")...";
+    StartConnect(ws_uri_);
+  } else {
+    ws_should_reconnect = false;
+    FOOTSTONE_DLOG(INFO) << "Max reconnect attempts reached.";
+  }
+}
+
 }  // namespace hippy::devtools

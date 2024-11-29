@@ -23,18 +23,21 @@
 #import "HippyEventDispatcher.h"
 #import "HippyAssert.h"
 #import "HippyUtils.h"
+#import "HippyBridge+ModuleManage.h"
 
-const NSInteger HippyTextUpdateLagWarningThreshold = 3;
+static NSString *const kHippyCallJSModuleKey = @"callJsModule";
+static NSString *const kHippyEventDispatcherModuleNameKey = @"moduleName";
+static NSString *const kHippyEventDispatcherMethodNameKey = @"methodName";
+static NSString *const kHippyEventDispatcherParamsKey = @"params";
 
-NSString *HippyNormalizeInputEventName(NSString *eventName) {
-    if ([eventName hasPrefix:@"on"]) {
-        eventName = [eventName stringByReplacingCharactersInRange:(NSRange) { 0, 2 } withString:@"top"];
-    } else if (![eventName hasPrefix:@"top"]) {
-        eventName = [[@"top" stringByAppendingString:[eventName substringToIndex:1].uppercaseString]
-            stringByAppendingString:[eventName substringFromIndex:1]];
-    }
-    return eventName;
-}
+static NSString *const kHippyEventDispatcherModule = @"EventDispatcher";
+static NSString *const kHippyReceiveNativeEventMethod = @"receiveNativeEvent";
+static NSString *const kHippyReceiveUIEventMethod = @"receiveUIComponentEvent";
+static NSString *const kHippyReceiveGestureEventMethod = @"receiveNativeGesture";
+static NSString *const kHippyEventNameKey = @"eventName";
+static NSString *const kHippyEventParamsKey = @"extra";
+static NSString *const kHippyEventIdKey = @"id";
+
 
 @implementation HippyEventDispatcher
 
@@ -43,41 +46,56 @@ NSString *HippyNormalizeInputEventName(NSString *eventName) {
 HIPPY_EXPORT_MODULE()
 
 - (void)dispatchEvent:(NSString *)moduleName methodName:(NSString *)methodName args:(NSDictionary *)params {
-    NSString *action = @"callJsModule";
     NSMutableArray *events = [NSMutableArray array];
-    [events addObject:action];
+    [events addObject:kHippyCallJSModuleKey];
 
     NSMutableDictionary *body = [NSMutableDictionary new];
-    [body setObject:moduleName forKey:@"moduleName"];
-    [body setObject:methodName forKey:@"methodName"];
+    [body setObject:moduleName forKey:kHippyEventDispatcherModuleNameKey];
+    [body setObject:methodName forKey:kHippyEventDispatcherMethodNameKey];
 
-    if ([moduleName isEqualToString:@"EventDispatcher"] && params) {
-        NSNumber *tag = params[@"id"];
-        NSString *eventName = params[@"eventName"] ?: @"";
-        NSDictionary *extra = params[@"extra"] ?: @{};
-        if ([methodName isEqualToString:@"receiveNativeEvent"]) {
+    if ([moduleName isEqualToString:kHippyEventDispatcherModule] && params) {
+        NSString *eventName = params[kHippyEventNameKey] ?: @"";
+        NSDictionary *extra = params[kHippyEventParamsKey] ?: @{};
+        if ([methodName isEqualToString:kHippyReceiveNativeEventMethod]) {
             NSMutableArray *detail = [NSMutableArray new];
             [detail addObject:eventName];
             [detail addObject:extra];
-            [body setValue:detail forKey:@"params"];
-        } else if ([methodName isEqualToString:@"receiveUIComponentEvent"]) {
+            [body setValue:detail forKey:kHippyEventDispatcherParamsKey];
+        } else if ([methodName isEqualToString:kHippyReceiveUIEventMethod]) {
+            NSNumber *tag = params[kHippyEventIdKey];
             NSMutableArray *detail = [NSMutableArray new];
             if (tag) {
                 [detail addObject:tag];
             }
             [detail addObject:eventName];
             [detail addObject:extra];
-            [body setValue:detail forKey:@"params"];
-        } else if ([methodName isEqualToString:@"receiveNativeGesture"]) {
-            [body setValue:params forKey:@"params"];
+            [body setValue:detail forKey:kHippyEventDispatcherParamsKey];
+        } else if ([methodName isEqualToString:kHippyReceiveGestureEventMethod]) {
+            [body setValue:params forKey:kHippyEventDispatcherParamsKey];
         }
     } else {
-        [body setValue:params forKey:@"params"];
+        [body setValue:params forKey:kHippyEventDispatcherParamsKey];
     }
 
     [events addObject:body];
 
     [_bridge enqueueJSCall:moduleName method:methodName args:events completion:NULL];
+}
+
+- (void)dispatchNativeEvent:(NSString *)eventName withParams:(NSDictionary *)params {
+    NSMutableDictionary *body = [NSMutableDictionary new];
+    body[kHippyEventDispatcherModuleNameKey] = kHippyEventDispatcherModule;
+    body[kHippyEventDispatcherMethodNameKey] = kHippyReceiveNativeEventMethod;
+    body[kHippyEventDispatcherParamsKey] = @[ (eventName ?: @""), (params ?: @{}) ];
+    
+    NSMutableArray *events = [NSMutableArray array];
+    [events addObject:kHippyCallJSModuleKey];
+    [events addObject:body];
+    
+    [_bridge enqueueJSCall:kHippyEventDispatcherModule
+                    method:kHippyReceiveNativeEventMethod
+                      args:events
+                completion:nil];
 }
 
 - (dispatch_queue_t)methodQueue {

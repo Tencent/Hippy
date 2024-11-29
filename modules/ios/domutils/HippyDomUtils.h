@@ -20,30 +20,33 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
 #import "HippyDefines.h"
-
-#include <memory>
-
-namespace hippy {
-inline namespace dom {
-struct LayoutResult;
-class DomNode;
-};
-};
+#include "dom/dom_listener.h"
+#include "dom/dom_node.h"
+#include "footstone/hippy_value.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
+/// CGRect from hippy::LayoutResult
+/// - Parameter result: CGRect
+static inline CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result) {
+    return CGRectMake(result.left, result.top, result.width, result.height);
+}
 
-HIPPY_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
+/// UIEdgeInsets from hippy::LayoutResult
+/// - Parameter result: UIEdgeInsets
+static inline UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result) {
+    return UIEdgeInsetsMake(result.paddingTop, result.paddingLeft, result.paddingBottom, result.paddingRight);
+}
 
-HIPPY_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
+/// CGSize from hippy::LayoutResult
+/// - Parameter result: CGSize
+static inline CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result) {
+    return CGSizeMake(result.width, result.height);
+}
 
-HIPPY_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
-
-HIPPY_EXTERN NSDictionary *StylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+/// OC Props from hippy::DomNode
+/// - Parameter domNode: hippy::DomNode
+HIPPY_EXTERN NSDictionary *HippyStylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 NS_ASSUME_NONNULL_END

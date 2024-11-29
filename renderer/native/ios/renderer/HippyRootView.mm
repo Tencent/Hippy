@@ -24,14 +24,19 @@
 #import "HippyAssert.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
+#import "UIView+Render.h"
+#import "HippyComponentMap.h"
 #import "HippyInvalidating.h"
 #import "HippyBridge.h"
 #import "Hippybridge+PerformanceAPI.h"
+#import "HippyBridge+BundleLoad.h"
 #import "HippyUIManager.h"
+#import "HippyUIManager+Private.h"
 #import "HippyUtils.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyTouchHandler.h"
 #import "HippyJSExecutor.h"
+#import "dom/dom_manager.h"
 #include <objc/runtime.h>
 
 // Sent when the first subviews are added to the root view
@@ -76,6 +81,16 @@ NSNumber *AllocRootViewTag(void) {
 - (instancetype)init NS_UNAVAILABLE;
 /// Unvaliable, use designated initializer.
 + (instancetype)new NS_UNAVAILABLE;
+
+
+#pragma mark - Snapshot
+
+/// Retrieves the current snapshot data.
+- (nullable NSData *)retrieveCurrentSnapshotData;
+
+/// Restores the snapshot data with the provided NSData object.
+/// - Parameter data: NSData object
+- (BOOL)restoreSnapshotData:(nullable NSData *)data;
 
 @end
 
@@ -360,6 +375,17 @@ static NSString *const HippyHostControllerSizeKeyNewSize = @"NewSize";
                                                     userInfo:@{HippyHostControllerSizeKeyNewSize : @(size)}];
 }
 
+
+#pragma mark - Snapshot
+
+- (NSData *)retrieveCurrentSnapshotData {
+    return [self.contentView retrieveCurrentSnapshotData];
+}
+
+- (BOOL)restoreSnapshotData:(NSData *)data {
+    return [self.contentView restoreSnapshotData:data];
+}
+
 @end
 
 
@@ -440,5 +466,34 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
     }
 }
 
+#pragma mark - Snapshot
+
+- (NSData *)retrieveCurrentSnapshotData {
+    auto rootNode = [self.uiManager.viewRegistry rootNodeForTag:self.hippyTag].lock();
+    if (!rootNode) {
+        return nil;
+    }
+    std::string data = hippy::DomManager::GetSnapShot(rootNode);
+    return [NSData dataWithBytes:data.c_str() length:data.length()];
+}
+
+- (BOOL)restoreSnapshotData:(NSData *)data {
+    HippyUIManager *uiManager = self.uiManager;
+    if (!uiManager || !data) {
+        return NO;
+    }
+    auto domManager = [uiManager domManager].lock();
+    if (!domManager) {
+        return NO;
+    }
+    auto rootNode = [uiManager.viewRegistry rootNodeForTag:self.hippyTag].lock();
+    if (!rootNode) {
+        return NO;
+    }
+    std::string string(reinterpret_cast<const char *>([data bytes]), [data length]);
+    bool result = domManager->SetSnapShot(rootNode, string);
+    HippyLogInfo(@"Snapshot restore result:%d for root:%@", result, self.hippyTag);
+    return result;
+}
 
 @end

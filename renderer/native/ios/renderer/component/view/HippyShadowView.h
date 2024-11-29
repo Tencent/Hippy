@@ -142,14 +142,17 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 - (void)setLayoutFrame:(CGRect)frame;
 - (void)setLayoutFrame:(CGRect)frame dirtyPropagation:(BOOL)dirtyPropagation;
 
-/**
- * Process the updated properties and apply them to view. Shadow view classes
- * that add additional propagating properties should override this method.
- */
-- (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
-                                          parentProperties:(nullable NSDictionary<NSString *, id> *)parentProperties;
 
+/// Called by UIManager before mounting views.
+/// - Parameter blocks: blocks to be executed
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks;
+
+/// Provide a time to modify the View before mounting,
+/// Call by amendLayoutBeforeMount.
+/// Such as to handle some layout tasks that need to be adjusted independently
+/// after layout engine has completed the layout calculation.
+/// - Parameter applierBlocks: blocks to be executed
+- (void)processUpdatedPropertiesBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks;
 
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
