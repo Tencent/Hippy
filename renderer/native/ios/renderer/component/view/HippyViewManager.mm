@@ -205,6 +205,7 @@ HIPPY_EXPORT_METHOD(getViewTagByLocation:(nonnull NSNumber *)componentTag
       double locationX = [params[HippyXOnScreenKey] doubleValue];
       double locationY = [params[HippyYOnScreenKey] doubleValue];
       UIView* hitView = [rootView hitTest:{locationX, locationY} withEvent:nil];
+      // TODO: not a hippp view
       if (hitView != nil && [hitView respondsToSelector:@selector(hippyTag)] && hitView.hippyTag) {
           [locationDict setObject:hitView.hippyTag forKey:HippyTagKey];
       }
