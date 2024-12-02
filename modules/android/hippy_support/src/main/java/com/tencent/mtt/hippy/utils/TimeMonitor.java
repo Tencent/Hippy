@@ -35,8 +35,13 @@ public class TimeMonitor {
     public static final String MONITOR_POINT_LOAD_MAIN_JS = "loadMainJs";
     public static final String MONITOR_POINT_FIRST_PAINT = "firstPaint";
     public static final String MONITOR_POINT_FIRST_CONTENTFUL_PAINT = "firstContentfulPaint";
+    private int mEngineId;
     @Nullable
     HashMap<String, MonitorGroup> mMonitorGroups;
+
+    public TimeMonitor(int engineId) {
+        mEngineId = engineId;
+    }
 
     public synchronized void beginGroup(@NonNull String groupName) {
         if (mMonitorGroups == null) {
@@ -44,7 +49,7 @@ public class TimeMonitor {
         }
         MonitorGroup monitorGroup = mMonitorGroups.get(groupName);
         if (monitorGroup == null) {
-            monitorGroup = new MonitorGroup(groupName);
+            monitorGroup = new MonitorGroup(groupName, mEngineId);
             mMonitorGroups.put(groupName, monitorGroup);
         } else {
             monitorGroup.reset();
@@ -87,13 +92,15 @@ public class TimeMonitor {
         public long beginTime = -1;
         public long totalTime = -1;
         public boolean isActive = true;
+        public int engineId = -1;
         @Nullable
         private ArrayList<MonitorPoint> mMonitorPoints;
         @Nullable
         private MonitorPoint mLastPoint;
 
-        public MonitorGroup(@NonNull String name) {
+        public MonitorGroup(@NonNull String name, int engineId) {
             this.name = name;
+            this.engineId = engineId;
         }
 
         @Nullable
@@ -157,7 +164,7 @@ public class TimeMonitor {
 
         void print() {
             if (mMonitorPoints != null) {
-                LogUtils.e(TAG, "group " + name + ", totalTime " + totalTime + "ms");
+                LogUtils.e(TAG, "engine id " + engineId + ", group " + name + ", totalTime " + totalTime + "ms");
                 for (MonitorPoint monitorPoint : mMonitorPoints) {
                     LogUtils.e(TAG,
                             monitorPoint.key + ": " + (monitorPoint.endTime - monitorPoint.startTime)
