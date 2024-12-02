@@ -380,8 +380,15 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
+    private void onFcpBatchEnd(int rootId) {
+        View rootView = getRootView(rootId);
+        if (rootView instanceof HippyRootView) {
+            ((HippyRootView) rootView).onFcpBatchEnd();
+        }
+    }
+
     @Override
-    public void onFirstContentfulPaint() {
+    public void onFirstContentfulPaint(int rootId) {
         FrameworkProxy frameworkProxy = getFrameworkProxy();
         if (frameworkProxy != null) {
             frameworkProxy.onFirstContentfulPaint();
@@ -866,7 +873,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             addUITask(() -> {
                 mRenderManager.batch(rootId);
                 if (isFcp) {
-                    onFirstContentfulPaint();
+                    onFcpBatchEnd(rootId);
                 }
             });
             if (isFcp) {
