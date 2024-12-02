@@ -180,7 +180,8 @@ class HippyEngineWrapper//TODO: Coming soon
                     if (!isDebugMode && isSnapshotMode) {
                         val buffer = renderNodeSnapshot[driverMode]
                         buffer?.let {
-                            snapshotView = hippyEngine.replaySnapshot(context, it)
+                            var bundlePath = "assets://" + loadParams.jsAssetsPath
+                            snapshotView = hippyEngine.replaySnapshot(context, it, bundlePath)
                         }
                         snapshotView?.let {
                             hippySnapshotView = snapshotView as ViewGroup
@@ -202,6 +203,10 @@ class HippyEngineWrapper//TODO: Coming soon
                                     hippyEngine.removeSnapshotView()
                                 }, 400)
                             }
+                        }
+
+                        override fun onFirstContentfulPaint() {
+
                         }
                     })
 

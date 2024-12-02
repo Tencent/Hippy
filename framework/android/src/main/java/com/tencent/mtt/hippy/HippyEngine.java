@@ -59,11 +59,8 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.component.image.ImageDecoderAdapter;
-import com.tencent.renderer.serialization.Serializer;
 import com.tencent.vfs.Processor;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +71,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public abstract class HippyEngine {
 
+    public static final String TAG = "HippyEngine";
     private static final AtomicInteger ID_COUNTER = new AtomicInteger();
     private final int engineId = ID_COUNTER.getAndIncrement();
 
@@ -210,9 +208,9 @@ public abstract class HippyEngine {
 
     public abstract void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[]> callback);
 
-    public abstract View replaySnapshot(@NonNull Context context, byte[] buffer);
+    public abstract View replaySnapshot(@NonNull Context context, byte[] buffer, String bundlePath);
 
-    public abstract View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
+    public abstract View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap, String bundlePath);
 
     public abstract void removeSnapshotView();
 
@@ -479,5 +477,7 @@ public abstract class HippyEngine {
         boolean onJsException(HippyJsException exception);
 
         void onFirstViewAdded();
+
+        void onFirstContentfulPaint();
     }
 }
