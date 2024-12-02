@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.bridge.bundleloader;
 
 import static com.tencent.mtt.hippy.bridge.HippyBridge.URI_SCHEME_FILE;
+import static com.tencent.vfs.UrlUtils.PREFIX_FILE;
 
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
@@ -24,8 +25,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"unused"})
 public class HippyFileBundleLoader implements HippyBundleLoader {
-
-  private static final String FILE_STR = "file://";
 
   final String mFilePath;
 
@@ -64,8 +63,8 @@ public class HippyFileBundleLoader implements HippyBundleLoader {
 
   @Override
   public String getPath() {
-    if (mFilePath != null && !mFilePath.startsWith(FILE_STR)) {
-      return FILE_STR + mFilePath;
+    if (mFilePath != null && !mFilePath.startsWith(PREFIX_FILE)) {
+      return PREFIX_FILE + mFilePath;
     } else {
       return mFilePath;
     }

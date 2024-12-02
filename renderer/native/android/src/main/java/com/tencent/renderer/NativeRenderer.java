@@ -1124,7 +1124,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (child instanceof TextRenderNode) {
             ((TextRenderNode) child).recordVirtualChildren(nodeInfoList);
         }
-        return true;
+        return !child.isIsolate();
     }
 
     private interface UITaskExecutor {

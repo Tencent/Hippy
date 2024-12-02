@@ -44,6 +44,7 @@ import com.tencent.renderer.component.image.ImageComponentController;
 import com.tencent.renderer.component.text.TextComponentController;
 import com.tencent.renderer.utils.DiffUtils;
 
+import com.tencent.renderer.utils.MapUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -689,6 +690,13 @@ public class RenderNode {
             setNodeFlag(FLAG_UPDATE_EXTRA);
         }
         mExtra = object;
+    }
+
+    public boolean isIsolate() {
+        if (mProps != null) {
+            return MapUtils.getBooleanValue(mProps, "isolate", false);
+        }
+        return false;
     }
 
     public boolean isDeleted() {
