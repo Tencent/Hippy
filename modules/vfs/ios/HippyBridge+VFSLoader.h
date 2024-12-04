@@ -25,15 +25,34 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Category of HippyBridge responsible for loading data
 @interface HippyBridge (VFSLoader)
 
-- (void)loadContentsAsynchronouslyFromUrl:(NSString *)urlString
-                                   method:(NSString *_Nullable)method
-                                   params:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
-                                     body:(NSData *_Nullable)body
-                                    queue:(NSOperationQueue *_Nullable)queue
-                                 progress:(VFSHandlerProgressBlock _Nullable)progress
-                        completionHandler:(VFSHandlerCompletionBlock)completionHandler;
+/// Load data from url (GET)
+/// - Parameters:
+///   - urlString: request url
+///   - httpHeaders: http headers, optional
+///   - queue: operation queue, optional
+///   - progress: progress callback, optional
+///   - completionHandler: completion callback
+- (void)loadContentsAsyncFromUrl:(NSString *)urlString
+                          params:(nullable NSDictionary<NSString *, NSString *> *)httpHeaders
+                           queue:(nullable NSOperationQueue *)queue
+                        progress:(nullable VFSHandlerProgressBlock)progress
+               completionHandler:(VFSHandlerCompletionBlock)completionHandler;
+
+
+/// Load data using given request
+/// - Parameters:
+///   - request: URLRequest
+///   - queue: operation queue, optional
+///   - progress: progress callback, optional
+///   - completionHandler: completion callback
+- (void)loadContentsAsyncWithRequest:(NSURLRequest *)request
+                               queue:(nullable NSOperationQueue *)queue
+                            progress:(nullable VFSHandlerProgressBlock)progress
+                   completionHandler:(VFSHandlerCompletionBlock)completionHandler;
+
 @end
 
 NS_ASSUME_NONNULL_END
