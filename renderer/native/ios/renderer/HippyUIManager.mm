@@ -69,20 +69,6 @@ using CallFunctionCallback = hippy::CallFunctionCallback;
 using DomEvent = hippy::DomEvent;
 using RootNode = hippy::RootNode;
 
-static NSMutableArray<Class> *HippyViewManagerClasses = nil;
-NSArray<Class> *HippyGetViewManagerClasses(HippyBridge *bridge) {
-    if (!HippyViewManagerClasses) {
-        NSArray<Class> *classes = bridge.moduleClasses;
-        NSMutableArray<Class> *viewManagerClasses = [NSMutableArray array];
-        for (id aClass in classes) {
-            if ([aClass isSubclassOfClass:HippyViewManager.class]) {
-                [viewManagerClasses addObject:aClass];
-            }
-        }
-        HippyViewManagerClasses = viewManagerClasses;
-    }
-    return HippyViewManagerClasses;
-}
 
 using HPViewBinding = std::map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
 
@@ -206,6 +192,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *viewManagers;
 /// All extra components
 @property (atomic, strong) NSArray<Class> *extraComponents;
+/// Cache of all ViewManager classes
+@property (nonatomic, strong) NSArray<Class> *viewManagerClasses;
 
 @end
 
@@ -220,12 +208,13 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     self = [super init];
     if (self) {
         _bridge = bridge;
-        [self initContext];
+        [self setupContext];
+        [self setupViewManagerClassesCacheWithBridge:bridge];
     }
     return self;
 }
 
-- (void)initContext {
+- (void)setupContext {
     _shadowViewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeStrong];
     _viewRegistry = [[HippyComponentMap alloc] initWithComponentsReferencedType:HippyComponentReferenceTypeWeak];
     _viewRegistry.requireInMainThread = YES;
@@ -236,6 +225,16 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     _componentDataLock = OS_UNFAIR_LOCK_INIT;
     HippyScreenScale();
     HippyScreenSize();
+}
+
+- (void)setupViewManagerClassesCacheWithBridge:(HippyBridge *)bridge {
+    NSMutableArray<Class> *viewManagerClasses = [NSMutableArray array];
+    for (Class aClass in bridge.moduleClasses) {
+        if ([aClass isSubclassOfClass:HippyViewManager.class]) {
+            [viewManagerClasses addObject:aClass];
+        }
+    }
+    _viewManagerClasses = viewManagerClasses;
 }
 
 - (void)invalidate {
@@ -704,8 +703,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         }
 
         // Second, read the default view manager classes.
-        HippyBridge *strongBridge = self.bridge;
-        NSArray<Class> *classes = HippyGetViewManagerClasses(strongBridge);
+        NSArray<Class> *classes = self.viewManagerClasses;
         NSMutableDictionary *defaultViewManagerClasses = [NSMutableDictionary dictionaryWithCapacity:[classes count]];
         for (Class cls in classes) {
             HippyAssert([cls respondsToSelector:@selector(moduleName)],
