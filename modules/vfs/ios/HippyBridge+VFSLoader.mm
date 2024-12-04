@@ -29,13 +29,11 @@
 
 @implementation HippyBridge (VFSLoader)
 
-- (void)loadContentsAsynchronouslyFromUrl:(NSString *)urlString
-                                   method:(NSString *_Nullable)method
-                                   params:(NSDictionary<NSString *, NSString *> *)httpHeaders
-                                     body:(NSData *)body
-                                    queue:(NSOperationQueue *_Nullable)queue
-                                 progress:(VFSHandlerProgressBlock)progress
-                        completionHandler:(VFSHandlerCompletionBlock)completionHandler {
+- (void)loadContentsAsyncFromUrl:(NSString *)urlString
+                          params:(NSDictionary<NSString *,NSString *> *)httpHeaders
+                           queue:(NSOperationQueue *)queue
+                        progress:(VFSHandlerProgressBlock)progress
+               completionHandler:(VFSHandlerCompletionBlock)completionHandler {
     if (!urlString || !completionHandler) {
         return;
     }
@@ -43,17 +41,24 @@
     if (loader) {
         NSURL *url = HippyURLWithString(urlString, nil);
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-        if (method) {
-            [request setHTTPMethod:method];
-        }
         if (httpHeaders) {
             for (NSString *key in httpHeaders) {
                 [request setValue:httpHeaders[key] forHTTPHeaderField:key];
             }
         }
-        if (body) {
-            [request setHTTPBody:body];
-        }
+        loader->RequestUntrustedContent(request, nil, queue, progress, completionHandler);
+    }
+}
+
+- (void)loadContentsAsyncWithRequest:(NSURLRequest *)request
+                               queue:(NSOperationQueue *_Nullable)queue
+                            progress:(VFSHandlerProgressBlock)progress
+                   completionHandler:(VFSHandlerCompletionBlock)completionHandler {
+    if (!request || !completionHandler) {
+        return;
+    }
+    std::shared_ptr<VFSUriLoader> loader = [self vfsUriLoader].lock();
+    if (loader) {
         loader->RequestUntrustedContent(request, nil, queue, progress, completionHandler);
     }
 }
