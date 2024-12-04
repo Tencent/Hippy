@@ -559,7 +559,8 @@ export default class AnimationExample extends React.Component {
             }}
             style={[styles.square, {
               transform: [{
-                scale: this.scaleAnimationSet,
+                scaleX: this.scaleAnimationSet,
+                scaleY: this.scaleAnimationSet,
               }],
             }]}
           />

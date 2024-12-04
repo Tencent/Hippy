@@ -114,9 +114,9 @@ class AnimationManager
   void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObject(const std::string& prop,
                                  const std::shared_ptr<HippyValue>& value,
-                                 std::unordered_map<uint32_t, std::string>& result);
+                                 std::unordered_map<uint32_t, std::set<std::string>>& result);
   void FetchAnimationsFromArray(HippyValue& value,
-                                std::unordered_map<uint32_t, std::string>& result);
+                                std::unordered_map<uint32_t, std::set<std::string>>& result);
   void UpdateCubicBezierAnimation(double current,
                                   uint32_t related_animation_id,
                                   std::unordered_map<uint32_t, std::shared_ptr<DomNode>>& update_node_map);
@@ -140,7 +140,7 @@ class AnimationManager
    *   the key of this map is dom node id and the value are all animation properties of the node
    *   the key of props' map is animation id and value is ths name of prop.
    */
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::set<std::string>>> node_animation_props_map_;
   uint64_t listener_id_;
 };
 }  // namespace dom
