@@ -79,7 +79,7 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
   auto use_animation_it = dom_ext_map_->find(kUseAnimation);
   if (use_animation_it != dom_ext_map_->end()) {
     auto style_map_ = node->GetStyleMap();
-    std::unordered_map<uint32_t, std::string> animation_prop_map;
+    std::unordered_map<uint32_t, std::set<std::string>> animation_prop_map;
     for (auto& style: *style_map_) {
       if (style.second->IsObject()) {
         FetchAnimationsFromObject(style.first, style.second, animation_prop_map);
@@ -103,20 +103,26 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
         auto& orig_animation_prop_map = node_animation_props_it->second;
         for (auto& pair: animation_prop_map) {
           auto animation_id = pair.first;
-          auto prop = pair.second;
-          if (orig_animation_prop_map[animation_id] == prop) {
+          auto props = pair.second;
+          if (orig_animation_prop_map[animation_id] == props) {
             auto animation = GetAnimation(animation_id);
             if (animation == nullptr) continue;
-            node->EmplaceStyleMap(prop, HippyValue(animation->GetCurrentValue()));
+            for (auto prop: props) {
+              node->EmplaceStyleMap(prop, HippyValue(animation->GetCurrentValue()));
+            }
           } else {
             orig_animation_prop_map[animation_id] = animation_prop_map[animation_id];
-            EmplaceNodeProp(node, pair.second, animation_id);
+            for (auto prop: pair.second) {
+              EmplaceNodeProp(node, prop, animation_id);
+            }
           }
         }
       } else {
         node_animation_props_map_.insert({node_id, animation_prop_map});
         for (const auto& pair: animation_prop_map) {
-          EmplaceNodeProp(node, pair.second, pair.first);
+          for (auto prop: pair.second) {
+            EmplaceNodeProp(node, prop, pair.first);
+          }
         }
       }
     }
@@ -128,7 +134,7 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
 void AnimationManager::FetchAnimationsFromObject(
     const std::string& prop,
     const std::shared_ptr<HippyValue>& value,
-    std::unordered_map<uint32_t, std::string>& result) {
+    std::unordered_map<uint32_t, std::set<std::string>>& result) {
   if (value->IsObject()) {
     footstone::value::HippyValue::HippyValueObjectType obj;
     if (value->ToObject(obj)) {
@@ -138,7 +144,14 @@ void AnimationManager::FetchAnimationsFromObject(
           if (id.IsNumber()) {
             double animation_id;
             if (id.ToDouble(animation_id)) {
-              result.insert({static_cast<uint32_t>(animation_id), prop});
+              auto it = result.find(static_cast<uint32_t>(animation_id));
+              if (it != result.end()) {
+                it->second.insert(prop);
+              } else {
+                std::set<std::string> props;
+                props.insert(prop);
+                result.insert({static_cast<uint32_t>(animation_id), props});
+              }
             }
           }
         } else {
@@ -154,7 +167,7 @@ void AnimationManager::FetchAnimationsFromObject(
 }
 
 void AnimationManager::FetchAnimationsFromArray(HippyValue& value,
-                                                std::unordered_map<uint32_t, std::string>& result) {
+                                                std::unordered_map<uint32_t, std::set<std::string>>& result) {
   if (value.IsArray()) {
     footstone::value::HippyValue::HippyValueArrayType array;
     if (value.ToArray(array)) {
@@ -330,9 +343,12 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
       diff_value = *(dom_node->GetDiffStyle());
     }
     HippyValue prop_value(current);
-    dom_node->EmplaceStyleMapAndGetDiff(prop_it->second, prop_value, diff_value);
-    FOOTSTONE_DLOG(INFO) << "animation related_animation_id = " << related_animation_id
-      << "node id = " << dom_node->GetId() << ", key = " << prop_it->second << ", value = " << prop_value;
+    for (auto prop: prop_it->second) {
+      dom_node->EmplaceStyleMapAndGetDiff(prop, prop_value, diff_value);
+      FOOTSTONE_DLOG(INFO) << "animation related_animation_id = " << related_animation_id
+                           << "node id = " << dom_node->GetId() << ", key = " << prop << ", value = " << prop_value;
+    }
+
 
     dom_node->SetDiffStyle(std::make_shared<
         std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(std::move(diff_value)));
