@@ -61,7 +61,7 @@ void DomDomain::RegisterCallback() {
     auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
     if (dom_tree_adapter) {
       auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
-        auto model = DomModel::CreateModel(nlohmann::json::parse(data.Serialize(), nullptr, false));
+        auto model = DomModel::CreateModel(data.ToJson());
         model.SetDataProvider(provider);
         if (callback) {
           callback(model);
