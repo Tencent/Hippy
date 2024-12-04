@@ -60,7 +60,7 @@ class DevToolsUtil {
   static std::string ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const std::unordered_map<std::string, HippyValue>& node_props);
-  static std::string ParseDomValue(const HippyValue& value);
+  static std::string DumpHippyValue(const HippyValue& value);
   static void AppendDomKeyValue(std::string& node_str,
                                 bool& first_object,
                                 const std::string& node_key,

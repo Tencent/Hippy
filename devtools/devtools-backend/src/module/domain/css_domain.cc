@@ -51,7 +51,7 @@ void CssDomain::RegisterCallback() {
       return;
     }
     auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
-      auto model = CssModel::CreateModel(nlohmann::json::parse(data.Serialize(), nullptr, false));
+      auto model = CssModel::CreateModel(data.ToJson());
       model.SetDataProvider(provider);
       if (callback) {
         callback(model);

@@ -218,79 +218,51 @@ LayoutResult DevToolsUtil::GetLayoutOnScreen(const std::shared_ptr<DomNode>& roo
   return layout_result;
 }
 
-std::string DevToolsUtil::ParseDomValue(const HippyValue& hippy_value) {
-  if (!hippy_value.IsObject()) {
-    FOOTSTONE_DLOG(INFO) << kDevToolsTag << "ParseTotalProps, node props is not object";
-    return "{}";
-  }
-  std::string node_str = "{";
-  bool first_object = true;
-  for (auto iterator : hippy_value.ToObjectChecked()) {
-    if (iterator.first == "uri" || iterator.first == "src") {
-      iterator.second = "";
-    }
-    std::string key = iterator.first;
-    if (iterator.second.IsBoolean()) {
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":";
-      node_str += iterator.second.ToBooleanChecked() ? "true" : "false";
-      first_object = false;
-    } else if (iterator.second.IsInt32()) {
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":";
-      node_str += std::to_string(iterator.second.ToInt32Checked());
-      first_object = false;
-    } else if (iterator.second.IsUInt32()) {
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":";
-      node_str += std::to_string(iterator.second.IsUInt32());
-      first_object = false;
-    } else if (iterator.second.IsDouble()) {
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":";
-      node_str += std::to_string(iterator.second.ToDoubleChecked());
-      first_object = false;
-    } else if (iterator.second.IsString()) {
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":\"";
-      node_str += iterator.second.ToStringChecked();
-      node_str += "\"";
-      first_object = false;
-    } else if (iterator.second.IsArray()) {
-      auto props_array = iterator.second.ToArrayChecked();
-      std::string array = "[";
-      for (auto it = props_array.begin(); it != props_array.end(); ++it) {
-        if (it->IsNull() || it->IsUndefined()) {
-          continue;
-        }
-        array += ParseDomValue(*it);
-        if (it != props_array.end() - 1) {
-          array += ",";
-        }
+std::string DevToolsUtil::DumpHippyValue(const HippyValue& hippy_value) {
+  std::string result_str = "";
+  if (hippy_value.IsBoolean()) {
+    result_str = hippy_value.ToBooleanChecked() ? "true" : "false";
+  } else if (hippy_value.IsInt32()) {
+    result_str = std::to_string(hippy_value.ToInt32Checked());
+  } else if (hippy_value.IsUInt32()) {
+    result_str = std::to_string(hippy_value.ToUint32Checked());
+  } else if (hippy_value.IsDouble()) {
+    result_str = std::to_string(hippy_value.ToDoubleChecked());
+  } else if (hippy_value.IsString()) {
+    nlohmann::json hippy_value_json = hippy_value.ToStringChecked();
+    result_str += hippy_value_json.dump();
+  } else if (hippy_value.IsArray()) {
+    auto props_array = hippy_value.ToArrayChecked();
+    result_str = "[";
+    for (auto it = props_array.begin(); it != props_array.end(); ++it) {
+      if (it->IsNull() || it->IsUndefined()) {
+        continue;
       }
-      array += "]";
-
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":";
-      node_str += array;
-      first_object = false;
-
-    } else if (iterator.second.IsObject()) {
-      node_str += first_object ? "\"" : ",\"";
-      node_str += key;
-      node_str += "\":";
-      node_str += ParseDomValue(iterator.second);
-      first_object = false;
+      result_str += DumpHippyValue(*it);
+      if (it != props_array.end() - 1) {
+        result_str += ",";
+      }
     }
+    result_str += "]";
+  } else if (hippy_value.IsObject()) {
+    result_str = "{";
+    for (auto iterator : hippy_value.ToObjectChecked()) {
+      if (iterator.first == "uri" || iterator.first == "src") {
+        iterator.second = "";
+      }
+      std::string key = iterator.first;
+      nlohmann::json key_json = key;
+      result_str += key_json.dump();
+      result_str += ":";
+      result_str += DumpHippyValue(iterator.second);
+      result_str += ",";
+    }
+    result_str.pop_back();
+    result_str += "}";
+  } else {
+    result_str = "";
   }
-  node_str += "}";
-  return node_str;
+  return result_str;
 }
 
 std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props) {
@@ -348,62 +320,14 @@ void DevToolsUtil::AppendDomKeyValue(std::string& node_str,
                                      bool& first_object,
                                      const std::string& node_key,
                                      const HippyValue& hippy_value) {
-  if (hippy_value.IsBoolean()) {
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":";
-    node_str += hippy_value.ToBooleanChecked() ? "true" : "false";
-    first_object = false;
-  } else if (hippy_value.IsInt32()) {
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":";
-    node_str += std::to_string(hippy_value.ToInt32Checked());
-    first_object = false;
-  } else if (hippy_value.IsUInt32()) {
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":";
-    node_str += std::to_string(hippy_value.IsUInt32());
-    first_object = false;
-  } else if (hippy_value.IsDouble()) {
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":";
-    node_str += std::to_string(hippy_value.ToDoubleChecked());
-    first_object = false;
-  } else if (hippy_value.IsString()) {
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":\"";
-    node_str += hippy_value.ToStringChecked();
-    node_str += "\"";
-    first_object = false;
-  } else if (hippy_value.IsArray()) {
-    auto props_array = hippy_value.ToArrayChecked();
-    std::string array = "[";
-    for (auto it = props_array.begin(); it != props_array.end(); ++it) {
-      if (it->IsNull() || it->IsUndefined()) {
-        continue;
-      }
-      array += ParseDomValue(*it);  // ParseDomValue(*it);
-      if (it != props_array.end() - 1) {
-        array += ",";
-      }
-    }
-    array += "]";
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":";
-    node_str += array;
-    first_object = false;
-  } else if (hippy_value.IsObject()) {
-    node_str += first_object ? "\"" : ",\"";
-    node_str += node_key;
-    node_str += "\":";
-    node_str += ParseDomValue(hippy_value);
-    first_object = false;
+  std::string hippy_value_str = DumpHippyValue(hippy_value);
+  if (hippy_value_str == "") {
+    return;
   }
+  nlohmann::json node_key_json = node_key;
+  node_str += first_object ? "" : ",";
+  node_str += node_key_json.dump() + ":" + hippy_value_str;
+  first_object = false;
 }
 
 void DevToolsUtil::PostDomTask(const std::weak_ptr<DomManager>& weak_dom_manager, std::function<void()> func) {
