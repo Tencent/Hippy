@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyConvert+NativeRender.h"
 
 /**
  * Protocol for any scrollable components inherit from UIScrollView
@@ -75,5 +76,24 @@
  * @param animated Indicate whether to show animation effects
  */
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
+
+
+#pragma mark - Nested Scroll Props
+
+/// Priority of nestedScroll, see `HippyNestedScrollCoordinator` for more
+- (void)setNestedScrollPriority:(HippyNestedScrollPriority)nestedScrollPriority;
+
+/// Priority of nestedScroll in specific direction (finger move from bottom to top)
+- (void)setNestedScrollTopPriority:(HippyNestedScrollPriority)nestedScrollTopPriority;
+
+/// Priority of nestedScroll in specific direction (finger move from right to left)
+- (void)setNestedScrollLeftPriority:(HippyNestedScrollPriority)nestedScrollLeftPriority;
+
+/// Priority of nestedScroll in specific direction (finger move from top to bottom)
+- (void)setNestedScrollBottomPriority:(HippyNestedScrollPriority)nestedScrollBottomPriority;
+
+/// Set priority of nestedScroll in specific direction (finger move from left to right)
+- (void)setNestedScrollRightPriority:(HippyNestedScrollPriority)nestedScrollRightPriority;
+
 
 @end

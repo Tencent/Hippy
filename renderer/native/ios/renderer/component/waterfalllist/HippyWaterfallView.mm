@@ -33,6 +33,7 @@
 #import "HippyWaterfallViewCell.h"
 #import "HippyRootView.h"
 #import "HippyShadowListView.h"
+#import "HippyNestedScrollCoordinator.h"
 
 
 static NSString *kCellIdentifier = @"HippyWaterfallCellIdentifier";
@@ -56,6 +57,9 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 /// Hippy root view
 @property (nonatomic, weak) HippyRootView *rootView;
 
+/// Nested scroll coordinator
+@property (nonatomic, strong) HippyNestedScrollCoordinator *nestedScrollCoordinator;
+
 @end
 
 @implementation HippyWaterfallView {
@@ -71,13 +75,47 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _cachedWeakCellViews = [NSMapTable strongToWeakObjectsMapTable];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self 
+                                                 selector:@selector(didReceiveMemoryWarning)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
+                                                   object:nil];
         [self initCollectionView];
-        if (@available(iOS 11.0, *)) {
-            self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-        }
     }
     return self;
+}
+
+- (void)setupNestedScrollCoordinatorIfNeeded {
+    if (!_nestedScrollCoordinator) {
+        _nestedScrollCoordinator = [HippyNestedScrollCoordinator new];
+        _nestedScrollCoordinator.innerScrollView = self.collectionView;
+        self.collectionView.nestedGestureDelegate = _nestedScrollCoordinator;
+        [self addScrollListener:_nestedScrollCoordinator];
+    }
+}
+
+- (void)setNestedScrollPriority:(HippyNestedScrollPriority)nestedScrollPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollPriority:nestedScrollPriority];
+}
+
+- (void)setNestedScrollTopPriority:(HippyNestedScrollPriority)nestedScrollTopPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollTopPriority:nestedScrollTopPriority];
+}
+
+- (void)setNestedScrollLeftPriority:(HippyNestedScrollPriority)nestedScrollLeftPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollLeftPriority:nestedScrollLeftPriority];
+}
+
+- (void)setNestedScrollBottomPriority:(HippyNestedScrollPriority)nestedScrollBottomPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollBottomPriority:nestedScrollBottomPriority];
+}
+
+- (void)setNestedScrollRightPriority:(HippyNestedScrollPriority)nestedScrollRightPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollRightPriority:nestedScrollRightPriority];
 }
 
 - (void)initCollectionView {
@@ -89,6 +127,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     collectionView.layoutDelegate = self;
     collectionView.alwaysBounceVertical = YES;
     collectionView.backgroundColor = [UIColor clearColor];
+    collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     _collectionView = collectionView;
     [self registerCells];
     [self registerSupplementaryViews];

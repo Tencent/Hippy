@@ -21,8 +21,15 @@
  */
 
 #import "HippyNextListTableView.h"
+#import "HippyScrollView.h"
 
 @implementation HippyNextListTableView
+
+@synthesize lastContentOffset;
+@synthesize activeInnerScrollView;
+@synthesize activeOuterScrollView;
+@synthesize nestedGestureDelegate;
+@synthesize cascadeLockForNestedScroll;
 
 /**
  * we need scroll indicator to be at top
@@ -43,6 +50,16 @@
     if ([_layoutDelegate respondsToSelector:@selector(tableViewDidLayoutSubviews:)]) {
         [_layoutDelegate tableViewDidLayoutSubviews:self];
     }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if (self.nestedGestureDelegate &&
+        gestureRecognizer == self.panGestureRecognizer &&
+        [self.nestedGestureDelegate respondsToSelector:@selector(shouldRecognizeScrollGestureSimultaneouslyWithView:)]) {
+        return [self.nestedGestureDelegate shouldRecognizeScrollGestureSimultaneouslyWithView:otherGestureRecognizer.view];
+    }
+    return NO;
 }
 
 @end
