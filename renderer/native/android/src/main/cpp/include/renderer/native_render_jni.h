@@ -41,6 +41,9 @@ jobject GetNativeRendererInstance(JNIEnv* j_env,
                                   jobject j_object,
                                   jint j_render_manager_id);
 
+
+void OnFontLoaded(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id);
+
 void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_render_manager_id, jint j_root_id,
                     jfloat width, jfloat height);
 
