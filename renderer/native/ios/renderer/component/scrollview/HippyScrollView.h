@@ -53,8 +53,12 @@
 /// Gesture delegate for handling nested scroll.
 @property (nonatomic, weak) id<HippyNestedScrollGestureDelegate> nestedGestureDelegate;
 
-/// Cascade lock for nestedScroll when
+/// Cascade lock for nestedScroll
 @property (nonatomic, assign) BOOL cascadeLockForNestedScroll;
+
+/// Whether is temporarily locked in current DidScroll callback.
+/// It is used to determine whether to block the sending of onScroll events.
+@property (nonatomic, assign) BOOL isLockedInNestedScroll;
 
 @end
 

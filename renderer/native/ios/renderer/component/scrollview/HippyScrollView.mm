@@ -36,6 +36,7 @@
 @synthesize activeOuterScrollView;
 @synthesize nestedGestureDelegate;
 @synthesize cascadeLockForNestedScroll;
+@synthesize isLockedInNestedScroll;
 
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -469,6 +470,20 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
+    
+    id<HippyNestedScrollProtocol> sv = (id<HippyNestedScrollProtocol>)scrollView;
+    if (sv.isLockedInNestedScroll) {
+        // This method is still called when nested scrolling,
+        // and we should ignore subsequent logic execution when simulating locking.
+        sv.isLockedInNestedScroll = NO; // reset
+        return;
+    }
+    
     NSTimeInterval now = CACurrentMediaTime();
     NSTimeInterval ti = now - _lastScrollDispatchTime;
     BOOL flag = (_scrollEventThrottle > 0 && _scrollEventThrottle < ti);
@@ -478,11 +493,6 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
         }
         _lastScrollDispatchTime = now;
         _allowNextScrollNoMatterWhat = NO;
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
-            [scrollViewListener scrollViewDidScroll:scrollView];
-        }
     }
 }
 

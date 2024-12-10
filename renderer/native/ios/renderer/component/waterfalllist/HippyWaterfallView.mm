@@ -441,6 +441,19 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 #pragma mark - UIScrollView Delegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
+    id<HippyNestedScrollProtocol> sv = (id<HippyNestedScrollProtocol>)scrollView;
+    if (sv.isLockedInNestedScroll) {
+        // This method is still called when nested scrolling,
+        // and we should ignore subsequent logic execution when simulating locking.
+        sv.isLockedInNestedScroll = NO; // reset
+        return;
+    }
+    
     if (_onScroll) {
         CFTimeInterval now = CACurrentMediaTime();
         CFTimeInterval ti = (now - _lastOnScrollEventTimeInterval) * 1000.0;
@@ -449,11 +462,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
             _lastOnScrollEventTimeInterval = now;
             _onScroll(eventData);
             _allowNextScrollNoMatterWhat = NO;
-        }
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
-            [scrollViewListener scrollViewDidScroll:scrollView];
         }
     }
     [_headerRefreshView scrollViewDidScroll:scrollView];

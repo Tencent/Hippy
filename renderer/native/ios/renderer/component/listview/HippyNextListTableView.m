@@ -30,6 +30,7 @@
 @synthesize activeOuterScrollView;
 @synthesize nestedGestureDelegate;
 @synthesize cascadeLockForNestedScroll;
+@synthesize isLockedInNestedScroll;
 
 /**
  * we need scroll indicator to be at top

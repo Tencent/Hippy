@@ -76,6 +76,9 @@ static CGFloat const kHippyNestedScrollFloatThreshold = 0.1;
     _outerScrollView.bounces = NO;
 }
 
+
+#pragma mark - Private
+
 - (BOOL)isDirection:(HippyNestedScrollDirection)direction hasPriority:(HippyNestedScrollPriority)priority {
     // Note that the top and bottom defined in the nestedScroll attribute refer to the finger orientation,
     // as opposed to the page orientation.
@@ -138,6 +141,10 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
     return NO;
 }
 
+static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> *scrollView) {
+    scrollView.contentOffset = scrollView.lastContentOffset;
+    scrollView.isLockedInNestedScroll = YES;
+}
 
 #pragma mark - ScrollEvents Delegate
 
@@ -199,7 +206,7 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
         // Do lock inner action!
         if (isInner && !self.shouldUnlockInnerScrollView) {
             HippyNSLogTrace(@"lock inner (%p) !!!!", sv);
-            innerScrollView.contentOffset = innerScrollView.lastContentOffset;
+            lockScrollView(innerScrollView);
         }
         
         // Handle the scenario where the Inner can slide when the Outer's bounces on.
@@ -211,7 +218,7 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
             // When the finger is dragging, the Outer has slipped to the edge and is ready to bounce,
             // but the Inner can still slide.
             // At this time, the sliding of the Outer needs to be locked.
-            outerScrollView.contentOffset = outerScrollView.lastContentOffset;
+            lockScrollView(outerScrollView);
             HippyNSLogTrace(@"lock outer due to inner scroll");
         }
         
@@ -239,11 +246,11 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
         
         // Do cascade lock action!
         if (isOuter && outerScrollView.cascadeLockForNestedScroll) {
-            outerScrollView.contentOffset = outerScrollView.lastContentOffset;
+            lockScrollView(outerScrollView);
             HippyNSLogTrace(@"lock outer due to cascadeLock");
             outerScrollView.cascadeLockForNestedScroll = NO;
         } else if (isInner && innerScrollView.cascadeLockForNestedScroll) {
-            innerScrollView.contentOffset = innerScrollView.lastContentOffset;
+            lockScrollView(innerScrollView);
             HippyNSLogTrace(@"lock outer due to cascadeLock");
             innerScrollView.cascadeLockForNestedScroll = NO;
         }
@@ -273,8 +280,8 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
         // Do lock outer action!
         if (self.dragType != HippyNestedScrollDragTypeOuterOnly &&
             isOuter && !self.shouldUnlockOuterScrollView) {
-            HippyNSLogTrace(@"lock outer (%p) !!!! %@", sv, NSStringFromCGPoint(outerScrollView.contentOffset));
-            outerScrollView.contentOffset = outerScrollView.lastContentOffset;
+            HippyNSLogTrace(@"lock outer (%p) !!!!", sv);
+            lockScrollView(outerScrollView);
         }
         
         // Deal with the multi-level nesting (greater than or equal to three layers).
@@ -289,11 +296,11 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
         
         // Do cascade lock action!
         if (isInner && innerScrollView.cascadeLockForNestedScroll) {
-            innerScrollView.contentOffset = innerScrollView.lastContentOffset;
+            lockScrollView(innerScrollView);
             HippyNSLogTrace(@"lock outer due to cascadeLock");
             innerScrollView.cascadeLockForNestedScroll = NO;
         } else if (isOuter && outerScrollView.cascadeLockForNestedScroll) {
-            outerScrollView.contentOffset = outerScrollView.lastContentOffset;
+            lockScrollView(outerScrollView);
             HippyNSLogTrace(@"lock outer due to cascadeLock");
             outerScrollView.cascadeLockForNestedScroll = NO;
         }
