@@ -231,3 +231,13 @@ HIPPY_ENUM_CONVERTER(HippyPaintType, (@{
 }), HippyPaintTypeUndefined, integerValue)
 
 @end
+
+@implementation HippyConvert (NestedScroll)
+
+HIPPY_ENUM_CONVERTER(HippyNestedScrollPriority, (@{
+    @"none": @(HippyNestedScrollPriorityNone),
+    @"self": @(HippyNestedScrollPrioritySelf),
+    @"parent": @(HippyNestedScrollPriorityParent),
+}), HippyNestedScrollPriorityUndefined, charValue)
+
+@end

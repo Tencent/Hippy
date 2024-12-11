@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyNestedScrollProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,8 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface HippyNextListTableView : UICollectionView
 
+/// Custom tableView (collectionView) of Hippy
+@interface HippyNextListTableView : UICollectionView <HippyNestedScrollProtocol>
+
+/// Layout delegate
 @property (nonatomic, weak) id<HippyNextListTableViewLayoutProtocol> layoutDelegate;
 
 @end
