@@ -25,8 +25,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSString *const HippyLoadFontNotification;
-
 typedef NS_ENUM(NSInteger, HippyFontUrlState) {
     HippyFontUrlPending = 0,
     HippyFontUrlLoading = 1,
@@ -57,6 +55,15 @@ typedef NS_ENUM(NSInteger, HippyFontUrlState) {
  * @param fontFamily - The font family needs to be registered
  */
 + (BOOL)registerFontIfNeeded:(NSString *)fontFamily;
+
+/**
+ * If the font in the url has not been downloaded, download the font.
+ * Function will be called when downloading fonts through url property of text component.
+ *
+ * @param fontFamily - The font family needs to be downloaded
+ * @param url - The font url needs to download from.
+ */
++ (void)loadFontIfNeeded:(NSString *)fontFamily fromUrl:(NSString *)url;
 
 /**
  * Whether the font is downloading from the url.

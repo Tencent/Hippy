@@ -31,25 +31,27 @@
 #import "HippyUIManager.h"
 
 
-NSString *const HippyLoadFontNotification = @"HippyLoadFontNotification";
+static NSString *const HippyLoadFontNotification = @"HippyLoadFontNotification";
+static NSString *const HippyLoadFontUrlKey = @"fontUrl";
+static NSString *const HippyLoadFontFamilyKey = @"fontFamily";
 static NSString *const kFontLoaderModuleErrorDomain = @"kFontLoaderModuleErrorDomain";
 static NSUInteger const FontLoaderErrorUrlError = 1;
 static NSUInteger const FontLoaderErrorDirectoryError = 2;
 static NSUInteger const FontLoaderErrorRequestError = 3;
 static NSUInteger const FontLoaderErrorRegisterError = 4;
 static NSUInteger const FontLoaderErrorWriteFileError = 4;
-NSString *const HippyFontDirName = @"HippyFonts";
-NSString *const HippyFontUrlCacheName = @"urlToFilePath.plist";
-NSString *const HippyFontFamilyCacheName = @"fontFaimilyToFiles.plist";
+static NSString *const HippyFontDirName = @"HippyFonts";
+static NSString *const HippyFontUrlCacheName = @"urlToFilePath.plist";
+static NSString *const HippyFontFamilyCacheName = @"fontFaimilyToFiles.plist";
 
-static dispatch_queue_t serialQueue;
-static NSMutableDictionary *urlToFilePath;
-static NSMutableDictionary *fontFamilyToFiles;
-static NSMutableDictionary *urlLoadState = [NSMutableDictionary dictionary];
-static NSMutableArray *fontRegistered = [NSMutableArray array];
-static NSString *fontDirPath;
-static NSString *fontUrlSavePath;
-static NSString *fontFamilySavePath;
+static dispatch_queue_t gSerialQueue;
+static NSMutableDictionary *gUrlToFilePath;
+static NSMutableDictionary *gFontFamilyToFiles;
+static NSMutableDictionary *gUrlLoadState;
+static NSMutableArray *gFontRegistered;
+static NSString *gFontDirPath;
+static NSString *gFontUrlSavePath;
+static NSString *gFontFamilySavePath;
 
 
 @implementation HippyFontLoaderModule
@@ -67,51 +69,70 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
             
             NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
             NSString *cachesDirectory = [paths objectAtIndex:0];
-            fontDirPath = [cachesDirectory stringByAppendingPathComponent:HippyFontDirName];
-            fontUrlSavePath = [fontDirPath stringByAppendingPathComponent:HippyFontUrlCacheName];
-            fontFamilySavePath = [fontDirPath stringByAppendingPathComponent:HippyFontFamilyCacheName];
-            serialQueue = dispatch_queue_create("com.tencent.hippy.FontLoaderQueue", DISPATCH_QUEUE_SERIAL);
+            gFontDirPath = [cachesDirectory stringByAppendingPathComponent:HippyFontDirName];
+            gFontUrlSavePath = [gFontDirPath stringByAppendingPathComponent:HippyFontUrlCacheName];
+            gFontFamilySavePath = [gFontDirPath stringByAppendingPathComponent:HippyFontFamilyCacheName];
+            gSerialQueue = dispatch_queue_create("com.tencent.hippy.FontLoaderQueue", DISPATCH_QUEUE_SERIAL);
         });
     }
     return self;
 }
 
 + (dispatch_queue_t)getFontSerialQueue {
-    return serialQueue;
+    return gSerialQueue;
 }
 
 + (void)setUrl:(NSString *)url state:(HippyFontUrlState)state {
-    [urlLoadState setObject:@(state) forKey:url];
+    if (!gUrlLoadState) {
+        gUrlLoadState = [NSMutableDictionary dictionary];
+    }
+    [gUrlLoadState setObject:@(state) forKey:url];
 }
 
 + (BOOL)isUrlLoading:(NSString *)url {
-    return [[urlLoadState objectForKey:url] integerValue] == HippyFontUrlLoading;
+    if (!gUrlLoadState) {
+        gUrlLoadState = [NSMutableDictionary dictionary];
+    }
+    return [[gUrlLoadState objectForKey:url] integerValue] == HippyFontUrlLoading;
 }
 
+// Read file to init dict if needed. This function will be called asynchronously.
 + (void)initDictIfNeeded {
-    if (fontFamilyToFiles == nil) {
-        fontFamilyToFiles = [NSMutableDictionary dictionaryWithContentsOfFile:fontFamilySavePath];
-        if (fontFamilyToFiles == nil) {
-            fontFamilyToFiles =  [NSMutableDictionary dictionary];
+    if (gFontFamilyToFiles == nil) {
+        gFontFamilyToFiles = [NSMutableDictionary dictionaryWithContentsOfFile:gFontFamilySavePath];
+        if (gFontFamilyToFiles == nil) {
+            gFontFamilyToFiles = [NSMutableDictionary dictionary];
         }
     }
-    if (urlToFilePath == nil) {
-        urlToFilePath = [NSMutableDictionary dictionaryWithContentsOfFile:fontUrlSavePath];
-        if (urlToFilePath == nil) {
-            urlToFilePath =  [NSMutableDictionary dictionary];
+    if (gUrlToFilePath == nil) {
+        gUrlToFilePath = [NSMutableDictionary dictionaryWithContentsOfFile:gFontUrlSavePath];
+        if (gUrlToFilePath == nil) {
+            gUrlToFilePath =  [NSMutableDictionary dictionary];
         }
+    }
+}
+
++ (void)loadFontIfNeeded:(NSString *)fontFamily fromUrl:(NSString *)url {
+    if (url && ![HippyFontLoaderModule isUrlLoading:url]) {
+        dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
+            NSString *fontPath = [HippyFontLoaderModule getFontPath:url];
+            if (!fontPath && fontFamily) {
+                NSDictionary *userInfo = @{HippyLoadFontUrlKey: url, HippyLoadFontFamilyKey: fontFamily};
+                [[NSNotificationCenter defaultCenter] postNotificationName:HippyLoadFontNotification object:nil userInfo:userInfo];
+            }
+        });
     }
 }
 
 - (void)loadFont:(NSNotification *)notification {
-    NSString *urlString = [notification.userInfo objectForKey:@"fontUrl"];
-    NSString *fontFamily = [notification.userInfo objectForKey:@"fontFamily"];
+    NSString *urlString = [notification.userInfo objectForKey:HippyLoadFontUrlKey];
+    NSString *fontFamily = [notification.userInfo objectForKey:HippyLoadFontFamilyKey];
     [self load:fontFamily from:urlString resolver:nil rejecter:nil];
 }
 
 + (NSString *)getFontPath:(NSString *)url {
     [self initDictIfNeeded];
-    NSString *fontFilePath = urlToFilePath[url];
+    NSString *fontFilePath = gUrlToFilePath[url];
     if (!fontFilePath) {
         return nil;
     }
@@ -124,15 +145,18 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
 
 + (BOOL)registerFontIfNeeded:(NSString *)fontFamily {
     [self initDictIfNeeded];
-    NSMutableArray *fontFiles = [fontFamilyToFiles objectForKey:fontFamily];
+    NSMutableArray *fontFiles = [gFontFamilyToFiles objectForKey:fontFamily];
+    if (!gFontRegistered) {
+        gFontRegistered = [NSMutableArray array];
+    }
     BOOL isFontRegistered = NO;
     if (fontFiles) {
         NSMutableArray *fileNotExist = [NSMutableArray array];
         for (NSString *fontFile in fontFiles) {
-            if (![fontRegistered containsObject:fontFile]) {
+            if (![gFontRegistered containsObject:fontFile]) {
                 NSError *error = nil;
                 if ([self registerFontFromURL:fontFile error:&error]) {
-                    [fontRegistered addObject:fontFile];
+                    [gFontRegistered addObject:fontFile];
                     isFontRegistered = YES;
                     HippyLogInfo(@"register font \"%@\" success!", fontFile);
                 } else {
@@ -174,16 +198,16 @@ HIPPY_EXPORT_MODULE(FontLoaderModule)
 
 - (void)saveFontfamily:(NSString *)fontFamily url:(NSString *)url filePath:(NSString *)filePath {
     [HippyFontLoaderModule initDictIfNeeded];
-    [urlToFilePath setObject:filePath forKey:url];
-    NSMutableArray *fontFiles = [fontFamilyToFiles objectForKey:fontFamily];
+    [gUrlToFilePath setObject:filePath forKey:url];
+    NSMutableArray *fontFiles = [gFontFamilyToFiles objectForKey:fontFamily];
     if (!fontFiles) {
         fontFiles = [NSMutableArray arrayWithObject:filePath];
-        [fontFamilyToFiles setObject:fontFiles forKey:fontFamily];
+        [gFontFamilyToFiles setObject:fontFiles forKey:fontFamily];
     } else {
         [fontFiles addObject:filePath];
     }
-    [urlToFilePath writeToFile:fontUrlSavePath atomically:YES];
-    [fontFamilyToFiles writeToFile:fontFamilySavePath atomically:YES];
+    [gUrlToFilePath writeToFile:gFontUrlSavePath atomically:YES];
+    [gFontFamilyToFiles writeToFile:gFontFamilySavePath atomically:YES];
 }
 
 
@@ -233,12 +257,14 @@ HIPPY_EXPORT_METHOD(load:(NSString *)fontFamily from:(NSString *)urlString resol
             if (resolve) {
                 resolve([NSString stringWithFormat:@"load local font file \"%@\" success!", fontFilePath]);
             }
-            [HippyFontLoaderModule setUrl:urlString state:HippyFontUrlLoaded];
+            @synchronized (strongSelf) {
+                [HippyFontLoaderModule setUrl:urlString state:HippyFontUrlLoaded];
+            }
         } else {  // is http url
             NSFileManager *fileManager = [NSFileManager defaultManager];
-            if (![fileManager fileExistsAtPath:fontDirPath]) {
+            if (![fileManager fileExistsAtPath:gFontDirPath]) {
                 NSError *error;
-                [fileManager createDirectoryAtPath:fontDirPath withIntermediateDirectories:YES attributes:nil error:&error];
+                [fileManager createDirectoryAtPath:gFontDirPath withIntermediateDirectories:YES attributes:nil error:&error];
                 if (error) {
                     NSString *errorKey = [NSString stringWithFormat:@"%lu", FontLoaderErrorDirectoryError];
                     if (reject) {
@@ -249,7 +275,7 @@ HIPPY_EXPORT_METHOD(load:(NSString *)fontFamily from:(NSString *)urlString resol
                 }
             }
             NSString *fileName = [fontFamily stringByAppendingFormat:@".%@", [response.suggestedFilename pathExtension]];
-            NSString *fontFilePath = [fontDirPath stringByAppendingPathComponent:fileName];
+            NSString *fontFilePath = [gFontDirPath stringByAppendingPathComponent:fileName];
             if ([data writeToFile:fontFilePath atomically:YES]) {
                 dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
                     [strongSelf saveFontfamily:fontFamily url:urlString filePath:fontFilePath];

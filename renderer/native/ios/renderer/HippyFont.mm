@@ -206,17 +206,11 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
                variant:(NSArray<NativeRenderFontVariantDescriptor *> *)variant
        scaleMultiplier:(CGFloat)scaleMultiplier {
     // Defaults
-    if (url && ![HippyFontLoaderModule isUrlLoading:url]) {
+    if (url) {
         dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
-            NSString *fontPath = [HippyFontLoaderModule getFontPath:url];
-            if (!fontPath && family) {
-                NSDictionary *userInfo = @{@"fontUrl": url, @"fontFamily": family};
-                [[NSNotificationCenter defaultCenter] postNotificationName:HippyLoadFontNotification object:nil userInfo:userInfo];
-            }
+            [HippyFontLoaderModule loadFontIfNeeded:family fromUrl:url];
         });
     }
-
-    // Defaults
     static NSString *defaultFontFamily;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -252,12 +246,6 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     fontWeight = weight ? [HippyConvert NativeRenderFontWeight:weight] : fontWeight;
 
     BOOL didFindFont = NO;
-    
-    if (fontNamesForFamilyName(familyName).count == 0) {
-        dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
-            [HippyFontLoaderModule registerFontIfNeeded:familyName];
-        });
-    }
 
     // Handle system font as special case. This ensures that we preserve
     // the specific metrics of the standard system font as closely as possible.
@@ -279,6 +267,12 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
                 font = [UIFont fontWithDescriptor:fontDescriptor size:fontSize];
             }
         }
+    }
+    
+    if (!didFindFont && fontNamesForFamilyName(familyName).count == 0) {
+        dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
+            [HippyFontLoaderModule registerFontIfNeeded:familyName];
+        });
     }
 
     // Gracefully handle being given a font name rather than font family, for
