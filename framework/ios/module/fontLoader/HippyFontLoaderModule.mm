@@ -231,13 +231,11 @@ HIPPY_EXPORT_METHOD(load:(NSString *)fontFamily from:(NSString *)urlString resol
     }
     
     __weak __typeof(self) weakSelf = self;
-    [self.bridge loadContentsAsynchronouslyFromUrl:urlString
-                                            method:@"Get"
-                                            params:nil
-                                              body:nil
-                                             queue:nil
-                                          progress:nil
-                                 completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentsAsyncFromUrl:urlString
+                                   params:nil
+                                    queue:nil
+                                 progress:nil
+                        completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
         __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (error) {
             if (reject) {
