@@ -31,13 +31,7 @@
 
 @implementation HippyCustomScrollView
 
-@synthesize lastContentOffset;
-@synthesize activeInnerScrollView;
-@synthesize activeOuterScrollView;
-@synthesize nestedGestureDelegate;
-@synthesize cascadeLockForNestedScroll;
-@synthesize isLockedInNestedScroll;
-
+HIPPY_NESTEDSCROLL_PROTOCOL_PROPERTY_IMP
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {

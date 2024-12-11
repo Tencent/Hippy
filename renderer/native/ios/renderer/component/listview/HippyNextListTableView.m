@@ -21,16 +21,10 @@
  */
 
 #import "HippyNextListTableView.h"
-#import "HippyScrollView.h"
 
 @implementation HippyNextListTableView
 
-@synthesize lastContentOffset;
-@synthesize activeInnerScrollView;
-@synthesize activeOuterScrollView;
-@synthesize nestedGestureDelegate;
-@synthesize cascadeLockForNestedScroll;
-@synthesize isLockedInNestedScroll;
+HIPPY_NESTEDSCROLL_PROTOCOL_PROPERTY_IMP
 
 /**
  * we need scroll indicator to be at top

@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyScrollView.h"
+#import "HippyNestedScrollProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

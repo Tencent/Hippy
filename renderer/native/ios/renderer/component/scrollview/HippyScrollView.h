@@ -21,46 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyScrollableProtocol.h"
 #import "HippyView.h"
-
-
-/// Delegate for handling nested scrolls' gesture conflict
-@protocol HippyNestedScrollGestureDelegate <NSObject>
-
-/// Ask the delegate whether gesture should recognize simultaneously
-/// For nested scroll
-/// @param view the other view
-- (BOOL)shouldRecognizeScrollGestureSimultaneouslyWithView:(UIView *)view;
-
-@end
-
-
-/// Protocol for nested scrollview
-@protocol HippyNestedScrollProtocol <NSObject>
-
-/// Record the last content offset for scroll lock.
-@property (nonatomic, assign) CGPoint lastContentOffset;
-
-/// Record the current active inner scrollable view.
-/// Used to judge the responder when outer has more than one inner scrollview.
-@property (nonatomic, weak) UIScrollView<HippyNestedScrollProtocol> *activeInnerScrollView;
-
-/// Record the current active outer scrollable view.
-/// Used to pass the cascadeLock when more than three scrollable views nested.
-@property (nonatomic, weak) UIScrollView<HippyNestedScrollProtocol> *activeOuterScrollView;
-
-/// Gesture delegate for handling nested scroll.
-@property (nonatomic, weak) id<HippyNestedScrollGestureDelegate> nestedGestureDelegate;
-
-/// Cascade lock for nestedScroll
-@property (nonatomic, assign) BOOL cascadeLockForNestedScroll;
-
-/// Whether is temporarily locked in current DidScroll callback.
-/// It is used to determine whether to block the sending of onScroll events.
-@property (nonatomic, assign) BOOL isLockedInNestedScroll;
-
-@end
+#import "HippyScrollableProtocol.h"
+#import "HippyNestedScrollProtocol.h"
 
 
 /// The hippy's custom scrollView
