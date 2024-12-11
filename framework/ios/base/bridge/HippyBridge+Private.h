@@ -24,6 +24,7 @@
 #define HippyBridge_Private_h
 
 #import "HippyBridge.h"
+#import "HippyModulesSetup.h"
 #include "footstone/time_point.h"
 #include <memory>
 
@@ -37,6 +38,8 @@ class RootNode;
 };
 
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol HippyBridgeInternal <NSObject>
 
 /// URI Loader
@@ -44,6 +47,22 @@ class RootNode;
 
 /// Start time of hippyBridge, for performance api.
 @property (nonatomic, assign) footstone::TimePoint startTime;
+
+/// Helper class responsible for managing Modules
+@property (nonatomic, strong) HippyModulesSetup *moduleSetup;
+
+/// Bundle loading count,
+/// used to indicate whether is in loading state.
+@property (nonatomic, assign) NSInteger loadingCount;
+
+/// Urls of all js bundles
+@property (nonatomic, strong) NSMutableArray<NSURL *> *allBundleURLs;
+
+/// Bundle fetch operation queue (concurrent)
+@property (nonatomic, strong) NSOperationQueue *bundleQueue;
+
+/// Record the last execute operation for adding execution dependency.
+@property (nonatomic, strong, nullable) NSOperation *lastExecuteOperation;
 
 @end
 
@@ -60,6 +79,6 @@ class RootNode;
 
 @end
 
-
+NS_ASSUME_NONNULL_END
 
 #endif /* HippyBridge_Private_h */

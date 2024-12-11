@@ -38,14 +38,14 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const Dev
   channel_ = NetChannel::CreateChannel(devtools_config);
 }
 
-void TunnelService::Connect() {
+void TunnelService::Connect(std::function<void()> reconnect_handler) {
   FOOTSTONE_DLOG(INFO) << kDevToolsTag << "TunnelService, start connect.";
   channel_->Connect([WEAK_THIS](const std::string& msg, int flag) {
     if (flag == kTaskFlag) {
       DEFINE_AND_CHECK_SELF(TunnelService)
       self->HandleReceiveData(msg);
     }
-  });
+  }, reconnect_handler);
   dispatch_->SetResponseHandler([WEAK_THIS](const std::string &rsp_data) {
     DEFINE_AND_CHECK_SELF(TunnelService)
     self->channel_->Send(rsp_data);

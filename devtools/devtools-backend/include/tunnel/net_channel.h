@@ -32,6 +32,7 @@ constexpr uint8_t kTaskFlag = 210;  // message flag
 class NetChannel {
  public:
   using ReceiveDataHandler = std::function<void(const std::string& msg, uint8_t flag)>;
+  using ReconnectHandler = std::function<void()>;
 
   virtual ~NetChannel() {}
 
@@ -39,7 +40,7 @@ class NetChannel {
    * @brief connect to frontend
    * @param handler to receive msg from frontend
    */
-  virtual void Connect(ReceiveDataHandler handler) = 0;
+  virtual void Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) = 0;
 
   /**
    * @brief send data to frontend

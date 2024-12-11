@@ -49,7 +49,7 @@ namespace hippy::devtools {
 class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_shared_from_this<WebSocketChannel> {
  public:
   explicit WebSocketChannel(const std::string& ws_uri);
-  void Connect(ReceiveDataHandler handler) override;
+  void Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) override;
   void Send(const std::string& rsp_data) override;
   void Close(int32_t code, const std::string& reason) override;
 
@@ -57,9 +57,10 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   void StartConnect(const std::string& ws_uri);
   void HandleSocketInit(const websocketpp::connection_hdl& handle);
   void HandleSocketConnectFail(const websocketpp::connection_hdl& handle);
-  void HandleSocketConnectOpen(const websocketpp::connection_hdl& handle);
+  void HandleSocketConnectOpen(const websocketpp::connection_hdl& handle, ReconnectHandler reconnect_handler);
   void HandleSocketConnectMessage(const websocketpp::connection_hdl& handle, const WSMessagePtr& message_ptr);
   void HandleSocketConnectClose(const websocketpp::connection_hdl& handle);
+  void AttemptReconnect();
 
   WSClient ws_client_;
   websocketpp::connection_hdl connection_hdl_;
@@ -67,6 +68,9 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   ReceiveDataHandler data_handler_;
   WSThread ws_thread_;
   std::vector<std::string> unset_messages_{};
+  bool ws_should_reconnect;
+  static const int MAX_RECONNECT_ATTEMPTS = 10;
+  int ws_reconnect_attempts;
 };
 }  // namespace hippy::devtools
 

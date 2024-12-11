@@ -80,16 +80,6 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
     return NO;
 }
 
-- (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
-    // mttrn:
-    //	UIColor *backgroundColor = [self rightBackgroundColorOfTheme];
-    //
-    //	if (backgroundColor) {
-    //		self.backgroundColor = backgroundColor;
-    //	} else
-    //  	self.backgroundColor = inheritedBackgroundColor;
-}
-
 - (void)didUpdateHippySubviews {
     // Do nothing, as subviews are managed by `setTextStorage:` method
 }

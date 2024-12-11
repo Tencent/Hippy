@@ -21,21 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyBridge.h"
 
-/**
- * The threshold at which text inputs will start warning that the JS thread
- * has fallen behind (resulting in poor input performance, missed keys, etc.)
- */
-HIPPY_EXTERN const NSInteger HippyTextUpdateLagWarningThreshold;
-
-/**
- * Takes an input event name and normalizes it to the form that is required
- * by the events system (currently that means starting with the "top" prefix,
- * but that's an implementation detail that may change in future).
- */
-HIPPY_EXTERN NSString *HippyNormalizeInputEventName(NSString *eventName);
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This class wraps the -[HippyBridge enqueueJSCall:args:] method, and
@@ -43,12 +31,22 @@ HIPPY_EXTERN NSString *HippyNormalizeInputEventName(NSString *eventName);
  */
 @interface HippyEventDispatcher : NSObject <HippyBridgeModule>
 
+/// Send event to JS side with given params.
 - (void)dispatchEvent:(NSString *)moduleName methodName:(NSString *)methodName args:(NSDictionary *)params;
+
+/// Similar to the above `dispatchEvent` method, but designed to send Native events only.
+/// - Parameters:
+///   - eventName: name of event
+///   - params: event params
+- (void)dispatchNativeEvent:(NSString *)eventName withParams:(nullable NSDictionary *)params;
 
 @end
 
 @interface HippyBridge (HippyEventDispatcher)
 
+/// A dispatcher responsible for sending event to js side.
 - (HippyEventDispatcher *)eventDispatcher;
 
 @end
+
+NS_ASSUME_NONNULL_END

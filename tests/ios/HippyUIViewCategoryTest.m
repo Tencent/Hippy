@@ -63,7 +63,7 @@
 - (void)testGetHippyUIManager {
     UIView *testView = [UIView new];
     XCTAssertNil([testView uiManager]);
-    HippyBridge *bridge = [[HippyBridge alloc] init];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:nil moduleProvider:nil launchOptions:nil executorKey:nil];
     HippyUIManager *uiManager = [[HippyUIManager alloc] initWithBridge:bridge];
     XCTAssertNoThrow(testView.uiManager = uiManager);
     XCTAssertTrue(testView.uiManager == uiManager);

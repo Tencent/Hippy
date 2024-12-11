@@ -39,6 +39,7 @@
 #import "NSObject+CtxValue.h"
 #import "TypeConverter.h"
 #import "HippyBridge+Private.h"
+#import "HippyBridge+ModuleManage.h"
 
 #include <cinttypes>
 #include <memory>
@@ -194,7 +195,8 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
         if (wsURL.length > 0) {
             auto workerManager = std::make_shared<footstone::WorkerManager>(1);
-            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
+            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>();
+            devtools_data_source->CreateDevtoolsService([wsURL UTF8String], workerManager);
             self.pScope->SetDevtoolsDataSource(devtools_data_source);
         }
     }
@@ -603,7 +605,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                 [userInfo setObject:moduleName forKey:HippyFatalModuleName];
                 [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
                 NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
-                HippyBridgeHandleException(reportException, self.bridge);
+                HippyHandleException(reportException);
             }
         }
     }];

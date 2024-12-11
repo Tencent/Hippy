@@ -25,6 +25,7 @@
 #include "api/adapter/data/domain_metas.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
+#include "dom/root_node.h"
 
 namespace hippy::devtools {
 /**
@@ -45,7 +46,7 @@ class DevToolsUtil {
                                       uint32_t depth,
                                       const std::shared_ptr<DomManager>& dom_manager);
 
-  static DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& root_node, double x, double y);
+  static DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<RootNode>& root_node, double x, double y);
 
   static DomPushNodePathMetas GetPushNodeByPath(const std::shared_ptr<DomNode>& dom_node,
                                                 std::vector<std::map<std::string, int32_t>> path);
@@ -55,12 +56,12 @@ class DevToolsUtil {
   static bool ShouldAvoidPostDomManagerTask(const std::string& event_name);
 
  private:
-  static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& node, double x, double y);
-  static bool IsLocationHitNode(const std::shared_ptr<DomNode>& root_node, const std::shared_ptr<DomNode>& dom_node, double x, double y);
+  static hippy::dom::DomArgument MakeLocationArgument(double x, double y);
+  static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<RootNode>& root_node, double x, double y);
   static std::string ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const std::unordered_map<std::string, HippyValue>& node_props);
-  static std::string ParseDomValue(const HippyValue& value);
+  static std::string DumpHippyValue(const HippyValue& value);
   static void AppendDomKeyValue(std::string& node_str,
                                 bool& first_object,
                                 const std::string& node_key,

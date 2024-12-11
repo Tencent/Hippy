@@ -21,6 +21,7 @@
  */
 
 #import "HippyBridge.h"
+#import "HippyBridge+ModuleManage.h"
 #import "HippyErrorInfo.h"
 #import "HippyRedBox.h"
 #import "HippyUtils.h"

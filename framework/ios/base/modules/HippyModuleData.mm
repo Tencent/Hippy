@@ -22,11 +22,11 @@
 
 #import "HippyModuleData.h"
 #import "HippyBridge.h"
+#import "HippyBridge+ModuleManage.h"
 #import "HippyModuleMethod.h"
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
-
 #import <objc/runtime.h>
 
 
@@ -121,7 +121,7 @@
     // This is called outside of the lock in order to prevent deadlock issues
     // because the logic in `finishSetupForInstance` can cause
     // `moduleData.instance` to be accessed re-entrantly.
-    if (_bridge.moduleSetupComplete) {
+    if (_bridge.isModuleSetupComplete) {
         [self finishSetupForInstance];
     } else {
         // If we're here, then the module is completely initialized,

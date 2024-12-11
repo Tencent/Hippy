@@ -39,7 +39,8 @@ TcpChannel::TcpChannel() {
   frame_codec_ = FrameCodec();
 }
 
-void TcpChannel::Connect(ReceiveDataHandler handler) {
+void TcpChannel::Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) {
+  // TODO: reconnect in TCP if needed
   frame_codec_.SetEncodeCallback([WEAK_THIS](void *data, int32_t len) {
     DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->client_fd_ < 0) {
