@@ -130,6 +130,24 @@ import icon from './qb_icon_new.png';
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |
+| nestedScrollPriority* | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `Android最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)`    | `Android、iOS` |
+| nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+| nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+| nestedScrollRightPriority | 嵌套时**从左往右**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+| nestedScrollBottomPriority | 嵌套时**从上往下**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+
+* nestedScrollPriority 的参数含义：
+
+  * `self`：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+
+  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+
+  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
+
+* nestedScrollPriority 默认值的说明：
+  
+  如未设置任何滚动优先级时，iOS平台的默认值为`none`，即与系统默认行为保持一致。当指定任意一方向的优先级后，其他方向默认值为`self`；
+  Android平台默认值始终为`self`。
 
 ## 方法
 
@@ -253,6 +271,24 @@ import icon from './qb_icon_new.png';
 | showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android、hippy-react-web、Voltron` |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS、Voltron`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS、Voltron`    |
+| nestedScrollPriority* | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `Android最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)`    | `Android、iOS` |
+| nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+| nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+| nestedScrollRightPriority | 嵌套时**从左往右**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+| nestedScrollBottomPriority | 嵌套时**从上往下**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
+
+* nestedScrollPriority 的参数含义：
+
+  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+
+  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+
+  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
+
+* nestedScrollPriority 默认值的说明：
+  
+  如未设置任何滚动优先级时，iOS平台的默认值为`none`，即与系统默认行为保持一致。当指定任意一方向的优先级后，其他方向默认值为`self`；
+  Android平台默认值始终为`self`。
 
 ## 方法
 
