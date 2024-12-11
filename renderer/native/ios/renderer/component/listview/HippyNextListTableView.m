@@ -24,6 +24,8 @@
 
 @implementation HippyNextListTableView
 
+HIPPY_NESTEDSCROLL_PROTOCOL_PROPERTY_IMP
+
 /**
  * we need scroll indicator to be at top
  * indicator is UIImageView type at lower ios version
@@ -43,6 +45,16 @@
     if ([_layoutDelegate respondsToSelector:@selector(tableViewDidLayoutSubviews:)]) {
         [_layoutDelegate tableViewDidLayoutSubviews:self];
     }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if (self.nestedGestureDelegate &&
+        gestureRecognizer == self.panGestureRecognizer &&
+        [self.nestedGestureDelegate respondsToSelector:@selector(shouldRecognizeScrollGestureSimultaneouslyWithView:)]) {
+        return [self.nestedGestureDelegate shouldRecognizeScrollGestureSimultaneouslyWithView:otherGestureRecognizer.view];
+    }
+    return NO;
 }
 
 @end
