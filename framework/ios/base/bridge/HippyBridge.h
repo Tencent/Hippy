@@ -390,3 +390,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 HIPPY_EXTERN void HippyBridgeFatal(NSError *error, HippyBridge *bridge);
 
 NS_ASSUME_NONNULL_END
+
+
+// For compile compatibility
+#import "HippyBridge+BundleLoad.h"
+#import "HippyBridge+ModuleManage.h"
