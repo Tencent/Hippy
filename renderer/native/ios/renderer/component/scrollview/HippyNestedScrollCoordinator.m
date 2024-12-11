@@ -370,13 +370,19 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
 
 + (id<HippyScrollableProtocol>)findNestedOuterScrollView:(UIScrollView *)innerScrollView {
     // Use superview.superview since scrollview is a subview of hippy view.
-    UIView *outerScrollView = innerScrollView.superview.superview;
+    UIView<HippyScrollableProtocol> *innerScrollable = (UIView<HippyScrollableProtocol> *)innerScrollView.superview;
+    UIView *outerScrollView = innerScrollable.superview;
     while (outerScrollView) {
         if ([outerScrollView conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
-            break;
-        } else {
-            outerScrollView = outerScrollView.superview;
+            UIView<HippyScrollableProtocol> *outerScrollable = (UIView<HippyScrollableProtocol> *)outerScrollView;
+            // Make sure to find scrollable with same direction.
+            BOOL isInnerHorizontal = [innerScrollable respondsToSelector:@selector(horizontal)] ? [innerScrollable horizontal] : NO;
+            BOOL isOuterHorizontal = [outerScrollable respondsToSelector:@selector(horizontal)] ? [outerScrollable horizontal] : NO;
+            if (isInnerHorizontal == isOuterHorizontal) {
+                break;
+            }
         }
+        outerScrollView = outerScrollView.superview;
     }
     return (id<HippyScrollableProtocol>)outerScrollView;
 }

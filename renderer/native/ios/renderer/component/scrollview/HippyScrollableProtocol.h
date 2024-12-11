@@ -61,6 +61,9 @@
 
 @optional
 
+/// Return whether is horizontal, optional, default NO.
+- (BOOL)horizontal;
+
 /**
  * Set components scroll to location offset
  *
