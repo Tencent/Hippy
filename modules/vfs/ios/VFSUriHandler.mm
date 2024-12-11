@@ -209,7 +209,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                        HippyImageLoaderControlOptions options) {
             NSDictionary *dict = nil;
             if (image && (options & HippyImageLoaderControl_SkipDecodeOrDownsample)) {
-                dict = @{ HippyVFSResponseDecodedImageKey: image };
+                dict = @{ HippyVFSResponseDecodedImageKey: image, HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeHTTP)};
             }
             NSURLResponse *rsp = [[NSURLResponse alloc] initWithURL:url
                                                            MIMEType:nil
@@ -227,7 +227,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                    @"NSURLErrorFailingInfo": @"scheme not registered"};
         NSInteger code = static_cast<NSInteger>(hippy::JobResponse::RetCode::SchemeNotRegister);
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
-        completion(nil, nil, nil, error);
+        completion(nil, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeHTTP)}, nil, error);
         return;
     }
     NSURLSessionDataProgress *dataProgress = [[NSURLSessionDataProgress alloc] initWithProgress:progress result:completion];
@@ -247,7 +247,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                                            @"NSURLErrorFailingInfo": @"loader not found"};
                 NSInteger code = static_cast<NSInteger>(hippy::JobResponse::RetCode::ResourceNotFound);
                 NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
-                completion(nil, nil, nil, error);
+                completion(nil, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeHTTP)}, nil, error);
                 return;
             }
             auto progressCallback = [progress](int64_t current, int64_t total){
@@ -274,7 +274,7 @@ void VFSUriHandler::RequestUntrustedContent(NSURLRequest *request,
                         NSInteger code = static_cast<NSInteger>(cb->GetRetCode());
                         error = [NSError errorWithDomain:NSURLErrorDomain code:code userInfo:userInfo];
                     }
-                    completion(data, nil, response, error);
+                    completion(data, @{HippyVFSResponseURLTypeKey: @(HippyVFSURLTypeHTTP)}, response, error);
                 }
             };
             loader->hippy::UriLoader::RequestUntrustedContent(requestJob, responseCallback);

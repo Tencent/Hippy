@@ -35,15 +35,19 @@ import android.text.TextUtils.TruncateAt;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ImageSpan;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.text.FontAdapter;
+import com.tencent.renderer.component.text.FontLoader;
 import com.tencent.renderer.component.text.TextDecorationSpan;
 import com.tencent.renderer.component.text.TextForegroundColorSpan;
 import com.tencent.renderer.component.text.TextGestureSpan;
@@ -55,10 +59,13 @@ import com.tencent.renderer.component.text.TextStyleSpan;
 import com.tencent.renderer.component.text.TextVerticalAlignSpan;
 import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 public class TextVirtualNode extends VirtualNode {
 
@@ -110,6 +117,12 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected String mFontFamily;
     @Nullable
+    protected String mFontUrl;
+    @Nullable
+    protected WeakReference<FontLoader> mFontLoaderRef;
+    protected WeakReference<NativeRender> mNativeRenderRef;
+    protected FontLoader.FontLoadState mFontLoadState;
+    @Nullable
     protected SpannableStringBuilder mSpanned;
     @Nullable
     protected CharSequence mText;
@@ -129,6 +142,8 @@ public class TextVirtualNode extends VirtualNode {
             @NonNull NativeRender nativeRender) {
         super(rootId, id, pid, index);
         mFontAdapter = nativeRender.getFontAdapter();
+        mFontLoaderRef = new WeakReference<>(nativeRender.getFontLoader());
+        mNativeRenderRef = new WeakReference<>(nativeRender);
         if (I18nUtil.isRTL()) {
             mAlignment = Layout.Alignment.ALIGN_OPPOSITE;
         }
@@ -177,6 +192,19 @@ public class TextVirtualNode extends VirtualNode {
     public void setFontFamily(String family) {
         if (!Objects.equals(mFontFamily, family)) {
             mFontFamily = family;
+            markDirty();
+            final FontLoader fontLoader = mFontLoaderRef.get();
+            if (fontLoader != null && !fontLoader.isFontLoaded(mFontFamily)) {
+                mFontLoadState = FontLoader.FontLoadState.FONT_UNLOAD;
+            }
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.FONT_URL, defaultType = HippyControllerProps.STRING)
+    public void setFontUrl(String fontUrl) {
+        if (!Objects.equals(mFontUrl, fontUrl)) {
+            mFontUrl = fontUrl;
+            LogUtils.d("TextVirtualNode", "fontUrl:"+fontUrl);
             markDirty();
         }
     }
@@ -469,6 +497,18 @@ public class TextVirtualNode extends VirtualNode {
             if (mFontAdapter != null && mEnableScale) {
                 size = (int) (size * mFontAdapter.getFontScale());
             }
+            final FontLoader fontLoader = mFontLoaderRef.get();
+            if (!TextUtils.isEmpty(mFontUrl) && fontLoader != null) {
+                final NativeRender nativeRender = mNativeRenderRef.get();
+                if (nativeRender != null) {
+                    Executor executor = nativeRender.getBackgroundExecutor();
+                    if (executor != null) {
+                        executor.execute(() -> {
+                            fontLoader.loadIfNeeded(mFontFamily, mFontUrl, getRootId());
+                        });
+                    }
+                }
+            }
             ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
             ops.add(new SpanOperation(start, end, new TextStyleSpan(mItalic, mFontWeight, mFontFamily, mFontAdapter)));
             if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
@@ -535,6 +575,12 @@ public class TextVirtualNode extends VirtualNode {
 
     @NonNull
     protected Layout createLayout(final float width, final FlexMeasureMode widthMode) {
+        final FontLoader fontLoader = mFontLoaderRef.get();
+        if (mFontLoadState == FontLoader.FontLoadState.FONT_UNLOAD && fontLoader != null &&
+            fontLoader.isFontLoaded(mFontFamily)) {
+            mDirty = true;
+            mFontLoadState = FontLoader.FontLoadState.FONT_LOADED;
+        }
         if (mSpanned == null || mDirty) {
             mSpanned = createSpan(true);
             mDirty = false;
