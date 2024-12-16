@@ -92,10 +92,6 @@ NSString *const kHippyNotiErrorKey = @"error";
 const NSUInteger HippyBridgeBundleTypeVendor = 1;
 const NSUInteger HippyBridgeBundleTypeBusiness = 2;
 
-// Launch options keys
-NSString *const kHippyLaunchOptionsDebugModeKey = @"DebugMode";
-NSString *const kHippyLaunchOptionsEnableTurboKey = @"EnableTurbo";
-
 // Global device info keys & values
 static NSString *const kHippyNativeGlobalKeyOS = @"OS";
 static NSString *const kHippyNativeGlobalKeyOSVersion = @"OSVersion";
@@ -153,6 +149,8 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 }
 
 @end
+
+
 @interface HippyBridge () {
     // Identifies whether batch updates are in progress.
     BOOL _wasBatchActive;
@@ -244,6 +242,9 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         // Set the log delegate for hippy core module
         registerLogDelegateToHippyCore();
         
+        // Create bundle operation queue
+        [self prepareBundleQueue];
+        
         // Setup
         [self setUp];
         
@@ -288,6 +289,7 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         // Prevents multi-threading from accessing weak properties
         [self.uiManager setBridge:nil];
     }
+}
 
 #pragma mark - Setup related
 
@@ -319,6 +321,20 @@ static inline void registerLogDelegateToHippyCore() {
     });
 }
 
+- (std::shared_ptr<VFSUriLoader>)createURILoaderIfNeeded {
+    if (!_uriLoader) {
+        auto uriHandler = std::make_shared<VFSUriHandler>();
+        auto uriLoader = std::make_shared<VFSUriLoader>();
+        uriLoader->PushDefaultHandler(uriHandler);
+        uriLoader->AddConvenientDefaultHandler(uriHandler);
+        auto fileHandler = std::make_shared<HippyFileHandler>(self);
+        auto base64DataHandler = std::make_shared<HippyBase64DataHandler>();
+        uriLoader->RegisterConvenientUriHandler(kFileUriScheme, fileHandler);
+        uriLoader->RegisterConvenientUriHandler(kHpFileUriScheme, fileHandler);
+        uriLoader->RegisterConvenientUriHandler(kDataUriScheme, base64DataHandler);
+        _uriLoader = uriLoader;
+    }
+    return _uriLoader;
 }
 
 - (void)loadPendingVendorBundleURLIfNeeded {
@@ -518,26 +534,6 @@ static inline void registerLogDelegateToHippyCore() {
     }
 }
 
-
-static NSString *const kHippyUrlFileScheme = @"file";
-static NSString *const kHippyUrlHPFileScheme = @"hpfile";
-static NSString *const kHippyUrlDataScheme = @"data";
-
-- (std::shared_ptr<VFSUriLoader>)createURILoaderIfNeeded {
-    if (!_uriLoader) {
-        auto uriHandler = std::make_shared<VFSUriHandler>();
-        auto uriLoader = std::make_shared<VFSUriLoader>();
-        uriLoader->PushDefaultHandler(uriHandler);
-        uriLoader->AddConvenientDefaultHandler(uriHandler);
-        auto fileHandler = std::make_shared<HippyFileHandler>(self);
-        auto base64DataHandler = std::make_shared<HippyBase64DataHandler>();
-        uriLoader->RegisterConvenientUriHandler(kHippyUrlFileScheme, fileHandler);
-        uriLoader->RegisterConvenientUriHandler(kHippyUrlHPFileScheme, fileHandler);
-        uriLoader->RegisterConvenientUriHandler(kHippyUrlDataScheme, base64DataHandler);
-        _uriLoader = uriLoader;
-    }
-    return _uriLoader;
-}
 
 #pragma mark - Private
 

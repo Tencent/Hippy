@@ -518,14 +518,17 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
         scope->SetTurboInstance(turbo_name, obj);
         return obj;
     } else {
-#else
-    {
-#endif /* JS_HERMES */
-        auto obj = scope->GetContext()->DefineProxy(wrapper);
-        scope->SaveFunctionWrapper(std::move(wrapper));
-        scope->SetTurboInstance(turbo_name, obj);
-        return obj;
+      auto obj = scope->GetContext()->DefineProxy(wrapper);
+      scope->SaveFunctionWrapper(std::move(wrapper));
+      scope->SetTurboInstance(turbo_name, obj);
+      return obj;
     }
+#else
+  auto obj = scope->GetContext()->DefineProxy(wrapper);
+  scope->SaveFunctionWrapper(std::move(wrapper));
+  scope->SetTurboInstance(turbo_name, obj);
+  return obj;
+#endif /* JS_HERMES */
 }
 
 - (void)setContextName:(NSString *)contextName {
