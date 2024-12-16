@@ -87,6 +87,13 @@ HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 
+// Nested scroll props
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollTopPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollLeftPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollBottomPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollRightPriority, HippyNestedScrollPriority)
+
 
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                     callback:(nonnull HippyPromiseResolveBlock)callback) {

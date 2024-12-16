@@ -46,6 +46,12 @@ HIPPY_EXPORT_VIEW_PROPERTY(editable, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(showScrollIndicator, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollTopPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollLeftPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollBottomPriority, HippyNestedScrollPriority)
+HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollRightPriority, HippyNestedScrollPriority)
+
 
 - (UIView *)view {
     return [[HippyNextBaseListView alloc] init];

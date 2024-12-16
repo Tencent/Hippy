@@ -26,8 +26,12 @@
 #import "UIView+MountEvent.h"
 #import "UIView+DirectionalLayout.h"
 #import "HippyRenderUtils.h"
+#import "HippyNestedScrollCoordinator.h"
+
 
 @implementation HippyCustomScrollView
+
+HIPPY_NESTEDSCROLL_PROTOCOL_PROPERTY_IMP
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
@@ -171,6 +175,16 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     super.contentOffset = contentOffset;
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if (self.nestedGestureDelegate &&
+        gestureRecognizer == self.panGestureRecognizer &&
+        [self.nestedGestureDelegate respondsToSelector:@selector(shouldRecognizeScrollGestureSimultaneouslyWithView:)]) {
+        return [self.nestedGestureDelegate shouldRecognizeScrollGestureSimultaneouslyWithView:otherGestureRecognizer.view];
+    }
+    return NO;
+}
+
 @end
 
 @interface HippyScrollView () {
@@ -190,6 +204,9 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     BOOL _didSetContentOffset;
     int _recordedScrollIndicatorSwitchValue[2]; // default -1
 }
+
+/// Nested scroll coordinator
+@property (nonatomic, strong) HippyNestedScrollCoordinator *nestedScrollCoordinator;
 
 @end
 
@@ -373,6 +390,44 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     [_scrollView zoomToRect:rect animated:animated];
 }
 
+
+#pragma mark - Nested Scroll
+
+- (void)setNestedScrollPriority:(HippyNestedScrollPriority)nestedScrollPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollPriority:nestedScrollPriority];
+}
+
+- (void)setNestedScrollTopPriority:(HippyNestedScrollPriority)nestedScrollTopPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollTopPriority:nestedScrollTopPriority];
+}
+
+- (void)setNestedScrollLeftPriority:(HippyNestedScrollPriority)nestedScrollLeftPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollLeftPriority:nestedScrollLeftPriority];
+}
+
+- (void)setNestedScrollBottomPriority:(HippyNestedScrollPriority)nestedScrollBottomPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollBottomPriority:nestedScrollBottomPriority];
+}
+
+- (void)setNestedScrollRightPriority:(HippyNestedScrollPriority)nestedScrollRightPriority {
+    [self setupNestedScrollCoordinatorIfNeeded];
+    [self.nestedScrollCoordinator setNestedScrollRightPriority:nestedScrollRightPriority];
+}
+
+- (void)setupNestedScrollCoordinatorIfNeeded {
+    if (!_nestedScrollCoordinator) {
+        _nestedScrollCoordinator = [HippyNestedScrollCoordinator new];
+        _nestedScrollCoordinator.innerScrollView = _scrollView;
+        _scrollView.nestedGestureDelegate = _nestedScrollCoordinator;
+        [self addScrollListener:_nestedScrollCoordinator];
+    }
+}
+
+
 #pragma mark - ScrollView delegate
 
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
@@ -409,6 +464,20 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
+    
+    id<HippyNestedScrollProtocol> sv = (id<HippyNestedScrollProtocol>)scrollView;
+    if (sv.isLockedInNestedScroll) {
+        // This method is still called when nested scrolling,
+        // and we should ignore subsequent logic execution when simulating locking.
+        sv.isLockedInNestedScroll = NO; // reset
+        return;
+    }
+    
     NSTimeInterval now = CACurrentMediaTime();
     NSTimeInterval ti = now - _lastScrollDispatchTime;
     BOOL flag = (_scrollEventThrottle > 0 && _scrollEventThrottle < ti);
@@ -418,11 +487,6 @@ static inline BOOL CGPointIsNull(CGPoint point) {
         }
         _lastScrollDispatchTime = now;
         _allowNextScrollNoMatterWhat = NO;
-    }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
-            [scrollViewListener scrollViewDidScroll:scrollView];
-        }
     }
 }
 
