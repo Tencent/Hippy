@@ -45,7 +45,7 @@
     NSString* invalidURL = @"https://example.url";
     // set arbitrary valid font file url
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-    NSString* filePath = [testBundle pathForResource:@"TTTGB-Medium" ofType:@"otf"];
+    NSString* filePath = [testBundle pathForResource:@"TestFonts.bundle/TTTGB-Medium" ofType:@"otf"];
     NSString* validURL = [@"file://" stringByAppendingString:filePath];
     NSString* fontFamily = @"TTTGB Medium";
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:nil moduleProvider:nil launchOptions:nil executorKey:nil];
