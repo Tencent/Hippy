@@ -29,6 +29,7 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "hermes/hermes.h"
 #include "jsi/jsi-inl.h"
 #include "hermes/cdp/CDPDebugAPI.h"
