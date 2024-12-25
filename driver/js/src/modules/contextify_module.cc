@@ -124,6 +124,29 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
   }
   FOOTSTONE_DLOG(INFO) << "uri = " << uri;
 
+  // This is a temporary special logic for hermes
+  // that the front end did not handle when packing dynamically loaded modules
+  // due to the different file suffixes required by the Hermes engine
+  // TODO: Remove this special logic in the future
+  auto engine = scope->GetEngine().lock();
+  if (engine && engine->GetVM()->GetVMType() == VM::kJSEngineHermes) {
+    std::string oriUri = StringViewUtils::ToStdString(StringViewUtils::CovertToUtf8(uri, uri.encoding()).utf8_value());
+    
+    // Check that the oriUri begins with "file://" and ends with ".js"
+    const std::string filePrefix = "file://";
+    const std::string jsSuffix = ".js";
+    
+    if (oriUri.rfind(filePrefix, 0) == 0 && oriUri.size() >= jsSuffix.size() &&
+        oriUri.rfind(jsSuffix) == oriUri.size() - jsSuffix.size()) {
+      // modify the ext to .hbc
+      oriUri = oriUri.substr(0, oriUri.size() - jsSuffix.size()) + ".hbc";
+      
+      // replace the uri object
+      uri = string_view(oriUri);
+      FOOTSTONE_DLOG(INFO) << "change file ext from .js to .hbc for hermes";
+    }
+  }
+
   std::shared_ptr<hippy::napi::CtxValue> param = info[1];
   std::shared_ptr<hippy::napi::CtxValue> function;
   hippy::napi::Encoding encode = hippy::napi::UNKNOWN_ENCODING;
