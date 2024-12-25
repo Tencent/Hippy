@@ -66,13 +66,13 @@ JSCCtx::JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm): vm_(vm) {
 }
 
 JSCCtx::~JSCCtx() {
-  JSGlobalContextRelease(context_);
   for (auto& [key, item] : constructor_data_holder_) {
     item->prototype = nullptr;
     if (global_constructor_data_mgr) {
       global_constructor_data_mgr->ClearConstructorDataPtr(item.get());
     }
   }
+  JSGlobalContextRelease(context_);
 }
 
 JSValueRef InvokeJsCallback(JSContextRef ctx,
