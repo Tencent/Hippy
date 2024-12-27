@@ -132,11 +132,7 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
-#ifdef JS_JSC
-/*
- * JSObjectFinalizeCallback will be called when you call JSContextGroupRelease, so it is necessary to hold the wrapper when ctx is destroyed.
- */
-#else
+  context_ = nullptr;
   auto engine = engine_.lock();
   FOOTSTONE_DCHECK(engine);
   if (engine) {
@@ -145,7 +141,6 @@ Scope::~Scope() {
     engine->ClearFunctionWrapper(key);
     engine->ClearClassTemplate(key);
   }
-#endif
 }
 
 void Scope::WillExit() {
