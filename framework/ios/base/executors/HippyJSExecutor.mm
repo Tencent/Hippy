@@ -237,9 +237,8 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
 #ifdef JS_JSC
-    auto scope = self.pScope;
-    if (scope) {
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+    if (self.pScope) {
+        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
         static CFStringRef delName = CFSTR("HippyJSContext(delete)");
         jsc_context->SetName(delName);
     }
