@@ -51,6 +51,15 @@ bool HippyFile::SaveFile(const string_view& file_path,
   }
 }
 
+int HippyFile::RmFile(const string_view& file_path) {
+  FOOTSTONE_DLOG(INFO) << "RmFile file_path = " << file_path;
+  auto path_str = StringViewUtils::ConvertEncoding(file_path,
+                                                   string_view::Encoding::Utf8).utf8_value();
+  auto path = reinterpret_cast<const char*>(path_str.c_str());
+  unlink(path);
+  return 0;
+}
+
 int HippyFile::RmFullPath(const string_view& dir_full_path) {
   FOOTSTONE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
   auto path_str = StringViewUtils::ConvertEncoding(dir_full_path,

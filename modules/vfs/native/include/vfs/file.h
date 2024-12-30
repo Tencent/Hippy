@@ -46,6 +46,7 @@ class HippyFile {
                        std::ios::openmode mode = std::ios::out |
                                                  std::ios::binary |
                                                  std::ios::trunc);
+  static int RmFile(const string_view& file_path);
   static int RmFullPath(const string_view& dir_full_path);
   static int CreateDir(const string_view& dir_path, mode_t mode);
   static int CheckDir(const string_view& dir_path, int mode);
