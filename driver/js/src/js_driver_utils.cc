@@ -80,6 +80,8 @@ constexpr char kGlobalKey[] = "global";
 constexpr char kHippyKey[] = "Hippy";
 constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kCallHostKey[] = "hippyCallNatives";
+constexpr char kCodeCacheFailCountFilePostfix[] = "_fail_count";
+const uint8_t kCodeCacheMaxFailCount = 3;
 
 #if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
@@ -91,6 +93,7 @@ using DevtoolsDataSource = hippy::devtools::DevtoolsDataSource;
 
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>> reuse_engine_map;
 static std::mutex engine_mutex;
+static std::mutex code_cache_file_mutex;
 
 void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
                            const std::shared_ptr<TaskRunner>& task_runner,
@@ -269,6 +272,39 @@ void JsDriverUtils::InitInstance(
   });
 }
 
+// Code cache file corruption prevention strategy:
+// Record count before RunScript, clean count after RunScript, and if only start recording three times in a row, clean the code cache file.
+bool CheckUseCodeCacheBeforeRunScript(const string_view& code_cache_path) {
+  string_view fail_count_path = code_cache_path + string_view(kCodeCacheFailCountFilePostfix);
+  u8string content;
+  HippyFile::ReadFile(fail_count_path, content, false);
+  if (content.length() == 1) {
+    uint8_t count = content[0];
+    if (count >= kCodeCacheMaxFailCount) {
+      FOOTSTONE_LOG(INFO) << "Check code cache, count >= 3";
+      // need to remove code cache file
+      return false;
+    } else {
+      FOOTSTONE_LOG(INFO) << "Check code cache, count = " << static_cast<int>(count);
+      ++count;
+      std::string saveContent;
+      saveContent.push_back(count);
+      HippyFile::SaveFile(fail_count_path, saveContent);
+    }
+  } else {
+    FOOTSTONE_LOG(INFO) << "Check code cache, no count";
+    std::string saveContent;
+    saveContent.push_back(1);
+    HippyFile::SaveFile(fail_count_path, saveContent);
+  }
+  return true;
+}
+
+void CheckUseCodeCacheAfterRunScript(const string_view& code_cache_path) {
+  string_view fail_count_path = code_cache_path + string_view(kCodeCacheFailCountFilePostfix);
+  HippyFile::RmFile(fail_count_path);
+}
+
 bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                               const string_view& file_name,
                               bool is_use_code_cache,
@@ -298,6 +334,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
     auto func = hippy::base::MakeCopyable([p = std::move(read_file_promise), code_cache_path, code_cache_dir]() mutable {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
       u8string content;
       HippyFile::ReadFile(code_cache_path, content, true);
       if (content.empty()) {
@@ -307,6 +344,12 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
         FOOTSTONE_USE(ret);
       } else {
         FOOTSTONE_DLOG(INFO) << "Read code cache succ";
+        if (!CheckUseCodeCacheBeforeRunScript(code_cache_path)) {
+          int ret = HippyFile::RmFullPath(code_cache_dir);
+          FOOTSTONE_DLOG(INFO) << "RmFullPath on check, ret = " << ret;
+          FOOTSTONE_USE(ret);
+          content.clear();
+        }
       }
       p.set_value(std::move(content));
     });
@@ -332,6 +375,10 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     FOOTSTONE_LOG(WARNING) << "read_script_flag = " << read_script_flag
                            << ", script content empty, uri = " << uri;
+    if (is_use_code_cache) {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
+      CheckUseCodeCacheAfterRunScript(code_cache_path);
+    }
     return false;
   }
 
@@ -345,6 +392,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       auto func = [code_cache_path, code_cache_dir, code_cache_content] {
+        std::lock_guard<std::mutex> lock(code_cache_file_mutex);
         int check_dir_ret = HippyFile::CheckDir(code_cache_dir, F_OK);
         FOOTSTONE_DLOG(INFO) << "check_parent_dir_ret = " << check_dir_ret;
         if (check_dir_ret) {
@@ -364,6 +412,8 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
         bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         FOOTSTONE_USE(save_file_ret);
+
+        CheckUseCodeCacheAfterRunScript(code_cache_path);
       };
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
