@@ -48,6 +48,8 @@ LooperDriver::LooperDriver(): loop_() {
 LooperDriver::~LooperDriver() {
   CFRunLoopTimerInvalidate(delayed_wake_timer_);
   CFRunLoopRemoveTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
+  CFRelease(delayed_wake_timer_);
+  CFRelease(loop_);
 }
 
 void LooperDriver::Notify() {
@@ -63,7 +65,9 @@ void LooperDriver::WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>&
 }
 
 void LooperDriver::Start() {
+  // note that `loop_` created on dom thread but release on main thread
   loop_ = CFRunLoopGetCurrent();
+  CFRetain(loop_);
   CFRunLoopAddTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
   while (true) {
     if (IsExitImmediately()) {
