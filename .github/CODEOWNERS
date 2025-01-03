@@ -9,14 +9,14 @@
 #
 
 # universal files
-* @ilikethese @etkmao
+* @etkmao
 
 # cmake related
-*.cmake @ilikethese @etkmao
-CMakeLists.txt @ilikethese @etkmao
+*.cmake @etkmao
+CMakeLists.txt @etkmao
 
 # driver: js
-/driver/js/ @etkmao @ilikethese
+/driver/js/ @etkmao
 /driver/js/*.js @zealotchen0
 /driver/js/.eslintignore @zealotchen0
 /driver/js/.eslintrc.js @zealotchen0
@@ -31,11 +31,11 @@ CMakeLists.txt @ilikethese @etkmao
 /driver/js/packages/ @zealotchen0
 
 # driver: vl:
-/driver/vl/ @ilikethese @etkmao
+/driver/vl/ @etkmao
 
 # framework: android
 /framework/android/ @siguangli @iPel
-/framework/android/**/src/main/cpp/ @etkmao @ilikethese
+/framework/android/**/src/main/cpp/ @etkmao
 
 # framework: ios
 /framework/ios/ @wwwcg @ruifanyuan
@@ -44,7 +44,7 @@ CMakeLists.txt @ilikethese @etkmao
 /framework/voltron/ @lvfen @henryjin0511
 
 # dom: others
-/dom/ @etkmao @ilikethese
+/dom/ @etkmao
 
 # renderer: native
 /renderer/native/android/ @siguangli @iPel
@@ -53,16 +53,16 @@ CMakeLists.txt @ilikethese @etkmao
 # renderer: tdf
 /renderer/tdf/ @vimerzhao
 /renderer/tdf/android/ @siguangli @iPel
-/renderer/tdf/android/**/src/main/cpp/ @ilikethese @etkmao
+/renderer/tdf/android/**/src/main/cpp/ @etkmao
 /renderer/tdf/ios/ @wwwcg @ruifanyuan
 
 # renderer: voltron
 /renderer/voltron/ @lvfen @henryjin0511
 
 # module: vfs
-/modules/vfs/ @etkmao @ilikethese
+/modules/vfs/ @etkmao
 /modules/vfs/android/ @siguangli @iPel
-/modules/vfs/android/**/src/main/cpp/ @etkmao @ilikethese
+/modules/vfs/android/**/src/main/cpp/ @etkmao
 /modules/vfs/ios/ @wwwcg @ruifanyuan
 /modules/vfs/voltron/ @lvfen @henryjin0511
 
@@ -71,13 +71,13 @@ CMakeLists.txt @ilikethese @etkmao
 
 # module: android
 /modules/android/ @siguangli @iPel
-/modules/android/jni/ @etkmao @ilikethese
+/modules/android/jni/ @etkmao
 
 # module: ios
 /modules/ios/ @wwwcg @ruifanyuan
 
 # module: footstone
-/modules/footstone/ @etkmao @ilikethese
+/modules/footstone/ @etkmao
 
 # devtools: backend
 /devtools/ @lavnFan
@@ -110,7 +110,7 @@ CMakeLists.txt @ilikethese @etkmao
 /xcodeinitscript.sh @wwwcg @ruifanyuan
 
 # build: config
-/buildconfig/ @ilikethese @etkmao
+/buildconfig/ @etkmao
 
 # build: ci
 /package.json @zealotchen0

@@ -31,6 +31,9 @@ static constexpr CFTimeInterval kInterval = IOS_WORKER_TIME_INTERVAL;
 static constexpr CFTimeInterval kInterval = 1.0e10;
 #endif
 
+extern "C" void * objc_autoreleasePoolPush(void);
+extern "C" void objc_autoreleasePoolPop(void *);
+
 static void OnTimerCb(CFRunLoopTimerRef timer, LooperDriver* driver) {
   FOOTSTONE_DCHECK(driver);
   driver->OnTimerFire(timer);
@@ -92,7 +95,9 @@ void LooperDriver::OnTimerFire(CFRunLoopTimerRef timer) {
   if (IsExitImmediately()) {
     return;
   }
+  auto obj = objc_autoreleasePoolPush();
   unit_();
+  objc_autoreleasePoolPop(obj);
 }
 
 }
