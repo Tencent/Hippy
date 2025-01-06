@@ -98,8 +98,12 @@ JSValueRef InvokeJsCallback(JSContextRef ctx,
     auto object_private_data = JSObjectGetPrivate(object);
     if (object_private_data) {
       auto constructor_data = reinterpret_cast<ConstructorData*>(object_private_data);
-      auto object_data = constructor_data->object_data_map[object];
-      cb_info.SetData(object_data);
+      auto it = constructor_data->object_data_map.find(object);
+      if (it != constructor_data->object_data_map.end()) {
+        cb_info.SetData(it->second);
+      } else {
+        cb_info.SetData(nullptr);
+      }
     }
   }
   for (size_t i = 0; i < argument_count; i++) {
