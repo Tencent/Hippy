@@ -22,6 +22,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project("js_driver")
 
+add_compile_options(-fno-rtti)
+
 get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
@@ -166,6 +168,7 @@ set(SOURCE_SET
     src/modules/event_module.cc
     src/modules/scene_builder_module.cc
     src/napi/callback_info.cc
+    src/napi/js_try_catch.cc
     src/performance/performance.cc
     src/performance/performance_entry.cc
     src/performance/performance_frame_timing.cc

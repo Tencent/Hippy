@@ -174,6 +174,8 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateFunction(const std::unique_ptr<FunctionWrapper>& wrapper) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value,
                        const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
+  virtual void SetWeak(std::shared_ptr<CtxValue> value,
+                       std::unique_ptr<WeakCallbackWrapper>&& wrapper) override;
 
   virtual std::shared_ptr<CtxValue> GetPropertyNames(const std::shared_ptr<CtxValue>& value);
   virtual std::shared_ptr<CtxValue> GetOwnPropertyNames(const std::shared_ptr<CtxValue>& value);
@@ -184,6 +186,7 @@ class V8Ctx : public Ctx {
   std::string GetSerializationBuffer(const std::shared_ptr<CtxValue>& value,
                                      std::string& reused_buffer);
   void SetAlignedPointerInEmbedderData(int index, intptr_t address);
+  virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) override;
 
   // Get platform-specific internal embedded code
   std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const override;

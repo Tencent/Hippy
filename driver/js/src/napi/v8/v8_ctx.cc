@@ -29,7 +29,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/vm/v8/v8_vm.h"
 #include "driver/vm/v8/serializer.h"
-#include "driver/vm/jsc/native_source_code_v8.h"
+#include "driver/vm/v8/native_source_code_v8.h"
 #include "footstone/check.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
@@ -1521,6 +1521,15 @@ void  V8Ctx::SetWeak(std::shared_ptr<CtxValue> value,
       wrapper->callback(wrapper->data, internal);
     });
   }, v8::WeakCallbackType::kParameter);
+}
+
+void V8Ctx::SetWeak(std::shared_ptr <CtxValue> value,
+                    std::unique_ptr <WeakCallbackWrapper>&& wrapper) {
+  FOOTSTONE_UNREACHABLE();
+}
+
+std::shared_ptr<TryCatch> V8Ctx::CreateTryCatchScope(bool enable, std::shared_ptr <Ctx> ctx) {
+  return std::make_shared<V8TryCatch>(enable, ctx);
 }
 
 std::unique_ptr<NativeSourceCodeProvider> V8Ctx::GetNativeSourceCodeProvider() const {
