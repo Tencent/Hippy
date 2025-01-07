@@ -400,7 +400,7 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
       if (callback == nullptr) return;
       scope->SetCurrentEvent(std::make_any<std::shared_ptr<hippy::dom::DomEvent>>(event));
       auto event_class = scope->GetJavascriptClass(kEventName);
-      auto event_instance = context->NewInstance(event_class, 0, nullptr, nullptr);
+      auto event_instance = context->NewInstance(event_class, 0, nullptr, event.get());
       FOOTSTONE_DCHECK(callback) << "callback is nullptr";
       if (!callback) {
         return;

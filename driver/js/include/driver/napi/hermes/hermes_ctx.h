@@ -62,7 +62,11 @@ using Array = facebook::jsi::Array;
 class LocalNativeState : public NativeState {
 public:
   LocalNativeState() = default;
-  ~LocalNativeState() = default;
+  ~LocalNativeState() {
+    if (weak_callback_wrapper) {
+      weak_callback_wrapper->callback(weak_callback_wrapper->data, Get());
+    }
+  }
   
   void Set(void* address) { data_ = address; }
   void* Get() { return data_; }
@@ -78,10 +82,15 @@ public:
     }
     return nullptr;
   }
-  
+
+  void SetWeakCallbackWrapper(std::unique_ptr<WeakCallbackWrapper>&& wrapper) {
+    weak_callback_wrapper = std::move(wrapper);
+  }
+
 private:
   void* data_;
   std::unordered_map<int, void*> data_map_;
+  std::unique_ptr<WeakCallbackWrapper> weak_callback_wrapper;
 };
 
 class GlobalNativeState : public NativeState {
@@ -146,6 +155,7 @@ class HermesCtx : public Ctx {
   virtual void* GetObjectExternalData(const std::shared_ptr<CtxValue>& object) override;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
+  virtual void SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCallbackWrapper>&& wrapper) override;
 
   // Get and Set property to object
   virtual bool SetProperty(std::shared_ptr<CtxValue> object,

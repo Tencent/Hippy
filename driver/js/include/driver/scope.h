@@ -382,8 +382,17 @@ class Scope : public std::enable_shared_from_this<Scope> {
           holder_map.erase(it);
         }
       }, class_template);
-      context->SetWeak(receiver, weak_callback_wrapper);
-      scope->SaveWeakCallbackWrapper(std::move(weak_callback_wrapper));
+        
+      auto engine = scope->GetEngine().lock();
+      FOOTSTONE_CHECK(engine);
+      if (engine->GetVM()->GetVMType() == VM::kJSEngineHermes) {
+        // weak_callback_wrapper hold by hermes ctx.
+        context->SetWeak(receiver, std::move(weak_callback_wrapper));
+      } else {
+        context->SetWeak(receiver, weak_callback_wrapper);
+        scope->SaveWeakCallbackWrapper(std::move(weak_callback_wrapper));
+      }
+      
       info.GetReturnValue()->Set(receiver);
     }, class_template.get());
     std::vector<std::shared_ptr<PropertyDescriptor>> properties;

@@ -1249,6 +1249,10 @@ void JSCCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<Weak
   }
 }
 
+void JSCCtx::SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCallbackWrapper>&& wrapper) {
+    FOOTSTONE_UNIMPLEMENTED();
+}
+
 std::unique_ptr<NativeSourceCodeProvider> JSCCtx::GetNativeSourceCodeProvider() const {
   return std::make_unique<NativeSourceCodeProviderJSC>();
 }

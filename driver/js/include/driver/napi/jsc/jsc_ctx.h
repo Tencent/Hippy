@@ -226,6 +226,7 @@ public:
   virtual void SetExternalData(void* data) override;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
+  virtual void SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCallbackWrapper>&& wrapper) override;
   
   string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
   void* GetPrivateData(const std::shared_ptr<CtxValue>& value);
