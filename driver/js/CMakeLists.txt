@@ -200,7 +200,7 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
           src/napi/jsc/jsc_ctx.cc
           src/napi/jsc/jsc_try_catch.cc
           src/vm/jsc/jsc_vm.cc
-          src/vm/jsc/native_source_code_ios.cc)
+          src/vm/jsc/native_source_code_jsc.cc)
 elseif("${JS_ENGINE}" STREQUAL "HERMES")
   list(APPEND SOURCE_SET
         src/napi/hermes/hermes_class_definition.cc

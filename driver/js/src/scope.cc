@@ -515,21 +515,6 @@ void Scope::RunJS(const string_view& data,
     // perfromance end time
     entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
-#elif JS_HERMES
-  auto callback = [WEAK_THIS, data, uri, name, weak_context] {
-    DEFINE_AND_CHECK_SELF(Scope)
-    // perfromance start time
-    auto entry = self->GetPerformance()->PerformanceNavigation("hippyInit");
-    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-
-    auto context = weak_context.lock();
-    if (context) {
-      context->RunScript(data, name);
-    }
-
-    // perfromance end time
-    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
-  };
 #else
   auto callback = [WEAK_THIS, data, uri, name, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
@@ -543,7 +528,7 @@ void Scope::RunJS(const string_view& data,
     }
 
     // perfromance end time
-    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();    
+    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
 #endif
   auto runner = GetTaskRunner();

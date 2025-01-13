@@ -1007,7 +1007,7 @@ bool HermesCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
   }
   // Get ArrayBuffer Object
   // Assume that type has already been checked using IsByteBuffer for performance.
-  auto ctx_value = std::dynamic_pointer_cast<HermesCtxValue>(value);
+  auto ctx_value = std::static_pointer_cast<HermesCtxValue>(value);
   const auto &jsi_value = ctx_value->GetValue(runtime_);
   auto arrayBuffer = jsi_value.getObject(*runtime_).getArrayBuffer(*runtime_);;
   
