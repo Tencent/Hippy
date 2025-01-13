@@ -420,23 +420,21 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
         auto domNodeAction = [needToDoLayout, weakSelf, weakDomManager](){
-            @autoreleasepool {
-                HippyShadowView *strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
-                auto strongDomManager = weakDomManager.lock();
-                if (!strongDomManager) {
-                    return;
-                }
-                int32_t componentTag = [[strongSelf hippyTag] intValue];
-                auto domNode = strongDomManager->GetNode(strongSelf.rootNode, componentTag);
-                if (domNode) {
-                    domNode->GetLayoutNode()->MarkDirty();
-                    if (needToDoLayout) {
-                        strongDomManager->DoLayout(strongSelf.rootNode);
-                        strongDomManager->EndBatch(strongSelf.rootNode);
-                    }
+            HippyShadowView *strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
+            auto strongDomManager = weakDomManager.lock();
+            if (!strongDomManager) {
+                return;
+            }
+            int32_t componentTag = [[strongSelf hippyTag] intValue];
+            auto domNode = strongDomManager->GetNode(strongSelf.rootNode, componentTag);
+            if (domNode) {
+                domNode->GetLayoutNode()->MarkDirty();
+                if (needToDoLayout) {
+                    strongDomManager->DoLayout(strongSelf.rootNode);
+                    strongDomManager->EndBatch(strongSelf.rootNode);
                 }
             }
         };
@@ -949,10 +947,8 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             hippy::MeasureFunction measureFunc =
                 [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-                    @autoreleasepool {
-                        return textMeasureFunc(weakSelf, width, widthMeasureMode,
-                                               height, heightMeasureMode, layoutContext);
-                    }
+                    return textMeasureFunc(weakSelf, width, widthMeasureMode,
+                                           height, heightMeasureMode, layoutContext);
             };
             node->GetLayoutNode()->SetMeasureFunction(measureFunc);
         }

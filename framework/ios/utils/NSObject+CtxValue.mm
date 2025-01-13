@@ -31,11 +31,9 @@
 @implementation NSObject (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    @autoreleasepool {
-        HippyLogWarn(@"%@ No convertToCtxValue method", NSStringFromClass([self class]));
-        std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
-        return context->CreateObject(valueMap);
-    }
+    HippyLogWarn(@"%@ No convertToCtxValue method", NSStringFromClass([self class]));
+    std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
+    return context->CreateObject(valueMap);
 }
 
 @end
@@ -43,10 +41,8 @@
 @implementation NSString (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    @autoreleasepool {
-        auto string_view = footstone::string_view::new_from_utf8([self UTF8String]);
-        return context->CreateString(string_view);
-    }
+    auto string_view = footstone::string_view::new_from_utf8([self UTF8String]);
+    return context->CreateString(string_view);
 }
 
 @end
@@ -66,19 +62,17 @@
 @implementation NSArray (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    @autoreleasepool {
-        NSUInteger count = [self count];
-        if (0 == count) {
-            return context->CreateArray(0, nullptr);
-        }
-        std::vector<CtxValuePtr> values;
-        values.reserve(count);
-        for (id obj in self) {
-            auto item = [obj convertToCtxValue:context];
-            values.push_back(std::move(item));
-        }
-        return context->CreateArray(count, values.data());
+    NSUInteger count = [self count];
+    if (0 == count) {
+        return context->CreateArray(0, nullptr);
     }
+    std::vector<CtxValuePtr> values;
+    values.reserve(count);
+    for (id obj in self) {
+        auto item = [obj convertToCtxValue:context];
+        values.push_back(std::move(item));
+    }
+    return context->CreateArray(count, values.data());
 }
 
 @end
@@ -86,18 +80,16 @@
 @implementation NSDictionary (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    @autoreleasepool {
-        std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
-        for (id key in self) {
-            id value = [self objectForKey:key];
-            auto keyPtr = [key convertToCtxValue:context];
-            auto valuePtr = [value convertToCtxValue:context];
-            if (keyPtr && valuePtr) {
-                valueMap[keyPtr] = valuePtr;
-            }
+    std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
+    for (id key in self) {
+        id value = [self objectForKey:key];
+        auto keyPtr = [key convertToCtxValue:context];
+        auto valuePtr = [value convertToCtxValue:context];
+        if (keyPtr && valuePtr) {
+            valueMap[keyPtr] = valuePtr;
         }
-        return context->CreateObject(valueMap);
     }
+    return context->CreateObject(valueMap);
 }
 
 @end
@@ -130,10 +122,8 @@
 @implementation NSError (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    @autoreleasepool {
-        NSString *errorMessage = [self description];
-        return [errorMessage convertToCtxValue:context];
-    }
+    NSString *errorMessage = [self description];
+    return [errorMessage convertToCtxValue:context];
 }
 
 @end
@@ -141,87 +131,83 @@
 @implementation NSURL (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    @autoreleasepool {
-        NSString *errorMessage = [self absoluteString];
-        return [errorMessage convertToCtxValue:context];
-    }
+    NSString *errorMessage = [self absoluteString];
+    return [errorMessage convertToCtxValue:context];
 }
 
 @end
 
 __nullable id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
-    @autoreleasepool {
-        if (!context || !value) {
-            return nil;
-        }
-        if (context->IsString(value)) {
-            footstone::string_view view;
-            if (context->GetValueString(value, &view)) {
-                view = footstone::StringViewUtils::CovertToUtf16(view, view.encoding());
-                footstone::string_view::u16string &u16String = view.utf16_value();
-                NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-                return string;
-            }
-        } else if (context->IsBoolean(value)) {
-            bool result = false;
-            if (context->GetValueBoolean(value, &result)) {
-                return @(result);
-            }
-        } else if (context->IsNumber(value)) {
-            double number = 0;
-            if (context->GetValueNumber(value, &number)) {
-                return @(number);
-            }
-        } else if (context->IsArray(value)) {
-            uint32_t length = context->GetArrayLength(value);
-            NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
-            for (uint32_t index = 0; index < length; index++) {
-                auto element = context->CopyArrayElement(value, index);
-                id obj = ObjectFromCtxValue(context, element);
-                if (obj) {
-                    [array addObject:obj];
-                }
-            }
-            return [array copy];
-        }
-        //ArrayBuffer is kindof Object, so we must check if it is byte buffer first
-        else if(context->IsByteBuffer(value)) {
-            size_t length = 0;
-            uint32_t type;
-            void *bytes = NULL;
-            if (context->GetByteBuffer(value, &bytes, length, type)) {
-                return [NSData dataWithBytes:bytes length:length];
-            }
-        } else if (context->IsObject(value)) {
-            std::unordered_map<CtxValuePtr, CtxValuePtr> map;
-            if (context->GetEntriesFromObject(value, map)) {
-                NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
-                for (auto &it : map) {
-                    footstone::string_view string_view;
-                    auto flag = context->GetValueString(it.first, &string_view);
-                    if (!flag) {
-                        continue;
-                    }
-                    // Note that reference value (const auto &) cannot be used directly here,
-                    // since the temporary string_view object will destruct the uft16 value.
-                    // a wrong example is:
-                    // const auto &u16Str = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
-                    string_view = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding());
-                    footstone::string_view::u16string &u16Str = string_view.utf16_value();
-                    NSString *string = [NSString stringWithCharacters:(const unichar *)u16Str.c_str() length:u16Str.length()];
-                    auto &value = it.second;
-                    id obj = ObjectFromCtxValue(context, value);
-                    if (string && obj) {
-                        [dictionary setObject:obj forKey:string];
-                    }
-                }
-                return [dictionary copy];
-            }
-        } else if (context->IsNull(value)) {
-            return [NSNull null];
-        } else if (context->IsUndefined(value)) {
-            return nil;
-        }
+    if (!context || !value) {
         return nil;
     }
+    if (context->IsString(value)) {
+        footstone::string_view view;
+        if (context->GetValueString(value, &view)) {
+            view = footstone::StringViewUtils::CovertToUtf16(view, view.encoding());
+            footstone::string_view::u16string &u16String = view.utf16_value();
+            NSString *string = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+            return string;
+        }
+    } else if (context->IsBoolean(value)) {
+        bool result = false;
+        if (context->GetValueBoolean(value, &result)) {
+            return @(result);
+        }
+    } else if (context->IsNumber(value)) {
+        double number = 0;
+        if (context->GetValueNumber(value, &number)) {
+            return @(number);
+        }
+    } else if (context->IsArray(value)) {
+        uint32_t length = context->GetArrayLength(value);
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
+        for (uint32_t index = 0; index < length; index++) {
+            auto element = context->CopyArrayElement(value, index);
+            id obj = ObjectFromCtxValue(context, element);
+            if (obj) {
+                [array addObject:obj];
+            }
+        }
+        return [array copy];
+    }
+    //ArrayBuffer is kindof Object, so we must check if it is byte buffer first
+    else if(context->IsByteBuffer(value)) {
+        size_t length = 0;
+        uint32_t type;
+        void *bytes = NULL;
+        if (context->GetByteBuffer(value, &bytes, length, type)) {
+            return [NSData dataWithBytes:bytes length:length];
+        }
+    } else if (context->IsObject(value)) {
+        std::unordered_map<CtxValuePtr, CtxValuePtr> map;
+        if (context->GetEntriesFromObject(value, map)) {
+            NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
+            for (auto &it : map) {
+                footstone::string_view string_view;
+                auto flag = context->GetValueString(it.first, &string_view);
+                if (!flag) {
+                    continue;
+                }
+                // Note that reference value (const auto &) cannot be used directly here,
+                // since the temporary string_view object will destruct the uft16 value.
+                // a wrong example is:
+                // const auto &u16Str = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding()).utf16_value();
+                string_view = footstone::StringViewUtils::CovertToUtf16(string_view, string_view.encoding());
+                footstone::string_view::u16string &u16Str = string_view.utf16_value();
+                NSString *string = [NSString stringWithCharacters:(const unichar *)u16Str.c_str() length:u16Str.length()];
+                auto &value = it.second;
+                id obj = ObjectFromCtxValue(context, value);
+                if (string && obj) {
+                    [dictionary setObject:obj forKey:string];
+                }
+            }
+            return [dictionary copy];
+        }
+    } else if (context->IsNull(value)) {
+        return [NSNull null];
+    } else if (context->IsUndefined(value)) {
+        return nil;
+    }
+    return nil;
 }

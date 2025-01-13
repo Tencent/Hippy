@@ -275,29 +275,27 @@
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
         std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame, dirtyPropagation](){
-            @autoreleasepool {
-                HippyShadowView *strongSelf = weakSelf;
-                if (!strongSelf) {
-                    return;
-                }
-                int32_t componentTag = [[strongSelf hippyTag] intValue];
-                auto node = domManager->GetNode(strongSelf.rootNode, componentTag);
-                auto renderManager = domManager->GetRenderManager().lock();
-                if (!node || !renderManager) {
-                    return;
-                }
-                node->SetLayoutOrigin(frame.origin.x, frame.origin.y);
-                node->SetLayoutSize(frame.size.width, frame.size.height);
-                std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
-                node->DoLayout(changed_nodes);
-                if (!changed_nodes.empty()) {
-                    renderManager->UpdateLayout(strongSelf.rootNode, changed_nodes);
-                }
-                if (dirtyPropagation) {
-                    [strongSelf dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-                }
-                renderManager->EndBatch(strongSelf.rootNode);
+            HippyShadowView *strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
             }
+            int32_t componentTag = [[strongSelf hippyTag] intValue];
+            auto node = domManager->GetNode(strongSelf.rootNode, componentTag);
+            auto renderManager = domManager->GetRenderManager().lock();
+            if (!node || !renderManager) {
+                return;
+            }
+            node->SetLayoutOrigin(frame.origin.x, frame.origin.y);
+            node->SetLayoutSize(frame.size.width, frame.size.height);
+            std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
+            node->DoLayout(changed_nodes);
+            if (!changed_nodes.empty()) {
+                renderManager->UpdateLayout(strongSelf.rootNode, changed_nodes);
+            }
+            if (dirtyPropagation) {
+                [strongSelf dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+            }
+            renderManager->EndBatch(strongSelf.rootNode);
         }};
         domManager->PostTask(hippy::dom::Scene(std::move(ops)));
     }
