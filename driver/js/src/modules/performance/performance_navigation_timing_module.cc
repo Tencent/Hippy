@@ -112,7 +112,7 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
     }
     auto context = scope->GetContext();
     auto bundle_info_array = thiz->GetBundleInfoArray();
-    std::shared_ptr<CtxValue> array[bundle_info_array.size()];
+    std::vector<std::shared_ptr<CtxValue>> array(bundle_info_array.size());
     for (size_t i = 0; i < bundle_info_array.size(); ++i) {
       auto& info = bundle_info_array[i];
       auto object = context->CreateObject();
@@ -124,7 +124,7 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
                            context->CreateNumber(info.execute_source_end_.ToEpochDelta().ToMillisecondsF()));
       array[i] = object;
     }
-    return context->CreateArray(bundle_info_array.size(), array);
+    return context->CreateArray(bundle_info_array.size(), array.data());
   };
   class_template.properties.push_back(std::move(bundle_info));
 
