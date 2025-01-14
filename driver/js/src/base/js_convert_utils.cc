@@ -205,11 +205,11 @@ std::shared_ptr<CtxValue> CreateCtxValue(const std::shared_ptr<Ctx>& ctx,
   } else if (value->IsArray()) {
     auto array = value->ToArrayChecked();
     auto len = array.size();
-    std::shared_ptr<CtxValue> argv[len];
+    std::vector<std::shared_ptr<CtxValue>> argv(len);
     for (size_t i = 0; i < len; ++i) {
       argv[i] = CreateCtxValue(ctx, std::make_shared<HippyValue>(array[i]));
     }
-    return ctx->CreateArray(array.size(), argv);
+    return ctx->CreateArray(array.size(), argv.data());
   } else if (value->IsObject()) {
     auto obj = ctx->CreateObject();
     auto object = value->ToObjectChecked();

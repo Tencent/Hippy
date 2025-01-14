@@ -353,14 +353,14 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
       auto class_template = reinterpret_cast<ClassTemplate<T>*>(data);
       auto len = info.Length();
-      std::shared_ptr<CtxValue> argv[len];
+      std::vector<std::shared_ptr<CtxValue>> argv(len);
       for (size_t i = 0; i < len; i++) {
         argv[i] = info[i];
       }
       auto receiver = info.GetReceiver();
       auto external = info.GetData();
       std::shared_ptr<CtxValue> exception = nullptr;
-      auto ret = class_template->constructor(receiver, static_cast<size_t>(len), argv, external, exception);
+      auto ret = class_template->constructor(receiver, static_cast<size_t>(len), argv.data(), external, exception);
       if (exception) {
         info.GetExceptionValue()->Set(exception);
         return;
@@ -430,7 +430,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
       auto function = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
         auto function_define = reinterpret_cast<FunctionDefine<T>*>(data);
         auto len = info.Length();
-        std::shared_ptr<CtxValue> param[len];
+        std::vector<std::shared_ptr<CtxValue>> param(len);
         for (size_t i = 0; i < len; i++) {
           param[i] = info[i];
         }
@@ -440,7 +440,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
         }
         auto t = reinterpret_cast<T*>(info_data);
         std::shared_ptr<CtxValue> exception = nullptr;
-        auto ret = (function_define->callback)(t, static_cast<size_t>(len), param, exception);
+        auto ret = (function_define->callback)(t, static_cast<size_t>(len), param.data(), exception);
         if (exception) {
           info.GetReturnValue()->Set(exception);
           return;
