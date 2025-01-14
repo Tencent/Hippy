@@ -746,6 +746,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 #pragma mark Schedule Block
 
 - (void)addUIBlock:(HippyViewManagerUIBlock)block {
+    HippyAssertNotMainQueue();
     if (!block || !_viewRegistry) {
         return;
     }
@@ -754,6 +755,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 }
 
 - (void)flushUIBlocksOnRootNode:(std::weak_ptr<RootNode>)rootNode {
+    HippyAssertNotMainQueue();
     // First copy the previous blocks into a temporary variable, then reset the
     // pending blocks to a new array. This guards against mutation while
     // processing the pending blocks in another thread.
@@ -765,8 +767,8 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     TDF_PERF_DO_STMT_AND_LOG(unsigned int rand = arc4random(); , "flushUIBlocksOnRootNode(random id:%u", rand);
     
     int32_t rootTag = strongRootNode->GetId();
-    NSArray<HippyViewManagerUIBlock> *previousPendingUIBlocks = _pendingUIBlocks;
-    _pendingUIBlocks = [NSMutableArray new];
+    NSArray<HippyViewManagerUIBlock> *previousPendingUIBlocks = [NSArray arrayWithArray:_pendingUIBlocks];
+    [_pendingUIBlocks removeAllObjects];
     __weak __typeof(self)weakSelf = self;
     if (previousPendingUIBlocks.count) {
         // Execute the previously queued UI blocks
@@ -779,8 +781,12 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
                     @try {
                         // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
                         // so to ensure that it is up-to-date, it can only be retrieved each time.
-                        NSDictionary* viewReg = [strongSelf.viewRegistry componentsForRootTag:@(rootTag)];
-                        block(strongSelf, viewReg);
+                        // there is no need to do null protection under normal circumstances,
+                        // but some app have such reports, just used as a protection in case of memory corruption.
+                        if (block) {
+                            NSDictionary* viewReg = [strongSelf.viewRegistry componentsForRootTag:@(rootTag)];
+                            block(strongSelf, viewReg);
+                        }
                     } @catch (NSException *exception) {
                         HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                     }
