@@ -303,10 +303,10 @@ class StringViewUtils {
 #pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
         kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
-#pragma clang diagnostic pop
     std::string bytes = convert.to_bytes(str);
     const string_view::char8_t_ *ptr =
         reinterpret_cast<const string_view::char8_t_ *>(bytes.data());
+#pragma clang diagnostic pop
     return string_view::u8string(ptr, bytes.length());
   }
 
@@ -327,10 +327,10 @@ class StringViewUtils {
 #pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
         kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
-#pragma clang diagnostic pop
     std::string bytes = convert.to_bytes(str);
     const string_view::char8_t_ *ptr =
         reinterpret_cast<const string_view::char8_t_ *>(bytes.data());
+#pragma clang diagnostic pop
     return string_view::u8string(ptr, bytes.length());
   }
 
@@ -350,8 +350,8 @@ class StringViewUtils {
 #pragma clang diagnostic ignored "-Wdeprecated"
     std::wstring_convert<std::codecvt_utf16<char32_t>, char32_t> convert(
         kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
-#pragma clang diagnostic pop
     std::string bytes = convert.to_bytes(str);
+#pragma clang diagnostic pop
     return std::u16string(reinterpret_cast<const char16_t *>(bytes.c_str()),
                           bytes.length() / sizeof(char16_t));
   }

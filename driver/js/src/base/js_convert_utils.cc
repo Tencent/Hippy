@@ -37,6 +37,11 @@
 #include "driver/napi/jsc/jsc_ctx_value.h"
 #endif
 
+#ifdef JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/napi/jsh/jsh_ctx_value.h"
+#endif
+
 namespace hippy {
 inline namespace driver {
 inline namespace base {
@@ -65,6 +70,10 @@ bool IsEqualCtxValue(const std::shared_ptr<CtxValue>& value1, const std::shared_
   auto v1 = std::static_pointer_cast<JSCCtxValue>(value1);
   auto v2 = std::static_pointer_cast<JSCCtxValue>(value2);
   return v1->value_ == v2->value_;
+#elif JS_JSH
+  auto v1 = std::static_pointer_cast<JSHCtxValue>(value1);
+  auto v2 = std::static_pointer_cast<JSHCtxValue>(value2);
+  return v1->GetValue() == v2->GetValue();
 #else
   FOOTSTONE_UNREACHABLE();
 #endif

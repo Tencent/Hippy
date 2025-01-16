@@ -364,6 +364,8 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const string_view& str_view,
       break;
     }
     case string_view::Encoding::Utf32: {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       const std::u32string& str = str_view.utf32_value();
       std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
       std::string bytes = convert.to_bytes(str);
@@ -372,6 +374,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const string_view& str_view,
       source = v8::String::NewFromTwoByte(
           isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
           v8::NewStringType::kNormal, footstone::checked_numeric_cast<size_t, int>(str.length()));
+#pragma clang diagnostic pop
       break;
     }
     case string_view::Encoding::Utf8: {

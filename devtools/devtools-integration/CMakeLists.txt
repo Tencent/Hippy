@@ -30,4 +30,7 @@ elseif (ANDROID)
     add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/android/src/main/cpp)
 elseif (IOS)
     add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/ios)
+elseif (OHOS)
+    add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/ohos)
 endif()
+

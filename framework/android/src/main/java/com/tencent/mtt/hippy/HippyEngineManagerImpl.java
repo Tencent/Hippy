@@ -935,13 +935,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return mJsDriver;
         }
 
+        @Override
         @NonNull
-        DomManager getDomManager() {
+        public DomManager getDomManager() {
             return mDomManager;
         }
 
+        @Override
         @NonNull
-        RenderConnector getRenderer() {
+        public RenderConnector getRenderer() {
             return mRenderer;
         }
 

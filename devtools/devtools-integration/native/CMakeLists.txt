@@ -51,22 +51,38 @@ endif ()
 # endregion
 
 # region footstone
-GlobalPackages_Add(footstone)
+if (OHOS)
+  GlobalPackages_Add_footstone()
+else ()
+  GlobalPackages_Add(footstone)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region vfs
-GlobalPackages_Add(vfs)
+if (OHOS)
+  GlobalPackages_Add_vfs()
+else ()
+  GlobalPackages_Add(vfs)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 # endregion
 
 # region dom
-GlobalPackages_Add(dom)
+if (OHOS)
+  GlobalPackages_Add_dom()
+else ()
+  GlobalPackages_Add(dom)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
 
 # region devtools
-GlobalPackages_Add(devtools_backend)
+if (OHOS)
+  GlobalPackages_Add_devtools_backend()
+else ()
+  GlobalPackages_Add(devtools_backend)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
 # endregion
 

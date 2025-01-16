@@ -53,6 +53,18 @@ class DomNodeStyleDiffer {
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::shared_ptr<HippyValue>>> node_ext_style_map_;
 };
 
+struct ListenerOp {
+  bool add;
+  std::weak_ptr<DomNode> dom_node;
+  std::string name;
+
+  ListenerOp(bool add, std::weak_ptr<DomNode> dom_node, const std::string& name) {
+    this->add = add;
+    this->dom_node = dom_node;
+    this->name = name;
+  }
+};
+
 class RootNode : public DomNode {
  public:
   using TaskRunner = footstone::runner::TaskRunner;
@@ -72,6 +84,8 @@ class RootNode : public DomNode {
   virtual void AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                 const EventCallback& cb) override;
   virtual void RemoveEventListener(const std::string& name, uint64_t listener_id) override;
+  
+  std::map<uint32_t, std::vector<ListenerOp>> &EventListenerOps() { return event_listener_ops_; }
 
   void ReleaseResources();
   void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes, bool needSortByIndex);
@@ -94,10 +108,15 @@ class RootNode : public DomNode {
   void SetRootOrigin(float x, float y);
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
+  void SetDisableSetRootSize(bool disable) {
+    disable_set_root_size_ = disable;
+  }
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>>& PersistentMap() {
     return persistent_map_;
   }
+
+  std::vector<std::weak_ptr<DomNode>> GetAllTextNodes();
 
  private:
   static void MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& nodes);
@@ -115,6 +134,7 @@ class RootNode : public DomNode {
 
   std::vector<DomOperation> dom_operations_;
   std::vector<EventOperation> event_operations_;
+  std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   void FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager);
   void FlushEventOperations(const std::shared_ptr<RenderManager>& render_manager);
@@ -127,6 +147,8 @@ class RootNode : public DomNode {
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
   std::unique_ptr<DomNodeStyleDiffer> style_differ_;
+
+  bool disable_set_root_size_ { false };
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> persistent_map_;
 };

@@ -20,6 +20,7 @@
 
 #include "tunnel/tcp/tcp_channel.h"
 #include <arpa/inet.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>

@@ -98,8 +98,9 @@ export default {
       headerRefreshText: '继续下拉触发刷新',
       footerRefreshText: '正在加载...',
       isLoading: false,
+      isIos: Vue.Native.Platform === 'ios',
       isAndroid: Vue.Native.Platform === 'android',
-      isiOS: Vue.Native.Platform === 'android',
+      isOhos: Vue.Native.Platform === 'ohos',
     };
   },
   mounted() {

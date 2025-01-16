@@ -36,7 +36,11 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
 # region footstone
-GlobalPackages_Add(footstone)
+if (OHOS)
+  GlobalPackages_Add_footstone()
+else ()
+  GlobalPackages_Add(footstone)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
@@ -44,7 +48,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 set(SOURCE_SET
   src/file.cc
   src/request_job.cc
-        src/job_response.cc
+  src/job_response.cc
   src/uri_loader.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion
