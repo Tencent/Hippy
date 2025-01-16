@@ -729,38 +729,39 @@ std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t lengt
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue>& function,
-                                                  const std::shared_ptr<CtxValue>& receiver, 
+                                                  const std::shared_ptr<CtxValue>& receiver,
                                                   size_t argument_count,
                                                   const std::shared_ptr<CtxValue> arguments[]) {
-  std::shared_ptr<HermesCtxValue> ctx_value = std::static_pointer_cast<HermesCtxValue>(function);
+  auto ctx_value = std::static_pointer_cast<HermesCtxValue>(function);
   auto jsi_value = ctx_value->GetValue(runtime_);
   if (!jsi_value.isObject()) {
     return nullptr;
   }
-  if (!jsi_value.asObject(*runtime_).isFunction(*runtime_)) {
+  
+  auto jsi_object = jsi_value.asObject(*runtime_);
+  if (!jsi_object.isFunction(*runtime_)) {
     return nullptr;
   }
+  
   try {
-    facebook::jsi::Function jsi_func = jsi_value.asObject(*runtime_).asFunction(*runtime_);
-    std::shared_ptr<HermesCtxValue> receiver_ctx_value = std::static_pointer_cast<HermesCtxValue>(receiver);
-    facebook::jsi::Value this_object = receiver_ctx_value->GetValue(runtime_);
-    const size_t jsi_arg_count = argument_count;
-    if (jsi_arg_count == 0) {
-      Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_));
+    auto jsi_func = jsi_object.asFunction(*runtime_);
+    auto receiver_ctx_value = std::static_pointer_cast<HermesCtxValue>(receiver);
+    auto this_object = receiver_ctx_value->GetValue(runtime_);
+
+    if (argument_count == 0) {
+      auto value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_));
       return std::make_shared<HermesCtxValue>(*runtime_, value);
     } else {
-      std::vector<Value> arg_vec;
-      arg_vec.resize(jsi_arg_count);
-      for (size_t i = 0; i < jsi_arg_count; i++) {
-        std::shared_ptr<HermesCtxValue> argument_ctx_val = std::static_pointer_cast<HermesCtxValue>(arguments[i]);
+      std::vector<facebook::jsi::Value> arg_vec(argument_count);
+      for (size_t i = 0; i < argument_count; ++i) {
+        auto argument_ctx_val = std::static_pointer_cast<HermesCtxValue>(arguments[i]);
         FOOTSTONE_DCHECK(argument_ctx_val);
         arg_vec[i] = argument_ctx_val ? argument_ctx_val->GetValue(runtime_) : facebook::jsi::Value::null();
       }
-      const Value* jsi_arg = &arg_vec[0];
-      Value value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_), jsi_arg, jsi_arg_count);
+      auto value = jsi_func.callWithThis(*runtime_, this_object.asObject(*runtime_), (const Value *)(arg_vec.data()), argument_count);
       return std::make_shared<HermesCtxValue>(*runtime_, value);
     }
-  } catch (facebook::jsi::JSIException& err) {
+  } catch (const facebook::jsi::JSIException& err) {
     auto exptr = std::current_exception();
     std::string message(err.what());
     exception_ = std::make_shared<HermesExceptionCtxValue>(exptr, message);

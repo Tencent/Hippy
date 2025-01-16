@@ -376,6 +376,9 @@ class Scope : public std::enable_shared_from_this<Scope> {
       FOOTSTONE_CHECK(context);
       auto weak_callback_wrapper = std::make_unique<WeakCallbackWrapper>([](void* callback_data, void* internal_data) {
         auto class_template = reinterpret_cast<ClassTemplate<T>*>(callback_data);
+        if (!class_template || !internal_data) {
+          return;
+        }
         auto& holder_map = class_template->holder_map;
         auto it = holder_map.find(internal_data);
         if (it != holder_map.end()) {
