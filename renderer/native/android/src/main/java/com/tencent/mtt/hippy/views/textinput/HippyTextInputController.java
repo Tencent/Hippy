@@ -241,6 +241,11 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         view.setFontFamily(fontFamily);
     }
 
+    @HippyControllerProps(name = NodeProps.FONT_URL, defaultType = HippyControllerProps.STRING)
+    public void setFontUrl(HippyTextInput view, String fontUrl) {
+        view.setFontUrl(fontUrl);
+    }
+
     private static final InputFilter[] EMPTY_FILTERS = new InputFilter[0];
 
     @HippyControllerProps(name = "maxLength", defaultType = HippyControllerProps.NUMBER, defaultNumber = Integer.MAX_VALUE)
