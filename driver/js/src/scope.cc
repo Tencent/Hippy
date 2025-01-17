@@ -131,7 +131,8 @@ static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data)
 
 Scope::Scope(std::weak_ptr<Engine> engine,
              std::string name)
-    : engine_(std::move(engine)),
+    : is_valid_(true),
+      engine_(std::move(engine)),
       context_(nullptr),
       name_(std::move(name)),
       extra_function_map_(std::make_unique<RegisterMap>()),
@@ -139,7 +140,9 @@ Scope::Scope(std::weak_ptr<Engine> engine,
       performance_(std::make_shared<Performance>()) {}
 
 Scope::~Scope() {
+  setValid(false);
   FOOTSTONE_DLOG(INFO) << "~Scope";
+  
   auto engine = engine_.lock();
   FOOTSTONE_DCHECK(engine);
   if (engine) {

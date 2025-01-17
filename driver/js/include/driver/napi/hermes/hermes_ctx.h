@@ -28,6 +28,7 @@
 
 #include "driver/napi/hermes/hermes_class_definition.h"
 #include "driver/napi/hermes/hermes_ctx_value.h"
+#include "driver/scope.h"
 #include "driver/napi/js_ctx.h"
 #include "driver/vm/hermes/hermes_vm.h"
 
@@ -64,7 +65,10 @@ public:
   LocalNativeState() = default;
   ~LocalNativeState() {
     if (weak_callback_wrapper) {
-      weak_callback_wrapper->callback(weak_callback_wrapper->data, Get());
+      auto scope = weak_callback_wrapper->scope.lock();
+      if (scope && scope->isValid()) {
+        weak_callback_wrapper->callback(weak_callback_wrapper->data, Get());
+      }
     }
   }
   

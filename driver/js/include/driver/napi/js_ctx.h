@@ -39,8 +39,8 @@
 
 namespace hippy {
 inline namespace driver {
+class Scope;
 inline namespace napi {
-
 class TryCatch;
 
 enum PropertyAttribute {
@@ -77,6 +77,7 @@ class WeakCallbackWrapper {
 
   WeakCallback callback;
   void* data;
+  std::weak_ptr<hippy::Scope> scope;
 };
 
 class CtxValue;

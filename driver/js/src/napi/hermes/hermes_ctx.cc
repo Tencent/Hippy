@@ -1155,6 +1155,15 @@ void HermesCtx::SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCal
     local_state = std::make_shared<LocalNativeState>();
     js_object.setNativeState(*runtime_, local_state);
   }
+  // bind scope to wrapper, due to the problem that
+  // some c++ resources of js object that finalize callback need have been released during the destructor.
+  std::any scope_any;
+  if (!global_native_state_->Get(kScopeWrapperIndex, scope_any)) {
+    return;
+  }
+  auto any_pointer = std::any_cast<void*>(&scope_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
+  wrapper->scope = scope_wrapper->scope;
   local_state->SetWeakCallbackWrapper(std::move(wrapper));
 }
 

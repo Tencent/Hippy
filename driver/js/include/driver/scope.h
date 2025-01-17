@@ -162,6 +162,14 @@ class Scope : public std::enable_shared_from_this<Scope> {
         std::string name);
   ~Scope();
 
+  inline void setValid(bool valid) {
+    is_valid_.store(valid, std::memory_order_relaxed);
+  }
+  
+  inline bool isValid() const {
+    return is_valid_.load(std::memory_order_relaxed);
+  }
+  
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::shared_ptr<CtxValue> GetBridgeObject() { return bridge_object_; }
   inline void SetBridgeObject(std::shared_ptr<CtxValue> bridge_object) { bridge_object_ = bridge_object; }
@@ -487,6 +495,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   void SetCallbackForUriLoader();
 
  private:
+  std::atomic<bool> is_valid_;
   std::weak_ptr<Engine> engine_;
   std::shared_ptr<Ctx> context_;
   std::shared_ptr<CtxValue> bridge_object_;
