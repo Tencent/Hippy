@@ -59,6 +59,24 @@ void NativeRenderImpl::UnbindNativeRoot(uint32_t root_id, uint32_t node_id) {
   view_manager->UnbindNativeRoot(node_id);
 }
 
+void NativeRenderImpl::BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t root_id, uint32_t node_id) {
+  auto view_manager = hr_manager_->GetViewManager(root_id);
+  if (!view_manager) {
+    return;
+  }
+
+  view_manager->BindNativeRootToParent(parentNodeHandle, node_id);
+}
+
+void NativeRenderImpl::UnbindNativeRootFromParent(uint32_t root_id, uint32_t node_id) {
+  auto view_manager = hr_manager_->GetViewManager(root_id);
+  if (!view_manager) {
+    return;
+  }
+
+  view_manager->UnbindNativeRootFromParent(node_id);
+}
+
 void NativeRenderImpl::RegisterCustomTsRenderViews(napi_env ts_env, napi_ref ts_render_provider_ref, std::set<std::string> &custom_views, std::map<std::string, std::string> &mapping_views) {
   hr_manager_->RegisterCustomTsRenderViews(ts_env, ts_render_provider_ref, custom_views, mapping_views);
 }
