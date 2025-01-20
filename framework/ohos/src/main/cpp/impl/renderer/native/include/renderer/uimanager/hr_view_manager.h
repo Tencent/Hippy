@@ -23,6 +23,7 @@
 #pragma once
 
 #include <ace/xcomponent/native_interface_xcomponent.h>
+#include <cstdint>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
 #include <map>
@@ -53,6 +54,9 @@ public:
 
   void BindNativeRoot(ArkUI_NodeContentHandle contentHandle, uint32_t node_id);
   void UnbindNativeRoot(uint32_t node_id);
+  
+  void BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t node_id);
+  void UnbindNativeRootFromParent(uint32_t node_id);
 
   int GetRootTag() {
     return (int)root_id_;
@@ -127,6 +131,7 @@ private:
   std::shared_ptr<NativeRenderContext> ctx_;
   uint32_t root_id_;
   std::unordered_map<uint32_t, ArkUI_NodeContentHandle> nodeContentMap_;
+  std::unordered_map<uint32_t, ArkUI_NodeHandle> parentNodeMap_;
   std::shared_ptr<RootView> root_view_;
   std::map<uint32_t, std::shared_ptr<BaseView>> view_registry_;
   
