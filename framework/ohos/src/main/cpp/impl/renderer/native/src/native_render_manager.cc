@@ -1426,6 +1426,18 @@ void NativeRenderManager::UnbindNativeRoot(uint32_t root_id, uint32_t node_id) {
   }
 }
 
+void NativeRenderManager::BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t root_id, uint32_t node_id) {
+  if (enable_ark_c_api_) {
+    c_render_provider_->BindNativeRootToParent(parentNodeHandle, root_id, node_id);
+  }
+}
+
+void NativeRenderManager::UnbindNativeRootFromParent(uint32_t root_id, uint32_t node_id) {
+  if (enable_ark_c_api_) {
+    c_render_provider_->UnbindNativeRootFromParent(root_id, node_id);
+  }
+}
+
 void NativeRenderManager::DestroyRoot(uint32_t root_id) {
   if (enable_ark_c_api_) {
     c_render_provider_->DestroyRoot(root_id);

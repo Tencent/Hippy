@@ -122,12 +122,17 @@ static napi_value CreateRoot(napi_env env, napi_callback_info info) {
   auto args = arkTs.GetCallbackArgs(info, 2);
   uint32_t root_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
   double density = arkTs.GetDouble(args[1]);
-  auto root_node = std::make_shared<hippy::RootNode>(root_id);
-  auto layout = root_node->GetLayoutNode();
-  layout->SetScaleFactor(static_cast<float>(density));
+
+  std::shared_ptr<hippy::RootNode> saved_root_node;
   auto& persistent_map = RootNode::PersistentMap();
-  auto flag = persistent_map.Insert(root_id, root_node);
-  FOOTSTONE_DCHECK(flag);
+  if (!persistent_map.Find(root_id, saved_root_node)) {
+    auto root_node = std::make_shared<hippy::RootNode>(root_id);
+    auto layout = root_node->GetLayoutNode();
+    layout->SetScaleFactor(static_cast<float>(density));
+    auto flag = persistent_map.Insert(root_id, root_node);
+    FOOTSTONE_DCHECK(flag);
+  }
+
   return arkTs.GetUndefined();
 }
 
@@ -136,8 +141,7 @@ static napi_value DestroyRoot(napi_env env, napi_callback_info info) {
   auto args = arkTs.GetCallbackArgs(info, 1);
   uint32_t root_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
   auto& persistent_map = RootNode::PersistentMap();
-  auto flag = persistent_map.Erase(root_id);
-  FOOTSTONE_DCHECK(flag);
+  persistent_map.Erase(root_id);
   return arkTs.GetUndefined();
 }
 

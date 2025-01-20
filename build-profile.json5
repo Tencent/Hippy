@@ -26,6 +26,18 @@
   },
   "modules": [
     {
+      "name": "entry_c",
+      "srcPath": "./framework/examples/ohos-c-demo",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
       "name": "entry_har",
       "srcPath": "./framework/examples/ohos-har-demo",
       "targets": [
@@ -52,6 +64,6 @@
     {
       "name": "hippy",
       "srcPath": "./framework/ohos"
-    },
+    }
   ]
 }

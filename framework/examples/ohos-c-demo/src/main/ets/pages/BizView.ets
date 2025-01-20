@@ -17,15 +17,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { NodeContent } from "@kit.ArkUI"
+import demoNapi from 'libdemo.so';
 
-export * from "./HippyBizViewBuilder"
-export * from "./HippyRootView"
-export * from "./HippyViewEvent"
-export * from "./NativeRender"
-export * from "./NativeRenderContext"
+const DEMO_VIEW_A_ID = 1;
 
-export * from "./components/base/HippyRenderBaseView"
-export * from "./components/custom/HippyCustomComponentView"
-export * from "./components/HippyRenderRegisterMap"
+@Component
+export struct BizComponent {
+  // @StorageLink('libHippy') private demoNapi: object | null = null
+  bizSlot = new NodeContent()
 
-export * from "./dom_node/HRNodeProps"
+  aboutToAppear(): void {
+    demoNapi.Demo_BindNativeBizView(this.bizSlot, DEMO_VIEW_A_ID)
+  }
+
+  aboutToDisappear(): void {
+    demoNapi.Demo_UnbindNativeBizView(DEMO_VIEW_A_ID)
+  }
+
+  build() {
+    Column() {
+      ContentSlot(this.bizSlot)
+    }
+    .width('100%')
+    .height('100%')
+    .onAreaChange((oldValue: Area, newValue: Area) => {
+
+    })
+  }
+}
