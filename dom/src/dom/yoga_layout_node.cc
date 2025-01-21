@@ -777,8 +777,8 @@ void YogaLayoutNode::Deallocate() {
   YGConfigFree(yoga_config_);
 }
 
-void InitLayoutConsts() {}
-std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<YogaLayoutNode>(); }
+void InitLayoutConstsYoga() {}
+std::shared_ptr<LayoutNode> CreateLayoutNodeYoga() { return std::make_shared<YogaLayoutNode>(); }
 
 }  // namespace dom
 }  // namespace hippy

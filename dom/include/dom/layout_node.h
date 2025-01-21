@@ -131,8 +131,14 @@ class LayoutNode {
   virtual void ResetLayoutCache() = 0;
 };
 
-void InitLayoutConsts();
-std::shared_ptr<LayoutNode> CreateLayoutNode();
+enum LayoutEngineType {
+  LayoutEngineDefault = 0,
+  LayoutEngineTaitank,
+  LayoutEngineYoga
+};
+
+void InitLayoutConsts(LayoutEngineType type);
+std::shared_ptr<LayoutNode> CreateLayoutNode(LayoutEngineType type);
 
 }  // namespace dom
 }  // namespace hippy

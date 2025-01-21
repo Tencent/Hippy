@@ -52,6 +52,21 @@ if (NOT DEFINED LAYOUT_ENGINE)
 endif ()
 
 if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
+  set(USE_YOGA 1)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "LAYOUT_ENGINE_YOGA")
+elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
+  set(USE_TAITANK 1)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "LAYOUT_ENGINE_TAITANK")
+elseif ("${LAYOUT_ENGINE}" STREQUAL "YogaAndTaitank")
+  set(USE_YOGA 1)
+  set(USE_TAITANK 1)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "LAYOUT_ENGINE_YOGA_AND_TAITANK")
+else ()
+  message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
+endif ()
+# endregion
+
+if (USE_YOGA STREQUAL 1)
   if (ANDROID)
     InfraPackage_Add(yoga
         REMOTE "dom/third_party/yoga/1.19.0/git-repo.tgz"
@@ -63,18 +78,16 @@ if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
         LOCAL "third_party/yoga"
     )
   endif ()
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_YOGA")
   target_link_libraries(${PROJECT_NAME} PRIVATE yogacore)
-elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
+endif ()
+
+if (USE_TAITANK STREQUAL 1)
   InfraPackage_Add(taitank
       REMOTE "dom/third_party/taitank/1.0.6/git-repo.tar.gz"
       LOCAL "third_party/taitank"
       )
   target_link_libraries(${PROJECT_NAME} PRIVATE taitank)
-else ()
-  message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
 endif ()
-# endregion
 
 # region source set
 set(SOURCE_SET
@@ -95,9 +108,10 @@ set(SOURCE_SET
     src/dom/root_node.cc
     src/dom/scene.cc
     src/dom/scene_builder.cc)
-if (${LAYOUT_ENGINE} STREQUAL "Yoga")
+if (USE_YOGA STREQUAL 1)
   list(APPEND SOURCE_SET src/dom/yoga_layout_node.cc)
-elseif (${LAYOUT_ENGINE} STREQUAL "Taitank")
+endif ()
+if (USE_TAITANK STREQUAL 1)
   list(APPEND SOURCE_SET src/dom/taitank_layout_node.cc)
 endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})

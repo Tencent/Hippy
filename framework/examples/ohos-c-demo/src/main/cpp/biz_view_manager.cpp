@@ -100,7 +100,7 @@ void BizViewManager::BuildBizViews() {
   
   // 参数说明：
   // first_dom_manager_id - 实际由业务从ts层传到c层，ts层获取：hippyEngine.getHippyEngineContext()?.getDomManagerId()
-  uint32_t rootId = HippyViewProvider_CreateRoot(DEMO_FIRST_DOM_MANAGER_ID);
+  uint32_t rootId = HippyViewProvider_CreateRoot(DEMO_FIRST_DOM_MANAGER_ID, HippyLayoutEngineYoga);
 
   // 参数说明：
   // parent_node_handle - Hippy根节点的父节点

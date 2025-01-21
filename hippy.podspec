@@ -265,6 +265,7 @@ Pod::Spec.new do |s|
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
         'GCC_ENABLE_CPP_EXCEPTIONS' => false,
         'GCC_ENABLE_CPP_RTTI' => false,
+        'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) LAYOUT_ENGINE_TAITANK=1',
       }
       taitank.libraries = 'c++'
       puts 'hippy subspec \'Taitank\' read end'
@@ -278,6 +279,7 @@ Pod::Spec.new do |s|
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
         'GCC_ENABLE_CPP_EXCEPTIONS' => false,
         'GCC_ENABLE_CPP_RTTI' => false,
+        'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) LAYOUT_ENGINE_YOGA=1',
       }
       yoga.libraries = 'c++'
       puts 'hippy subspec \'yoga\' read end'

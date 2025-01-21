@@ -73,6 +73,7 @@ import {
 import { HippyRootViewManager } from './HippyRootViewManager'
 import { WrappedHippyBizViewBuilder } from './HippyBizViewBuilder'
 import { PixelUtil } from "../support/utils/PixelUtil"
+import { HippyLayoutEngineType } from "../hippy_framework"
 
 export class TextMeasurerConfig {
   textContent: string | null = null
@@ -128,11 +129,11 @@ export class NativeRenderImpl implements NativeRender {
     this.frameworkProxy = proxy
   }
 
-  createRootView(pageName: string, pageData: HippyRecord, wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): HippyRootView {
+  createRootView(pageName: string, pageData: HippyRecord, wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null, layoutEngineType: HippyLayoutEngineType): HippyRootView {
     NativeRenderImpl.sRootIdCounter += this.ROOT_VIEW_ID_INCREMENT
     let rootId = NativeRenderImpl.sRootIdCounter
     let rootView = new HippyRootView(this.instanceId, rootId, this.customRenderViewCreatorMap, this,
-      wrappedCustomRenderViewBuilder, pageName, pageData)
+      wrappedCustomRenderViewBuilder, layoutEngineType, pageName, pageData)
     HippyRootViewManager.addRootView(rootId, rootView)
     return rootView
   }
