@@ -28,7 +28,13 @@
 #define HIPPY_EXTERN extern __attribute__((visibility("default")))
 #endif
 
-HIPPY_EXTERN uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id);
+typedef enum HippyLayoutEngineType {
+  HippyLayoutEngineDefault = 0,
+  HippyLayoutEngineTaitank,
+  HippyLayoutEngineYoga
+} HippyLayoutEngineType;
+
+HIPPY_EXTERN uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id, HippyLayoutEngineType layout_engine_type = HippyLayoutEngineDefault);
 HIPPY_EXTERN void HippyViewProvider_DestroyRoot(uint32_t render_manager_id, uint32_t root_id);
 HIPPY_EXTERN void HippyViewProvider_BindNativeRoot(void *parent_node_handle, uint32_t render_manager_id, uint32_t root_id);
 HIPPY_EXTERN void HippyViewProvider_UnbindNativeRoot(uint32_t render_manager_id, uint32_t root_id);

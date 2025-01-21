@@ -395,5 +395,9 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   MeasureFunction measure_function_ = nullptr;
 };
 
+
+void InitLayoutConstsTaitank();
+std::shared_ptr<LayoutNode> CreateLayoutNodeTaitank();
+
 }  // namespace dom
 }  // namespace hippy

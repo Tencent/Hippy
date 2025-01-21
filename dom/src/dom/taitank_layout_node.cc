@@ -826,13 +826,13 @@ void TaitankLayoutNode::Deallocate() {
   engine_node_ = nullptr;
 }
 
-void InitLayoutConsts() {
+void InitLayoutConstsTaitank() {
   if (global_layout_consts == nullptr) {
     global_layout_consts = new TaitankLayoutConsts();
   }
 }
 
-std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<TaitankLayoutNode>(); }
+std::shared_ptr<LayoutNode> CreateLayoutNodeTaitank() { return std::make_shared<TaitankLayoutNode>(); }
 
 }  // namespace dom
 }  // namespace hippy

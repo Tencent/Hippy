@@ -29,6 +29,7 @@ import { FrameNode } from '@kit.ArkUI';
 import { TurboModuleManager } from '../hippy_framework/modules/turbo/TurboModuleManager';
 import { NodeContent } from '@ohos.arkui.node';
 import { HRPosition, HRRect } from '../renderer_native/utils/HRTypes';
+import { HippyLayoutEngineType } from "../hippy_framework";
 
 export interface HippyRenderViewInfo {
   tag: number
@@ -47,7 +48,7 @@ export interface HippyLibrary {
   DomManager_SetRenderManager(instanceId: number, renderId: number): void;
   DomManager_CreateDomManager(domManagerNum: number): number;
   DomManager_DestroyDomManager(domManagerId: number): void;
-  DomManager_CreateRoot(rootId: number, density: number): void;
+  DomManager_CreateRoot(rootId: number, density: number, layoutEngineType: HippyLayoutEngineType): void;
   DomManager_DestroyRoot(rootId: number): void;
   DomManager_ReleaseRootResources(rootId: number): void;
   DomManager_SetDomManager(rootId: number, instanceId: number): void;

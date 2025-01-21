@@ -19,6 +19,14 @@
  */
 
 #include "dom/layout_node.h"
+#if defined(LAYOUT_ENGINE_YOGA)
+#include "dom/yoga_layout_node.h"
+#elif defined(LAYOUT_ENGINE_TAITANK)
+#include "dom/taitank_layout_node.h"
+#elif defined(LAYOUT_ENGINE_YOGA_AND_TAITANK)
+#include "dom/yoga_layout_node.h"
+#include "dom/taitank_layout_node.h"
+#endif
 
 namespace hippy {
 inline namespace dom {
@@ -26,6 +34,34 @@ inline namespace dom {
 LayoutNode::LayoutNode() = default;
 
 LayoutNode::~LayoutNode() = default;
+
+void InitLayoutConsts(LayoutEngineType type) {
+#if defined(LAYOUT_ENGINE_YOGA)
+  InitLayoutConstsYoga();
+#elif defined(LAYOUT_ENGINE_TAITANK)
+  InitLayoutConstsTaitank();
+#elif defined(LAYOUT_ENGINE_YOGA_AND_TAITANK)
+  if (type == LayoutEngineYoga) {
+    InitLayoutConstsYoga();
+  } else {
+    InitLayoutConstsTaitank();
+  }
+#endif
+}
+
+std::shared_ptr<LayoutNode> CreateLayoutNode(LayoutEngineType type) {
+#if defined(LAYOUT_ENGINE_YOGA)
+  return CreateLayoutNodeYoga();
+#elif defined(LAYOUT_ENGINE_TAITANK)
+  return CreateLayoutNodeTaitank();
+#elif defined(LAYOUT_ENGINE_YOGA_AND_TAITANK)
+  if (type == LayoutEngineYoga) {
+    return CreateLayoutNodeYoga();
+  } else {
+    return CreateLayoutNodeTaitank();
+  }
+#endif
+}
 
 }  // namespace dom
 }  // namespace hippy

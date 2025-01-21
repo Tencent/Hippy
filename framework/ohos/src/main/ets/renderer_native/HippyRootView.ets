@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import window from '@ohos.window';
-import { HippyEngine } from '../hippy_framework';
+import { HippyEngine, HippyLayoutEngineType } from '../hippy_framework';
 import { HippyException } from '../support/common/HippyException';
 import { HippyRecord } from '../support/common/HippyTypes';
 import { LogUtils } from '../support/utils/LogUtils';
@@ -33,6 +33,7 @@ import { NodeContent } from '@ohos.arkui.node';
 
 export class HippyRootView {
   renderView: HippyRenderView | null = null
+  layoutEngineType: HippyLayoutEngineType = HippyLayoutEngineType.Default
   pagerName: string
   pagerData: HippyRecord
   rootSlot: NodeContent | null = null
@@ -45,10 +46,12 @@ export class HippyRootView {
               customRenderViewCreatorMap: Map<string, HRRenderViewCreator> | null,
               nativeRender: NativeRender,
               wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null,
+              layoutEngineType: HippyLayoutEngineType,
               pagerName: string,
               pagerData: HippyRecord,
   ) {
     this.ctx = new NativeRenderContext(instanceId, rootId, customRenderViewCreatorMap, nativeRender, wrappedCustomRenderViewBuilder)
+    this.layoutEngineType = layoutEngineType
     this.pagerName = pagerName
     this.pagerData = pagerData
     this.initRenderView()
@@ -70,6 +73,10 @@ export class HippyRootView {
 
   setRootSlot(rootSlot: NodeContent) {
     this.rootSlot = rootSlot;
+  }
+
+  getLayoutEngineType(): HippyLayoutEngineType {
+    return this.layoutEngineType
   }
 
   onViewSizeChanged(size: HRSize, force = false) {

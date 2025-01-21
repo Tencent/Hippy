@@ -287,6 +287,8 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
       std::move(std::get<3>(props_tuple)));
   FOOTSTONE_CHECK(!scope->GetDomManager().expired());
+  auto root_node = scope->GetRootNode().lock();
+  LayoutEngineType layout_type = root_node ? root_node->GetLayoutEngineType() : LayoutEngineDefault;
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
                                        std::get<2>(pid_tuple),
                                        0,
@@ -294,7 +296,8 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(u8_view_name),
                                        style,
                                        ext,
-                                       scope->GetRootNode());
+                                       scope->GetRootNode(),
+                                       layout_type);
   return std::make_tuple(true, "", dom_node);
 }
 
@@ -496,11 +499,14 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
         if (length >= 2) {
           auto ref_info_tuple = CreateRefInfo(
               context, context->CopyArrayElement(info, 1), scope);
+          auto root_node = scope->GetRootNode().lock();
+          LayoutEngineType layout_type = root_node ? root_node->GetLayoutEngineType() : LayoutEngineDefault;
           dom_infos.push_back(std::make_shared<DomInfo>(
               std::make_shared<DomNode>(
                   std::get<2>(id_tuple),
                   std::get<2>(pid_tuple),
-                  scope->GetRootNode()),
+                  scope->GetRootNode(),
+                  layout_type),
               std::get<2>(ref_info_tuple),
               nullptr));
         }
@@ -543,11 +549,14 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
 
           return nullptr;
         }
+        auto root_node = scope->GetRootNode().lock();
+        LayoutEngineType layout_type = root_node ? root_node->GetLayoutEngineType() : LayoutEngineDefault;
         dom_infos.push_back(std::make_shared<DomInfo>(
             std::make_shared<DomNode>(
                 std::get<2>(id_tuple),
                 std::get<2>(pid_tuple),
-                scope->GetRootNode()),
+                scope->GetRootNode(),
+                layout_type),
             nullptr, nullptr));
       }
     }

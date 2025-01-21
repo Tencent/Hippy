@@ -71,7 +71,7 @@ class RootNode : public DomNode {
   using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
   using EventCallBackRunner = std::function<void(const std::shared_ptr<DomEvent>&)>;
 
-  RootNode(uint32_t id);
+  RootNode(uint32_t id, LayoutEngineType layout_engine_type = LayoutEngineDefault);
   RootNode();
 
   inline std::weak_ptr<DomManager> GetDomManager() { return dom_manager_; }
@@ -117,6 +117,8 @@ class RootNode : public DomNode {
   }
 
   std::vector<std::weak_ptr<DomNode>> GetAllTextNodes();
+    
+  LayoutEngineType GetLayoutEngineType() { return layout_engine_type_; }
 
  private:
   static void MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& nodes);
@@ -149,6 +151,8 @@ class RootNode : public DomNode {
   std::unique_ptr<DomNodeStyleDiffer> style_differ_;
 
   bool disable_set_root_size_ { false };
+  
+  LayoutEngineType layout_engine_type_ = LayoutEngineDefault;
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> persistent_map_;
 };

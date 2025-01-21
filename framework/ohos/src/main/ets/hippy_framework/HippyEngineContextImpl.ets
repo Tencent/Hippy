@@ -10,7 +10,7 @@ import { HippyBridgeManagerImpl } from './bridge/HippyBridgeManagerImpl';
 import { DomManager } from './connector/DomManager';
 import { JsDriver } from './connector/JsDriver';
 import { NativeRenderer } from './connector/NativeRenderer';
-import { EngineInitParams, ModuleLoadParams } from './HippyEngine';
+import { EngineInitParams, HippyLayoutEngineType, ModuleLoadParams } from './HippyEngine';
 import { HippyEngineContext } from './HippyEngineContext';
 import { HippyGlobalConfigs } from './HippyGlobalConfigs';
 import { HippyModuleManagerImpl, HippyNativeModuleCreator } from './modules/HippyModuleManagerImpl';
@@ -225,7 +225,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
 
   attachRootView(rootView: HippyRootView) {
     if (this.mJsDriver && this.nativeRenderer) {
-      this.attachDomToRootView(rootView.getRootId())
+      this.attachDomToRootView(rootView.getRootId(), rootView.getLayoutEngineType())
       this.attachJsToRootView(rootView.getRootId())
       if (this.mDevtoolsManager != null) {
         this.mDevtoolsManager.attachToRoot(rootView.getRootId());
@@ -235,15 +235,16 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   }
 
   createRootView(loadParams: ModuleLoadParams) {
-    const rootView = this.nativeRenderProvider!.getNativeRenderImpl().createRootView(loadParams.componentName, {}, loadParams.wrappedCustomRenderViewBuilder)
+    const rootView = this.nativeRenderProvider!.getNativeRenderImpl().createRootView(loadParams.componentName, {},
+      loadParams.wrappedCustomRenderViewBuilder, loadParams.layoutEngineType)
     if (rootView != null) {
       this.attachRootView(rootView);
     }
     return rootView;
   }
 
-  attachDomToRootView(rootId: number): void {
-    this.mDomManager.createRootNode(rootId, PixelUtil.getDensity())
+  attachDomToRootView(rootId: number, layoutEngineType: HippyLayoutEngineType): void {
+    this.mDomManager.createRootNode(rootId, PixelUtil.getDensity(), layoutEngineType)
     this.mDomManager.attachToRoot(rootId)
   }
 
