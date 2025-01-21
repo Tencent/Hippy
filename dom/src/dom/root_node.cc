@@ -100,8 +100,9 @@ bool DomNodeStyleDiffer::Calculate(const std::shared_ptr<hippy::dom::RootNode>& 
   return true;
 }
 
-RootNode::RootNode(uint32_t id) : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
-  InitLayoutConsts();
+RootNode::RootNode(uint32_t id, LayoutEngineType layout_engine_type) : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}, layout_engine_type) {
+  layout_engine_type_ = layout_engine_type;
+  InitLayoutConsts(layout_engine_type);
   SetRenderInfo({id, 0, 0});
   animation_manager_ = std::make_shared<AnimationManager>();
   interceptors_.push_back(animation_manager_);

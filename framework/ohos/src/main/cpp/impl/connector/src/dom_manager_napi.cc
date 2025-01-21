@@ -119,14 +119,15 @@ static napi_value DestroyDomManager(napi_env env, napi_callback_info info) {
 
 static napi_value CreateRoot(napi_env env, napi_callback_info info) {
   ArkTS arkTs(env);
-  auto args = arkTs.GetCallbackArgs(info, 2);
+  auto args = arkTs.GetCallbackArgs(info);
   uint32_t root_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
   double density = arkTs.GetDouble(args[1]);
+  uint32_t layout_engine_type = static_cast<uint32_t>(arkTs.GetInteger(args[2]));
 
   std::shared_ptr<hippy::RootNode> saved_root_node;
   auto& persistent_map = RootNode::PersistentMap();
   if (!persistent_map.Find(root_id, saved_root_node)) {
-    auto root_node = std::make_shared<hippy::RootNode>(root_id);
+    auto root_node = std::make_shared<hippy::RootNode>(root_id, (LayoutEngineType)layout_engine_type);
     auto layout = root_node->GetLayoutNode();
     layout->SetScaleFactor(static_cast<float>(density));
     auto flag = persistent_map.Insert(root_id, root_node);

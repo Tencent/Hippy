@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 import { HippyRootView } from '.';
+import { HippyLayoutEngineType } from '../hippy_framework';
 import { CallResultCallback,
   EventListenerCallback,
   HippyRenderViewInfo } from '../hippy_library/HippyLibrary';
@@ -38,7 +39,9 @@ import { HippyEndBatchCallback } from './uimanager/HRViewManager';
 import { HRPosition, HRRect } from './utils/HRTypes';
 
 export interface NativeRender {
-  createRootView(pageName: string, pageData: HippyRecord, wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): HippyRootView
+  createRootView(pageName: string, pageData: HippyRecord,
+    wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null,
+    layoutEngineType: HippyLayoutEngineType): HippyRootView
 
   destroyRoot(rootId: number): void
 

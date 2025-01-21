@@ -31,15 +31,28 @@ static uint32_t sHippyRootIdCounter = 0;
 
 using namespace hippy;
 
-uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id) {
+static hippy::LayoutEngineType HippyLayoutEngineTypeToInnerType(HippyLayoutEngineType layout_engine_type) {
+  switch (layout_engine_type) {
+    case HippyLayoutEngineTaitank:
+      return hippy::LayoutEngineTaitank;
+    case HippyLayoutEngineYoga:
+      return hippy::LayoutEngineYoga;
+    case HippyLayoutEngineDefault:
+      return hippy::LayoutEngineDefault;
+  }
+  return hippy::LayoutEngineDefault;
+}
+
+uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id, HippyLayoutEngineType layout_engine_type) {
   sHippyRootIdCounter += ROOT_VIEW_ID_INCREMENT;
   uint32_t root_id = sHippyRootIdCounter;
   double density = HRPixelUtils::GetDensity();
+  hippy::LayoutEngineType layout_type = HippyLayoutEngineTypeToInnerType(layout_engine_type);
 
   std::shared_ptr<hippy::RootNode> saved_root_node;
   auto& persistent_map = RootNode::PersistentMap();
   if (!persistent_map.Find(root_id, saved_root_node)) {
-    auto root_node = std::make_shared<hippy::RootNode>(root_id);
+    auto root_node = std::make_shared<hippy::RootNode>(root_id, layout_type);
     auto layout = root_node->GetLayoutNode();
     layout->SetScaleFactor(static_cast<float>(density));
     auto flag = persistent_map.Insert(root_id, root_node);
