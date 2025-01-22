@@ -63,7 +63,8 @@ export class DevRemoteServerData {
       return;
     }
     let url = Url.URL.parseURL(remoteServerUrl)
-    this.scheme = url.protocol;
+    // url.protocol is "https:", remove ':'
+    this.scheme = url.protocol.replace(/:$/, '');
     this.host = url.hostname;
     this.path = url.pathname;
     let port = url.port;
