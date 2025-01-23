@@ -42,6 +42,11 @@
 #include "driver/napi/hermes/hermes_ctx_value.h"
 #endif
 
+#ifdef JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/napi/jsh/jsh_ctx_value.h"
+#endif
+
 namespace hippy {
 inline namespace driver {
 inline namespace base {
@@ -76,6 +81,10 @@ bool IsEqualCtxValue(const std::shared_ptr<CtxValue>& value1, const std::shared_
   auto hermes_ctx = std::static_pointer_cast<HermesCtx>(ctx);
   const std::unique_ptr<HermesRuntime>& runtime = hermes_ctx->GetRuntime();
   return Value::strictEquals(*runtime, v1->GetValue(runtime), v2->GetValue(runtime));
+#elif JS_JSH
+  auto v1 = std::static_pointer_cast<JSHCtxValue>(value1);
+  auto v2 = std::static_pointer_cast<JSHCtxValue>(value2);
+  return v1->GetValue() == v2->GetValue();
 #else
   FOOTSTONE_UNREACHABLE();
 #endif
@@ -216,11 +225,11 @@ std::shared_ptr<CtxValue> CreateCtxValue(const std::shared_ptr<Ctx>& ctx,
   } else if (value->IsArray()) {
     auto array = value->ToArrayChecked();
     auto len = array.size();
-    std::shared_ptr<CtxValue> argv[len];
+    std::vector<std::shared_ptr<CtxValue>> argv(len);
     for (size_t i = 0; i < len; ++i) {
       argv[i] = CreateCtxValue(ctx, std::make_shared<HippyValue>(array[i]));
     }
-    return ctx->CreateArray(array.size(), argv);
+    return ctx->CreateArray(array.size(), argv.data());
   } else if (value->IsObject()) {
     auto obj = ctx->CreateObject();
     auto object = value->ToObjectChecked();

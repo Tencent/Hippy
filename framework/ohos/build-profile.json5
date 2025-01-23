@@ -1,0 +1,58 @@
+{
+  "apiType": "stageMode",
+  "buildOption": {
+    "sourceOption": {
+      "workers": [
+        "./src/main/ets/support/workers/worker.ets"
+      ]
+    }
+  },
+  "buildOptionSet": [
+    {
+      "name": "debug",
+      "externalNativeOptions": {
+        "arguments": "-DOHOS_STL=c++_static -DENABLE_INSPECTOR=false",
+        "abiFilters": [
+          "arm64-v8a",
+        ],
+      },
+      "nativeLib": {
+        "debugSymbol": {
+          "strip": false
+        }
+      }
+    },
+    {
+      "name": "release",
+      "externalNativeOptions": {
+        "arguments": "-DOHOS_STL=c++_static -DENABLE_INSPECTOR=false",
+        "abiFilters": [
+          "arm64-v8a",
+        ],
+      },
+      "nativeLib": {
+        "debugSymbol": {
+          "strip": false // 保留详细符号，方便翻译出更详细的crash符号。带符号so会很大，但App集成har包后，会自动strip掉符号。
+        }
+      },
+      "arkOptions": {
+        "obfuscation": {
+          "ruleOptions": {
+            "enable": true,
+            "files": [
+              "./obfuscation-rules.txt"
+            ]
+          },
+          "consumerFiles": [
+            "./consumer-rules.txt"
+          ]
+        }
+      }
+    },
+  ],
+  "targets": [
+    {
+      "name": "default"
+    }
+  ]
+}

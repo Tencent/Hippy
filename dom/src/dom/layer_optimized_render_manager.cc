@@ -88,8 +88,10 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
       }
     }
   }
-  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] update node size before optimize = " << nodes.size()
-                       << ", update node size after optimize  = " << nodes_to_update.size();
+  if (!footstone::gInUpdateAnimScope || footstone::gEnableUpdateAnimLog) {
+    FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] update node size before optimize = " << nodes.size()
+      << ", update node size after optimize  = " << nodes_to_update.size(); 
+  }
   if (!nodes_to_update.empty()) {
     render_manager_->UpdateRenderNode(root_node, std::move(nodes_to_update));
   }

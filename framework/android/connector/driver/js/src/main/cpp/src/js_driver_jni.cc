@@ -420,6 +420,9 @@ void DestroyJsDriver(__unused JNIEnv* j_env,
     scope_cv_map.erase(scope_id);
   }
   auto scope = GetScope(j_scope_id);
+  if (!scope) {
+    return;
+  }
   auto engine = scope->GetEngine().lock();
   FOOTSTONE_CHECK(engine);
   {

@@ -187,7 +187,7 @@ void WorkerManager::Balance(int32_t increase_worker_count) {
         }
         runner->worker_ = new_worker;
       }
-      index_ == size - 1 ? 0 : ++index_;
+      index_ = (index_ == size - 1) ? 0 : (1 + index_);
       ++it;
     }
     for (auto i = size_ - 1; static_cast<int32_t>(i) > size - 1; --i) {
@@ -261,7 +261,7 @@ std::shared_ptr<TaskRunner> WorkerManager::CreateTaskRunner(uint32_t group_id,
       {
         std::lock_guard<std::mutex> lock(mutex_);
         worker = workers_[static_cast<size_t>(index_)];
-        index_ == static_cast<int32_t>(size_ - 1) ? 0 : ++index_;
+        index_ = (index_ == static_cast<int32_t>(size_ - 1)) ? 0 : (1 + index_);
       }
       task_runner->worker_ = worker;
       worker->Bind(std::vector<std::shared_ptr<TaskRunner>>{task_runner});
@@ -289,7 +289,7 @@ void WorkerManager::AddTaskRunner(std::shared_ptr<TaskRunner> runner) {
   }
   worker->Bind(group);
   UpdateWorkerSpecific(worker, group);
-  index_ == static_cast<int32_t>(size_ - 1) ? 0 : ++index_;
+  index_ = (index_ == static_cast<int32_t>(size_ - 1)) ? 0 : (1 + index_);
 }
 
 void WorkerManager::UpdateWorkerSpecific(const std::shared_ptr<Worker> &worker,

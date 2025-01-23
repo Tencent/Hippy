@@ -132,6 +132,28 @@ const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
 } // namespace hippy
 `,
   },
+  ohos: {
+    piece1: `
+}  // namespace
+
+namespace hippy {
+inline namespace driver {
+
+static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
+  {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
+  {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
+    piece2: `
+};
+
+const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+} // namespace driver
+} // namespace hippy
+`,
+  },
 };
 
 /**
@@ -202,6 +224,7 @@ function wrapCodeIfNeeded(code, fileName) {
 function readFileToBuffer(renderer, engine, filePath) {
   const fileName = path.basename(filePath, '.js');
   switch (renderer) {
+    case 'ohos':
     case 'flutter': {
       const code = fs.readFileSync(filePath).toString();
       const babelConfig = { comments: false, compact: false };
@@ -326,4 +349,5 @@ generateCpp('ios', 'jsc', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
 generateCpp('ios', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
 generateCpp('android', 'v8', getAbsolutePath('../../../driver/js/src/vm/v8/'));
 generateCpp('android', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
+generateCpp('ohos', getAbsolutePath('../../../driver/js/src/vm/v8/'));
 generateCpp('flutter', 'flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));

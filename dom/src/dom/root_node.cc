@@ -460,7 +460,11 @@ std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
 
 std::tuple<float, float> RootNode::GetRootSize() { return GetLayoutSize(); }
 
-void RootNode::SetRootSize(float width, float height) { SetLayoutSize(width, height); }
+void RootNode::SetRootSize(float width, float height) {
+  if (!disable_set_root_size_) {
+    SetLayoutSize(width, height);
+  }
+}
 
 void RootNode::SetRootOrigin(float x, float y) { SetLayoutOrigin(x, y); }
 
@@ -573,6 +577,17 @@ void RootNode::Traverse(const std::function<void(const std::shared_ptr<DomNode>&
       }
     }
   }
+}
+
+std::vector<std::weak_ptr<DomNode>> RootNode::GetAllTextNodes() {
+  std::vector<std::weak_ptr<DomNode>> textNodes;
+  for (auto it = nodes_.begin(); it != nodes_.end(); it++) {
+    auto node = it->second.lock();
+    if (node && node->GetViewName() == "Text") {
+      textNodes.emplace_back(node);
+    }
+  }
+  return textNodes;
 }
 
 }  // namespace dom

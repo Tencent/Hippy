@@ -31,6 +31,9 @@ static constexpr CFTimeInterval kInterval = IOS_WORKER_TIME_INTERVAL;
 static constexpr CFTimeInterval kInterval = 1.0e10;
 #endif
 
+extern "C" void * objc_autoreleasePoolPush(void);
+extern "C" void objc_autoreleasePoolPop(void *);
+
 static void OnTimerCb(CFRunLoopTimerRef timer, LooperDriver* driver) {
   FOOTSTONE_DCHECK(driver);
   driver->OnTimerFire(timer);
@@ -47,6 +50,8 @@ LooperDriver::LooperDriver(): loop_() {
 
 LooperDriver::~LooperDriver() {
   CFRunLoopTimerInvalidate(delayed_wake_timer_);
+  CFRelease(delayed_wake_timer_);
+  CFRelease(loop_);
 }
 
 void LooperDriver::Notify() {
@@ -62,7 +67,9 @@ void LooperDriver::WaitFor(const TimeDelta& delta, std::unique_lock<std::mutex>&
 }
 
 void LooperDriver::Start() {
+  // note that `loop_` created on dom thread but release on main thread
   loop_ = CFRunLoopGetCurrent();
+  CFRetain(loop_);
   CFRunLoopAddTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
   while (true) {
     if (IsExitImmediately()) {
@@ -88,7 +95,9 @@ void LooperDriver::OnTimerFire(CFRunLoopTimerRef timer) {
   if (IsExitImmediately()) {
     return;
   }
+  auto obj = objc_autoreleasePoolPush();
   unit_();
+  objc_autoreleasePoolPop(obj);
 }
 
 }

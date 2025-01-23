@@ -1,0 +1,8 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/PageManagement",
+    "pages/PageSetting",
+    "pages/PageConfiguration"
+  ]
+}

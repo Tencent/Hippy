@@ -67,16 +67,17 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     @autoreleasepool {
-        if (0 == [self count]) {
+        NSUInteger count = [self count];
+        if (0 == count) {
             return context->CreateArray(0, nullptr);
         }
-        CtxValuePtr value[[self count]];
-        size_t index = 0;
+        std::vector<CtxValuePtr> values;
+        values.reserve(count);
         for (id obj in self) {
             auto item = [obj convertToCtxValue:context];
-            value[index++] = std::move(item);
+            values.push_back(std::move(item));
         }
-        return context->CreateArray([self count], value);
+        return context->CreateArray(count, values.data());
     }
 }
 

@@ -720,6 +720,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         try {
             mEngineContext = new HippyEngineContextImpl(domManager);
         } catch (RuntimeException e) {
+            mEngineContext = null;
             LogUtils.e(TAG, "new HippyEngineContextImpl(): " + e.getMessage());
             notifyEngineInitialized(EngineInitStatus.STATUS_INIT_EXCEPTION, e);
             return;
@@ -934,13 +935,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return mJsDriver;
         }
 
+        @Override
         @NonNull
-        DomManager getDomManager() {
+        public DomManager getDomManager() {
             return mDomManager;
         }
 
+        @Override
         @NonNull
-        RenderConnector getRenderer() {
+        public RenderConnector getRenderer() {
             return mRenderer;
         }
 

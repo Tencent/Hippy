@@ -30,6 +30,8 @@
 
 #ifdef JS_V8
 #include "driver/vm/v8/v8_vm.h"
+#elif JS_JSH
+#include "driver/vm/jsh/jsh_vm.h"
 #endif
 
 using TaskRunner = footstone::TaskRunner;

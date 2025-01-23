@@ -9,7 +9,7 @@
       >
         <div class="contentView">
           <div class="func-info">
-            <span :numberOfLines="0">函数名：{{ funcName }}</span>
+            <span :numberOfLines="1">函数名：{{ funcName }}</span>
           </div>
           <span
             class="action-button"

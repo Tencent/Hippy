@@ -66,6 +66,11 @@
 #include "driver/napi/hermes/hermes_ctx.h"
 #endif
 
+#elif JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/vm/jsh/jsh_vm.h"
+#endif
+
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
@@ -119,11 +124,11 @@ static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data)
   }
   auto len = info.Length();
   auto argc = len > 1 ? (len - 1) : 0;
-  std::shared_ptr<CtxValue> rest_args[argc];
+  std::vector<std::shared_ptr<CtxValue>> rest_args(argc);
   for (size_t i = 0; i < argc; ++i) {
     rest_args[i] = info[i + 1];
   }
-  auto js_object = module_object->BindFunction(scope, rest_args);
+  auto js_object = module_object->BindFunction(scope, rest_args.data());
   info.GetReturnValue()->Set(js_object);
 }
 
@@ -142,20 +147,19 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 Scope::~Scope() {
   setValid(false);
   FOOTSTONE_DLOG(INFO) << "~Scope";
-  
+#ifdef JS_JSH
+  context_->InvalidWeakCallbackWrapper();
+#else
+  context_ = nullptr;
+#endif
+
   auto engine = engine_.lock();
   FOOTSTONE_DCHECK(engine);
   if (engine) {
-    /* Note:
-     * JSObjectFinalizeCallback will be called when you call JSContextGroupRelease,
-     * so it is necessary to hold the wrapper when ctx is destroyed.
-     */
-    if (engine->GetVM()->GetVMType() != VM::kJSEngineJSC) {
-      auto key = wrapper_.get();
-      engine->ClearWeakCallbackWrapper(key);
-      engine->ClearFunctionWrapper(key);
-      engine->ClearClassTemplate(key);
-    }
+    auto key = wrapper_.get();
+    engine->ClearWeakCallbackWrapper(key);
+    engine->ClearFunctionWrapper(key);
+    engine->ClearClassTemplate(key);
   }
 }
 
@@ -514,10 +518,11 @@ void Scope::RunJS(const string_view& data,
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }
-
-    // perfromance end time
-    entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
-  };
+#elif JS_JSH
+    auto context = std::static_pointer_cast<hippy::napi::JSHCtx>(weak_context.lock());
+    if (context) {
+      context->RunScript(data, name, false, nullptr, is_copy);
+    }
 #else
   auto callback = [WEAK_THIS, data, uri, name, weak_context] {
     DEFINE_AND_CHECK_SELF(Scope)
@@ -529,11 +534,12 @@ void Scope::RunJS(const string_view& data,
     if (context) {
       context->RunScript(data, name);
     }
+#endif
 
     // perfromance end time
     entry->BundleInfoOfUrl(uri).execute_source_end_ = footstone::TimePoint::SystemNow();
   };
-#endif
+
   auto runner = GetTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     callback();

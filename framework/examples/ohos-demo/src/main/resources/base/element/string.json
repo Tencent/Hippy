@@ -1,0 +1,60 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Hippy"
+    },
+    {
+      "name": "hippy_desc",
+      "value": "Hippy"
+    },
+    {
+      "name": "page_add_item_tips_text",
+      "value": "add page"
+    },
+    {
+      "name": "driver_js_react",
+      "value": "Js React"
+    },
+    {
+      "name": "driver_js_vue2",
+      "value": "Js Vue2.0"
+    },
+    {
+      "name": "driver_js_vue3",
+      "value": "Js Vue3.0"
+    },
+    {
+      "name": "driver_js_vl",
+      "value": "VL"
+    },
+    {
+      "name":"setting_not_available",
+      "value": "Coming soon"
+    },
+    {
+      "name":"renderer_native",
+      "value": "Native"
+    },
+    {
+      "name":"renderer_tdf_core",
+      "value": "TDF Core"
+    },
+    {
+      "name":"renderer_flutter",
+      "value": "Flutter"
+    },
+    {
+      "name":"page_setting_building_title",
+      "value": "Coming soon"
+    }
+  ]
+}

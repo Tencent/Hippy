@@ -107,3 +107,11 @@ framework/voltron/VoltronCore/VoltronCore.xcodeproj/project.xcworkspace
 framework/voltron/VoltronCore/VoltronCore.xcodeproj/xcuserdata/
 
 renderer/voltron/core/lib/
+
+.hvigor/
+oh_modules/*
+oh-package-lock.json5
+.clang-format
+.clang-tidy
+.clangd
+BuildProfile.ets

@@ -259,6 +259,8 @@ HIPPY_EXPORT_METHOD(removeFrameCallback:(nonnull NSNumber *)hippyTag
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
 HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(isShadowInset, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(isUseNewShadow, BOOL)
 
 HIPPY_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
 HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)

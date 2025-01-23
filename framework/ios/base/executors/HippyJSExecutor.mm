@@ -271,9 +271,8 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
 #endif /* ENABLE_INSPECTOR */
 
 #ifdef JS_JSC
-    auto scope = self.pScope;
-    if (scope && bridge && !bridge.usingHermesEngine) {
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+    if (self.pScope && bridge && !bridge.usingHermesEngine) {
+        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
         static CFStringRef delName = CFSTR("HippyJSContext(delete)");
         jsc_context->SetName(delName);
     }
@@ -667,13 +666,13 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
                 SharedCtxValuePtr method_value = context->GetProperty(batchedbridge_value, methodName);
                 if (method_value) {
                     if (context->IsFunction(method_value)) {
-                        SharedCtxValuePtr function_params[arguments.count];
+                        std::vector<SharedCtxValuePtr> function_params(arguments.count);
                         for (NSUInteger i = 0; i < arguments.count; i++) {
                             id obj = arguments[i];
                             function_params[i] = [obj convertToCtxValue:context];
                         }
                         auto tryCatch = hippy::TryCatch::CreateTryCatchScope(true, context);
-                        resultValue = context->CallFunction(method_value, context->GetGlobalObject(), arguments.count, function_params);
+                        resultValue = context->CallFunction(method_value, context->GetGlobalObject(), arguments.count, function_params.data());
                         if (tryCatch->HasCaught()) {
                             exception = tryCatch->GetExceptionMessage();
                         }

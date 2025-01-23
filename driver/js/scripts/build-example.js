@@ -102,6 +102,7 @@ if (!use_hermes_engine) {
 
   cp('-Rf', './dist/ios/*', `../../../../framework/examples/ios-demo/res/${jsPath}`); // Update the ios demo project
   cp('-Rf', './dist/android/*', `../../../../framework/examples/android-demo/res/${jsPath}`); // # Update the android project
+  cp('-Rf', './dist/ohos/*', `../../../../framework/examples/ohos-demo/src/main/resources/rawfile/${jsPath}`); // # Update the ohos project
   cp('-Rf', './dist/android/*', `../../../../framework/voltron/example/assets/jsbundle/${jsPath}`); // # Update the flutter project, ios and android use same bundle
 
   console.log('👌 All done, you can open your native app now, enjoy.');

@@ -132,7 +132,9 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   if (!root_node) {
     return;
   }
-  FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] total node size = " << root_node->GetChildCount();
+  if (!footstone::gInUpdateAnimScope || footstone::gEnableUpdateAnimLog) {
+    FOOTSTONE_DLOG(INFO) << "[Hippy Statistic] total node size = " << root_node->GetChildCount();
+  }
   root_node->SyncWithRenderManager(render_manager);
 }
 

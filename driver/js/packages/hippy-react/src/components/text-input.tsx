@@ -116,7 +116,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
   /**
    * The string that will be rendered before text input has been entered.
    */
-  placeholder?: number;
+  placeholder?: string;
 
   /**
    * The text color of the placeholder string.
@@ -134,6 +134,11 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    * Callback that is called when the text input is blurred.
    */
   onBlur?: () => void;
+
+  /**
+   * Callback that is called when the text input is focused.
+   */
+  onFocus?: () => void;
 
   /**
    * Callback that is called when text input ends.

@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
 #import "NativeRenderTouchesView.h"
+#import "HippyViewInnerLayer.h"
 
 @class HippyGradientObject;
 
@@ -38,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger hippyZIndex;
 
 @property (nonatomic, assign) CGFloat shadowSpread;
+@property (nonatomic, assign) BOOL isShadowInset;
+@property (nonatomic, assign) BOOL isUseNewShadow;
+@property (nonatomic, strong) HippyViewInnerLayer *innerShadowLayer;
 
 /**
  * get content for layer

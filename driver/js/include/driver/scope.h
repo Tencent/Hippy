@@ -314,7 +314,15 @@ class Scope : public std::enable_shared_from_this<Scope> {
     dom_manager_ = dom_manager;
   }
 
-  inline std::weak_ptr<DomManager> GetDomManager() { return dom_manager_; }
+  inline std::weak_ptr<DomManager> GetDomManager() {
+#ifdef __OHOS__
+    auto root = root_node_.lock();
+    if (root) {
+      return root->GetDomManager();
+    }
+#endif
+    return dom_manager_;
+  }
 
   inline std::weak_ptr<RootNode> GetRootNode() {
     return root_node_;
@@ -367,19 +375,23 @@ class Scope : public std::enable_shared_from_this<Scope> {
 
       auto class_template = reinterpret_cast<ClassTemplate<T>*>(data);
       auto len = info.Length();
-      std::shared_ptr<CtxValue> argv[len];
+      std::vector<std::shared_ptr<CtxValue>> argv(len);
       for (size_t i = 0; i < len; i++) {
         argv[i] = info[i];
       }
       auto receiver = info.GetReceiver();
       auto external = info.GetData();
       std::shared_ptr<CtxValue> exception = nullptr;
-      auto ret = class_template->constructor(receiver, static_cast<size_t>(len), argv, external, exception);
+      auto ret = class_template->constructor(receiver, static_cast<size_t>(len), argv.data(), external, exception);
       if (exception) {
         info.GetExceptionValue()->Set(exception);
         return;
       }
       info.SetData(ret.get());
+#ifdef __OHOS__
+      context->SetReceiverData(receiver, ret.get());
+#endif
+      // FOOTSTONE_DLOG(INFO) << "hippy gc, holder map insert, class_tp: " << class_template << ", " << class_template->name << ", obj: " << ret.get();
       class_template->holder_map.insert({ret.get(), ret});
       FOOTSTONE_CHECK(context);
       auto weak_callback_wrapper = std::make_unique<WeakCallbackWrapper>([](void* callback_data, void* internal_data) {
@@ -388,8 +400,10 @@ class Scope : public std::enable_shared_from_this<Scope> {
           return;
         }
         auto& holder_map = class_template->holder_map;
+        // FOOTSTONE_DLOG(INFO) << "hippy gc, holder map erase, class_tp: " << class_template << ", " << class_template->name << ", obj: " << internal_data;
         auto it = holder_map.find(internal_data);
         if (it != holder_map.end()) {
+          // FOOTSTONE_DLOG(INFO) << "hippy gc, holder map erase success";
           holder_map.erase(it);
         }
       }, class_template);
@@ -455,7 +469,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
       auto function = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
         auto function_define = reinterpret_cast<FunctionDefine<T>*>(data);
         auto len = info.Length();
-        std::shared_ptr<CtxValue> param[len];
+        std::vector<std::shared_ptr<CtxValue>> param(len);
         for (size_t i = 0; i < len; i++) {
           param[i] = info[i];
         }
@@ -465,7 +479,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
         }
         auto t = reinterpret_cast<T*>(info_data);
         std::shared_ptr<CtxValue> exception = nullptr;
-        auto ret = (function_define->callback)(t, static_cast<size_t>(len), param, exception);
+        auto ret = (function_define->callback)(t, static_cast<size_t>(len), param.data(), exception);
         if (exception) {
           info.GetReturnValue()->Set(exception);
           return;
