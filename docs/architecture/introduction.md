@@ -19,7 +19,7 @@ DOM Manager 从 Java/OC 抽离到 C++，作为中间枢纽，除了接收处理�
 
 ## 渲染层
 
-* Native Renderer：使用 Android/iOS 原生组件进行渲染, 详见 [Android](architecture/render/android/native-render)、[iOS](architecture/render/ios/native-render)。
+* Native Renderer：使用 Android/iOS/Ohos 原生组件进行渲染, 详见 [Android](architecture/render/android/native-render)、[iOS](architecture/render/ios/native-render)、[Ohos](architecture/render/ohos/native-render)。
 * Voltron Renderer：使用 Flutter 渲染, 详见 [Voltron](architecture/render/voltron/voltron-render)。
 * Web Renderer：使用 WebView 渲染（Web 同构）, 详见 [Web](architecture/render/web/web-render)。
 

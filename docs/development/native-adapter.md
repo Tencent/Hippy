@@ -1,6 +1,6 @@
 # 终端能力适配
 
-可以把 Native 的一些基础能力接口，抽象为 Adapter，方便业务注入实现。支持 Android、iOS、Flutter、Web(同构) 等平台。
+可以把 Native 的一些基础能力接口，抽象为 Adapter，方便业务注入实现。支持 Android、iOS、Ohos、Flutter、Web(同构) 等平台。
 <br/>
 
 # Android
@@ -167,6 +167,27 @@ HIPPY_EXPORT_MODULE() // 全局注册该模块至Hippy
 !> 注意，同时只可有一个ImageLoader生效。若有多个模块实现了 `HippyImageCustomLoaderProtocol` 协议，框架使用最后一个作为生效的 ImageLoader。Hippy框架优先使用通过 `setCustomImageLoader:` 方法注册的ImageLoader。
 
 
+
+<br/>
+<br/>
+<br/>
+
+
+# Ohos
+
+---
+
+Ohos App 开发中存在很多第三方基础库。
+
+Hippy SDK 将所有基础能力接口化，抽象为 Adapter，方便业务注入实现，同时大多数基础能力我们也默认实现了一个最简单的方案。
+
+Hippy SDK 现在所提供的 Adapter 包括：
+
+- `HippyHttpAdapter`：Http 请求 Adapter。
+- `HippyExceptionHandlerAdapter`：引擎和 JS 异常处理 Adapter。
+- `HippyStorageAdapter`：数据库（KEY-VALUE）Adapter。
+- `HippyExecutorSupplierAdapter`：线程池 Adapter。
+- `HippyEngineMonitorAdapter`：Hippy 引擎状态监控 Adapter。
 
 <br/>
 <br/>

@@ -52,8 +52,8 @@ Install latest DevEco Studio.
   })
   ```
 
-  > More details for [ohos SDK integration](https://github.com/sohotz/Hippy/blob/main/docs/development/native-integration.md).
+  > More details for [ohos SDK integration](https://github.com/Tencent/Hippy/blob/main/docs/development/native-integration.md).
 
 ## 📁 Documentation
 
-To check out [hippy examples](https://github.com/sohotz/Hippy/tree/main/framework/examples/ohos-har-demo) and visit [openhippy.com](https://openhippy.com).
+To check out [hippy examples](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-har-demo) and visit [openhippy.com](https://openhippy.com).

@@ -9,6 +9,7 @@
   - [Android 3.x SDK升级指引](development/android-3.0-upgrade-guidelines.md)
   - [iOS 3.x SDK集成指引](development/ios-3.0-integration-guidelines.md)
   - [iOS 3.x SDK升级指引](development/ios-3.0-upgrade-guidelines.md)
+  - [Ohos SDK集成指引](development/ohos-integration-guidelines.md)
   - [Voltron/Flutter集成指引](development/voltron-flutter-integration-guidelines.md)
 - [自定义组件](development/native-component.md)
 - [自定义模块](development/native-module.md)

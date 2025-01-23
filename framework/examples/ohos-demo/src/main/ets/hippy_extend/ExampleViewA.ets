@@ -35,11 +35,26 @@ export class ExampleViewA extends HippyCustomComponentView {
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
+    if (propKey == "prop1") {
+      // ...
+      return true
+    } else if (propKey == "prop2") {
+      // ...
+      return true
+    }
     return super.setProp(propKey, propValue)
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-
+    if (method == "selectItem") {
+      // ...
+    } else if (method == "getData") {
+      // ...
+      // 如果需要返回值，返回值举例
+      if (callback) {
+        callback("result")
+      }
+    }
   }
 }
 
