@@ -1,6 +1,6 @@
 # 自定义终端模块
 
-很多时候 JS 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 Module 来暴露接口给JS使用。Hippy SDK 中默认实现了部分 Module，但这极有可能无法满足你的需求，这就需要你对 Module 进行扩展封装。Hippy支持 Android、iOS、Flutter、Web(同构) 等平台的模块扩展。
+很多时候 JS 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 Module 来暴露接口给JS使用。Hippy SDK 中默认实现了部分 Module，但这极有可能无法满足你的需求，这就需要你对 Module 进行扩展封装。Hippy支持 Android、iOS、Ohos、Flutter、Web(同构) 等平台的模块扩展。
 
 <br/>
 
@@ -274,23 +274,24 @@ HIPPY_EXPORT_METHOD(click) {
 @end
 ```
 
-# 鸿蒙
+# Ohos
 
-很多时候 `JS` 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 `Module` 来暴露接口给JS使用。Voltron SDK 中默认实现了部分 `Module`，但这极有可能无法满足你的需求，这就需要你对 `Module` 进行扩展封装。
+很多时候 `JS` 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 `Module` 来暴露接口给JS使用。Ohos SDK 中默认实现了部分 `Module`，但这极有可能无法满足你的需求，这就需要你对 `Module` 进行扩展封装。
 
 ---
 
 ## Module扩展
 
-我们将以 `TestModule` 为例，从头扩展一个 `Module`，这个 `Module` 将展示前端如何调用终端能力，并且把结果返回给前端
+我们将以 `ExampleNativeModule` 为例，从头扩展一个 `Module`，这个 `Module` 将展示前端如何调用终端能力，并且把结果返回给前端。
 
-终端扩展 `Module` 包括四步：
+终端扩展 `Module` 的步骤：
 
-1. 创建 `TestModule`
-2. 实现导出给 `JS` 的方法。
-3. 注册 `Module`。
+1. 创建 `HippyNativeModuleBase` 的子类。
+2. 实现导出给 JS 的方法。
+3. 注册 Module。
+4. 注册 HippyAPIProvider。
 
-## 1. 创建 `TestModule`，并且继承 HippyNativeModuleBase
+## 1. 创建 HippyNativeModuleBase 的子类
 
 ```typescript
 export class ExampleNativeModule extends HippyNativeModuleBase {
@@ -350,7 +351,6 @@ export class ExampleNativeModule extends HippyNativeModuleBase {
   }
 
 }
-
 ```
 
 需要注意的是，这里与Android、iOS有几处不同。
@@ -358,6 +358,32 @@ export class ExampleNativeModule extends HippyNativeModuleBase {
 1. 需要指定 NAME，设置为前端调用的 module name
 
 2. 需要实现 call 方法
+
+## 2. 实现导出给 JS 的方法
+
+例子见上一步 call 方法的实现。
+
+## 3. 注册 Module
+
+```typescript
+export class ExampleAPIProvider implements HippyAPIProvider {
+  getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
+    let registerMap: Map<string, HippyNativeModuleCreator> =
+      new Map()
+    registerMap.set(ExampleNativeModule.NAME,
+      (ctx): HippyNativeModuleBase => new ExampleNativeModule(ctx))
+    return registerMap;
+  }
+}
+```
+
+## 4. 注册 HippyAPIProvider
+
+在 HippyEngine 初始化的 EngineInitParams 参数属性中设置 providers。
+
+```typescript
+params.providers = new Array(new ExampleAPIProvider())
+```
 
 ## Turbo Module扩展
 

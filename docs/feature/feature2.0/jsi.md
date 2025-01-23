@@ -244,7 +244,7 @@ export class TurboConfig {
 | napi_object    | Object    |
 | NULL    | null    |
 
-更多示例可参考类[DemoTurboModule](https://github.com/sohotz/Hippy/blob/main/framework/examples/ohos-demo/src/main/ets/hippy_extend/ExampleNativeTurboModule.ets)
+更多示例可参考类[DemoTurboModule](https://github.com/Tencent/Hippy/blob/main/framework/examples/ohos-demo/src/main/ets/hippy_extend/ExampleNativeTurboModule.ets)
 
 * 注册TurboModule模块，跟NativeModule注册方法完全一致
 
