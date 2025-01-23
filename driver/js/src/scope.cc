@@ -59,21 +59,21 @@
 #include "driver/vm/v8/memory_module.h"
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/vm/v8/v8_vm.h"
-#endif
+#endif /* JS_V8 */
 
 #ifdef JS_HERMES
 #include "driver/vm/hermes/hermes_vm.h"
 #include "driver/napi/hermes/hermes_ctx.h"
-#endif
+#endif /* JS_HERMES */
 
-#elif JS_JSH
+#ifdef JS_JSH
 #include "driver/napi/jsh/jsh_ctx.h"
 #include "driver/vm/jsh/jsh_vm.h"
-#endif
+#endif /* JS_JSH */
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
-#endif
+#endif /* ENABLE_INSPECTOR */
 
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;

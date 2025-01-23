@@ -62,7 +62,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #include "hermes/hermes.h"
 #pragma clang diagnostic pop
-#endif
+#endif /* JS_HERMES */
 
 namespace hippy {
 inline namespace driver {
@@ -553,8 +553,8 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
   // the scope and engine into the scope_destroy_callback, which will be released
   // when the callback is executed, ensuring no other tasks can be added to the
   // task runner.
-#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), is_reload, callback] {
+#if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
     if (v8_vm->IsDebug()) {
       auto inspector_client = v8_vm->GetInspectorClient();
@@ -567,15 +567,13 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
     }
     FOOTSTONE_LOG(INFO) << "js destroy end";
     callback(true);
-  };
 #else
-  auto scope_destroy_callback = [engine = std::move(engine), scope = std::move(scope), callback] {
     (void)is_reload;
     scope->WillExit();
     FOOTSTONE_LOG(INFO) << "js destroy end";
     callback(true);
-  };
 #endif
+  };
   runner->PostTask(std::move(scope_destroy_callback));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
 }
@@ -713,8 +711,8 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
   }
 
   std::string buffer_data;
-#ifdef JS_V8
   if (info[3] && context->IsObject(info[3])) {
+#ifdef JS_V8
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_DCHECK(engine);
     if (!engine) {
@@ -742,28 +740,12 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
       FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
       buffer_data = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
+#ifdef JS_V8
     }
-  }
-#elif defined(JS_HERMES)
-  if (info[3] && context->IsObject(info[3])) {
-    string_view json;
-    auto flag = context->GetValueJson(info[3], &json);
-    FOOTSTONE_DCHECK(flag);
-    FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
-    buffer_data =
-        StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
-  }
-#else
-  if (info[3] && context->IsObject(info[3])) {
-  } else {
-    string_view json;
-    auto flag = context->GetValueJson(info[3], &json);
-    FOOTSTONE_DCHECK(flag);
-    FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
-    buffer_data =
-        StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
-  }
+#elif JS_JSH
+    }
 #endif
+  }
 
   int32_t transfer_type = 0;
   if (info[4]) {
