@@ -87,6 +87,7 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
 
 @interface HippyShadowText () <NSLayoutManagerDelegate>
 {
+    BOOL _hasAttachment; // Indicates whether Text has attachment, for speeding up typesetting calculations
     BOOL _isNestedText; // Indicates whether Text is nested, for speeding up typesetting calculations
     BOOL _needRelayoutText; // special styles require two layouts, eg. verticalAlign etc
     hippy::LayoutMeasureMode _cachedTextStorageWidthMode; // cached width mode when building text storage
@@ -231,7 +232,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }];
 }
 
-- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+- (void)updateAttachmentsFrame:(NSMutableSet<NativeRenderApplierBlock> * _Nonnull)blocks {
     @try {
         UIEdgeInsets padding = self.paddingAsInsets;
         CGFloat width = self.frame.size.width - (padding.left + padding.right);
@@ -239,11 +240,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         CGRect textFrame = [self calculateTextFrame:textStorage];
         
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
-        NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
-        NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
-        NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-        [textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
-            HippyShadowView *child, NSRange range, __unused BOOL *_) {
+        [textStorage enumerateAttribute:HippyShadowViewAttributeName 
+                                inRange:NSMakeRange(0, textStorage.length)
+                                options:0
+                             usingBlock:^(HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
                 float width = child.width, height = child.height;
                 if (isnan(width) || isnan(height)) {
@@ -252,15 +252,33 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 
                 // Use line fragment's rect instead of glyph rect for calculation,
                 // since we have changed the baselineOffset.
-                CGRect lineRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location
+                NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:range actualCharacterRange:nil];
+                CGRect lineRect = [layoutManager lineFragmentRectForGlyphAtIndex:glyphRange.location
                                                                   effectiveRange:nil
                                                          withoutAdditionalLayout:YES];
-                CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
+                CGPoint location = [layoutManager locationForGlyphAtIndex:glyphRange.location];
                 CGFloat roundedHeight = HippyRoundPixelValue(height);
                 CGFloat roundedWidth = HippyRoundPixelValue(width);
                 
-                // take margin into account
-                // FIXME: margin currently not working, may have some bug in layout process
+                CGSize attachmentSize = [layoutManager attachmentSizeForGlyphAtIndex:glyphRange.location];
+                NSRange truncatedRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:glyphRange.location];
+                BOOL isTruncated = NSLocationInRange(glyphRange.location, truncatedRange);
+                // if truncated or out of the display area, then we need to hide the attach view
+                // {-1, -1} means attachment view has been truncated, ref: attachmentSizeForGlyphAtIndex api
+                if ((isTruncated && CGSizeEqualToSize({-1, -1}, attachmentSize))
+                    || location.x >= CGRectGetMaxX(lineRect) || location.y >= CGRectGetMaxY(lineRect)) {
+                    [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry,
+                                        UIView * _Nullable lazyCreatedView) {
+                        HippyView *view = (HippyView *)(lazyCreatedView ?: viewRegistry[child.hippyTag]);
+                        if (!view) { return; }
+                        if (!HippyCGRectNearlyEqual(view.frame, CGRectZero)) {
+                            [view setFrame:CGRectZero];
+                        }
+                    }];
+                    return;
+                }
+                
+                // TODO: support margin for attachment
                 float left = 0;
                 float top = 0;
                 float marginV = child.nodeLayoutResult.marginTop + child.nodeLayoutResult.marginBottom;
@@ -298,10 +316,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGRect childFrameToSet = CGRectMake(textFrame.origin.x + location.x + left,
                                                     textFrame.origin.y + positionY + top,
                                                     roundedWidth, roundedHeight);
-                CGRect childFrame = child.frame;
-                if (!HippyCGRectNearlyEqual(childFrame, childFrameToSet)) {
-                    [child setLayoutFrame:childFrameToSet dirtyPropagation:NO];
-                }
+                [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry,
+                                    UIView * _Nullable lazyCreatedView) {
+                    HippyView *view = (HippyView *)(lazyCreatedView ?: viewRegistry[child.hippyTag]);
+                    if (!view) { return; }
+                    if (!HippyCGRectNearlyEqual(view.frame, childFrameToSet)) {
+                        [view setFrame:childFrameToSet];
+                    }
+                }];
             }
         }];
         
@@ -318,6 +340,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     } @catch (NSException *exception) {
         HippyLogError(@"Exception while doing %s: %@, %@", __func__, exception.description, self);
     }
+}
+
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    if (_hasAttachment) {
+        [self updateAttachmentsFrame:blocks];
+    }
+    
     [self processUpdatedPropertiesBeforeMount:blocks];
 }
 
@@ -494,6 +523,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
+    _hasAttachment = NO;
     for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             HippyShadowText *childShadowText = (HippyShadowText *)child;
@@ -562,6 +592,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (height > heightOfTallestSubview) {
                 heightOfTallestSubview = height;
             }
+            _hasAttachment = YES;
             // Don't call setTextComputed on this child. HippyTextManager takes care of
             // processing inline UIViews.
         }
