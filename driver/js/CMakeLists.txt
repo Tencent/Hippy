@@ -30,6 +30,16 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_STANDARD 17)
 
+# Ohos系统上，配置本来应该放到生成so对应的build-profile.json5里。
+#（externalNativeOptions里arguments项）
+# 现在源码集成配置需在app的build-profile.json5里，不方便，所以先放在这里。
+# 后续hippy产物的独立后，放到hippy模块的build-profile.json5里。
+if (OHOS)
+#  set(JS_ENGINE "V8")
+  set(V8_COMPONENT "10.6.194")
+  set(JS_ENGINE "JSH")
+endif ()
+
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
@@ -60,6 +70,8 @@ if ("${JS_ENGINE}" STREQUAL "V8")
           set(V8_REMOTE_FILENAME "windows-x64.zip")
         endif()
       endif()
+    elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "OHOS")
+      set(V8_REMOTE_FILENAME "ohos-arm64.tgz")
     elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS")
       if ("${CMAKE_OSX_ARCHITECTURES}" MATCHES "arm")
         set(V8_REMOTE_FILENAME "ios-arm64.tgz")
@@ -115,30 +127,52 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
+elseif ("${JS_ENGINE}" STREQUAL "JSH")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSH")
 endif ()
 # endregion
 
 # region footstone
-GlobalPackages_Add(footstone)
+if (OHOS)
+  GlobalPackages_Add_footstone()
+else ()
+  GlobalPackages_Add(footstone)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region vfs
-GlobalPackages_Add(vfs)
+if (OHOS)
+  GlobalPackages_Add_vfs()
+else ()
+  GlobalPackages_Add(vfs)
+endif ()
 # Just reference the `dom` header files, no library needed
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:vfs,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region dom
-GlobalPackages_Add(dom)
+if (OHOS)
+  GlobalPackages_Add_dom()
+else ()
+  GlobalPackages_Add(dom)
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
 
 # region devtools
 if (ENABLE_INSPECTOR)
+if (OHOS)
+  GlobalPackages_Add_devtools_backend()
+else ()
   GlobalPackages_Add(devtools_backend)
+endif ()
   target_link_libraries(${PROJECT_NAME} PUBLIC devtools_backend)
+if (OHOS)
+  GlobalPackages_Add_devtools_integration()
+else ()
   GlobalPackages_Add(devtools_integration)
+endif ()
   target_link_libraries(${PROJECT_NAME} PUBLIC devtools_integration)
 endif ()
 # endregion
@@ -174,6 +208,9 @@ if ("${JS_ENGINE}" STREQUAL "V8")
           src/vm/v8/native_source_code_android.cc
           src/vm/v8/serializer.cc
           src/vm/v8/v8_vm.cc)
+
+  set_source_files_properties(src/vm/v8/serializer.cc PROPERTIES COMPILE_FLAGS -fno-rtti)
+
   if (NOT V8_WITHOUT_INSPECTOR)
     list(APPEND SOURCE_SET
             src/vm/v8/inspector/v8_channel_impl.cc
@@ -186,6 +223,13 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
           src/napi/jsc/jsc_try_catch.cc
           src/vm/jsc/jsc_vm.cc
           src/vm/jsc/native_source_code_ios.cc)
+elseif ("${JS_ENGINE}" STREQUAL "JSH")
+  list(APPEND SOURCE_SET
+            src/napi/jsh/jsh_class_definition.cc
+            src/napi/jsh/jsh_ctx.cc
+            src/napi/jsh/jsh_try_catch.cc
+            src/vm/jsh/jsh_vm.cc
+            src/vm/jsh/native_source_code_ohos.cc)
 endif ()
 set(SOURCE_SET_STANDALONE
         src/modules/console_module.cc

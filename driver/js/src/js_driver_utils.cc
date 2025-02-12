@@ -48,6 +48,11 @@
 #include "driver/napi/v8/v8_try_catch.h"
 #include "driver/vm/v8/v8_vm.h"
 #include "driver/napi/v8/serializer.h"
+#elif JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/napi/jsh/jsh_ctx_value.h"
+#include "driver/napi/jsh/jsh_try_catch.h"
+#include "driver/vm/jsh/jsh_vm.h"
 #endif
 
 namespace hippy {
@@ -80,6 +85,8 @@ constexpr char kGlobalKey[] = "global";
 constexpr char kHippyKey[] = "Hippy";
 constexpr char kNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kCallHostKey[] = "hippyCallNatives";
+constexpr char kCodeCacheFailCountFilePostfix[] = "_fail_count";
+const uint8_t kCodeCacheMaxFailCount = 3;
 
 #if defined(JS_V8) && defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
@@ -91,6 +98,7 @@ using DevtoolsDataSource = hippy::devtools::DevtoolsDataSource;
 
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>> reuse_engine_map;
 static std::mutex engine_mutex;
+static std::mutex code_cache_file_mutex;
 
 void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
                            const std::shared_ptr<TaskRunner>& task_runner,
@@ -124,6 +132,36 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
         v8_vm->SetInspectorClient(std::make_shared<V8InspectorClientImpl>());
       }
       v8_vm->GetInspectorClient()->SetJsRunner(engine->GetJsTaskRunner());
+    }
+#endif
+#elif JS_JSH
+    auto jsh_vm = std::static_pointer_cast<JSHVM>(engine->GetVM());
+    auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      auto scope = scope_wrapper->scope.lock();
+      FOOTSTONE_CHECK(scope);
+      auto exception = info[0];
+      JSHVM::HandleException(scope->GetContext(), "uncaughtException", exception);
+      auto engine = scope->GetEngine().lock();
+      FOOTSTONE_CHECK(engine);
+      auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+      auto context = scope->GetContext();
+      string_view description;
+      auto flag = context->GetValueString(info[1], &description);
+      FOOTSTONE_CHECK(flag);
+      string_view stack;
+      flag = context->GetValueString(info[2], &stack);
+      FOOTSTONE_CHECK(flag);
+      callback(scope->GetBridge(), description, stack);
+    }, nullptr);
+    jsh_vm->AddUncaughtExceptionMessageListener(wrapper);
+    jsh_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+    if (jsh_vm->IsDebug()) {
+      if (!jsh_vm->GetInspectorClient()) {
+        jsh_vm->SetInspectorClient(std::make_shared<JSHInspectorClientImpl>());
+      }
+      jsh_vm->GetInspectorClient()->SetJsRunner(engine->GetJsTaskRunner());
     }
 #endif
 #endif
@@ -269,6 +307,39 @@ void JsDriverUtils::InitInstance(
   });
 }
 
+// Code cache file corruption prevention strategy:
+// Record count before RunScript, clean count after RunScript, and if only start recording three times in a row, clean the code cache file.
+bool CheckUseCodeCacheBeforeRunScript(const string_view& code_cache_path) {
+  string_view fail_count_path = code_cache_path + string_view(kCodeCacheFailCountFilePostfix);
+  u8string content;
+  HippyFile::ReadFile(fail_count_path, content, false);
+  if (content.length() == 1) {
+    uint8_t count = content[0];
+    if (count >= kCodeCacheMaxFailCount) {
+      FOOTSTONE_LOG(INFO) << "Check code cache, count >= 3";
+      // need to remove code cache file
+      return false;
+    } else {
+      FOOTSTONE_LOG(INFO) << "Check code cache, count = " << static_cast<int>(count);
+      ++count;
+      std::string saveContent;
+      saveContent.push_back(count);
+      HippyFile::SaveFile(fail_count_path, saveContent);
+    }
+  } else {
+    FOOTSTONE_LOG(INFO) << "Check code cache, no count";
+    std::string saveContent;
+    saveContent.push_back(1);
+    HippyFile::SaveFile(fail_count_path, saveContent);
+  }
+  return true;
+}
+
+void CheckUseCodeCacheAfterRunScript(const string_view& code_cache_path) {
+  string_view fail_count_path = code_cache_path + string_view(kCodeCacheFailCountFilePostfix);
+  HippyFile::RmFile(fail_count_path);
+}
+
 bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
                               const string_view& file_name,
                               bool is_use_code_cache,
@@ -298,6 +369,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
     auto engine = scope->GetEngine().lock();
     FOOTSTONE_CHECK(engine);
     auto func = hippy::base::MakeCopyable([p = std::move(read_file_promise), code_cache_path, code_cache_dir]() mutable {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
       u8string content;
       HippyFile::ReadFile(code_cache_path, content, true);
       if (content.empty()) {
@@ -307,6 +379,12 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
         FOOTSTONE_USE(ret);
       } else {
         FOOTSTONE_DLOG(INFO) << "Read code cache succ";
+        if (!CheckUseCodeCacheBeforeRunScript(code_cache_path)) {
+          int ret = HippyFile::RmFullPath(code_cache_dir);
+          FOOTSTONE_DLOG(INFO) << "RmFullPath on check, ret = " << ret;
+          FOOTSTONE_USE(ret);
+          content.clear();
+        }
       }
       p.set_value(std::move(content));
     });
@@ -326,25 +404,35 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   }
 
   FOOTSTONE_DLOG(INFO) << "uri = " << uri
-                       << "read_script_flag = " << read_script_flag
+                       << ", read_script_flag = " << read_script_flag
                        << ", script content = " << script_content;
 
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     FOOTSTONE_LOG(WARNING) << "read_script_flag = " << read_script_flag
                            << ", script content empty, uri = " << uri;
+    if (is_use_code_cache) {
+      std::lock_guard<std::mutex> lock(code_cache_file_mutex);
+      CheckUseCodeCacheAfterRunScript(code_cache_path);
+    }
     return false;
   }
 
   // perfromance start time
   auto entry = scope->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
   entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-
-#ifdef JS_V8
+  
+#if (defined JS_V8) || (defined JS_JSH)
+#if (defined JS_V8)
   auto ret = std::static_pointer_cast<V8Ctx>(scope->GetContext())->RunScript(
-      script_content, file_name, is_use_code_cache,&code_cache_content, true);
+      script_content, file_name, is_use_code_cache, &code_cache_content, true);
+#elif (defined JS_JSH)
+  auto ret = std::static_pointer_cast<JSHCtx>(scope->GetContext())->RunScript(
+      script_content, file_name, is_use_code_cache, &code_cache_content, true);
+#endif
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       auto func = [code_cache_path, code_cache_dir, code_cache_content] {
+        std::lock_guard<std::mutex> lock(code_cache_file_mutex);
         int check_dir_ret = HippyFile::CheckDir(code_cache_dir, F_OK);
         FOOTSTONE_DLOG(INFO) << "check_parent_dir_ret = " << check_dir_ret;
         if (check_dir_ret) {
@@ -364,6 +452,8 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
         bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         FOOTSTONE_USE(save_file_ret);
+
+        CheckUseCodeCacheAfterRunScript(code_cache_path);
       };
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
@@ -431,6 +521,7 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
       scope->WillExit();
     }
 #else
+    (void)is_reload;
     scope->WillExit();
 #endif
     FOOTSTONE_LOG(INFO) << "js destroy end";
@@ -444,7 +535,8 @@ void JsDriverUtils::CallJs(const string_view& action,
                            const std::shared_ptr<Scope>& scope,
                            std::function<void(CALL_FUNCTION_CB_STATE, string_view)> cb,
                            byte_string buffer_data,
-                           std::function<void()> on_js_runner) {
+                           std::function<void()> on_js_runner
+                           ) {
   auto runner = scope->GetTaskRunner();
   std::weak_ptr<Scope> weak_scope = scope;
   auto callback = [weak_scope, cb = std::move(cb), action,
@@ -476,7 +568,6 @@ void JsDriverUtils::CallJs(const string_view& action,
         scope->SetBridgeObject(function);
       }
     }
-    FOOTSTONE_DCHECK(action.encoding() == string_view::Encoding::Utf16);
     std::shared_ptr<CtxValue> action_value = context->CreateString(action);
     std::shared_ptr<CtxValue> params;
     auto vm = engine->GetVM();
@@ -497,8 +588,14 @@ void JsDriverUtils::CallJs(const string_view& action,
       }
     } else {
 #endif
+
+#ifdef __OHOS__
+      string_view::u8string str(reinterpret_cast<const uint8_t*>(&buffer_data_[0]),
+                         buffer_data_.length());
+#else
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
+#endif
       string_view buf_str(std::move(str));
       FOOTSTONE_DLOG(INFO) << "action = " << action << ", buf_str = " << buf_str;
       params = vm->ParseJson(context, buf_str);
@@ -577,6 +674,15 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
     if (v8_vm->IsEnableV8Serialization()) {
       auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
       buffer_data = v8_ctx->GetSerializationBuffer(info[3], v8_vm->GetBuffer());
+#elif JS_JSH
+    auto engine = scope->GetEngine().lock();
+    FOOTSTONE_DCHECK(engine);
+    if (!engine) {
+      return;
+    }
+    auto vm = engine->GetVM();
+    auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
+    if (jsh_vm->enable_v8_serialization_) {
 #endif
     } else {
       string_view json;
@@ -586,6 +692,8 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
       buffer_data = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
 #ifdef JS_V8
+    }
+#elif JS_JSH
     }
 #endif
   }

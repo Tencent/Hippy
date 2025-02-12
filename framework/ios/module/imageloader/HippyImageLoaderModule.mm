@@ -59,13 +59,11 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 }
 
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    [self.bridge loadContentsAsynchronouslyFromUrl:urlString
-                                            method:@"Get"
-                                            params:nil
-                                              body:nil
-                                             queue:nil
-                                          progress:nil
-                                 completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentsAsyncFromUrl:urlString
+                                   params:nil
+                                    queue:nil
+                                 progress:nil
+                        completionHandler:^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
         if (!error) {
             id<HippyImageProviderProtocol> imageProvider = [self imageProviderForData:data];
             if (!imageProvider) {

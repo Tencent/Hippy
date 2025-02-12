@@ -1,6 +1,6 @@
 # 环境搭建 
 
-这篇教程，讲述了如何将 Hippy 集成到 Android、iOS 、Flutter、Web(同构) 等平台。
+这篇教程，讲述了如何将 Hippy 集成到 Android、iOS、Ohos、Flutter、Web(同构) 等平台。
 <br/>
 <br/>
 <br/>
@@ -271,6 +271,126 @@ ENV['layout_engine'] = 'Yoga'
 ```
 
 之后，重新执行`pod install`命令更新项目依赖即可。
+
+# Ohos 
+
+> 注：以下文档都是假设您已经具备一定的 Ohos 开发经验。
+
+---
+
+## 前期准备
+
+- 已经安装 DevEco Studio 最新版本
+
+## Demo 体验
+
+Ohos Har Demo：Har 包方式依赖 Hippy。 体验方法：DevEco 打开 hippy 项目根目录运行 entry_har。
+
+Ohos Demo：源码依赖 Hippy。体验方法：DevEco 打开 hippy 项目根目录直接运行 entry。
+
+## 接入方式一：Har包快速接入
+
+### 1. 创建一个 Ohos 工程
+
+### 2. Har 包集成
+
+- 配置 oh-package.json5
+
+ ```json
+  "dependencies": {
+    "hippy": "1.3.0"
+  }
+ ```
+
+### 3. 初始化代码
+
+- 获取 libhippy.so 接口对象和 UIAbility context
+
+  ```TypeScript
+  import libHippy from 'libhippy.so'
+  AppStorage.setOrCreate("libHippy", libHippy)
+  AppStorage.setOrCreate("abilityContext", this.context)
+  ```
+
+> 注：App 直接集成 Hippy，context 使用 UIAbility context；如果 App 在一个模块里集成 Hippy，js 等资源也集成在模块里，context 使用 getContext().createModuleContext("moduleName")，否则会找不到 js 等资源。
+
+- 创建 HippyEngine、初始化 HippyEngine、加载业务 bundle
+ 
+  ```TypeScript
+  this.hippyEngine = createHippyEngine(params)
+  this.hippyEngine.initEngine()
+  this.hippyEngine?.loadModule()
+  ```
+ 
+- 组装 HippyRoot 组件
+
+ ```TypeScript
+  HippyRoot({
+      hippyEngine: this.hippyEngine,
+      rootViewWrapper: this.rootViewWrapper,
+      onRenderException: (exception: HippyException) => {
+        this.exception = `${exception.message}\n${exception.stack}`
+      },
+  })
+  ```
+ 
+具体可以参考 [Har Demo](https://github.com/sohotz/Hippy/tree/main/framework/examples/ohos-har-demo) 工程中 `EntryAbility.ets` `Index.ets` 实现
+
+## 接入方式二：源码接入
+
+> 源码接入主要为了方便在 App 项目里直接调试 Hippy 代码（c++ 和 ets 代码）。
+
+### 1. 创建一个 Ohos 工程
+
+### 2. Hippy 代码集成
+
+- 拉取 hippy 代码到项目里（比如：根目录下）
+
+> https://github.com/sohotz/Hippy.git，分支：main
+
+- 配置 oh-package.json5
+
+ ```json
+  "dependencies": {
+     "hippy": "file:../Hippy/framework/ohos/"
+  }
+ ```
+
+### 3. 初始化代码
+
+- 获取 libhippy.so 接口对象和 UIAbility context
+
+  ```TypeScript
+  import libHippy from 'libhippy.so'
+  AppStorage.setOrCreate("libHippy", libHippy)
+  AppStorage.setOrCreate("abilityContext", this.context)
+  ```
+
+- 创建 HippyEngine、初始化 HippyEngine、加载业务 bundle
+
+  ```TypeScript
+  this.hippyEngine = createHippyEngine(params)
+  this.hippyEngine.initEngine()
+  this.hippyEngine?.loadModule()
+  ```
+
+- 组装 HippyRoot 组件
+
+ ```TypeScript
+  HippyRoot({
+      hippyEngine: this.hippyEngine,
+      rootViewWrapper: this.rootViewWrapper,
+      onRenderException: (exception: HippyException) => {
+        this.exception = `${exception.message}\n${exception.stack}`
+      },
+  })
+  ```
+
+具体可以参考 [Demo](https://github.com/sohotz/Hippy/tree/main/framework/examples/ohos-demo) 工程中 `EntryAbility.ets` `ExampleHippyPage.ets` 实现
+
+## 接入方式三：定制场景接入
+
+- 对于需要直接依赖 hippy c++ 代码编译使用的定制场景，可参考  [Demo](https://github.com/sohotz/Hippy/tree/main/framework/examples/ohos-demo) 工程中 `CMakeLists.txt` 说明
 
 # Voltron/Flutter 
 

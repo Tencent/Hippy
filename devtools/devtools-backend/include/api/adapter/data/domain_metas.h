@@ -22,11 +22,15 @@
 
 #include <string>
 #include <vector>
-#include "api/adapter/data/serializable.h"
+// nlohmann/json.hpp:3177:30: error: out-of-line definition of constexpr static data member is redundant in C++17 and is deprecated [-Werror,-Wdeprecated]
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+#include "nlohmann/json.hpp"
+#pragma clang diagnostic pop
 
 namespace hippy::devtools {
 
-class DomainMetas : public Serializable {
+class DomainMetas {
  public:
   DomainMetas() = default;
   explicit DomainMetas(uint32_t node_id) : node_id_(node_id) {}
@@ -44,7 +48,7 @@ class DomainMetas : public Serializable {
   inline void SetNodeValue(std::string node_value) { node_value_ = node_value; }
   inline void SetChildrenCount(uint64_t children_count) { children_count_ = children_count; }
   inline void AddChild(const DomainMetas& meta) { children_.emplace_back(meta); }
-  std::string Serialize() const override;
+  nlohmann::json ToJson() const;
 
  private:
   uint32_t node_id_;

@@ -205,7 +205,7 @@ void DomNode::DoLayout() {
 }
 
 void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
-  layout_node_->CalculateLayout(0, 0);
+  layout_node_->CalculateLayout(is_layout_width_nan_ ? NAN : 0, is_layout_height_nan_ ? NAN : 0);
   TransferLayoutOutputsRecursive(changed_nodes);
 }
 
@@ -221,6 +221,9 @@ std::tuple<float, float> DomNode::GetLayoutSize() {
 }
 
 void DomNode::SetLayoutSize(float width, float height) {
+  is_layout_width_nan_ = std::isnan(width) ? true : false;
+  is_layout_height_nan_ = std::isnan(height) ? true : false;
+  
   layout_node_->SetWidth(width);
   layout_node_->SetHeight(height);
 }

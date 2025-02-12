@@ -58,6 +58,9 @@
 #include "driver/vm/v8/memory_module.h"
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/vm/v8/v8_vm.h"
+#elif JS_JSH
+#include "driver/napi/jsh/jsh_ctx.h"
+#include "driver/vm/jsh/jsh_vm.h"
 #endif
 
 #ifdef ENABLE_INSPECTOR
@@ -111,11 +114,11 @@ static void InternalBindingCallback(hippy::napi::CallbackInfo& info, void* data)
   }
   auto len = info.Length();
   auto argc = len > 1 ? (len - 1) : 0;
-  std::shared_ptr<CtxValue> rest_args[argc];
+  std::vector<std::shared_ptr<CtxValue>> rest_args(argc);
   for (size_t i = 0; i < argc; ++i) {
     rest_args[i] = info[i + 1];
   }
-  auto js_object = module_object->BindFunction(scope, rest_args);
+  auto js_object = module_object->BindFunction(scope, rest_args.data());
   info.GetReturnValue()->Set(js_object);
 }
 
@@ -132,11 +135,11 @@ Scope::Scope(std::weak_ptr<Engine> engine,
 
 Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
-#ifdef JS_JSC
-/*
- * JSObjectFinalizeCallback will be called when you call JSContextGroupRelease, so it is necessary to hold the wrapper when ctx is destroyed.
- */
+#ifdef JS_JSH
+  context_->InvalidWeakCallbackWrapper();
 #else
+  context_ = nullptr;
+#endif
   auto engine = engine_.lock();
   FOOTSTONE_DCHECK(engine);
   if (engine) {
@@ -145,7 +148,6 @@ Scope::~Scope() {
     engine->ClearFunctionWrapper(key);
     engine->ClearClassTemplate(key);
   }
-#endif
 }
 
 void Scope::WillExit() {
@@ -499,6 +501,11 @@ void Scope::RunJS(const string_view& data,
 
 #ifdef JS_V8
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+    if (context) {
+      context->RunScript(data, name, false, nullptr, is_copy);
+    }
+#elif JS_JSH
+    auto context = std::static_pointer_cast<hippy::napi::JSHCtx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }

@@ -239,13 +239,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 设置 max width 属性
    * @param max_width 最大宽度
    */
-  void SetMaxWidth(float max_width);
+  void SetMaxWidth(float max_width) override;
 
   /**
    * @brief 设置 max height 属性
    * @param max_height 最大高度
    */
-  void SetMaxHeight(float max_height);
+  void SetMaxHeight(float max_height) override;
 
   /**
    * @brief 设置 min width 属性

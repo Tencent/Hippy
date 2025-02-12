@@ -132,14 +132,26 @@ hippyEngine.sendEvent("rotate", hippyMap);
 终端在需要发送事件的地方调用代码：
 
 ```objectivec
-// 也可以参考HippyEventObserverModule.m
-[self sendEvent: @"rotate" params: @{@"foo":@"bar"}];
-- (void)sendEvent:(NSString *)eventName params:(NSDictionary *)params
-{
-    HippyAssertParam(eventName);
-    // 这里的"EventDispatcher"和"receiveNativeEvent"是常量，无需也不能更改
-    [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:@{@"eventName": eventName, @"extra": params ? : @{}}];
-}
+// 调用HippyBridge的如下实例方法，比如：
+[self.hippyBridge sendEvent:@"rotate" params:@{@"foo":@"bar"}];
+
+/// Send native event to JS side
+/// - Parameters:
+///   - eventName: event name
+///   - params: event info
+- (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params;
+```
+
+# Ohos
+
+鸿蒙平台接口和安卓相似。
+
+终端在需要发送事件的地方调用代码：
+
+```typescript
+const map = new Map();
+map.pushString("result", "hello i am from native");
+hippyEngine.sendEvent("rotate", map);
 ```
 
 # Voltron

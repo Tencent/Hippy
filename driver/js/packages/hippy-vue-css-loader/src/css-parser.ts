@@ -99,6 +99,10 @@ function convertPxUnitToPt(value: any) {
   if (Number.isInteger(value)) {
     return value;
   }
+  // If value unit is rpx, don't need to filter
+  if (typeof value === 'string' && value.endsWith('rpx')) {
+    return value;
+  }
   // If value unit is px, change to use pt as 1:1.
   if (typeof value === 'string' && value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')));

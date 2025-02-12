@@ -36,78 +36,28 @@ constexpr char kLayoutX[] = "x";
 constexpr char kLayoutY[] = "y";
 constexpr char kStyle[] = "style";
 
-std::string DomainMetas::Serialize() const {
-  std::string node_str = "{\"";
-  node_str += kNodeId;
-  node_str += "\":";
-  node_str += std::to_string(node_id_);
-  node_str += ",\"";
-  node_str += kParentId;
-  node_str += "\":";
-  node_str += std::to_string(parent_id_);
-  node_str += ",\"";
-  node_str += kRootId;
-  node_str += "\":";
-  node_str += std::to_string(root_id_);
-  node_str += ",\"";
-  node_str += kClassName;
-  node_str += "\":\"";
-  node_str += class_name_;
-  node_str += "\",\"";
-  node_str += kNodeName;
-  node_str += "\":\"";
-  node_str += node_name_;
-  node_str += "\",\"";
-  node_str += kLocalName;
-  node_str += "\":\"";
-  node_str += local_name_;
-  node_str += "\",\"";
-  node_str += kNodeValue;
-  node_str += "\":\"";
-  node_str += node_value_;
-  node_str += "\",\"";
-  node_str += kChildNodeCount;
-  node_str += "\":";
-  node_str += std::to_string(children_.size());
-  node_str += ",\"";
-  node_str += kStyle;
-  node_str += "\":";
-  node_str += style_props_;
-  node_str += ",\"";
-  node_str += kAttributes;
-  node_str += "\":";
-  node_str += total_props_;
-  node_str += ",\"";
-  node_str += kLayoutX;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(layout_x_));
-  node_str += ",\"";
-  node_str += kLayoutY;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(layout_y_));
-  node_str += ",\"";
-  node_str += kWidth;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(width_));
-  node_str += ",\"";
-  node_str += kHeight;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(height_));
-  node_str += ",\"";
-  node_str += kChildNodeCount;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(children_count_));
+nlohmann::json DomainMetas::ToJson() const {
+  nlohmann::json jsonObject;
+  jsonObject[kNodeId] = node_id_;
+  jsonObject[kParentId] = parent_id_;
+  jsonObject[kRootId] = root_id_;
+  jsonObject[kClassName] = class_name_;
+  jsonObject[kNodeName] = node_name_;
+  jsonObject[kLocalName] = local_name_;
+  jsonObject[kNodeValue] = node_value_;
+  jsonObject[kChildNodeCount] = children_.size();
+  jsonObject[kStyle] = nlohmann::json::parse(style_props_, nullptr, false);
+  jsonObject[kAttributes] = nlohmann::json::parse(total_props_, nullptr, false);
+  jsonObject[kLayoutX] = static_cast<int>(layout_x_);
+  jsonObject[kLayoutY] = static_cast<int>(layout_y_);
+  jsonObject[kWidth] = static_cast<int>(width_);
+  jsonObject[kHeight] = static_cast<int>(height_);
+  jsonObject[kChildNodeCount] = static_cast<int>(children_count_);
   if (!children_.empty()) {
-    node_str += ",\"children\": [";
     for (auto& child : children_) {
-      node_str += child.Serialize();
-      node_str += ",";
+      jsonObject["children"].push_back(child.ToJson());
     }
-    node_str = node_str.substr(0, node_str.length() - 1);  // remove last ","
-    node_str += "]";
   }
-  node_str += "}";
-  return node_str;
+  return jsonObject;
 }
-
 }  // namespace hippy::devtools

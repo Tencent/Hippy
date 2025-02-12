@@ -216,16 +216,14 @@ static NSString *const kFileUriScheme = @"file";
     HippyAssertParam(completion);
     // Fetch the bundle
     // Call the completion handler with the fetched data or error
-    [self loadContentsAsynchronouslyFromUrl:bundleURL.absoluteString
-                                     method:@"get"
-                                     params:nil
-                                       body:nil
-                                      queue:nil
-                                   progress:nil
-                          completionHandler:^(NSData * _Nullable data,
-                                              NSDictionary * _Nullable userInfo,
-                                              NSURLResponse * _Nullable response,
-                                              NSError * _Nullable error) {
+    [self loadContentsAsyncFromUrl:bundleURL.absoluteString
+                            params:nil
+                             queue:nil
+                          progress:nil
+                 completionHandler:^(NSData * _Nullable data,
+                                     NSDictionary * _Nullable userInfo,
+                                     NSURLResponse * _Nullable response,
+                                     NSError * _Nullable error) {
         completion(data, error);
     }];
 }

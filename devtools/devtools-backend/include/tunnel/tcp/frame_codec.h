@@ -21,6 +21,7 @@
 #pragma once
 
 #include <endian.h>
+#include <netinet/in.h>
 #include <functional>
 #include <vector>
 

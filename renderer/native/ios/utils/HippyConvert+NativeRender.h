@@ -114,4 +114,20 @@ typedef NS_ENUM(NSInteger, HippyPaintType) {
 
 @end
 
+
+typedef NS_ENUM(char, HippyNestedScrollPriority) {
+    HippyNestedScrollPriorityUndefined = 0,
+    HippyNestedScrollPriorityNone,
+    HippyNestedScrollPrioritySelf,
+    HippyNestedScrollPriorityParent,
+};
+
+@interface HippyConvert (NestedScroll)
+
+/// Convert NestedScroll config to enum
+/// - Parameter json: string
++ (HippyNestedScrollPriority)HippyNestedScrollPriority:(id)json;
+
+@end
+
 NS_ASSUME_NONNULL_END

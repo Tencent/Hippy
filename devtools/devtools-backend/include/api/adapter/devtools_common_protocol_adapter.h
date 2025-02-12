@@ -19,6 +19,7 @@
  */
 
 #pragma once
+#pragma clang diagnostic ignored "-Wdeprecated"
 
 #include <string>
 #include "nlohmann/json.hpp"

@@ -28,6 +28,7 @@
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
 #import "HippyRenderUtils.h"
+#import "UIBezierPath+HippyShadow.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height
@@ -218,13 +219,77 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     }
 }
 
-- (void)drawShadowForLayer {
+- (void)drawShadowForLayer:(HippyCornerRadii)cornerRadii {
     self.layer.shadowPath = nil;
-    if (0 != self.shadowSpread) {
+    if (0 != self.shadowSpread && !self.isUseNewShadow) {
         CGRect rect = CGRectInset(self.layer.bounds, -self.shadowSpread, -self.shadowSpread);
         UIBezierPath *path = [UIBezierPath bezierPathWithRect:rect];
         self.layer.shadowPath = path.CGPath;
+    } else if (self.isUseNewShadow) {
+        [self drawShaow:self.isShadowInset radii:cornerRadii];
     }
+}
+
+- (void)drawShaow:(BOOL)isInset radii:(HippyCornerRadii)cornerRadii {
+    CGFloat topLeft = cornerRadii.topLeft;
+    CGFloat topRight = cornerRadii.topRight;
+    CGFloat bottomLeft = cornerRadii.bottomLeft;
+    CGFloat bottomRight = cornerRadii.bottomRight;
+    if (isInset) {
+        self.layer.masksToBounds = YES;
+        self.innerShadowLayer.frame = self.bounds;
+        if (self.layer.shadowRadius > 0)
+        {
+            self.innerShadowLayer.mShadowBlur = self.layer.shadowRadius;
+        }
+        if (self.layer.shadowColor)
+        {
+            self.innerShadowLayer.mShadowColor = [UIColor colorWithCGColor:self.layer.shadowColor];
+        }
+        self.innerShadowLayer.mShadowSpread = self.shadowSpread;
+        self.innerShadowLayer.mShadowOffsetX = self.layer.shadowOffset.width;
+        self.innerShadowLayer.mShadowOffsetY = self.layer.shadowOffset.height;
+        CGFloat viewWidth = self.frame.size.width;
+        CGFloat viewHeight = self.frame.size.height;
+
+        UIBezierPath *outerBorderPath = [UIBezierPath shadow_bezierPathWithRoundedRect:self.bounds topLeft:topLeft topRight:topRight bottomLeft:bottomLeft bottomRight:bottomRight];
+        self.innerShadowLayer.outerBorderPath = outerBorderPath;
+
+        CGPoint topRightEndPoint = CGPointMake(viewWidth - MAX(topRight, _borderRightWidth), MAX(topRight, _borderTopWidth));
+        CGPoint topLeftEndPoint = CGPointMake(MAX(topLeft, _borderLeftWidth), MAX(topLeft, _borderTopWidth));
+        CGPoint bottomRightEndPoint = CGPointMake(viewWidth - MAX(bottomRight, _borderRightWidth), viewHeight -  MAX(bottomRight, _borderBottomWidth));
+        CGPoint bottomLeftEndPoint = CGPointMake(MAX(bottomLeft, _borderLeftWidth), viewHeight - MAX(bottomLeft, _borderBottomWidth));
+
+        self.innerShadowLayer.mInnerTopStart = CGPointMake(topLeftEndPoint.x, _borderTopWidth);
+        self.innerShadowLayer.mInnerTopEnd = CGPointMake(topRightEndPoint.x, _borderTopWidth);
+        self.innerShadowLayer.mInnerRightStart = CGPointMake(viewWidth - _borderRightWidth, topRightEndPoint.y);
+        self.innerShadowLayer.mInnerRightEnd = CGPointMake(viewWidth - _borderRightWidth, bottomRightEndPoint.y);
+        self.innerShadowLayer.mInnerBottomStart = CGPointMake(bottomLeftEndPoint.x, viewHeight - _borderBottomWidth);
+        self.innerShadowLayer.mInnerBottomEnd = CGPointMake(bottomRightEndPoint.x, viewHeight - _borderBottomWidth);
+        self.innerShadowLayer.mInnerLeftStart = CGPointMake(_borderLeftWidth, topLeftEndPoint.y);
+        self.innerShadowLayer.mInnerLeftEnd = CGPointMake(_borderLeftWidth, bottomLeftEndPoint.y);
+
+        [self.innerShadowLayer setNeedsDisplay];
+    } else {
+        if (_innerShadowLayer) {
+            [_innerShadowLayer removeFromSuperlayer];
+            _innerShadowLayer = nil;
+        }
+        CGRect shadowRect = CGRectMake(self.bounds.origin.x - self.shadowSpread, self.bounds.origin.y - self.shadowSpread, self.bounds.size.width + 2 * self.shadowSpread, self.bounds.size.height + 2 * self.shadowSpread);
+        UIBezierPath *shadownPath = [UIBezierPath shadow_bezierPathWithRoundedRect:shadowRect topLeft:topLeft topRight:topRight bottomLeft:bottomLeft bottomRight:bottomRight];
+        self.layer.shadowPath = shadownPath.CGPath;
+        self.layer.masksToBounds = NO;
+    }
+}
+
+- (HippyViewInnerLayer *)innerShadowLayer {
+    if (!_innerShadowLayer) {
+        _innerShadowLayer = [[HippyViewInnerLayer alloc] init];
+        _innerShadowLayer.frame = self.bounds;
+        _innerShadowLayer.boxShadowOpacity = 1;
+        [self.layer addSublayer:_innerShadowLayer];
+    }
+    return _innerShadowLayer;
 }
 
 - (CALayerContentsFilter)minificationFilter {
@@ -240,9 +305,9 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
         return;
     }
 
-    [self drawShadowForLayer];
-
     const HippyCornerRadii cornerRadii = [self cornerRadii];
+    [self drawShadowForLayer:cornerRadii];
+
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
     const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
@@ -256,7 +321,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     // the content. For this reason, only use iOS border drawing when clipping
     // or when the border is hidden.
     BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
-    
+
     BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
 
     // iOS clips to the outside of the border, but CSS clips to the inside. To
@@ -273,7 +338,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
         layer.mask = nil;
         return;
     }
-    
+
     __weak __typeof(self) weakSelf = self;
     [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
         if (nil == contentImage) {
@@ -322,7 +387,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     const UIEdgeInsets borderInsets = [self bordersAsInsets];
     const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = color?:self.backgroundColor;
-    
+
     CGRect theFrame = self.frame;
     /**
      * If view has already applied a 3d transform,
@@ -338,49 +403,53 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
                                                borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (!self.backgroundImage && !self.gradientObject) {
         contentBlock(borderImage);
-        return nil != borderImage;
-    }
-    else if (self.backgroundImage) {
+        return YES;
+    } else if (self.backgroundImage) {
         UIImage *decodedImage = self.backgroundImage;
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
-        
-        UIGraphicsImageRendererFormat *rendererFormat = [UIGraphicsImageRendererFormat preferredFormat];
-        rendererFormat.scale = borderImage.scale;
-        UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:theFrame.size format:rendererFormat];
-        UIImage *renderedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-            // draw background image
-            CGSize imageSize = decodedImage.size;
-            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
-            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0, (targetSize.height - drawSize.height) / 2.0);
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
-                                                borderInsets.top + backgroundPositionY + originOffset.y,
-                                                drawSize.width,
-                                                drawSize.height)];
-            // draw border
-            if (borderImage) {
-                CGSize size = theFrame.size;
-                [borderImage drawInRect:(CGRect) { CGPointZero, size }];
-            }
-        }];
-        contentBlock(renderedImage);
-    }
-    else if (self.gradientObject) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            UIGraphicsImageRendererFormat *rendererFormat = [UIGraphicsImageRendererFormat preferredFormat];
+            rendererFormat.scale = borderImage.scale;
+            UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:theFrame.size format:rendererFormat];
+            UIImage *renderedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                // draw background image
+                CGSize imageSize = decodedImage.size;
+                CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
+                CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
+                CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0, (targetSize.height - drawSize.height) / 2.0);
+                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                    borderInsets.top + backgroundPositionY + originOffset.y,
+                                                    drawSize.width,
+                                                    drawSize.height)];
+                // draw border
+                if (borderImage) {
+                    CGSize size = theFrame.size;
+                    [borderImage drawInRect:(CGRect) { CGPointZero, size }];
+                }
+            }];
+            contentBlock(renderedImage);
+        });
+        return NO;
+    } else if (self.gradientObject) {
         CGSize size = theFrame.size;
         if (0 >= size.width || 0 >= size.height) {
             contentBlock(nil);
-            return NO;
+            return YES;
         }
-        CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
-        info.size = size;
-        info.cornerRadii = cornerRadii;
-        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-        [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
-        [borderImage drawInRect:(CGRect) { CGPointZero, size }];
-        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        contentBlock(resultingImage);
+        HippyGradientObject *gradientObject = self.gradientObject;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
+            info.size = size;
+            info.cornerRadii = cornerRadii;
+            UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+            [gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
+            [borderImage drawInRect:(CGRect) { CGPointZero, size }];
+            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            contentBlock(resultingImage);
+        });
+        return NO;
     }
     return YES;
 }

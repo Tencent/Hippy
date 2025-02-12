@@ -96,15 +96,23 @@ const NSUInteger HippyBridgeBundleTypeBusiness = 2;
 NSString *const kHippyLaunchOptionsDebugModeKey = @"DebugMode";
 NSString *const kHippyLaunchOptionsEnableTurboKey = @"EnableTurbo";
 
-// Global device info keys
-static NSString *const HippyNativeGlobalKeyOS = @"OS";
-static NSString *const HippyNativeGlobalKeyOSVersion = @"OSVersion";
-static NSString *const HippyNativeGlobalKeyDevice = @"Device";
-static NSString *const HippyNativeGlobalKeySDKVersion = @"SDKVersion";
-static NSString *const HippyNativeGlobalKeyAppVersion = @"AppVersion";
-static NSString *const HippyNativeGlobalKeyDimensions = @"Dimensions";
-static NSString *const HippyNativeGlobalKeyLocalization = @"Localization";
-static NSString *const HippyNativeGlobalKeyNightMode = @"NightMode";
+// Global device info keys & values
+static NSString *const kHippyNativeGlobalKeyOS = @"OS";
+static NSString *const kHippyNativeGlobalKeyOSVersion = @"OSVersion";
+static NSString *const kHippyNativeGlobalKeyDevice = @"Device";
+static NSString *const kHippyNativeGlobalKeySDKVersion = @"SDKVersion";
+static NSString *const kHippyNativeGlobalKeyAppVersion = @"AppVersion";
+static NSString *const kHippyNativeGlobalKeyDimensions = @"Dimensions";
+static NSString *const kHippyNativeGlobalKeyLocalization = @"Localization";
+static NSString *const kHippyNativeGlobalKeyNightMode = @"NightMode";
+static NSString *const kHippyNativeGlobalOSValue = @"ios";
+static NSString *const kHippyCFBundleShortVersionKey = @"CFBundleShortVersionString";
+
+// Localization infos
+static NSString *const kHippyLocalizaitionCountryKey = @"country";
+static NSString *const kHippyLocalizaitionLanguageKey = @"language";
+static NSString *const kHippyLocalizaitionDirectionKey = @"direction";
+static NSString *const kHippyLocalizaitionValueUnknown = @"unknown";
 
 // Key of module config info for js side
 static NSString *const kHippyRemoteModuleConfigKey = @"remoteModuleConfig";
@@ -604,12 +612,6 @@ static inline void registerLogDelegateToHippyCore() {
     NSArray<NSNumber *> *methodIDs = [HippyConvert NSNumberArray:requestsArray[HippyBridgeFieldMethodIDs]];
     NSArray<NSArray *> *paramsArrays = [HippyConvert NSArrayArray:requestsArray[HippyBridgeFieldParams]];
 
-    int64_t callID = -1;
-
-    if (requestsArray.count > 3) {
-        callID = [requestsArray[HippyBridgeFieldCallID] longLongValue];
-    }
-
     if (HIPPY_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
         HippyLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
         return;
@@ -659,14 +661,12 @@ static inline void registerLogDelegateToHippyCore() {
     // hippy will send 'destroyInstance' event to JS.
     // JS may call actions after that.
     // so HippyBatchBridge needs to be valid
-    //    if (!_valid) {
-    //        return nil;
-    //    }
     BOOL isValid = [self isValid];
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleSetup moduleDataByID];
     if (moduleID >= [moduleDataByID count]) {
         if (isValid) {
-            HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)isValid);
+            HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", 
+                          moduleID, [moduleDataByID count], (long)isValid);
         }
         return nil;
     }
@@ -677,23 +677,19 @@ static inline void registerLogDelegateToHippyCore() {
         }
         return nil;
     }
-    // not for UI Actions if NO==_valid
-    if (!isValid) {
-        if ([[moduleData name] isEqualToString:@"UIManager"]) {
-            return nil;
-        }
-    }
     NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
     if (methodID >= [methods count]) {
         if (isValid) {
-            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)isValid);
+            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", 
+                          moduleID, [methods count], (long)isValid);
         }
         return nil;
     }
     id<HippyBridgeMethod> method = methods[methodID];
     if (HIPPY_DEBUG && !method) {
         if (isValid) {
-            HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+            HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", 
+                          (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
         }
         return nil;
     }
@@ -722,7 +718,8 @@ static inline void registerLogDelegateToHippyCore() {
             @throw exception;
         }
 
-        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, moduleData.name, params];
+        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", 
+                             exception, method.JSMethodName, moduleData.name, params];
         NSError *error = HippyErrorWithMessage(message);
         HippyBridgeFatal(error, self);
         return nil;
@@ -746,7 +743,8 @@ static inline void registerLogDelegateToHippyCore() {
             @throw exception;
         }
 
-        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, module.name, params];
+        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", 
+                             exception, method.JSMethodName, module.name, params];
         HippyBridgeFatal(HippyErrorWithMessage(message), self);
         return nil;
     }
@@ -851,30 +849,29 @@ static inline void registerLogDelegateToHippyCore() {
     uname(&systemInfo);
     NSString *deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
     NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionary];
-    [deviceInfo setValue:@"ios" forKey:HippyNativeGlobalKeyOS];
-    [deviceInfo setValue:iosVersion forKey:HippyNativeGlobalKeyOSVersion];
-    [deviceInfo setValue:deviceModel forKey:HippyNativeGlobalKeyDevice];
-    [deviceInfo setValue:_HippySDKVersion forKey:HippyNativeGlobalKeySDKVersion];
-    
-    NSString *appVer = [[NSBundle.mainBundle infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    deviceInfo[kHippyNativeGlobalKeyOS] = kHippyNativeGlobalOSValue;
+    deviceInfo[kHippyNativeGlobalKeyOSVersion] = iosVersion;
+    deviceInfo[kHippyNativeGlobalKeyDevice] = deviceModel;
+    deviceInfo[kHippyNativeGlobalKeySDKVersion] = _HippySDKVersion;
+    NSString *appVer = [[NSBundle.mainBundle infoDictionary] objectForKey:kHippyCFBundleShortVersionKey];
     if (appVer) {
-        [deviceInfo setValue:appVer forKey:HippyNativeGlobalKeyAppVersion];
+        deviceInfo[kHippyNativeGlobalKeyAppVersion] = appVer;
     }
     
     if (self.cachedDimensionsInfo) {
-        [deviceInfo setValue:self.cachedDimensionsInfo forKey:HippyNativeGlobalKeyDimensions];
+        deviceInfo[kHippyNativeGlobalKeyDimensions] = self.cachedDimensionsInfo;
     }
     
     NSString *countryCode = [[HippyI18nUtils sharedInstance] currentCountryCode];
     NSString *lanCode = [[HippyI18nUtils sharedInstance] currentAppLanguageCode];
     NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     NSDictionary *localizaitionInfo = @{
-        @"country" : countryCode?:@"unknown",
-        @"language" : lanCode?:@"unknown",
-        @"direction" : @(direction)
+        kHippyLocalizaitionCountryKey : countryCode ?: kHippyLocalizaitionValueUnknown,
+        kHippyLocalizaitionLanguageKey : lanCode ?: kHippyLocalizaitionValueUnknown,
+        kHippyLocalizaitionDirectionKey : @(direction)
     };
-    [deviceInfo setValue:localizaitionInfo forKey:HippyNativeGlobalKeyLocalization];
-    [deviceInfo setValue:@([self isOSNightMode]) forKey:HippyNativeGlobalKeyNightMode];
+    deviceInfo[kHippyNativeGlobalKeyLocalization] = localizaitionInfo;
+    deviceInfo[kHippyNativeGlobalKeyNightMode] = @([self isOSNightMode]);
     return deviceInfo;
 }
 
@@ -898,14 +895,11 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
     _isOSNightMode = isOSNightMode;
     // Notify to JS Driver Side
     // 1. Update global object
-    [self.javaScriptExecutor updateNativeInfoToHippyGlobalObject:@{ HippyNativeGlobalKeyNightMode: @(isOSNightMode) }];
+    [self.javaScriptExecutor updateNativeInfoToHippyGlobalObject:@{ kHippyNativeGlobalKeyNightMode: @(isOSNightMode) }];
     
     // 2. Send event
-    NSDictionary *args = @{@"eventName": hippyOnNightModeChangedEvent,
-                           @"extra": @{ hippyOnNightModeChangedParam1 : @(isOSNightMode),
-                                        hippyOnNightModeChangedParam2 : rootViewTag } };
-    [self.eventDispatcher dispatchEvent:@"EventDispatcher"
-                             methodName:@"receiveNativeEvent" args:args];
+    [self sendEvent:hippyOnNightModeChangedEvent params:@{ hippyOnNightModeChangedParam1 : @(isOSNightMode),
+                                                           hippyOnNightModeChangedParam2 : rootViewTag }];
 }
 
 
@@ -955,31 +949,7 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
 }
 
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *_Nullable)params {
-    [self.eventDispatcher dispatchEvent:@"EventDispatcher"
-                             methodName:@"receiveNativeEvent"
-                                   args:@{@"eventName": eventName, @"extra": params ? : @{}}];
-}
-
-- (NSData *)snapShotData {
-    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
-    if (!rootNode) {
-        return nil;
-    }
-    std::string data = hippy::DomManager::GetSnapShot(rootNode);
-    return [NSData dataWithBytes:reinterpret_cast<const void *>(data.c_str()) length:data.length()];
-}
-
-- (void)setSnapShotData:(NSData *)data {
-    auto domManager = _javaScriptExecutor.pScope->GetDomManager().lock();
-    if (!domManager) {
-        return;
-    }
-    auto rootNode = _javaScriptExecutor.pScope->GetRootNode().lock();
-    if (!rootNode) {
-        return;
-    }
-    std::string string(reinterpret_cast<const char *>([data bytes]), [data length]);
-    domManager->SetSnapShot(rootNode, string);
+    [self.eventDispatcher dispatchNativeEvent:eventName withParams:params];
 }
 
 

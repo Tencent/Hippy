@@ -95,23 +95,29 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params
         }
     }];
 
-    NSData *data = nil;
-    if (body) {
-        data = [body dataUsingEncoding:NSUTF8StringEncoding];
-    }
-
     // Record request start time
     CFTimeInterval startTime = CACurrentMediaTime();
+    
+    // Construct url request
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:HippyURLWithString(url, nil)];
+    if (method) {
+        [request setHTTPMethod:method];
+    }
+    if (vfsParams) {
+        for (NSString *key in vfsParams) {
+            [request setValue:vfsParams[key] forHTTPHeaderField:key];
+        }
+    }
+    if (body) {
+        [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
+    }
 
     // Send Request
-    [self.bridge loadContentsAsynchronouslyFromUrl:url
-                                            method:method ?: @"GET"
-                                            params:vfsParams
-                                              body:data
-                                             queue:nil
-                                          progress:nil
-                                 completionHandler:^(NSData *data, NSDictionary *userInfo,
-                                                     NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentsAsyncWithRequest:request
+                                        queue:nil
+                                     progress:nil
+                            completionHandler:^(NSData *data, NSDictionary *userInfo,
+                                                NSURLResponse *response, NSError *error) {
         NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:encoding];
         NSUInteger statusCode = 0;

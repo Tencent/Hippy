@@ -298,7 +298,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)requestReload;
 
 
-#pragma mark -
+#pragma mark - JS Communication Related
 
 /// Access the underlying JavaScript executor.
 /// You can use this in unit tests to detect when the executor has been invalidated,
@@ -338,13 +338,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /// All registered bridge module classes.
 @property (nonatomic, copy, readonly) NSArray<Class> *moduleClasses;
-
-
-#pragma mark - Snapshot
-
-- (NSData *)snapShotData;
-
-- (void)setSnapShotData:(NSData *)data;
 
 
 #pragma mark - App UI State Related
@@ -397,3 +390,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 HIPPY_EXTERN void HippyBridgeFatal(NSError *error, HippyBridge *bridge);
 
 NS_ASSUME_NONNULL_END
+
+
+// For compile compatibility
+#import "HippyBridge+BundleLoad.h"
+#import "HippyBridge+ModuleManage.h"

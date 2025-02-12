@@ -56,6 +56,8 @@ inline std::ostream& operator<<(std::ostream& stream, const string_view& str_vie
       break;
     }
     case string_view::Encoding::Utf16: {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       const std::u16string& str = str_view.utf16_value();
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
@@ -63,9 +65,12 @@ inline std::ostream& operator<<(std::ostream& stream, const string_view& str_vie
           kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
 #pragma clang diagnostic pop
       stream << convert.to_bytes(str);
+#pragma clang diagnostic pop
       break;
     }
     case string_view::Encoding::Utf32: {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       const std::u32string& str = str_view.utf32_value();
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
@@ -73,6 +78,7 @@ inline std::ostream& operator<<(std::ostream& stream, const string_view& str_vie
           kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
 #pragma clang diagnostic pop
       stream << convert.to_bytes(str);
+#pragma clang diagnostic pop
       break;
     }
     case string_view::Encoding::Utf8: {
@@ -121,24 +127,24 @@ class LogMessage {
     va_start(args, format);
     int ret = vasprintf(&log_msg, format, args);
     va_end(args);
-    
+
     if (ret <= 0 && log_msg == NULL) {
         return;
     }
-    
+
     std::ostringstream s;
     s<<"["<<file<<":"<<line<<"]"
      <<"[thread:"<<pthread_self()<<"], "<<log_msg<<std::endl;
-    
+
     if (LogMessage::delegate_) {
       delegate_(s, TDF_LOG_INFO);
     } else {
       default_delegate_(s, TDF_LOG_INFO);
     }
-    
+
     free(log_msg);
   }
-    
+
   std::ostringstream& stream() { return stream_; }
 
  private:
@@ -155,6 +161,19 @@ class LogMessage {
 int GetVlogVerbosity();
 
 bool ShouldCreateLogMessage(LogSeverity severity);
+
+extern bool gEnableUpdateAnimLog;
+extern bool gInUpdateAnimScope;
+
+class AutoInUpdateAnimScope {
+public:
+  AutoInUpdateAnimScope() {
+    gInUpdateAnimScope = true;
+  }
+  ~AutoInUpdateAnimScope() {
+    gInUpdateAnimScope = false;
+  }
+};
 
 }  // namespace base
 }  // namespace tdf

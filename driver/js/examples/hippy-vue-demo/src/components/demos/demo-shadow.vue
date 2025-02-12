@@ -1,5 +1,6 @@
 <template>
   <div id="shadow-demo">
+
     <div
       v-if="Platform==='android'"
       class="no-offset-shadow-demo-cube-android"
@@ -17,6 +18,15 @@
       </div>
     </div>
     <div
+      v-if="Platform==='ohos'"
+      class="no-offset-shadow-demo-cube-ohos"
+    >
+      <div class="no-offset-shadow-demo-content-ohos">
+        <p>没有偏移阴影样式</p>
+      </div>
+    </div>
+
+    <div
       v-if="Platform==='android'"
       class="offset-shadow-demo-cube-android"
     >
@@ -32,6 +42,15 @@
         <p>偏移阴影样式</p>
       </div>
     </div>
+    <div
+      v-if="Platform==='ohos'"
+      class="offset-shadow-demo-cube-ohos"
+    >
+      <div class="offset-shadow-demo-content-ohos">
+        <p>偏移阴影样式</p>
+      </div>
+    </div>
+
   </div>
 </template>
 <script>
@@ -107,6 +126,9 @@ export default {
     color: white;
   }
 
+  /**
+   * ios
+   */
   #shadow-demo .no-offset-shadow-demo-cube-ios {
     position: absolute;
     left: 50px;
@@ -136,6 +158,38 @@ export default {
   }
 
   #shadow-demo .no-offset-shadow-demo-content-ios p {
+    color: white;
+  }
+
+  /**
+   * ohos
+   */
+  #shadow-demo .no-offset-shadow-demo-cube-ohos {
+    position: absolute;
+    left: 50px;
+    top: 50px;
+    width: 160px;
+    height: 160px;
+    box-shadow-opacity: 0.6;
+    box-shadow-radius: 5;
+    box-shadow-color: #098a29;
+    /* container & content should both set radius */
+    /* 容器和内容都要设置border-radius */
+    border-radius: 5px;
+  }
+
+  #shadow-demo .no-offset-shadow-demo-content-ohos {
+    width: 160px;
+    height: 160px;
+    background-color: grey;
+    border-radius: 5px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #shadow-demo .no-offset-shadow-demo-content-ohos p {
     color: white;
   }
 
@@ -177,6 +231,9 @@ export default {
     color: white
   }
 
+  /**
+   * ios
+   */
   #shadow-demo .offset-shadow-demo-cube-ios {
     position: absolute;
     left: 50px;
@@ -201,6 +258,35 @@ export default {
   }
 
   #shadow-demo .offset-shadow-demo-content-ios p {
+    color: white;
+  }
+
+  /**
+   * ohos
+   */
+   #shadow-demo .offset-shadow-demo-cube-ohos {
+    position: absolute;
+    left: 50px;
+    top: 300px;
+    width: 160px;
+    height: 160px;
+    box-shadow-opacity: 0.6;
+    box-shadow-radius: 5;
+    box-shadow-offset: 10px 10px;
+    /*box-shadow-offset-x: 10px;*/ /* it is supported by setting offset separately
+    /*box-shadow-offset-y: 10px;*/
+    box-shadow-color: #098a29;
+  }
+
+  #shadow-demo .offset-shadow-demo-content-ohos {
+    width: 160px;
+    height: 160px;
+    background-color: grey;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #shadow-demo .offset-shadow-demo-content-ohos p {
     color: white;
   }
 </style>

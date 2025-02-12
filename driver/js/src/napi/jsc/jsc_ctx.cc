@@ -66,13 +66,13 @@ JSCCtx::JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm): vm_(vm) {
 }
 
 JSCCtx::~JSCCtx() {
-  JSGlobalContextRelease(context_);
   for (auto& [key, item] : constructor_data_holder_) {
     item->prototype = nullptr;
     if (global_constructor_data_mgr) {
       global_constructor_data_mgr->ClearConstructorDataPtr(item.get());
     }
   }
+  JSGlobalContextRelease(context_);
 }
 
 JSValueRef InvokeJsCallback(JSContextRef ctx,
@@ -98,8 +98,12 @@ JSValueRef InvokeJsCallback(JSContextRef ctx,
     auto object_private_data = JSObjectGetPrivate(object);
     if (object_private_data) {
       auto constructor_data = reinterpret_cast<ConstructorData*>(object_private_data);
-      auto object_data = constructor_data->object_data_map[object];
-      cb_info.SetData(object_data);
+      auto it = constructor_data->object_data_map.find(object);
+      if (it != constructor_data->object_data_map.end()) {
+        cb_info.SetData(it->second);
+      } else {
+        cb_info.SetData(nullptr);
+      }
     }
   }
   for (size_t i = 0; i < argument_count; i++) {
@@ -801,21 +805,18 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
 
 std::shared_ptr<CtxValue> JSCCtx::CreateArray(size_t count,
                                               std::shared_ptr<CtxValue> array[]) {
-  if (count < 0) {
-    return nullptr;
-  }
-  if (0 == count) {
+  if (count == 0) {
     return std::make_shared<JSCCtxValue>(context_, JSObjectMakeArray(context_, 0, nullptr, nullptr));
   }
-
-  JSValueRef values[count];  // NOLINT(runtime/arrays)
+  
+  std::vector<JSValueRef> values(count);
   for (size_t i = 0; i < count; i++) {
     auto ele_value = std::static_pointer_cast<JSCCtxValue>(array[i]);
     values[i] = ele_value ? ele_value->value_ : nullptr;
   }
 
   JSValueRef exception = nullptr;
-  JSValueRef value_ref = JSObjectMakeArray(context_, count, values, &exception);
+  JSValueRef value_ref = JSObjectMakeArray(context_, count, values.data(), &exception);
   if (exception) {
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return nullptr;

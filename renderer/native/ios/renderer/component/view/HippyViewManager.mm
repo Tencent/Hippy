@@ -188,28 +188,29 @@ HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
 HIPPY_EXPORT_METHOD(getViewTagByLocation:(nonnull NSNumber *)componentTag
                     params:(NSDictionary *__nonnull)params
                     callback:(HippyPromiseResolveBlock)callback) {
-  [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-      NSMutableDictionary *locationDict = [NSMutableDictionary dictionaryWithDictionary:@{
-        HippyTagKey: @(InvalidTag),
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        NSMutableDictionary *locationDict = [NSMutableDictionary dictionaryWithDictionary:@{
+            HippyTagKey: @(InvalidTag),
+        }];
+        UIView *view = viewRegistry[componentTag];
+        if (view == nil) {
+            callback(locationDict);
+            return;
+        }
+        UIView *rootView = viewRegistry[view.rootTag];
+        if (rootView == nil) {
+            callback(locationDict);
+            return;
+        }
+        double locationX = [params[HippyXOnScreenKey] doubleValue];
+        double locationY = [params[HippyYOnScreenKey] doubleValue];
+        UIView* hitView = [rootView hitTest:{locationX, locationY} withEvent:nil];
+        // TODO: The hitView may not a hippy view (such as a sub native view). Should trace to hippy view.
+        if (hitView.hippyTag) {
+            [locationDict setObject:hitView.hippyTag forKey:HippyTagKey];
+        }
+        callback(@[locationDict]);
     }];
-      UIView *view = viewRegistry[componentTag];
-      if (view == nil) {
-          callback(locationDict);
-          return;
-      }
-      UIView *rootView = viewRegistry[view.rootTag];
-      if (rootView == nil) {
-          callback(locationDict);
-          return;
-      }
-      double locationX = [params[HippyXOnScreenKey] doubleValue];
-      double locationY = [params[HippyYOnScreenKey] doubleValue];
-      UIView* hitView = [rootView hitTest:{locationX, locationY} withEvent:nil];
-      if (hitView != nil && [hitView respondsToSelector:@selector(hippyTag)]) {
-          [locationDict setObject:hitView.hippyTag forKey:HippyTagKey];
-      }
-      callback(@[locationDict]);
-  }];
 }
 
 HIPPY_EXPORT_METHOD(getLocationOnScreen:(nonnull NSNumber *)componentTag
@@ -258,6 +259,8 @@ HIPPY_EXPORT_METHOD(removeFrameCallback:(nonnull NSNumber *)hippyTag
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
 HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(isShadowInset, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(isUseNewShadow, BOOL)
 
 HIPPY_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
 HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)

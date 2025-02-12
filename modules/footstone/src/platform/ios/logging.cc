@@ -92,5 +92,8 @@ int GetVlogVerbosity() { return std::max(-1, LOG_INFO - GetMinLogLevel()); }
 
 bool ShouldCreateLogMessage(LogSeverity severity) { return severity >= GetMinLogLevel(); }
 
+bool gEnableUpdateAnimLog = true;
+bool gInUpdateAnimScope = false;
+
 } // namespace log
 } // namespace footstone

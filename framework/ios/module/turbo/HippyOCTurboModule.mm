@@ -187,11 +187,11 @@ static std::shared_ptr<hippy::napi::CtxValue> convertNSArrayToCtxValue(const std
     }
 
     size_t size = static_cast<size_t>(array.count);
-    std::shared_ptr<hippy::napi::CtxValue> buffer[size];
+    std::vector<std::shared_ptr<hippy::napi::CtxValue>> buffer(size);
     for (size_t idx = 0; idx < array.count; idx++) {
         buffer[idx] = convertObjcObjectToCtxValue(context, array[idx], module);
     }
-    return context->CreateArray(size, buffer);
+    return context->CreateArray(size, buffer.data());
 }
 
 static std::shared_ptr<hippy::napi::CtxValue> convertNSObjectToCtxValue(const std::shared_ptr<hippy::napi::Ctx> &context,
@@ -199,7 +199,7 @@ static std::shared_ptr<hippy::napi::CtxValue> convertNSObjectToCtxValue(const st
                                                                 HippyOCTurboModule *module) {
     HippyJSExecutor *jsExecutor = (HippyJSExecutor *)module.bridge.javaScriptExecutor;
     if ([objcObject isKindOfClass:[HippyOCTurboModule class]]) {
-        NSString *name = [[objcObject class] turoboModuleName];
+        NSString *name = [[objcObject class] turboModuleName];
         std::shared_ptr<hippy::napi::CtxValue> value = [jsExecutor JSTurboObjectWithName:name];
         HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
         [turboManager bindJSObject:value toModuleName:name];

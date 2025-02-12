@@ -20,18 +20,22 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIScrollView.h>
-#import "HippyScrollableProtocol.h"
+#import <UIKit/UIKit.h>
 #import "HippyView.h"
+#import "HippyScrollableProtocol.h"
+#import "HippyNestedScrollProtocol.h"
 
-@protocol UIScrollViewDelegate;
 
-@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
+/// The hippy's custom scrollView
+@interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate, HippyNestedScrollProtocol>
 
+/// Whether the content needs to be centered.
 @property (nonatomic, assign) BOOL centerContent;
 
 @end
 
+
+/// The HippyScrollView component
 @interface HippyScrollView : HippyView <UIScrollViewDelegate, HippyScrollableProtocol>
 
 /**
