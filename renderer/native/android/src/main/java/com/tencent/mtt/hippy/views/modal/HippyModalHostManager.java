@@ -61,8 +61,7 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
     @Override
     public void onViewDestroy(HippyModalHostView hippyModalHostView) {
         super.onViewDestroy(hippyModalHostView);
-        int rootId = NativeRendererManager.getRootId(hippyModalHostView.getContext());
-        hippyModalHostView.onInstanceDestroy(rootId);
+        hippyModalHostView.onDestroy();
     }
 
     @HippyControllerProps(name = "animationType", defaultType = HippyControllerProps.STRING,
