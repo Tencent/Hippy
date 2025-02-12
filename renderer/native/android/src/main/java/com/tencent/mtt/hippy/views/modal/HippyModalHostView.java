@@ -110,6 +110,10 @@ public class HippyModalHostView extends HippyViewGroup implements
 
     @Override
     public void onInstanceDestroy(int rootId) {
+        dismiss();
+    }
+
+    public void onDestroy() {
         if (mNativeRenderer != null) {
             mNativeRenderer.removeInstanceLifecycleEventListener(this);
         }
