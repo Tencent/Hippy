@@ -18,7 +18,7 @@
 
 ## 快速接入
 
-1. 创建一个 Android 工程
+1. 创建一个 Android 工程 （SDK工程支持的minSdkVersion=21, 宿主工程支持的minSdkVersion不能低于该版本）
 
 2. Maven 集成
 

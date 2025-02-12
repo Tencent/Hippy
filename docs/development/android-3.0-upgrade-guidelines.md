@@ -79,6 +79,7 @@
 1. ModuleListener接口定义变更 <br>
    - onLoadCompleted回调接口移除了root view参数的返回
    - 增加onFirstViewAdded接口回调，返回第一view挂载到Hippy root view的回调时机
+   - 增加onFirstContentfulPaint接口回调，返回FCP节点渲染时机(3.3.3版本新增)
 
 2. HippyEngineContext类中部分接口调整 <br>
     - 新增findViewById(int nodeId)，可以通过node id查找对应的view

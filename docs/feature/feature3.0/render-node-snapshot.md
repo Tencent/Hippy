@@ -29,16 +29,16 @@ public void recordSnapshot(@NonNull View rootView, @NonNull final Callback<byte[
    记录指定root view的节点缓存，SDK内部会完成节点遍历，序列化相关的任务，最终通过Callback返回节点序列化后的buffer，节点数据存储，生命周期管理由宿主自行完成
 
 ```java
-public View replaySnapshot(@NonNull Context context, byte[] buffer)
+public View replaySnapshot(@NonNull Context context, byte[] buffer, String bundlePath)
 ```
 
-   传入之前record的buffer回放节点数据，这个接口调用将同步返回还原的view
+   传入之前record的buffer回放节点数据，这个接口调用将同步返回还原的view，bundlePath为js bundle包的绝对路径，用与replay加载本地图片用
 
 ```java
-public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap)
+public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap, String bundlePath)
 ```
 
-   传入decode后的节点Map数据，同步返回还原的view
+   传入decode后的节点Map数据，同步返回还原的view，bundlePath为js bundle包的绝对路径，用与replay加载本地图片用
 
 ```java
 public View removeSnapshotView()
