@@ -491,6 +491,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceDestroy(rootId);
             }
+            mInstanceLifecycleEventListeners.clear();
         }
         ChoreographerUtils.unregisterDoFrameListener(getInstanceId(), rootId);
         mRenderManager.deleteNode(rootId, rootId);
