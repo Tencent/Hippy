@@ -24,7 +24,7 @@
 #import "HippyUIManager+Private.h"
 #import "NativeRenderManager.h"
 #import "HippyShadowText.h"
-#import "RenderVsyncManager.h"
+#import "HippyVsyncManager.h"
 #import "HippyAssert.h"
 #include "dom/dom_manager.h"
 #include "dom/layout_node.h"
