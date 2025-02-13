@@ -38,7 +38,7 @@
 #import "HippyRenderUtils.h"
 #import "HippyView.h"
 #import "HippyViewManager.h"
-#import "RenderVsyncManager.h"
+#import "HippyVsyncManager.h"
 #import "UIView+DomEvent.h"
 #import "UIView+Hippy.h"
 #import "HippyBridgeModule.h"
@@ -1196,7 +1196,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                 NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", strongSelf, node_id];
                 auto event = std::make_shared<hippy::DomEvent>(name_, node);
                 std::weak_ptr<DomNode> weakNode = node;
-                [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
+                [[HippyVsyncManager sharedInstance] registerVsyncObserver:^{
                     __strong __typeof(weakSelf)strongSelf = weakSelf;
                     HippyBridge *bridge = strongSelf.bridge;
                     [bridge.javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
@@ -1400,7 +1400,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
            if (node) {
                //for kVSyncKey event, node is rootnode
                NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", self, node_id];
-               [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
+               [[HippyVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
            }
        }];
    } else {
@@ -1414,7 +1414,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 - (void)removeVSyncEventOnRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
     NSString *vsyncKey = [NSString stringWithFormat:@"%p-%d", self, static_cast<int>(rootNode.lock()->GetId())];
-    [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
+    [[HippyVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
 }
 
 - (void)addPropertyEvent:(const std::string &)name
