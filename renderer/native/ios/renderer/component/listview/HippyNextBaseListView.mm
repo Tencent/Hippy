@@ -54,7 +54,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
-        self.preloadItemNumber = 1;
     }
     return self;
 }
@@ -254,7 +253,8 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
     if (self.onEndReached) {
         NSInteger lastSectionIndex = [self numberOfSectionsInCollectionView:collectionView] - 1;
-        NSInteger lastRowIndexInSection = [self collectionView:collectionView numberOfItemsInSection:lastSectionIndex] - self.preloadItemNumber;
+        NSInteger itemsCount = [self collectionView:collectionView numberOfItemsInSection:lastSectionIndex];
+        NSInteger lastRowIndexInSection = itemsCount -1 - self.preloadItemNumber;
         if (lastRowIndexInSection < 0) {
             lastRowIndexInSection = 0;
         }
