@@ -50,6 +50,11 @@ INCLUDE_ABI_ARMEABI_V7A=true
 INCLUDE_ABI_ARM64_V8A=true
 ```
 
+Ohos
+
+* [oh-package.json5](https://github.com/Tencent/Hippy/blob/main/framework/ohos/oh-package.json5#L9)
+* [oh-package.json5](https://github.com/Tencent/Hippy/blob/main/framework/ohos/CHANGELOG.md)
+
 ## 4. Update built-in packages and verify functionality
 
 The new front-end SDK is then compiled with
