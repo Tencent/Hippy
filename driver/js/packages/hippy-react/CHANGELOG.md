@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.3](https://github.com/Tencent/Hippy/compare/3.3.3-rc.0...3.3.3) (2025-02-14)
+
+
+### Features
+
+* **react:** add text input type ([2677c84](https://github.com/Tencent/Hippy/commit/2677c842bd7e5fec40e2bacc65bd02f0878e7053))
+
+
+
+
+
 ## [3.3.2](https://github.com/Tencent/Hippy/compare/3.3.2-rc.3...3.3.2) (2024-11-05)
 
 

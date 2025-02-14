@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.3](https://github.com/zealotchen0/Hippy/compare/3.3.3-rc.0...3.3.3) (2025-02-14)
+
+
+### Bug Fixes
+
+* **android,ios:** performance record inaccurate when engine reuse ([e6db75e](https://github.com/zealotchen0/Hippy/commit/e6db75e005522276098c2dce49cdaf63b907c80d))
+* **android:** avoid peek EmptyStackException ([58c8207](https://github.com/zealotchen0/Hippy/commit/58c82072cc83d328ee0dbe29b10035699c8d8929))
+* **android:** java HippyMap leak oom by jni local ref ([964fd14](https://github.com/zealotchen0/Hippy/commit/964fd14390b9047cad6a9d004d604b49398b60dc))
+* **android:** make FCP more accurate ([19ea88c](https://github.com/zealotchen0/Hippy/commit/19ea88cb54e9a2cea8424ed09cc8b7865026f907))
+* **android:** modal crash when destroy root ([b5e9002](https://github.com/zealotchen0/Hippy/commit/b5e90020fac49225e38722fb83a040e9de14e867))
+* **android:** rende node snapshot supplementation and improvement ([438d8f6](https://github.com/zealotchen0/Hippy/commit/438d8f68d3c3ecfb73ac06b4a53c0e817d5ab2c2))
+* **android:** update custom createVirtualNode arguments ([c095855](https://github.com/zealotchen0/Hippy/commit/c095855b10dd94bf6bcefa0200d736e6d20552af))
+* **core:** fix android scope null when init engine exception ([0ab12a8](https://github.com/zealotchen0/Hippy/commit/0ab12a8d78d69249fa07576534a92be04ae4a383))
+* **core:** fix c++ stack overflow ([#4173](https://github.com/zealotchen0/Hippy/issues/4173)) ([da14f2e](https://github.com/zealotchen0/Hippy/commit/da14f2ee8c4a40009df29b48714eaa78b41a9f6b))
+* **core:** fix ios thread joinable terminate crash ([#4165](https://github.com/zealotchen0/Hippy/issues/4165)) ([013670c](https://github.com/zealotchen0/Hippy/commit/013670ce940a14a24878083fffa0669efc26b549))
+* **core:** fix task not run bug when no right notify_one ([dfee909](https://github.com/zealotchen0/Hippy/commit/dfee909f5d37e292018d87b19cf0cd8319ba09a9))
+* **core:** try fix ios hash throw overflow crash ([#4166](https://github.com/zealotchen0/Hippy/issues/4166)) ([a0be729](https://github.com/zealotchen0/Hippy/commit/a0be729046bc3fcf89bcd20574540e3e6d9ffbd9))
+* **devtools:** add reconnect when websocket closed by server ([#4129](https://github.com/zealotchen0/Hippy/issues/4129)) ([885593b](https://github.com/zealotchen0/Hippy/commit/885593b31f8697573fb5216ab66c50513e5ab677))
+* **devtools:** fix the mapping between DOM tree and UI inspector ([#4122](https://github.com/zealotchen0/Hippy/issues/4122)) ([719008e](https://github.com/zealotchen0/Hippy/commit/719008e4d372021655e9c75e2bd80c7c96b41d75))
+* **devtools:** json parse error caused by control characters in string ([#4142](https://github.com/zealotchen0/Hippy/issues/4142)) ([d8106e9](https://github.com/zealotchen0/Hippy/commit/d8106e94ffdfa90e5071ba1285ef3f96dafe5a49))
+* **devtools:** mapping between DOM tree and UI inspector ([#4141](https://github.com/zealotchen0/Hippy/issues/4141)) ([4d8ba71](https://github.com/zealotchen0/Hippy/commit/4d8ba7161e551c961f56195dec35554424bea482))
+* **docs:** update the documents for recent modifications ([325eba2](https://github.com/zealotchen0/Hippy/commit/325eba237318552377f46fb8ef4a0a366a69be56))
+* **dom:** fix animation not work for same animation id ([#4143](https://github.com/zealotchen0/Hippy/issues/4143)) ([e1e6cf3](https://github.com/zealotchen0/Hippy/commit/e1e6cf369687cf9e2531e5e729d77c40e1c67957))
+* **ios:** avoid deadlock in native render manager ([#4157](https://github.com/zealotchen0/Hippy/issues/4157)) ([3062f42](https://github.com/zealotchen0/Hippy/commit/3062f42388e91ac7d598e6af8bbae09aa553803a))
+* **ios:** fix jsc call c crash ([#4184](https://github.com/zealotchen0/Hippy/issues/4184)) ([c711c63](https://github.com/zealotchen0/Hippy/commit/c711c6337dfd751933e4ab02095307e5dfcdc35d))
+* **ios:** layout issue in mixed text-image with truncation scenarios ([#4181](https://github.com/zealotchen0/Hippy/issues/4181)) ([597df52](https://github.com/zealotchen0/Hippy/commit/597df52fc1d2d1a020db4c74efb230113fa11f82))
+* **ios:** listview endReached not working when preloadItemNumber is 0 ([#4183](https://github.com/zealotchen0/Hippy/issues/4183)) ([1075d09](https://github.com/zealotchen0/Hippy/commit/1075d097b53fe5d96a7c6b20eaf48a8314e56909))
+* **ios:** occasional crash of CFRunloop in looper driver ([#4164](https://github.com/zealotchen0/Hippy/issues/4164)) ([1ebdac0](https://github.com/zealotchen0/Hippy/commit/1ebdac07bf5505654d2ae7d5b3334887966e74e4))
+* **ios:** optimize variable array usage in convertToCtxValue and jscctx ([501e45a](https://github.com/zealotchen0/Hippy/commit/501e45a9cc224caaf3b45b54804dc93a4159568b))
+* **ios:** potential thread race in Vsync manager ([#4185](https://github.com/zealotchen0/Hippy/issues/4185)) ([f18eac7](https://github.com/zealotchen0/Hippy/commit/f18eac7fbfc585d7f2db39fe5a54bd2bc03a663a))
+* **ios:** thread race when getting ViewManager classes ([#4144](https://github.com/zealotchen0/Hippy/issues/4144)) ([623f198](https://github.com/zealotchen0/Hippy/commit/623f19833823a191113f81a8b4d9a6cd16bae55d))
+* **jsc:** fix ios c autorelease ([#4162](https://github.com/zealotchen0/Hippy/issues/4162)) ([d4d8856](https://github.com/zealotchen0/Hippy/commit/d4d8856553f5ad4bc29bb9586e055dd149992763))
+* **jsc:** fix jsc memery release ([#4155](https://github.com/zealotchen0/Hippy/issues/4155)) ([7377aaa](https://github.com/zealotchen0/Hippy/commit/7377aaaf86ba2237ba6f9138c6a805115420571e))
+* **jsc:** fix jscctx finalize crash ([#4154](https://github.com/zealotchen0/Hippy/issues/4154)) ([c21ae91](https://github.com/zealotchen0/Hippy/commit/c21ae91c5a09736280fa9e0a130368bc8b20c716))
+
+
+### Features
+
+* **ios:** nested scroll api support ([#4149](https://github.com/zealotchen0/Hippy/issues/4149)) ([7019c96](https://github.com/zealotchen0/Hippy/commit/7019c961a9f62d11cf472c781610470ea825999f))
+* **react:** add text input type ([2677c84](https://github.com/zealotchen0/Hippy/commit/2677c842bd7e5fec40e2bacc65bd02f0878e7053))
+* **vue:** not filter rpx when parse style ([#4148](https://github.com/zealotchen0/Hippy/issues/4148)) ([a9b9bbc](https://github.com/zealotchen0/Hippy/commit/a9b9bbcf119173577b9d3d3cc5d5157c8eaa0a9d))
+
+
+
+
+
 ## [3.3.2](https://github.com/Tencent/Hippy/compare/3.3.2-rc.3...3.3.2) (2024-11-05)
 
 

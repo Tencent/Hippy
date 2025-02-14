@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-next-server-renderer",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "Vue-Next server renderer for Hippy native framework",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",
