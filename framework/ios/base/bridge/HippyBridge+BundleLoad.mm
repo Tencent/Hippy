@@ -266,11 +266,9 @@ static NSString *const kFileUriScheme = @"file";
     }
     __weak HippyBridge *weakSelf = self;
     [self.javaScriptExecutor executeBlockOnJavaScriptQueue:^{
-        @autoreleasepool {
-            HippyBridge *strongSelf = weakSelf;
-            if (!strongSelf || ![strongSelf isValid]) {
-                [strongSelf.javaScriptExecutor invalidate];
-            }
+        HippyBridge *strongSelf = weakSelf;
+        if (!strongSelf || ![strongSelf isValid]) {
+            [strongSelf.javaScriptExecutor invalidate];
         }
     }];
     if ([error userInfo][HippyJSStackTraceKey]) {
