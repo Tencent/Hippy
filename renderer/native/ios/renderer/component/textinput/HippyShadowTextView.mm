@@ -100,10 +100,8 @@ static hippy::LayoutSize x5MeasureFunc(
             hippy::MeasureFunction measureFunc =
                 [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-                    @autoreleasepool {
-                        return x5MeasureFunc(weakSelf, width, widthMeasureMode,
-                                               height, heightMeasureMode, layoutContext);
-                    }
+                    return x5MeasureFunc(weakSelf, width, widthMeasureMode,
+                                         height, heightMeasureMode, layoutContext);
             };
             node->GetLayoutNode()->SetMeasureFunction(measureFunc);
         }

@@ -285,10 +285,8 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         auto domManager = _domManager.lock();
         if (domManager) {
             std::vector<std::function<void()>> ops_ = {[componentTag, rootNode, domManager, resultBlock](){
-                @autoreleasepool {
-                    auto node = domManager->GetNode(rootNode, componentTag);
-                    resultBlock(node);
-                }
+                auto node = domManager->GetNode(rootNode, componentTag);
+                resultBlock(node);
             }};
             domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
         }
