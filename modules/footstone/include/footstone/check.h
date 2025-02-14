@@ -38,7 +38,7 @@ static constexpr bool numeric_cast(const SourceType& source, TargetType& target)
 
 template<typename SourceType, typename TargetType>
 static constexpr TargetType checked_numeric_cast(const SourceType& source) {
-  TargetType target;
+  TargetType target = 0;
   auto result = numeric_cast<SourceType, TargetType>(source, target);
   FOOTSTONE_CHECK(result);
   return target;
