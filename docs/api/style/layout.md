@@ -202,11 +202,23 @@ Hippy 默认采用 Flex 布局。同时，因为仅支持 Flex 布局，所以�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin)
 
-设置 `margin` 与同时对`marginTop`, `marginLeft`, `marginBottom`, 和 `marginRight`设置了同样的值效果一致。
+设置 margin 与同时对 marginTop, marginLeft, marginBottom, 和 marginRight 设置了同样的值效果一致。Hippy 支持 CSS margin 的简写规则，允许用户传入 1 至 4 个数值（单位为 pt），并按照以下规则解析为对应的边距：
 
-| 类型            | 必需 |
-| --------------- | -------- |
-| number | 否       |
+- **1 个值**：所有方向均使用该数值  
+  例：`margin: 10` 表示四个方向均为 10pt
+
+- **2 个值**：第一个值用于垂直方向（marginTop 和 marginBottom），第二个值用于水平方向（marginLeft 和 marginRight）  
+  例：`margin: 10 20` 表示上下为 10pt，左右为 20pt
+
+- **3 个值**：第一个值用于上边距，第二个值用于左右边距，第三个值用于下边距  
+  例：`margin: 10 20 30` 表示上为 10pt，左右为 20pt，下为 30pt
+
+- **4 个值**：依次对应上、右、下、左的边距  
+  例：`margin: 10 20 30 40` 表示上 10pt、右 20pt、下 30pt、左 40pt
+
+| 类型                             | 必需 |
+| -------------------------------- | ---- |
+| number 或 string（支持传入 1 至 4 个数值） | 否   |
 
 # marginBottom
 
