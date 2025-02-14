@@ -387,9 +387,11 @@ std::unique_ptr<Task> Worker::GetNextTask() {
     }
   }
   if (idle_task) {
+    auto begin_time = idle_task->GetBeginTime();
+    auto timeout = idle_task->GetTimeout();
     auto wrapper_idle_task = std::make_unique<Task>(
-        MakeCopyable([begin_time = idle_task->GetBeginTime(),
-                      timeout = idle_task->GetTimeout(),
+        MakeCopyable([begin_time,
+                      timeout,
                       task = std::move(idle_task),
                       time = min_wait_time_]() {
           auto now = TimePoint::Now();
