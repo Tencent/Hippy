@@ -62,9 +62,9 @@ HIPPY_EXPORT_VIEW_PROPERTY(nestedScrollRightPriority, HippyNestedScrollPriority)
 }
 
 HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
-                    xIndex:(__unused NSNumber *)xIndex
-					yIndex:(NSNumber *)yIndex
-					animation:(nonnull NSNumber *)animation) {
+                    xIndex:(nonnull NSNumber *)xIndex
+                    yIndex:(nonnull NSNumber *)yIndex
+                    animation:(nonnull NSNumber *)animation) {
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         HippyNextBaseListView *view = (HippyNextBaseListView *)viewRegistry[componentTag];
