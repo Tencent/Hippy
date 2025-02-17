@@ -266,7 +266,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 // if truncated or out of the display area, then we need to hide the attach view
                 // {-1, -1} means attachment view has been truncated, ref: attachmentSizeForGlyphAtIndex api
                 if ((isTruncated && CGSizeEqualToSize({-1, -1}, attachmentSize))
-                    || location.x >= CGRectGetMaxX(lineRect) || location.y >= CGRectGetMaxY(lineRect)) {
+                    || location.x >= CGRectGetMaxX(lineRect)
+                    // when there is no text, just image nested in text label,
+                    // location.y is equal to lineRect.maxY
+                    || location.y > CGRectGetMaxY(lineRect)) {
                     [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry,
                                         UIView * _Nullable lazyCreatedView) {
                         HippyView *view = (HippyView *)(lazyCreatedView ?: viewRegistry[child.hippyTag]);
