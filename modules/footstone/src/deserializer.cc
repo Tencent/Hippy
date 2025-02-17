@@ -86,7 +86,7 @@ bool Deserializer::ReadTag(SerializationTag& tag) {
 }
 
 void Deserializer::ConsumeTag(SerializationTag peek_tag) {
-  SerializationTag tag;
+  SerializationTag tag = (SerializationTag)0;
   ReadTag(tag);
   FOOTSTONE_DCHECK(tag == peek_tag);
 }
@@ -215,7 +215,7 @@ bool Deserializer::ReadDenseJSArray(HippyValue& hippy_value) {
   array.resize(length);
 
   for (uint32_t i = 0; i < length; i++) {
-    SerializationTag tag;
+    SerializationTag tag = (SerializationTag)0;
     PeekTag(tag);
     if (tag == SerializationTag::kTheHole) {
       ConsumeTag(SerializationTag::kTheHole);
@@ -328,7 +328,7 @@ bool Deserializer::ReadObject(HippyValue& value) {
       return true;
     }
     case SerializationTag::kDouble: {
-      double d;
+      double d = 0;
       ReadDouble(d);
       value = HippyValue(d);
       return true;
