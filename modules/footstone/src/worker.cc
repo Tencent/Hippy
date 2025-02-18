@@ -159,7 +159,7 @@ void Worker::Notify() {
 void Worker::Terminate() {
   driver_->Terminate();
   if (thread_.joinable()) {
-    thread_.join();
+    thread_.detach();
   }
 }
 
