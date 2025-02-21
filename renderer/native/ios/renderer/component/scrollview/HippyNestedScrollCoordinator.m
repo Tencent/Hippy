@@ -141,6 +141,11 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
     return NO;
 }
 
+static inline bool isIntersect(const UIScrollView *outerScrollView, const UIScrollView *innerScrollView) {
+    CGRect frameInOuter = [outerScrollView convertRect:innerScrollView.frame fromView:(UIView *)innerScrollView];
+    return CGRectIntersectsRect(outerScrollView.bounds, frameInOuter);
+}
+
 static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> *scrollView) {
     scrollView.contentOffset = scrollView.lastContentOffset;
     scrollView.isLockedInNestedScroll = YES;
@@ -175,6 +180,12 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
     }
     if (direction == HippyNestedScrollDirectionNone) {
         HippyNSLogTrace(@"No direction return. %p", sv);
+        return;
+    }
+    
+    // 1.1 If the two ScrollViews do not intersect at all, ignore.
+    if (isOuter && !outerScrollView.activeInnerScrollView && !isIntersect(outerScrollView, innerScrollView)) {
+        HippyNSLogTrace(@"No Intersect return. %p", sv);
         return;
     }
     
