@@ -77,7 +77,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
       isFocus,
     } = this.state;
 
-    const child = React.Children.only(children) as Fiber;
+    const child = React.Children.only(children) as any;
     let type;
 
     if (child?.child?.memoizedProps?.nativeName) {
@@ -93,7 +93,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
 
     let nativeStyle = style;
     if (type !== 'Text') {
-      const childStyle = child.memoizedProps.style;
+      const childStyle = child.props.style;
       nativeStyle = { ...nativeStyle, ...childStyle };
     }
     Object.assign(nativeStyle as any, isFocus ? focusStyle : noFocusStyle);
@@ -117,7 +117,6 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
       );
     }
 
-    const { children: childProps } = child.memoizedProps;
     return React.cloneElement(child as any, {
       nextFocusDownId,
       nextFocusUpId,
@@ -126,7 +125,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
       requestFocus,
       onClick,
       focusable: true,
-      children: childProps,
+      children: child.props.children,
       style: nativeStyle,
       onFocus: this.handleFocus,
     });
