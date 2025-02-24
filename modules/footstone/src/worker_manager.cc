@@ -197,6 +197,10 @@ void WorkerManager::Balance(int32_t increase_worker_count) {
     }
     size_ = static_cast<uint32_t>(size);
   } else { // increase_worker_count = 0
+    FOOTSTONE_DCHECK(size_ > 0);
+    if (size_ <= 0) {
+      return;
+    }
     std::list<std::vector<std::shared_ptr<TaskRunner>>> groups;
     std::vector<uint32_t> cur_worker_group(size_); // 记录每个worker包含groups数量
     uint32_t groups_size = 0; // 所有worker含有的groups总大小
