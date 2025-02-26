@@ -26,7 +26,10 @@
 
 
 static NSString *const kHippyNestedScrollLog= @"NestedScroll";
-#define HippyNSLogTrace(...) HippyLogTrace(@"%@ %p %@", kHippyNestedScrollLog, self, [NSString stringWithFormat:__VA_ARGS__])
+#define HippyNSLogTrace(...) HippyLogTrace(@"%@ %p(%@) %@", \
+        kHippyNestedScrollLog, self, isOuter ? @"Outer" : @"Inner", [NSString stringWithFormat:__VA_ARGS__])
+#define HippyNSLogTrace2(isOuter, ...) HippyLogTrace(@"%@ %p(%@) %@", \
+        kHippyNestedScrollLog, self, isOuter ? @"Outer" : @"Inner", [NSString stringWithFormat:__VA_ARGS__])
 #define HIPPY_NESTED_OPEN_BOUNCES 0 // Turn off the outer bounces feature for now
 
 
@@ -186,14 +189,12 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
     // 1.1 If the two ScrollViews do not intersect at all, ignore.
     if (isOuter && !outerScrollView.activeInnerScrollView && !isIntersect(outerScrollView, innerScrollView)) {
         HippyNSLogTrace(@"No Intersect return. %p", sv);
+        HippyNSLogTrace(@"outer bounds: %@, innerFrame in outer: %@", NSStringFromCGRect(outerScrollView.bounds),
+                        NSStringFromCGRect([sv convertRect:innerScrollView.frame fromView:(UIView *)innerScrollView]));
         return;
     }
     
-    HippyNSLogTrace(@"%@(%p) did scroll: %@",
-                    isOuter ? @"Outer" : @"Inner", sv,
-                    isOuter ?
-                    NSStringFromCGPoint(outerScrollView.contentOffset) :
-                    NSStringFromCGPoint(innerScrollView.contentOffset));
+    HippyNSLogTrace(@"start handle (%p) did scroll: %@", sv, NSStringFromCGPoint(sv.contentOffset));
     
     // 2. Lock inner scrollview if necessary
     if ([self isDirection:direction hasPriority:HippyNestedScrollPriorityParent]) {
@@ -319,18 +320,17 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
     
     // 4. Update the lastContentOffset record
     sv.lastContentOffset = sv.contentOffset;
-    HippyNSLogTrace(@"end handle %@(%p) scroll -------------",
-                    isOuter ? @"Outer" : @"Inner", sv);
+    HippyNSLogTrace(@"end handle (%p) scroll -------------", sv);
 }
 
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     if (scrollView == self.outerScrollView) {
         self.shouldUnlockOuterScrollView = NO;
-        HippyNSLogTrace(@"reset outer scroll lock");
+        HippyNSLogTrace2(YES, @"reset outer scroll lock");
     } else if (scrollView == self.innerScrollView) {
         self.shouldUnlockInnerScrollView = NO;
-        HippyNSLogTrace(@"reset inner scroll lock");
+        HippyNSLogTrace2(NO, @"reset inner scroll lock");
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
