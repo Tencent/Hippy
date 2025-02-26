@@ -60,17 +60,13 @@ void PagerView::DestroyArkUINodeImpl() {
   swiperNode_->ResetLazyAdapter();
   swiperNode_ = nullptr;
   adapter_.reset();
-  initialPageUsed_ = false;
 }
 
 bool PagerView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == "initialPage") {
-    if (!initialPageUsed_) {
-      initialPageUsed_ = true;
-      initialPage_ = HRValueUtils::GetInt32(propValue);
-      index_ = initialPage_;
-      GetLocalRootArkUINode()->SetSwiperIndex(index_);
-    }
+    initialPage_ = HRValueUtils::GetInt32(propValue);
+    index_ = initialPage_;
+    GetLocalRootArkUINode()->SetSwiperIndex(index_);
     return true;
   } else if (propKey == "scrollEnabled") {
     bool enable = HRValueUtils::GetBool(propValue, true);

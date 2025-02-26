@@ -71,7 +71,6 @@ private:
   std::shared_ptr<PagerItemAdapter> adapter_;
 
   int32_t initialPage_ = 0;
-  bool initialPageUsed_ = false;
   int32_t index_ = 0;
   float prevMargin_ = 0;
   float nextMargin_ = 0;
