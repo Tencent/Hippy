@@ -43,10 +43,6 @@
 #include "vfs/uri_loader.h"
 #include "performance/performance.h"
 
-#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-#include "driver/vm/v8/inspector/v8_inspector_client_impl.h"
-#endif
-
 namespace hippy {
 
 namespace devtools {
@@ -165,11 +161,11 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline void setValid(bool valid) {
     is_valid_.store(valid, std::memory_order_relaxed);
   }
-  
+
   inline bool isValid() const {
     return is_valid_.load(std::memory_order_relaxed);
   }
-  
+
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::shared_ptr<CtxValue> GetBridgeObject() { return bridge_object_; }
   inline void SetBridgeObject(std::shared_ptr<CtxValue> bridge_object) { bridge_object_ = bridge_object; }
@@ -179,7 +175,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline void SetTurbo(std::any turbo) { turbo_ = turbo; }
   inline std::weak_ptr<Engine> GetEngine() { return engine_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return extra_function_map_; }
-    
+
   inline bool RegisterExtraCallback(const std::string& key, RegisterFunction func) {
     if (!func) {
       return false;
@@ -187,7 +183,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
     (*extra_function_map_)[key] = std::move(func);
     return true;
   }
-  
+
   inline bool GetExtraCallback(const std::string& key, RegisterFunction& outFunc) const {
     auto it = extra_function_map_->find(key);
     if (it != extra_function_map_->end()) {
@@ -407,7 +403,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
           holder_map.erase(it);
         }
       }, class_template);
-        
+
       auto engine = scope->GetEngine().lock();
       FOOTSTONE_CHECK(engine);
       if (engine->GetVM()->GetVMType() == VM::kJSEngineHermes) {
@@ -417,7 +413,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
         context->SetWeak(receiver, weak_callback_wrapper);
         scope->SaveWeakCallbackWrapper(std::move(weak_callback_wrapper));
       }
-      
+
       info.GetReturnValue()->Set(receiver);
     }, class_template.get());
     std::vector<std::shared_ptr<PropertyDescriptor>> properties;

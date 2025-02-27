@@ -63,11 +63,16 @@ using Array = facebook::jsi::Array;
 class LocalNativeState : public NativeState {
 public:
   LocalNativeState() = default;
-  ~LocalNativeState() {
+  ~LocalNativeState() override {
     if (weak_callback_wrapper) {
       auto scope = weak_callback_wrapper->scope.lock();
       if (scope && scope->isValid()) {
-        weak_callback_wrapper->callback(weak_callback_wrapper->data, Get());
+        weak_callback_wrapper->callback(weak_callback_wrapper->data, data_);
+      }
+    }
+    if (tracked_key != -1) {
+      if (auto ps = linked_proto_state.lock()) {
+        ps->Remove(tracked_key);
       }
     }
   }
@@ -75,25 +80,36 @@ public:
   void Set(void* address) { data_ = address; }
   void* Get() { return data_; }
   
-  void Set(int key, void* address) {
-    data_map_[key] = address;
+  void Set(int key, void* value) {
+    if (!data_map_) {
+      data_map_ = std::make_unique<std::unordered_map<int, void*>>();
+    }
+    (*data_map_)[key] = value;
   }
   
   void* Get(int key) {
-    auto it = data_map_.find(key);
-    if (it != data_map_.end()) {
-      return it->second;
-    }
-    return nullptr;
+    if (!data_map_) return nullptr;
+    auto it = data_map_->find(key);
+    return (it != data_map_->end()) ? it->second : nullptr;
+  }
+  
+  void Remove(int key) {
+    if (!data_map_) return;
+    data_map_->erase(key);
   }
 
   void SetWeakCallbackWrapper(std::unique_ptr<WeakCallbackWrapper>&& wrapper) {
     weak_callback_wrapper = std::move(wrapper);
   }
 
+  // for instance object to use
+  std::weak_ptr<LocalNativeState> linked_proto_state; // link to proto object's LocalNativeState
+  int tracked_key = -1;                               // key stored in data_map_ to clean
+  
 private:
   void* data_;
-  std::unordered_map<int, void*> data_map_;
+  // for protol object to use
+  std::unique_ptr<std::unordered_map<int, void*>> data_map_;
   std::unique_ptr<WeakCallbackWrapper> weak_callback_wrapper;
 };
 
@@ -246,6 +262,7 @@ class HermesCtx : public Ctx {
   std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const override;
 
 #ifdef ENABLE_INSPECTOR
+  string_view GetAppScourceJSScriptForDebugger();
   inline std::unique_ptr<CDPAgent> &GetCDPAgent() { return cdpAgent_; };
   void SetupDebugAgent(facebook::hermes::debugger::EnqueueRuntimeTaskFunc enqueueRuntimeTask,
                        facebook::hermes::cdp::OutboundMessageFunc messageCallback);
@@ -260,6 +277,7 @@ class HermesCtx : public Ctx {
  private:
   std::unique_ptr<HermesRuntime> runtime_;
 #ifdef ENABLE_INSPECTOR
+  string_view app_source_script_;
   std::unique_ptr<CDPAgent> cdpAgent_;
   std::unique_ptr<CDPDebugAPI> cdpDebugAPI_;
 #endif /* ENABLE_INSPECTOR */
