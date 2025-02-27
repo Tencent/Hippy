@@ -168,11 +168,11 @@ void WaterfallView::HandleOnChildrenUpdated() {
     listNode_->InsertChild(bannerListNode_.get(), 1);
     headerView->GetLocalRootArkUINode()->SetNodeDelegate(this);
     headerView->GetLocalRootArkUINode()->SetItemIndex(0);
-    listNode_->ScrollToIndex(1, true, true);
+    listNode_->ScrollToIndex(1, true, ARKUI_SCROLL_ALIGNMENT_START);
   }
   else{
     listNode_->InsertChild(bannerListNode_.get(), 0);
-    listNode_->ScrollToIndex(0, true, true);
+    listNode_->ScrollToIndex(0, true, ARKUI_SCROLL_ALIGNMENT_START);
   }
 
   listNode_->AddChild(flowListNode_.get());
@@ -231,7 +231,7 @@ void WaterfallView::CallImpl(const std::string &method, const std::vector<HippyV
   } else if (method == "scrollToContentOffset") {
 
   } else if (method == "scrollToTop"){
-    listNode_->ScrollToIndex(1, true,true);
+    listNode_->ScrollToIndex(1, true, ARKUI_SCROLL_ALIGNMENT_START);
   } else {
     BaseView::CallImpl(method, params, callback);
   }
@@ -330,7 +330,7 @@ void WaterfallView::OnHeadRefreshFinish(int32_t delay){
   FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" delay = "<<delay;
   if(delay > 0 ){
     //TODO setTimeout(delay)
-    listNode_->ScrollToIndex(1, true, true);
+    listNode_->ScrollToIndex(1, true, ARKUI_SCROLL_ALIGNMENT_START);
   }
 }
 
