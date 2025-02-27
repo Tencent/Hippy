@@ -149,8 +149,6 @@ Scope::~Scope() {
   FOOTSTONE_DLOG(INFO) << "~Scope";
 #ifdef JS_JSH
   context_->InvalidWeakCallbackWrapper();
-#else
-  context_ = nullptr;
 #endif
 
   auto engine = engine_.lock();
