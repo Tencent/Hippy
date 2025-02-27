@@ -57,6 +57,8 @@ const CodePieces = {
 #include "driver/vm/v8/native_source_code_v8.h"`,
     piece2_jsc: `
 #include "driver/vm/jsc/native_source_code_jsc.h"`,
+    piece2_jsh: `
+#include "driver/vm/jsc/native_source_code_jsh.h"`,
     piece2_hermes: `
 #include "driver/vm/hermes/native_source_code_hermes.h"`,
     piece2_flutter: '',
@@ -274,6 +276,29 @@ function readFileToBuffer(renderer, engine, filePath) {
 }
 
 /**
+ * Get the hermes compiler path.
+ */
+const getHippyHermescPath = () => {
+  const hermesPath = path.resolve(__dirname, '../node_modules/@hippy/hermesc');
+  console.log('hermes package path:', hermesPath);
+  let hermesc = `${hermesPath}/%OS%-bin/hermesc`;
+  switch (process.platform) {
+    case 'win32':
+      hermesc = hermesc.replace('%OS%', 'win64');
+      break;
+    case 'darwin':
+      hermesc = hermesc.replace('%OS%', 'osx');
+      break;
+    default:
+      hermesc.replace('%OS%', 'linux64');
+      break;
+  }
+  console.log('hermesc path:', hermesc);
+  return hermesc;
+};
+
+
+/**
  * Read the js files and generate the core cpp files.
  *
  * @param {android|ios|flutter} renderer - specific renderer.
@@ -296,7 +321,7 @@ function generateCpp(renderer, engine, buildDirPath) {
         const tempFilePath = path.join(__dirname, `${fileName}_temp.js`);
         const tempHbcFilePath = `${tempFilePath}.hbc`;
         fs.writeFileSync(tempFilePath, fileBuffer);
-        const hermesCompilerPath = getAbsolutePath('../tools/hermes');
+        const hermesCompilerPath = getHippyHermescPath();
         execSync(`${hermesCompilerPath} -emit-binary -out ${tempHbcFilePath} ${tempFilePath} -O -g0 -Wno-undefined-variable`);
         const hbcBuffer = fs.readFileSync(tempHbcFilePath);
         console.log(`Compiled ${fileName}, HBC buffer length: ${hbcBuffer.length}`);
@@ -349,5 +374,6 @@ generateCpp('ios', 'jsc', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
 generateCpp('ios', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
 generateCpp('android', 'v8', getAbsolutePath('../../../driver/js/src/vm/v8/'));
 generateCpp('android', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
-generateCpp('ohos', getAbsolutePath('../../../driver/js/src/vm/v8/'));
+generateCpp('ohos', 'jsh', getAbsolutePath('../../../driver/js/src/vm/jsh/'));
+// generateCpp('ohos', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/')); // not support ohos yet
 generateCpp('flutter', 'flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));
