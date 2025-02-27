@@ -61,7 +61,7 @@ export interface ClickableProps {
   /**
    * Called when the touch is released.
    */
-  onClick?: () => void;
+  onClick?: (evt: HippyTypes.ClickEvent) => void;
 
   /**
    * Called when the touch with longer than about 1s is released.
