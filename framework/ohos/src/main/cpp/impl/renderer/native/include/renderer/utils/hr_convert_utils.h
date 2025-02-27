@@ -41,6 +41,7 @@ public:
   static ArkUI_ImageSize BackgroundImageSizeToArk(std::string &str);
   static float ToDegrees(const HippyValue &value);
   static bool TransformToArk(HippyValueArrayType &valueArray, HRTransform &transform);
+  static ArkUI_ScrollAlignment ScrollAlignmentToArk(const HippyValue &value);
 };
 
 } // namespace native

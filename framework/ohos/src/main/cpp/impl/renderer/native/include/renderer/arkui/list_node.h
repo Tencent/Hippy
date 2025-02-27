@@ -67,7 +67,7 @@ public:
   HRPoint GetScrollOffset();
   
   void ScrollTo(float offsetX, float offsetY, bool animated);
-  void ScrollToIndex(int32_t index, bool animated, bool isScrollAlignStart);
+  void ScrollToIndex(int32_t index, bool animated, ArkUI_ScrollAlignment align);
   void SetListDirection(bool isVertical);
   void SetListInitialIndex(int32_t index);
   void SetScrollEdgeEffect(bool hasEffect);
