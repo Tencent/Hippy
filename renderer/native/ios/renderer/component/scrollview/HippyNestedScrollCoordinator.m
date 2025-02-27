@@ -145,8 +145,11 @@ static inline BOOL isScrollInSpringbackState(const UIScrollView *scrollview,
 }
 
 static inline bool isIntersect(const UIScrollView *outerScrollView, const UIScrollView *innerScrollView) {
-    CGRect frameInOuter = [outerScrollView convertRect:innerScrollView.frame fromView:(UIView *)innerScrollView];
-    return CGRectIntersectsRect(outerScrollView.bounds, frameInOuter);
+    CALayer *outerPresentation = outerScrollView.layer.presentationLayer;
+    CALayer *innerPresentation = innerScrollView.layer.presentationLayer;
+    CGRect actualOuter = [outerPresentation convertRect:outerPresentation.bounds toLayer:nil];
+    CGRect actualInner = [innerPresentation convertRect:innerPresentation.bounds toLayer:nil];
+    return CGRectIntersectsRect(actualOuter, actualInner);
 }
 
 static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> *scrollView) {
@@ -164,10 +167,19 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
     BOOL isInner = (sv == innerScrollView);
     
     // 0. Exclude irrelevant scroll events using `activeInnerScrollView`
-    if (outerScrollView.activeInnerScrollView &&
-        outerScrollView.activeInnerScrollView != innerScrollView) {
+    if (outerScrollView.activeInnerScrollView && outerScrollView.activeInnerScrollView != innerScrollView) {
         HippyNSLogTrace(@"Not active inner return.");
         return;
+    } else if (isOuter && !outerScrollView.activeInnerScrollView) {
+        if (outerScrollView.shouldHaveActiveInner) {
+            // 0.1 If outer should have an active innder but not, ignore.
+            HippyNSLogTrace(@"Not active inner return 2.");
+            return;
+        } else if (!isIntersect(outerScrollView, innerScrollView)) {
+            // 0.2 If the two ScrollViews do not intersect at all, ignore.
+            HippyNSLogTrace(@"Not Intersect return. %p", sv);
+            return;
+        }
     }
     
     // 1. Determine direction of scrolling
@@ -183,14 +195,6 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
     }
     if (direction == HippyNestedScrollDirectionNone) {
         HippyNSLogTrace(@"No direction return. %p", sv);
-        return;
-    }
-    
-    // 1.1 If the two ScrollViews do not intersect at all, ignore.
-    if (isOuter && !outerScrollView.activeInnerScrollView && !isIntersect(outerScrollView, innerScrollView)) {
-        HippyNSLogTrace(@"No Intersect return. %p", sv);
-        HippyNSLogTrace(@"outer bounds: %@, innerFrame in outer: %@", NSStringFromCGRect(outerScrollView.bounds),
-                        NSStringFromCGRect([sv convertRect:innerScrollView.frame fromView:(UIView *)innerScrollView]));
         return;
     }
     
@@ -274,7 +278,7 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
             if (hasScrollToTheDirectionEdge(innerScrollView, direction)) {
                 self.shouldUnlockOuterScrollView = YES;
                 HippyNSLogTrace(@"set unlock outer ~");
-            } else {
+            } else if (outerScrollView.activeInnerScrollView) {
                 self.shouldUnlockOuterScrollView = NO;
                 HippyNSLogTrace(@"set lock outer !");
             }
@@ -325,6 +329,13 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
 
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    if (!self.outerScrollView.shouldHaveActiveInner) {
+        // Clear any recorded activeInner or activeOuter if shouldHaveActiveInner is NO,
+        // this code is executed only if the scrollView is an outer.
+        self.outerScrollView.activeInnerScrollView = nil;
+        self.innerScrollView.activeOuterScrollView = nil;
+    }
+    
     if (scrollView == self.outerScrollView) {
         self.shouldUnlockOuterScrollView = NO;
         HippyNSLogTrace2(YES, @"reset outer scroll lock");
@@ -348,17 +359,11 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     self.dragType = HippyNestedScrollDragTypeUndefined;
-    if (!decelerate) {
-        // reset active scroll
-        self.outerScrollView.activeInnerScrollView = nil;
-        self.innerScrollView.activeOuterScrollView = nil;
+    
+    // Reset shouldHaveActiveInner flag when user end dragging.
+    if (self.outerScrollView.shouldHaveActiveInner) {
+        self.outerScrollView.shouldHaveActiveInner = NO;
     }
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    // reset active scroll
-    self.outerScrollView.activeInnerScrollView = nil;
-    self.innerScrollView.activeOuterScrollView = nil;
 }
 
 
@@ -380,6 +385,7 @@ static inline void lockScrollView(const UIScrollView<HippyNestedScrollProtocol> 
             self.nestedScrollBottomPriority > HippyNestedScrollPriorityNone ||
             self.nestedScrollLeftPriority > HippyNestedScrollPriorityNone ||
             self.nestedScrollRightPriority > HippyNestedScrollPriorityNone) {
+            self.outerScrollView.shouldHaveActiveInner = YES;
             return YES;
         }
     } else if (self.outerScrollView.nestedGestureDelegate) {
