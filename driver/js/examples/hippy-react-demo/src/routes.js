@@ -25,6 +25,14 @@ export default [
     },
   },
   {
+    path: '/Focusable',
+    name: '<focusalbe> 组件',
+    component: PAGE_LIST.Focusable,
+    meta: {
+      type: Type.COMPONENT,
+    },
+  },
+  {
     path: '/View',
     name: '<View> 组件',
     component: PAGE_LIST.View,

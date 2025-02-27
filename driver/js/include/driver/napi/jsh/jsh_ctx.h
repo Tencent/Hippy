@@ -61,7 +61,7 @@ constexpr static int kJSHWeakCallbackWrapperInvalidIndex = 2;
 constexpr static int KJSHTurboFunctionGetIndex = 3;
 constexpr static int kJSHExternalDataNum = 4;
 
-extern void* GetPointerInInstanceData(JSVM_Env env, int index);
+extern void* GetPointerInInstanceData(JSVM_Env env, int index, bool *error = nullptr);
 
 class JSHCtx : public Ctx {
  public:

@@ -18,7 +18,7 @@
 
 ## 快速接入
 
-1. 创建一个 Android 工程
+1. 创建一个 Android 工程 （SDK工程支持的minSdkVersion=21, 宿主工程支持的minSdkVersion不能低于该版本）
 
 2. Maven 集成
 
@@ -29,7 +29,7 @@
      下面引用Hippy最新版本号可在上述链接中查询
 
    ```java
-    implementation 'com.tencent.hippy:release:3.3.2'
+    implementation 'com.tencent.hippy:release:3.3.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'

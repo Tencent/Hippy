@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.renderer.NativeRenderer.EVENT_PREFIX;
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 
 import android.graphics.Color;
 import android.view.View;
@@ -279,7 +280,7 @@ public class ControllerUpdateManger<T> {
                     view.setBackgroundColor(
                             MapUtils.getIntValue(props, NodeProps.BACKGROUND_COLOR,
                                     Color.TRANSPARENT));
-                } else if (!handleComponentProps(node, key, props, skipComponentProps)) {
+                } else if (!handleComponentProps(node, key, props, skipComponentProps) && node.getRootId() != SCREEN_SNAPSHOT_ROOT_ID) {
                     PropertyMethodHolder customMethodHolder = getCustomPropsMethodHolder(key);
                     if (customMethodHolder != null && view == null) {
                         // If the host has a custom attribute that needs to be processed, this element cannot be

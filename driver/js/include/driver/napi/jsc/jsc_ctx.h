@@ -85,6 +85,27 @@ private:
   std::mutex mutex_;
 };
 
+class ContextValidManager {
+public:
+  void SaveContextPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    ctx_valid_set_.insert(ptr);
+  }
+
+  void ClearContextPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    ctx_valid_set_.erase(ptr);
+  }
+
+  bool IsValidContextPtr(void* ptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return ctx_valid_set_.find(ptr) != ctx_valid_set_.end();
+  }
+private:
+  std::set<void*> ctx_valid_set_;
+  std::mutex mutex_;
+};
+
 class JSCCtx : public Ctx {
 public:
   using string_view = footstone::string_view;

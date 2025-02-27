@@ -44,7 +44,7 @@ using StringViewUtils = footstone::StringViewUtils;
 using JSHVM = hippy::vm::JSHVM;
 using CallbackInfo = hippy::CallbackInfo;
 
-void* GetPointerInInstanceData(JSVM_Env env, int index) {
+void* GetPointerInInstanceData(JSVM_Env env, int index, bool *error) {
   if (index < 0 || index >= kJSHExternalDataNum) {
     return nullptr;
   }
@@ -53,7 +53,11 @@ void* GetPointerInInstanceData(JSVM_Env env, int index) {
   auto status = OH_JSVM_GetInstanceData(env, &data);
   FOOTSTONE_DCHECK(status == JSVM_OK);
   
-  if (data) {
+  if (error) {
+    *error = (status == JSVM_OK) ? false : true;
+  }
+  
+  if ((status == JSVM_OK) && data) {
     return ((void**)data)[index];
   }
   return nullptr;
@@ -1470,8 +1474,9 @@ void JSH_Finalize(JSVM_Env env, void* finalizeData, void* finalizeHint) {
   if (!finalizeData) {
     return;
   }
-  void* invalid = GetPointerInInstanceData(env, kJSHWeakCallbackWrapperInvalidIndex);
-  if (invalid) {
+  bool error = false;
+  void* invalid = GetPointerInInstanceData(env, kJSHWeakCallbackWrapperInvalidIndex, &error);
+  if (invalid || error) {
     return;
   }
   auto wrapper = reinterpret_cast<WeakCallbackWrapper*>(finalizeData);

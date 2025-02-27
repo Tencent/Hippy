@@ -380,8 +380,15 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
+    private void onFcpBatchEnd(int rootId) {
+        View rootView = getRootView(rootId);
+        if (rootView instanceof HippyRootView) {
+            ((HippyRootView) rootView).onFcpBatchEnd();
+        }
+    }
+
     @Override
-    public void onFirstContentfulPaint() {
+    public void onFirstContentfulPaint(int rootId) {
         FrameworkProxy frameworkProxy = getFrameworkProxy();
         if (frameworkProxy != null) {
             frameworkProxy.onFirstContentfulPaint();
@@ -484,6 +491,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceDestroy(rootId);
             }
+            mInstanceLifecycleEventListeners.clear();
         }
         ChoreographerUtils.unregisterDoFrameListener(getInstanceId(), rootId);
         mRenderManager.deleteNode(rootId, rootId);
@@ -866,7 +874,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             addUITask(() -> {
                 mRenderManager.batch(rootId);
                 if (isFcp) {
-                    onFirstContentfulPaint();
+                    onFcpBatchEnd(rootId);
                 }
             });
             if (isFcp) {
@@ -1124,7 +1132,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         if (child instanceof TextRenderNode) {
             ((TextRenderNode) child).recordVirtualChildren(nodeInfoList);
         }
-        return true;
+        return !child.isIsolate();
     }
 
     private interface UITaskExecutor {
