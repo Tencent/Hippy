@@ -31,12 +31,14 @@
 
 @interface HippyNextAnimationModule () <HPOPAnimationDelegate, HPOPAnimatorDelegate, HippyNextAnimationControlDelegate>
 
-/// Map of id-animation
-@property (atomic, strong) NSMutableDictionary *animationById;
-/// Map of hippyTag-Params
-@property (atomic, strong) NSMutableDictionary<NSNumber *, HippyNextAnimationViewParams *> *paramsByHippyTag;
-/// Map of AnimationId-Params
-@property (atomic, strong) NSMutableDictionary<NSNumber *, NSMutableArray<HippyNextAnimationViewParams *> *> *paramsByAnimationId;
+/// Lock for animationById & paramsByHippyTag
+@property (nonatomic, strong) NSLock *dataAccessLock;
+/// Map of id-animation, may access only in shadow and main thread
+@property (nonatomic, strong) NSMutableDictionary *animationById;
+/// Map of hippyTag-Params, may access only in shadow and main thread
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, HippyNextAnimationViewParams *> *paramsByHippyTag;
+/// Map of AnimationId-Params, access only in shadow thread
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSMutableArray<HippyNextAnimationViewParams *> *> *paramsByAnimationId;
 
 /// whether should relayout on next frame
 @property (atomic, assign) BOOL shouldCallUIManagerToUpdateLayout;
@@ -67,8 +69,10 @@ HIPPY_EXPORT_MODULE(AnimationModule)
 }
 
 - (void)invalidate {
+    [self.dataAccessLock lock];
     [self.animationById removeAllObjects];
     [self.paramsByHippyTag removeAllObjects];
+    [self.dataAccessLock unlock];
     [self.paramsByAnimationId removeAllObjects];
     [HPOPAnimator.sharedAnimator removeAnimatorDelegate:self];
 }
@@ -76,6 +80,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _dataAccessLock = [[NSLock alloc] init];
         _animationById = [NSMutableDictionary dictionary];
         _paramsByHippyTag = [NSMutableDictionary dictionary];
         _paramsByAnimationId = [NSMutableDictionary dictionary];
@@ -101,7 +106,9 @@ HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId
     anim.controlDelegate = self;
 
     // save animation
+    [self.dataAccessLock lock];
     self.animationById[animationId] = anim;
+    [self.dataAccessLock unlock];
 }
 
 HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId
@@ -112,7 +119,9 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId
     for (NSDictionary * info in children) {
         NSNumber *subAnimationId = info[@"animationId"];
         BOOL follow = [info[@"follow"] boolValue];
+        [self.dataAccessLock lock];
         HippyNextAnimation *ani = self.animationById[subAnimationId];
+        [self.dataAccessLock unlock];
         if (ani == nil) {
             HippyAssert(ani != nil, @"create group animation but use illege sub animaiton");
             return;
@@ -125,11 +134,15 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId
     group.animations = anis;
     group.animationId = animationId;
     group.delegate = self;
+    [self.dataAccessLock lock];
     self.animationById[animationId] = group;
+    [self.dataAccessLock unlock];
 }
 
 HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
+    [self.dataAccessLock lock];
     HippyNextAnimation *anim = self.animationById[animationId];
+    [self.dataAccessLock unlock];
     if (HippyNextAnimationStartedState == anim.state) {
         return;
     }
@@ -172,19 +185,25 @@ HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
 }
 
 HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
+    [self.dataAccessLock lock];
     HippyNextAnimation *anim = self.animationById[animationId];
+    [self.dataAccessLock unlock];
     [anim setPausedWithoutReset:YES];
 }
 
 HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
+    [self.dataAccessLock lock];
     HippyNextAnimation *anim = self.animationById[animationId];
+    [self.dataAccessLock unlock];
     [anim setPausedWithoutReset:NO];
 }
 
 HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId
                     params:(NSDictionary *)params) {
     if (!params) return;
+    [self.dataAccessLock lock];
     HippyNextAnimation *anim = self.animationById[animationId];
+    [self.dataAccessLock unlock];
     anim.state = HippyNextAnimationInitState;
     [anim updateAnimation:params];
     
@@ -193,7 +212,9 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId
         [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key,
                                                                              NSNumber * _Nonnull obj,
                                                                              BOOL * _Nonnull stop) {
+            [self.dataAccessLock lock];
             HippyNextAnimation *rcani = self.animationById[obj];
+            [self.dataAccessLock unlock];
             if ([obj isEqual:animationId]) {
                 [p setValue:[rcani getPretreatedFromValueForAnimType:key] forProp:key];
                 HippyLogInfo(@"[Hippy_OC_Log][Animation], Update_Animation:[%@] key:[%@]", animationId, key);
@@ -206,8 +227,9 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId
 }
 
 HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
-    
+    [self.dataAccessLock lock];
     [self.animationById removeObjectForKey:animationId];
+    [self.dataAccessLock unlock];
     [self.paramsByAnimationId removeObjectForKey:animationId];
 }
 
@@ -227,9 +249,13 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
                                                                                    rootTag:rootTag];
     [p parse];
 
+    [self.dataAccessLock lock];
     BOOL contain = [self.paramsByHippyTag.allValues containsObject:p];
+    [self.dataAccessLock unlock];
     [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *animationId, __unused BOOL *stop) {
+        [self.dataAccessLock lock];
         HippyNextAnimation *ani = self.animationById[animationId];
+        [self.dataAccessLock unlock];
 
         if (ani.state == HippyNextAnimationFinishState) {
             id tmpToValue = [ani getPretreatedToValueForAnimType:key];
@@ -260,7 +286,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     }];
     
     // record viewTag and view params
+    [self.dataAccessLock lock];
     [self.paramsByHippyTag setObject:p forKey:viewTag];
+    [self.dataAccessLock unlock];
 
     return p.updateParams;
 }
@@ -269,11 +297,15 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 /// - Parameter view: view with animation
 - (void)connectAnimationToView:(UIView *)view {
     NSNumber *hippyTag = view.hippyTag;
+    [self.dataAccessLock lock];
     HippyNextAnimationViewParams *p = self.paramsByHippyTag[hippyTag];
+    [self.dataAccessLock unlock];
     
     for (NSString *prop in p.animationIdWithPropDictionary.allKeys) {
         NSNumber *animationId = p.animationIdWithPropDictionary[prop];
+        [self.dataAccessLock lock];
         HippyNextAnimation *anim = self.animationById[animationId];
+        [self.dataAccessLock unlock];
         if (HippyNextAnimationReadyState != anim.state) {
             continue;
         }
@@ -319,7 +351,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
                                              __unused BOOL *stop) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
+                [strongSelf.dataAccessLock lock];
                 HippyNextAnimation *ani = strongSelf.animationById[obj];
+                [strongSelf.dataAccessLock unlock];
                 if (![obj isEqual:animationId]) {
                     return;
                 }
@@ -525,7 +559,9 @@ static NSString *const HippyAnimationEventRepeat = @"onAnimationRepeat";
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             for (HippyNextAnimationViewParams *p in strongSelf.paramsByAnimationId[animationId]) {
                 [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
+                    [strongSelf.dataAccessLock lock];
                     HippyNextAnimation *ani = strongSelf.animationById[obj];
+                    [strongSelf.dataAccessLock unlock];
                     if (![obj isEqual:animationId]) {
                         return;
                     }

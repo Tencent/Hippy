@@ -744,7 +744,8 @@ static NSError *executeApplicationScript(NSData *script,
                                          HippyPerformanceLogger *performanceLogger,
                                          JSGlobalContextRef ctx) {
     @autoreleasepool {
-        HippyLogInfo(@"load script begin, length %zd for url %@", [script length], [sourceURL absoluteString]);
+        NSString *absoluteSourceUrl = [sourceURL absoluteString];
+        HippyLogInfo(@"load script begin, length %zd for url %@", [script length], absoluteSourceUrl);
         if (isCommonBundle) {
             [performanceLogger markStartForTag:HippyPLCommonScriptExecution];
         } else {
@@ -753,9 +754,26 @@ static NSError *executeApplicationScript(NSData *script,
         
         JSValueRef jsError = NULL;
         NSString *scriptText = [[NSString alloc] initWithData:script encoding:NSUTF8StringEncoding];
+        if (!absoluteSourceUrl) {
+            HippyLogError(@"Missing bundle URL for script execution");
+            return [NSError errorWithDomain:HippyErrorDomain
+                                       code:NSFileNoSuchFileError
+                                   userInfo:@{
+                NSLocalizedDescriptionKey: @"JavaScript bundle URL is required",
+            }];
+        }
+        
+        if (!scriptText) {
+            HippyLogError(@"Script decoding failed, data length: %lu bytes", (unsigned long)script.length);
+            return [NSError errorWithDomain:HippyErrorDomain
+                                       code:NSFileReadInapplicableStringEncodingError
+                                   userInfo:@{
+                NSLocalizedDescriptionKey: @"Failed to decode script content",
+            }];
+        }
         JSStringRef execJSString = JSStringCreateWithCFString((__bridge CFStringRef)scriptText);
-        //JSStringCreateWithUTF8CString((const char *)script.bytes);
-        JSStringRef bundleURL = JSStringCreateWithCFString((__bridge CFStringRef)sourceURL.absoluteString);
+        JSStringRef bundleURL = JSStringCreateWithCFString((__bridge CFStringRef)absoluteSourceUrl);
+
 
         NSLock *lock = jslock();
         BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
@@ -773,7 +791,7 @@ static NSError *executeApplicationScript(NSData *script,
 
         NSError *error = jsError ? HippyNSErrorFromJSErrorRef(jsError, ctx) : nil;
         // HIPPY_PROFILE_END_EVENT(0, @"js_call");
-        HippyLogInfo(@"load script end,length %zd for url %@, error %@", [script length], [sourceURL absoluteString], [error description]);
+        HippyLogInfo(@"load script end,length %zd for url %@, error %@", [script length], absoluteSourceUrl, [error description]);
 
         return error;
     }
