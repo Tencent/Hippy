@@ -27,6 +27,7 @@ import { buildHippyRenderView } from 'hippy/src/main/ets/renderer_native/HippyRe
 import { NativeRenderContext } from 'hippy/src/main/ets/renderer_native/NativeRenderContext'
 import { HRPadding, HRRect } from 'hippy/src/main/ets/renderer_native/utils/HRTypes'
 import { HippyAny, HippyRenderCallback } from 'hippy/src/main/ets/support/common/HippyTypes'
+import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 
 @Observed
 export class ExampleViewA extends HippyCustomComponentView {
@@ -64,6 +65,8 @@ export struct ExampleComponentA {
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   aboutToAppear() {
+    LogUtils.d('hippy demo', 'A to appear, tag: ' + this.renderView.tag)
+
     // 自定义事件举例
     let event = new HippyViewEvent("onEvent1")
     let params = new Map<string, string>()
@@ -72,7 +75,7 @@ export struct ExampleComponentA {
   }
 
   aboutToDisappear() {
-
+    LogUtils.d('hippy demo', 'A to disappear, tag: ' + this.renderView.tag)
   }
 
   build() {
