@@ -25,7 +25,7 @@
 
 #import "HippyNetInfoIntenal.h"
 #import "HippyAssert.h"
-
+#import "HippyDefines.h"
 #include <netinet/in.h>
 
 NSString *const HippyNetworkTypeUnknown = @"UNKNOWN";
@@ -91,7 +91,9 @@ static NSString *radioAccessNameIn(CTTelephonyNetworkInfo *networkInfo) {
         }
         return nil;
     } else {
+        HIPPY_IGNORE_WARNING_BEGIN(-Wdeprecated)
         return networkInfo.currentRadioAccessTechnology;
+        HIPPY_IGNORE_WARNING_END
     }
 }
 
@@ -183,7 +185,10 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
     
     [self registerNetworkChangedListener];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(radioAccessTechnologyDidChange:) name:CTRadioAccessTechnologyDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(radioAccessTechnologyDidChange:)
+                                                 name:CTServiceRadioAccessTechnologyDidChangeNotification
+                                               object:nil];
 }
 
 - (void)dealloc {

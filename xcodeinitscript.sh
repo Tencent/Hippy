@@ -42,20 +42,3 @@ fi
 cmake ./CMakeLists.txt -B ./dom_project -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=11.0 -DLAYOUT_ENGINE=${layout_engine}
 echo -e "\033[33m dom cmake build end\033[0m"
 
-if [[ "hermes" == ${2} ]]; then
-	echo "use hermes js engine"
-	cd ${root_dir}
-	rm -rf hermesforios
-	mkdir hermesforios
-
-	#download hermes
-	curl https://infra-packages.openhippy.com/hippy/global_packages/hermes/hermes-2024-09-09-RNv0.76.0-db6d12e202e15f7a446d8848d6ca8f7abb3cfb32/ios.tgz --output hermesforios/ios.tgz
-	tar zxvf hermesforios/ios.tgz -C ./hermesforios/
-	rm -f hermesforios/ios.tgz
-
-	cd ${root_dir}
-elif [[ "custom" == ${2} ]]; then
-	echo "use custom js engine"
-else
-	echo "use default jsc js engine"
-fi

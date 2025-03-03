@@ -1,6 +1,6 @@
 
 layout_engine = "Taitank"
-js_engine = "hermes"
+js_engine = "jsc"
 
 Pod::Spec.new do |s|
   if ENV["layout_engine"]
@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
   
   s.name             = 'hippy'
-  s.version          = '3.3.0-hermes'
+  s.version          = '3.4.0'
   s.summary          = 'Hippy Cross Platform Framework'
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform 
@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
 
   s.prepare_command = <<-CMD
     ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
@@ -182,6 +182,7 @@ Pod::Spec.new do |s|
       definition_engine = 'JS_JSC=1'
     elsif js_engine == "hermes"
       definition_engine = 'JS_HERMES=1 JS_JSC=1'
+      driver.dependency 'hippy_hermes_full'
     else
     end
     
@@ -345,22 +346,6 @@ Pod::Spec.new do |s|
     devtools.dependency 'hippy/Dom'
     devtools.dependency 'hippy/VFS'
     puts 'hippy subspec \'devtools\' read end'
-  end
-
-  if js_engine == "hermes"
-    s.subspec 'hermes' do |hermes|
-      puts 'hippy subspec \'hermes\' read begin'
-      hermes.private_header_files = "hermesforios/destroot/include/**/*.h"
-      hermes.header_mappings_dir = "hermesforios/destroot/include"
-      hermes.pod_target_xcconfig = {
-        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/hermesforios/destroot/include',
-        'GCC_ENABLE_CPP_EXCEPTIONS' => true,
-        'GCC_ENABLE_CPP_RTTI' => true,
-      }
-      hermes.ios.vendored_frameworks = "hermesforios/destroot/Library/Frameworks/universal/hermes.xcframework"
-      puts 'hippy subspec \'hermes\' read end'
-    end
   end
 
   s.test_spec 'UnitTests' do |test_spec|

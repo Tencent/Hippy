@@ -1,16 +1,23 @@
 
 install! 'cocoapods', :deterministic_uuids => false
 use_frameworks! :linkage => :static
+ENV['js_engine'] = 'jsc' # js engine configuration for hippy, options are: 'jsc'/'hermes'.
+
 
 workspace 'HippyDemo.xcworkspace'
 
 target "HippyDemo" do
-  platform :ios, '11.0'
+  platform :ios, '12.0'
   
   # pod hippy,
   # set modular_headers to true if you want to use modular import
   # no need to set testspecs in your production app
   pod 'hippy', :path => '../../..', :modular_headers => true, :testspecs => ['UnitTests']
+  
+  # Add hippy_hermes_full when using hermes engine
+  if ENV['js_engine'] == 'hermes'
+    pod 'hippy_hermes_full', :git => 'https://github.com/hippy-contrib/hippy-hermes-bin.git', :tag => '1.0.3'
+  end
   
 end
 
