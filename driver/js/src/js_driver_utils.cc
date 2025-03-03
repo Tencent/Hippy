@@ -762,7 +762,7 @@ void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_strin
     if (!scope) {
       return;
     }
-#ifdef JS_V8
+#if defined(JS_V8) || defined(JS_JSH)
     Deserializer deserializer(
         reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
         buffer_data_.length());
