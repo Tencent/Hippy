@@ -67,7 +67,7 @@ export struct ExampleComponentA {
     // 自定义事件举例
     let event = new HippyViewEvent("onEvent1")
     let params = new Map<string, string>()
-    params['key1'] = 'value1'
+    params.set('key1', 'value1')
     event.send(this.renderView.ctx, this.renderView.tag, params)
   }
 
