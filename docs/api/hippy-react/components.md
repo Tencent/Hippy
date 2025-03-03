@@ -166,6 +166,7 @@ import icon from './qb_icon_new.png';
 > * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
 > * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
 > * `animated`: boolean - 滑动过程是否使用动画
+> * `scrollAlign`: enum(start,center,end,auto) - 滑动对齐类型 只有`Ohos`支持
 
 ### collapsePullHeader
 

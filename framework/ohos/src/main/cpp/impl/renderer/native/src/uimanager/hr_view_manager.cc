@@ -27,6 +27,7 @@
 #include "oh_napi/oh_napi_object_builder.h"
 #include "oh_napi/oh_napi_utils.h"
 #include "renderer/api/hippy_view_provider.h"
+#include "renderer/arkui/native_node_api.h"
 #include "renderer/components/custom_ts_view.h"
 #include "renderer/components/custom_view.h"
 #include "renderer/components/hippy_render_view_creator.h"
@@ -99,6 +100,45 @@ void HRViewManager::UnbindNativeRoot(uint32_t node_id) {
   auto view = viewIt->second;
   OH_ArkUI_NodeContent_RemoveNode(savedHandle, view->GetLocalRootArkUINode()->GetArkUINodeHandle());
   nodeContentMap_.erase(current_id);
+}
+
+void HRViewManager::BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t node_id) {
+  bool isRoot = (node_id == 0);
+  uint32_t current_id = isRoot ? root_id_ : node_id;
+  ArkUI_NodeHandle savedHandle = nullptr;
+  auto it = parentNodeMap_.find(current_id);
+  if (it != parentNodeMap_.end()) {
+    savedHandle = it->second;
+  }
+  if (parentNodeHandle == savedHandle) {
+    return;
+  }
+  
+  auto viewIt = view_registry_.find(current_id);
+  if (viewIt == view_registry_.end()) {
+    return;
+  }
+  auto view = viewIt->second;
+  
+  parentNodeMap_[current_id] = parentNodeHandle;
+  NativeNodeApi::GetInstance()->addChild(parentNodeHandle, view->GetLocalRootArkUINode()->GetArkUINodeHandle());
+}
+
+void HRViewManager::UnbindNativeRootFromParent(uint32_t node_id) {
+  bool isRoot = (node_id == 0);
+  uint32_t current_id = isRoot ? root_id_ : node_id;
+  auto it = parentNodeMap_.find(current_id);
+  if (it == parentNodeMap_.end()) {
+    return;
+  }
+  ArkUI_NodeHandle savedHandle = it->second;
+  auto viewIt = view_registry_.find(current_id);
+  if (viewIt == view_registry_.end()) {
+    return;
+  }
+  auto view = viewIt->second;
+  NativeNodeApi::GetInstance()->removeChild(savedHandle, view->GetLocalRootArkUINode()->GetArkUINodeHandle());
+  parentNodeMap_.erase(current_id);
 }
 
 void HRViewManager::reportFirstViewAdd() {

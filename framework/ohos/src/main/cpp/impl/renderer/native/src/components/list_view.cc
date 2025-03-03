@@ -23,6 +23,7 @@
 #include "renderer/components/list_view.h"
 #include "renderer/components/list_item_view.h"
 #include "renderer/components/refresh_wrapper_view.h"
+#include "renderer/utils/hr_convert_utils.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include "renderer/utils/hr_value_utils.h"
@@ -167,8 +168,12 @@ void ListView::CallImpl(const std::string &method, const std::vector<HippyValue>
     auto xIndex = HRValueUtils::GetInt32(params[0]);
     auto yIndex = HRValueUtils::GetInt32(params[1]);
     auto animated = HRValueUtils::GetBool(params[2], false);
+    ArkUI_ScrollAlignment align = ARKUI_SCROLL_ALIGNMENT_START;
+    if (params.size() >= 4) {
+      align = HRConvertUtils::ScrollAlignmentToArk(params[3]);
+    }
     auto index = isVertical_ ? yIndex : xIndex;
-    listNode_->ScrollToIndex(hasPullHeader_ ? index + 1 : index, animated, true);
+    listNode_->ScrollToIndex(hasPullHeader_ ? index + 1 : index, animated, align);
   } else if (method == "scrollToContentOffset") {
     auto xOffset = HRValueUtils::GetFloat(params[0]);
     auto yOffset = HRValueUtils::GetFloat(params[1]);
@@ -180,7 +185,7 @@ void ListView::CallImpl(const std::string &method, const std::vector<HippyValue>
     }
     listNode_->ScrollTo(xOffset, yOffset, animated);
   } else if (method == "scrollToTop") {
-    listNode_->ScrollToIndex(hasPullHeader_ ? 1 : 0, true, true);
+    listNode_->ScrollToIndex(hasPullHeader_ ? 1 : 0, true, ARKUI_SCROLL_ALIGNMENT_START);
   } else {
     BaseView::CallImpl(method, params, callback);
   }
@@ -241,7 +246,7 @@ void ListView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &p
 }
 
 void ListView::ScrollToIndex(int32_t index, bool animated) {
-  listNode_->ScrollToIndex(index, animated, true);
+  listNode_->ScrollToIndex(index, animated, ARKUI_SCROLL_ALIGNMENT_START);
 }
 
 void ListView::SetScrollNestedMode(ArkUI_ScrollNestedMode scrollForward, ArkUI_ScrollNestedMode scrollBackward) {
@@ -467,7 +472,7 @@ void ListView::CheckEndDrag() {
         HREventUtils::SendComponentEvent(headerView_->GetCtx(), headerView_->GetTag(),
                                          HREventUtils::EVENT_PULL_HEADER_RELEASED, nullptr);
       } else {
-        listNode_->ScrollToIndex(1, true, true);
+        listNode_->ScrollToIndex(1, true, ARKUI_SCROLL_ALIGNMENT_START);
       }
       pullAction_ = ScrollAction::None;
     } else if (footerView_ && pullAction_ == ScrollAction::PullFooter) {
@@ -476,7 +481,7 @@ void ListView::CheckEndDrag() {
                                          HREventUtils::EVENT_PULL_FOOTER_RELEASED, nullptr);
       } else {
         auto lastIndex = static_cast<int32_t>(children_.size()) - 1;
-        listNode_->ScrollToIndex(lastIndex - 1, true, false);
+        listNode_->ScrollToIndex(lastIndex - 1, true, ARKUI_SCROLL_ALIGNMENT_END);
       }
       pullAction_ = ScrollAction::None;
     }
@@ -495,7 +500,7 @@ void ListView::CheckPullOnItemVisibleAreaChange(int32_t index, bool isVisible, f
           headerViewFullVisible_ = false;
         }
       } else {
-        listNode_->ScrollToIndex(1, true, true);
+        listNode_->ScrollToIndex(1, true, ARKUI_SCROLL_ALIGNMENT_START);
       }
     } else {
       headerViewFullVisible_ = false;
@@ -513,7 +518,7 @@ void ListView::CheckPullOnItemVisibleAreaChange(int32_t index, bool isVisible, f
           footerViewFullVisible_ = false;
         }
       } else {
-        listNode_->ScrollToIndex(lastIndex - 1, true, false);
+        listNode_->ScrollToIndex(lastIndex - 1, true, ARKUI_SCROLL_ALIGNMENT_END);
       }
     } else {
       footerViewFullVisible_ = false;

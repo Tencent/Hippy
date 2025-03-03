@@ -109,6 +109,9 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
   void BindNativeRoot(ArkUI_NodeContentHandle contentHandle, uint32_t root_id, uint32_t node_id);
   void UnbindNativeRoot(uint32_t root_id, uint32_t node_id);
 
+  void BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t root_id, uint32_t node_id);
+  void UnbindNativeRootFromParent(uint32_t root_id, uint32_t node_id);
+
   void DestroyRoot(uint32_t root_id);
 
   void DoCallbackForCallCustomTsView(uint32_t root_id, uint32_t node_id, uint32_t callback_id, const HippyValue &result);

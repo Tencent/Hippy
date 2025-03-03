@@ -224,6 +224,12 @@ export class EngineInitParams {
   }
 }
 
+export enum HippyLayoutEngineType {
+  Default = 0,
+  Taitank = 1,
+  Yoga = 2
+}
+
 // Hippy 业务模块jsbundle加载时的参数设置
 export class ModuleLoadParams {
   // 必须参数
@@ -247,6 +253,8 @@ export class ModuleLoadParams {
   public bundleLoader: HippyBundleLoader | null = null;
 
   public wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null = null;
+
+  public layoutEngineType: HippyLayoutEngineType = HippyLayoutEngineType.Default
 
   public constructor(
     jsAssetsPath = '',

@@ -48,6 +48,14 @@ void NativeRenderProvider::UnbindNativeRoot(uint32_t root_id, uint32_t node_id) 
   render_impl_->UnbindNativeRoot(root_id, node_id);
 }
 
+void NativeRenderProvider::BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t root_id, uint32_t node_id) {
+  render_impl_->BindNativeRootToParent(parentNodeHandle, root_id, node_id);
+}
+
+void NativeRenderProvider::UnbindNativeRootFromParent(uint32_t root_id, uint32_t node_id) {
+  render_impl_->UnbindNativeRootFromParent(root_id, node_id);
+}
+
 void NativeRenderProvider::RegisterCustomTsRenderViews(napi_env ts_env, napi_ref ts_render_provider_ref, std::set<std::string> &custom_views, std::map<std::string, std::string> &mapping_views) {
   render_impl_->RegisterCustomTsRenderViews(ts_env_, ts_render_provider_ref, custom_views, mapping_views);
 }

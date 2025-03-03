@@ -61,6 +61,25 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    }
    ```
 
+3. **Ohos**：
+
+   ```typescript
+        // 初始化 hippy 引擎
+        let initParams = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
+        // 可选：是否设置为 debug 模式，默认为 false。设置 true 为调试模式，所有 jsbundle 都将从 debug server 上下载
+        initParams.debugMode = true;
+        initParams.debugServerHost = "192.168.76.25:38989"; // 这里请设置正确 JS Server 的 IP
+   ```
+
+Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/jsvm-introduction-V5) 和 V8 两个JS引擎，JSVM 性能更好所以默认使用JSVM，不过可以自由切换。
+鸿蒙调试目前只适配好了V8，适配JSVM还在开发中，所以调试时需要切换到V8并打开调试代码。
+调试切换到V8的方法，两步：
+
+- Hippy/driver/js/CMakeLists.txt 里：打开 set(JS_ENGINE "V8") 注释 set(JS_ENGINE "JSH") 
+- Hippy/framework/ohos/build-profile.json5 里 debug 配置下：   "arguments": "-DENABLE_INSPECTOR=false"，改为true。  （这个是为了打开 ENABLE_INSPECTOR 宏，让调试功能生效）
+
+另外，鸿蒙调试目前只支持网络调试（手机和JS Server在一个网络内，通过网络下载JS Bundle调试），数据线调试还在开发中。
+
 # 前端环境准备
 
 1. 安装新一代调试工具： `npm i -D @hippy/debug-server-next@latest`
@@ -177,6 +196,10 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译和调试服务。
 7. 回到手机上，[粘贴 bundleUrl](development/debug.md#config-bundle) 并启动调试
 8. 当 JS 源码文件发生改动时，如已开启 HMR 或 Live-Reload，编译结束后会自动刷新；否则需要按 `Command + R` 或 `Command + D` 键调起 Reload 面板刷新
+
+## Ohos
+
+鸿蒙调试目前只支持网络调试（手机和JS Server在一个网络内，通过网络下载JS Bundle调试），数据线调试还在开发中。
 
 # Elements 可视化审查
 

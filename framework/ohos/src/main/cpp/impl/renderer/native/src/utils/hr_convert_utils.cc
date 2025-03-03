@@ -22,6 +22,7 @@
 
 #include "renderer/utils/hr_convert_utils.h"
 #include "footstone/logging.h"
+#include "renderer/utils/hr_value_utils.h"
 
 namespace hippy {
 inline namespace render {
@@ -209,6 +210,27 @@ bool HRConvertUtils::TransformToArk(HippyValueArrayType &valueArray, HRTransform
     }
   }
   return true;
+}
+
+ArkUI_ScrollAlignment HRConvertUtils::ScrollAlignmentToArk(const HippyValue &value) {
+  if (value.IsNumber()) {
+    auto ret = HRValueUtils::GetInt32(value);
+    if (ret >= ARKUI_SCROLL_ALIGNMENT_START && ret <= ARKUI_SCROLL_ALIGNMENT_AUTO) {
+      return (ArkUI_ScrollAlignment)ret;
+    }
+  } else if (value.IsString()) {
+    std::string str = value.ToStringChecked();
+    if (str == "start") {
+      return ARKUI_SCROLL_ALIGNMENT_START;
+    } else if (str == "center") {
+      return ARKUI_SCROLL_ALIGNMENT_CENTER;
+    } else if (str == "end") {
+      return ARKUI_SCROLL_ALIGNMENT_END;
+    } else if (str == "auto") {
+      return ARKUI_SCROLL_ALIGNMENT_AUTO;
+    }
+  }
+  return ARKUI_SCROLL_ALIGNMENT_START;
 }
 
 } // namespace native

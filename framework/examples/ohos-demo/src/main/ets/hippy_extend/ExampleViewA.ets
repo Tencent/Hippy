@@ -27,6 +27,7 @@ import { buildHippyRenderView } from 'hippy/src/main/ets/renderer_native/HippyRe
 import { NativeRenderContext } from 'hippy/src/main/ets/renderer_native/NativeRenderContext'
 import { HRPadding, HRRect } from 'hippy/src/main/ets/renderer_native/utils/HRTypes'
 import { HippyAny, HippyRenderCallback } from 'hippy/src/main/ets/support/common/HippyTypes'
+import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 
 @Observed
 export class ExampleViewA extends HippyCustomComponentView {
@@ -35,11 +36,26 @@ export class ExampleViewA extends HippyCustomComponentView {
   }
 
   setProp(propKey: string, propValue: HippyAny): boolean {
+    if (propKey == "prop1") {
+      // ...
+      return true
+    } else if (propKey == "prop2") {
+      // ...
+      return true
+    }
     return super.setProp(propKey, propValue)
   }
 
   call(method: string, params: Array<HippyAny>, callback: HippyRenderCallback | null): void {
-
+    if (method == "selectItem") {
+      // ...
+    } else if (method == "getData") {
+      // ...
+      // 如果需要返回值，返回值举例
+      if (callback) {
+        callback("result")
+      }
+    }
   }
 }
 
@@ -49,15 +65,17 @@ export struct ExampleComponentA {
   @ObjectLink children: HippyObservedArray<HippyRenderBaseView>
 
   aboutToAppear() {
+    LogUtils.d('hippy demo', 'A to appear, tag: ' + this.renderView.tag)
+
     // 自定义事件举例
     let event = new HippyViewEvent("onEvent1")
     let params = new Map<string, string>()
-    params['key1'] = 'value1'
+    params.set('key1', 'value1')
     event.send(this.renderView.ctx, this.renderView.tag, params)
   }
 
   aboutToDisappear() {
-
+    LogUtils.d('hippy demo', 'A to disappear, tag: ' + this.renderView.tag)
   }
 
   build() {

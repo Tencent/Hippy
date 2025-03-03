@@ -174,5 +174,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
   int64_t key_;
 };
 
+void InitLayoutConstsYoga();
+std::shared_ptr<LayoutNode> CreateLayoutNodeYoga();
+
 }  // namespace dom
 }  // namespace hippy

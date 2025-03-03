@@ -26,5 +26,6 @@ export * from "./NativeRenderContext"
 
 export * from "./components/base/HippyRenderBaseView"
 export * from "./components/custom/HippyCustomComponentView"
+export * from "./components/HippyRenderRegisterMap"
 
 export * from "./dom_node/HRNodeProps"
