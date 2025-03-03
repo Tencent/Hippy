@@ -178,7 +178,7 @@ std::shared_ptr<CtxValue> JSHVM::CreateJSHString(JSVM_Env env, const string_view
   FOOTSTONE_UNREACHABLE();
 }
 
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
+std::shared_ptr<VM> JSHVM::CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
   return std::make_shared<JSHVM>(std::static_pointer_cast<JSHVMInitParam>(param));
 }
 

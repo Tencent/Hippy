@@ -517,6 +517,12 @@ void Scope::RunJS(const string_view& data,
       context->RunScript(data, name, false, nullptr, is_copy);
     }
 #elif JS_JSH
+  auto callback = [WEAK_THIS, data, uri, name, is_copy, weak_context] {
+    DEFINE_AND_CHECK_SELF(Scope)
+    // perfromance start time
+    auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
+    entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
+            
     auto context = std::static_pointer_cast<hippy::napi::JSHCtx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);

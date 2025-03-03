@@ -37,6 +37,10 @@
 #include "driver/vm/v8/v8_vm.h"
 #endif /* JS_V8 */
 
+#ifdef JS_JSH
+#include "driver/vm/jsh/jsh_vm.h"
+#endif /* JS_JSH */
+
 
 #ifdef JS_HERMES
 #pragma clang diagnostic push
@@ -92,6 +96,8 @@ std::shared_ptr<VM> VM::CreateVM(const std::shared_ptr<VMInitParam>& param) {
     vm = JSCVM::CreateVM(param);
 #elif defined(JS_V8)
     vm = V8VM::CreateVM(param);
+#elif defined (JS_JSH)
+    vm = JSHVM::CreateVM(param);
 #endif /* JS_JSC/JS_V8 */
   } else if (param->vm_type == kJSEngineJSC) {
 #ifdef JS_JSC

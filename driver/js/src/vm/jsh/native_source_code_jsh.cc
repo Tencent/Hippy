@@ -22,7 +22,7 @@
 
 #include "driver/vm/native_source_code.h"
 #include "footstone/macros.h"
-#include "driver/vm/jsc/native_source_code_jsh.h"
+#include "driver/vm/jsh/native_source_code_jsh.h"
 
 
 namespace {
@@ -69,4 +69,17 @@ static const std::unordered_map<std::string, NativeSourceCode> global_base_js_so
   {"AnimationFrameModule.js", {k_AnimationFrameModule, ARRAY_SIZE(k_AnimationFrameModule) - 1}},  // NOLINT
   {"Turbo.js", {k_Turbo, ARRAY_SIZE(k_Turbo) - 1}},  // NOLINT
   {"js2native.js", {k_js2native, ARRAY_SIZE(k_js2native) - 1}},  // NOLINT
-  {"native2js.js", {k_native2js, ARRAY_SIZE(k_native2js) - 1}},  // NOLINTundefined
+  {"native2js.js", {k_native2js, ARRAY_SIZE(k_native2js) - 1}},  // NOLINT
+};
+
+static NativeSourceCode GetNativeSourceCodeImp(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+NativeSourceCode NativeSourceCodeProviderJSH::GetNativeSourceCode(const std::string &filename) const {
+  return GetNativeSourceCodeImp(filename);
+}
+
+} // namespace driver
+} // namespace hippy

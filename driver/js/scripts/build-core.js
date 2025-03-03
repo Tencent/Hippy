@@ -58,7 +58,7 @@ const CodePieces = {
     piece2_jsc: `
 #include "driver/vm/jsc/native_source_code_jsc.h"`,
     piece2_jsh: `
-#include "driver/vm/jsc/native_source_code_jsh.h"`,
+#include "driver/vm/jsh/native_source_code_jsh.h"`,
     piece2_hermes: `
 #include "driver/vm/hermes/native_source_code_hermes.h"`,
     piece2_flutter: '',
@@ -107,6 +107,21 @@ NativeSourceCode NativeSourceCodeProviderJSC::GetNativeSourceCode(const std::str
 } // namespace driver
 } // namespace hippy
 `,
+    piece2_jsh: `
+};
+
+static NativeSourceCode GetNativeSourceCodeImp(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+NativeSourceCode NativeSourceCodeProviderJSH::GetNativeSourceCode(const std::string &filename) const {
+  return GetNativeSourceCodeImp(filename);
+}
+
+} // namespace driver
+} // namespace hippy
+`,
     piece2_hermes: `
 };
 
@@ -123,28 +138,6 @@ NativeSourceCode NativeSourceCodeProviderHermes::GetNativeSourceCode(const std::
 } // namespace hippy
 `,
     piece2_flutter: `
-};
-
-const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
-  const auto it = global_base_js_source_map.find(filename);
-  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
-}
-
-} // namespace driver
-} // namespace hippy
-`,
-  },
-  ohos: {
-    piece1: `
-}  // namespace
-
-namespace hippy {
-inline namespace driver {
-
-static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-  {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
-  {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
 };
 
 const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
