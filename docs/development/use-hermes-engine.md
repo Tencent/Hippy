@@ -163,6 +163,44 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
 
     > 具体需使用的插件和预设可能因项目而异，请根据实际情况进行调整，并做好相应的测试。
 
+    ⚠️ 特别注意，如果你使用的是 Hippy-Vue2 框架，由于 Hippy-Vue2 在处理组件模版时依赖 Hermes 不支持的 `with` 语法 ，因此必须调整你的组件源码，以确保在 Hermes 引擎中能够正常运行。举个例子，有如下 Vue2 定义的自定义组件：
+
+    ```js
+    Vue.component('my-view', {
+        data: function () {
+            return {
+                count: 0
+            }
+        },
+        template: '
+            <div>
+                <p>You clicked me {{ count }} times.</p>
+            </div>
+        '
+    })
+    ```
+
+    上述 Vue2 代码需修改为使用 render 函数来代替 template：
+
+    ```js
+    Vue.component('my-view', {
+        data: function () {
+            return {
+                count: 0
+            }
+        },
+        // 由于 Hermes 引擎不支持 template，因此需要使用 render 函数
+        // render 函数接收一个 h 函数作为参数，用于创建虚拟 DOM 节点
+        render(h) {
+            return h('div', [
+                h('p', `You clicked me ${this.count} times.`)
+            ])
+        }
+    })
+    ```
+
+    > Tips：使用 Hippy-Vue3 或 Hippy-React 框架时无需进行上述修改。
+
 2. 使用Hermes编译器，生成 Hermes 字节码（HBC）。
 
    Hermes 编译器可以将 JavaScript 代码转换为 Hermes 字节码（HBC），以便在 Hermes 引擎中运行。可以通过命令行工具或集成到构建系统中来使用 Hermes 编译器。
