@@ -1535,6 +1535,7 @@ bool JSHCtx::CheckJSVMStatus(JSVM_Env env, JSVM_Status status) {
 }
 
 std::shared_ptr<CtxValue> JSHCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  FOOTSTONE_UNREACHABLE();
   return nullptr;
 }
 

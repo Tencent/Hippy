@@ -2,7 +2,7 @@
 
 ## 概述
 
-[Hermes](https://github.com/facebook/hermes) 是 Meta 开发的 JavaScript 引擎，旨在提供更快的执行速度和更小的内存占用。在 Hippy 项目中，你可以选择使用 JSC/V8 或 Hermes 作为 JavaScript 引擎。
+[Hermes](https://github.com/facebook/hermes) 是 Meta 开发的 JavaScript 引擎，旨在提供更快的执行速度和更小的内存占用，它的主要特点是能够将 JavaScript 代码编译成字节码（Bytecode），从而提高运行时执行效率。在 Hippy 项目中，你可以选择使用 JSC/V8 或 Hermes 作为 JavaScript 引擎。
 
 Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何在开发过程中切换到 Hermes 引擎。
 
@@ -17,6 +17,14 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
 1. 终端升级 Hippy SDK 版本到 `3.4.0` 及以上版本，并确保正确集成和开启了Hermes 引擎。
 2. 前端项目配置或代码调整，确保前端产物与 Hermes 引擎兼容，并编译为 `HBC (Hermes Bytecode)` 文件。
 3. 调整资源下发与加载配置，确保终端能够正确加载和执行 `HBC` 文件。
+4. 测试验证，确保应用在不同平台和设备上都能正常运行，并且性能达到预期。
+
+性能参考预期（仅iOS平台）：
+
+- **启动时间**：首帧耗时（FP指标）减少约 50% ～ 60%
+- **内存占用**：一般场景内存降低约 20% ～ 40%
+
+> Android 平台性能参考数据将在 Beta 版发布后提供。
 
 ## 终端切换步骤
 
@@ -36,6 +44,7 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
     # hippy_hermes_full 为带调试能力的 Hermes 库，Hippy 的 podspec 默认依赖该库。
 
     # Tips 1：可替换为自行编译的 Hermes 库
+    # Hippy 基于 Hermes 仓库下的 'facebook/rn/0.76-stable' 分支构建该库
     if ENV['js_engine'] == 'hermes'
       pod 'hippy_hermes_full', :git => 'https://github.com/hippy-contrib/hippy-hermes-bin.git', :tag => '1.0.3'
     end
@@ -128,3 +137,104 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
 ### Android 平台 (Alpha版本)
 
 由于 Android 平台的 Hermes 引擎切换目前处于 Alpha 阶段，我们将在未来版本中提供详细指引，请关注后续更新。
+
+## 前端切换步骤
+
+前端切换到 Hermes 引擎要做的主要工作包括：
+
+1. 调整语法或项目打包配置，确保生成兼容 Hermes 的JS代码。
+
+   > Hermes 引擎的目标是支持 ECMAScript 2015 (ES6)，但有一些例外（比如不支持 `with` 语句、不支持 Local mode `eval()` 函数等），因此有可能需要对现有代码进行调整以适应 Hermes 引擎的要求。
+   >
+   > 更多语法说明请参考： [Hermes语法支持特性](https://github.com/facebook/hermes/blob/rn/0.76-stable/doc/Features.md)
+
+   推荐使用以下 Babel 预设和插件，以确保项目能够兼容 Hermes 引擎，以 Babel 为例：：
+
+    ```json
+    module.exports = {
+        presets : [
+            ['module:metro-react-native-babel-preset'],
+        ],
+        plugins : [
+            ['@babel/plugin-proposal-class-properties'],
+        ],
+    };
+    ```
+
+    > 具体需使用的插件和预设可能因项目而异，请根据实际情况进行调整，并做好相应的测试。
+
+2. 使用Hermes编译器，生成 Hermes 字节码（HBC）。
+
+   Hermes 编译器可以将 JavaScript 代码转换为 Hermes 字节码（HBC），以便在 Hermes 引擎中运行。可以通过命令行工具或集成到构建系统中来使用 Hermes 编译器。
+
+   Hippy提供了一个编译好的 Hermes compiler npm 包，可以方便地在项目中使用 Hermes 编译器（支持Linux、macOS 和 Windows 系统）。以下是使用步骤：
+
+    - 安装 Hermes compiler npm 包：
+
+    ```bash
+    npm install @hippy/hermesc --save-dev
+    ```
+
+    - 使用 Hermes compiler 编译 JavaScript 代码：
+
+    ```javascript
+    // 1. 获取 Hermes compiler 路径
+    const getHippyHermescPath = () => {
+        // 请确保在执行此代码之前，已经安装了 Hermes compiler，并且 hermesc 路径正确
+        const hermesPath = path.resolve(__dirname, '../node_modules/@hippy/hermesc');
+        console.log('hermes package path:', hermesPath);
+        let hermesc = `${hermesPath}/%OS%-bin/hermesc`;
+        switch (process.platform) {
+            case 'win32':
+            hermesc = hermesc.replace('%OS%', 'win64');
+            break;
+            case 'darwin':
+            hermesc = hermesc.replace('%OS%', 'osx');
+            break;
+            default:
+            hermesc.replace('%OS%', 'linux64');
+            break;
+        }
+        console.log('hermesc path:', hermesc);
+        return hermesc;
+    };
+    
+    // 2. 调用Hermes compiler生成HBC文件
+    const { exec } = require('child_process');
+
+    const compileJSToHBC(inputJSPath, outputHBCPath) => {
+        let hermesc = getHippyHermescPath();
+        exec(`${hermesc} -emit-binary -O -g0 -out ${outputHBCPath} ${inputJSPath}`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`执行出错: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`错误输出: ${stderr}`);
+                return;
+            }
+            console.log(`成功生成 HBC 文件: ${stdout}`);
+        });
+    };
+    
+    // 调用示例：
+    compileJSToHBC('path/to/input.js', 'path/to/output.hbc');
+    ```
+
+    > 如需在命令行使用自行编译的Hermes compiler，可以使用以下命令：
+    >
+    > ```bash
+    > hermesc -emit-binary -O -g0 -out output.hbc input.js 
+    > # 更多参数请查阅 Hermes 官方文档
+    > ```
+
+3. 在应用中加载和运行 Hermes 字节码（HBC）。
+
+   至此，你已经成功地将 JavaScript 代码编译为 Hermes 字节码，并在应用中加载和运行。
+
+## 注意事项
+
+- 确保您的项目中正确配置了 Hermes 引擎。
+- 根据需要调整编译选项以优化性能。
+- 在生产环境中使用时，确保对 Hermes 字节码进行充分的测试。
+- 查阅 Hermes 官方文档获取更多详细信息和最佳实践。

@@ -158,6 +158,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 
 #pragma mark - Bridge Launch Options
+
 /// Launch Options for HippyBridge
 @interface HippyLaunchOptions : NSObject
 
