@@ -80,7 +80,7 @@ typedef NS_ENUM(NSUInteger, PageCreationCellIndex) {
     [self setNavigationItemTitle:@"Page Managerment"];
     _currentDriver = DriverTypeReact;
     _renderer = kRenderTypeNative;
-    _jsEngine = kJSEngineTypeHermes;
+    _jsEngine = kJSEngineTypeJSC;
     [self setNavigationAreaBackground:[UIColor whiteColor]];
     CGFloat ratio = 229.f / 255.f;
     [self setContentAreaBackgroundColor:[UIColor colorWithRed:ratio green:ratio blue:ratio alpha:1]];
