@@ -17,6 +17,7 @@
 - [终端能力适配](development/native-adapter.md)
 - [数据类型映射](development/type-mapping.md)
 - [V8初始化参数与API](development/v8-api.md)
+- [Hermes引擎切换指引（Beta）](development/use-hermes-engine.md)
 - [调试](development/debug.md)
 - [曝光上报](development/report.md)
 - [技术支持](development/support.md)

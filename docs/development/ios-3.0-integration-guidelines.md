@@ -157,7 +157,7 @@ Hippy 3.x的一个重要特性是支持了多引擎的便捷切换，目前，�
 
 ### 4.1 切换JS引擎
 
-TODO: 切换Hermes引擎
+在完成上述集成配置后，参考[《Hermes JS引擎切换指引（Beta）》](development/use-hermes-engine.md)进行配置，以切换至Hermes JS引擎。
 
 ## 4.2 切换布局引擎
 
