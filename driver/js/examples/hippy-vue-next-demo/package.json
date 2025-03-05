@@ -14,6 +14,8 @@
     "hippy:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js --config ./scripts/hippy-webpack.ohos.js",
     "web:dev": "npm run hippy:dev & node ./scripts/env-polyfill.js webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
     "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js",
+    "hippy:vendor:hermes": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.hermes.ios-vendor.js --config ./scripts/hippy-webpack.hermes.android-vendor.js",
+    "hippy:build:hermes": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.hermes.ios.js --config ./scripts/hippy-webpack.hermes.android.js",
     "ohos:vendor": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ohos-vendor.js",
     "ohos:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ohos.js"
   },

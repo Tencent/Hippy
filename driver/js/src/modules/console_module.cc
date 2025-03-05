@@ -63,7 +63,9 @@ inline namespace module {
 GEN_INVOKE_CB(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
 
 void ConsoleModule::Log(hippy::napi::CallbackInfo &info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();

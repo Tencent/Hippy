@@ -82,7 +82,9 @@ void TimerModule::SetInterval(CallbackInfo& info, void* data) {
 }
 
 void TimerModule::ClearInterval(CallbackInfo& info, void* data) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();
@@ -100,7 +102,9 @@ void TimerModule::ClearInterval(CallbackInfo& info, void* data) {
 }
 
 void TimerModule::RequestIdleCallback(CallbackInfo& info, void* data) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();
@@ -173,10 +177,10 @@ void TimerModule::CancelIdleCallback(CallbackInfo& info, void* data) {
 
 }
 
-std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
-    CallbackInfo& info,
-    bool repeat) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(CallbackInfo& info, bool repeat) {
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();

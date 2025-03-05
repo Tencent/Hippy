@@ -26,13 +26,16 @@
 #include "driver/napi/callback_info.h"
 #include "driver/scope.h"
 
-#define GEN_INVOKE_CB_INTERNAL(Module, Function, Name)                                          \
-  static void Name(hippy::napi::CallbackInfo& info, void* data) {                               \
-    auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot())); \
-    auto scope = scope_wrapper->scope.lock();                                                   \
-    FOOTSTONE_CHECK(scope);                                                                     \
-    auto target = std::static_pointer_cast<Module>(scope->GetModuleObject(#Module));            \
-    target->Function(info, data);                                                               \
+
+#define GEN_INVOKE_CB_INTERNAL(Module, Function, Name)                                             \
+  static void Name(hippy::napi::CallbackInfo& info, void* data) {                                  \
+    std::any slot_any = info.GetSlot();                                                            \
+    auto any_pointer = std::any_cast<void*>(&slot_any);                                            \
+    auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));       \
+    auto scope = scope_wrapper->scope.lock();                                                      \
+    FOOTSTONE_CHECK(scope);                                                                        \
+    auto target = std::static_pointer_cast<Module>(scope->GetModuleObject(#Module));               \
+    target->Function(info, data);                                                                  \
   }
 
 #ifndef REGISTER_EXTERNAL_REFERENCES

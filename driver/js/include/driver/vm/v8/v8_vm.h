@@ -132,6 +132,7 @@ class V8VM : public VM {
                                    v8::Local<v8::Context> context,
                                    v8::Local<v8::StackTrace> trace);
   static void PlatformDestroy();
+  static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 
   v8::Isolate* isolate_;
   v8::Isolate::CreateParams create_params_;

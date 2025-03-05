@@ -53,67 +53,31 @@ endif()
 # endregion
 
 # region vm
-if ("${JS_ENGINE}" STREQUAL "V8")
+if ("${JS_ENGINE}" STREQUAL "V8" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
   if (NOT TARGET v8)
     if (NOT V8_COMPONENT)
       message(FATAL_ERROR "The V8_COMPONENT variable must be set")
     endif ()
     if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
       set(V8_REMOTE_FILENAME "android-${ANDROID_ARCH_NAME}.tgz")
-    elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-      if ("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "arm")
-        set(V8_REMOTE_FILENAME "windows-arm64.zip")
-      else()
-        if ("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "x86")
-          set(V8_REMOTE_FILENAME "windows-x86.zip")
-        else()
-          set(V8_REMOTE_FILENAME "windows-x64.zip")
-        endif()
-      endif()
     elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "OHOS")
       set(V8_REMOTE_FILENAME "ohos-arm64.tgz")
-    elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS")
-      if ("${CMAKE_OSX_ARCHITECTURES}" MATCHES "arm")
-        set(V8_REMOTE_FILENAME "ios-arm64.tgz")
-      else()
-        set(V8_REMOTE_FILENAME "ios-x64.tgz")
-      endif()
-    elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-      if ("${CMAKE_OSX_ARCHITECTURES}" MATCHES "arm")
-        set(V8_REMOTE_FILENAME "darwin-arm64.tgz")
-      else()
-        set(V8_REMOTE_FILENAME "darwin-x64.tgz")
-      endif()
-    elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-      if ("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "arm")
-        if ("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "64")
-          set(V8_REMOTE_FILENAME "linux-arm64.tgz")
-        else()
-          set(V8_REMOTE_FILENAME "linux-arm.tgz")
-        endif()
-      else()
-        if ("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "64")
-          set(V8_REMOTE_FILENAME "linux-x64.tgz")
-        else()
-          set(V8_REMOTE_FILENAME "linux-x86.tgz")
-        endif()
-      endif()
     else ()
       message(FATAL_ERROR
-          "Unsupported system ${CMAKE_SYSTEM_NAME} with ${CMAKE_HOST_SYSTEM_PROCESSOR} architecture")
+              "Unsupported system ${CMAKE_SYSTEM_NAME} with ${CMAKE_HOST_SYSTEM_PROCESSOR} architecture")
     endif ()
 
     InfraPackage_Add(V8
-        REMOTE "global_packages/v8/${V8_COMPONENT}/${V8_REMOTE_FILENAME}"
-        LOCAL "${V8_COMPONENT}")
+            REMOTE "global_packages/v8/${V8_COMPONENT}/${V8_REMOTE_FILENAME}"
+            LOCAL "${V8_COMPONENT}")
 
     get_target_property(V8_AUX_DEPS v8 INTERFACE_V8_AUX_DEPS)
     if (V8_AUX_DEPS)
       foreach (__item IN LISTS V8_AUX_DEPS)
         add_custom_command(
-            TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E
-            copy "${__item}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+                TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E
+                copy "${__item}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
       endforeach ()
     endif ()
   endif ()
@@ -125,8 +89,19 @@ if ("${JS_ENGINE}" STREQUAL "V8")
   if (V8_WITHOUT_INSPECTOR)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
   endif ()
-elseif ("${JS_ENGINE}" STREQUAL "JSC")
-  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
+endif ()
+
+if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
+  if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
+    set(HERMES_REMOTE_FILENAME "android.tgz")
+  else ()
+    message(FATAL_ERROR "Unsupported system ${CMAKE_SYSTEM_NAME}")
+  endif ()
+  InfraPackage_Add(Hermes
+          REMOTE "global_packages/hermes/${HERMES_COMPONENT}/${HERMES_REMOTE_FILENAME}"
+          LOCAL "${HERMES_COMPONENT}")
+  target_link_libraries(${PROJECT_NAME} PUBLIC hermes)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
 elseif ("${JS_ENGINE}" STREQUAL "JSH")
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSH")
 endif ()
@@ -188,6 +163,7 @@ set(SOURCE_SET
     src/modules/event_module.cc
     src/modules/scene_builder_module.cc
     src/napi/callback_info.cc
+    src/napi/js_try_catch.cc
     src/performance/performance.cc
     src/performance/performance_entry.cc
     src/performance/performance_frame_timing.cc
@@ -198,14 +174,15 @@ set(SOURCE_SET
     src/performance/performance_resource_timing.cc
     src/scope.cc
     src/vm/js_vm.cc)
-if ("${JS_ENGINE}" STREQUAL "V8")
+
+if ("${JS_ENGINE}" STREQUAL "V8" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
   list(APPEND SOURCE_SET
           src/napi/v8/v8_ctx.cc
           src/napi/v8/v8_class_definition.cc
           src/napi/v8/v8_try_catch.cc
           src/vm/v8/interrupt_queue.cc
           src/vm/v8/memory_module.cc
-          src/vm/v8/native_source_code_android.cc
+          src/vm/v8/native_source_code_v8.cc
           src/vm/v8/serializer.cc
           src/vm/v8/v8_vm.cc)
 
@@ -216,21 +193,43 @@ if ("${JS_ENGINE}" STREQUAL "V8")
             src/vm/v8/inspector/v8_channel_impl.cc
             src/vm/v8/inspector/v8_inspector_client_impl.cc)
   endif ()
-elseif ("${JS_ENGINE}" STREQUAL "JSC")
+  set_source_files_properties(src/vm/v8/serializer.cc PROPERTIES COMPILE_FLAGS -fno-rtti)
+endif ()
+
+if ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
           src/napi/jsc/jsc_class_definition.cc
           src/napi/jsc/jsc_ctx.cc
           src/napi/jsc/jsc_try_catch.cc
           src/vm/jsc/jsc_vm.cc
-          src/vm/jsc/native_source_code_ios.cc)
-elseif ("${JS_ENGINE}" STREQUAL "JSH")
+          src/vm/jsc/native_source_code_jsc.cc)
+endif ()
+
+if ("${JS_ENGINE}" STREQUAL "JSH")
   list(APPEND SOURCE_SET
             src/napi/jsh/jsh_class_definition.cc
             src/napi/jsh/jsh_ctx.cc
             src/napi/jsh/jsh_try_catch.cc
             src/vm/jsh/jsh_vm.cc
-            src/vm/jsh/native_source_code_ohos.cc)
+            src/vm/jsh/native_source_code_jsh.cc)
 endif ()
+
+if("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
+  list(APPEND SOURCE_SET
+          src/napi/hermes/hermes_class_definition.cc
+          src/napi/hermes/hermes_ctx.cc
+          src/napi/hermes/hermes_ctx_value.cc
+          src/napi/hermes/hermes_try_catch.cc
+          src/vm/hermes/hermes_vm.cc)
+  if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
+    list(APPEND SOURCE_SET src/vm/hermes/native_source_code_hermes_android.cc)
+  elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS")
+    list(APPEND SOURCE_SET src/vm/hermes/native_source_code_hermes_ios.cc)
+  else()
+    message(FATAL_ERROR "Unsupported system ${CMAKE_SYSTEM_NAME} by hermes engine")
+  endif()
+endif ()
+
 set(SOURCE_SET_STANDALONE
         src/modules/console_module.cc
         src/modules/contextify_module.cc

@@ -50,7 +50,6 @@ LooperDriver::LooperDriver(): loop_() {
 
 LooperDriver::~LooperDriver() {
   CFRunLoopTimerInvalidate(delayed_wake_timer_);
-  CFRunLoopRemoveTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
   CFRelease(delayed_wake_timer_);
   CFRelease(loop_);
 }
@@ -89,6 +88,7 @@ void LooperDriver::Start() {
 void LooperDriver::Terminate() {
   is_terminated_ = true;
   CFRunLoopStop(loop_);
+  CFRunLoopRemoveTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
 }
 
 void LooperDriver::OnTimerFire(CFRunLoopTimerRef timer) {

@@ -82,6 +82,7 @@ class JSHVM : public VM {
 
   static std::shared_ptr<CtxValue> CreateJSHString(JSVM_Env env, const string_view& str_view);
   static string_view ToStringView(JSVM_Env env, JSVM_Value string_value);
+  static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 
   static void PlatformDestroy();
   

@@ -158,6 +158,14 @@ class Scope : public std::enable_shared_from_this<Scope> {
         std::string name);
   ~Scope();
 
+  inline void setValid(bool valid) {
+    is_valid_.store(valid, std::memory_order_relaxed);
+  }
+
+  inline bool isValid() const {
+    return is_valid_.load(std::memory_order_relaxed);
+  }
+
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::shared_ptr<CtxValue> GetBridgeObject() { return bridge_object_; }
   inline void SetBridgeObject(std::shared_ptr<CtxValue> bridge_object) { bridge_object_ = bridge_object; }
@@ -167,7 +175,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline void SetTurbo(std::any turbo) { turbo_ = turbo; }
   inline std::weak_ptr<Engine> GetEngine() { return engine_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return extra_function_map_; }
-    
+
   inline bool RegisterExtraCallback(const std::string& key, RegisterFunction func) {
     if (!func) {
       return false;
@@ -175,7 +183,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
     (*extra_function_map_)[key] = std::move(func);
     return true;
   }
-  
+
   inline bool GetExtraCallback(const std::string& key, RegisterFunction& outFunc) const {
     auto it = extra_function_map_->find(key);
     if (it != extra_function_map_->end()) {
@@ -354,7 +362,9 @@ class Scope : public std::enable_shared_from_this<Scope> {
   template<typename T>
   std::shared_ptr<CtxValue> DefineClass(const std::shared_ptr<ClassTemplate<T>>& class_template) {
     class_template->constructor_wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
-      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+      std::any slot_any = info.GetSlot();
+      auto any_pointer = std::any_cast<void*>(&slot_any);
+      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
       auto scope = scope_wrapper->scope.lock();
       FOOTSTONE_CHECK(scope);
       auto context = scope->GetContext();
@@ -382,6 +392,9 @@ class Scope : public std::enable_shared_from_this<Scope> {
       FOOTSTONE_CHECK(context);
       auto weak_callback_wrapper = std::make_unique<WeakCallbackWrapper>([](void* callback_data, void* internal_data) {
         auto class_template = reinterpret_cast<ClassTemplate<T>*>(callback_data);
+        if (!class_template || !internal_data) {
+          return;
+        }
         auto& holder_map = class_template->holder_map;
         // FOOTSTONE_DLOG(INFO) << "hippy gc, holder map erase, class_tp: " << class_template << ", " << class_template->name << ", obj: " << internal_data;
         auto it = holder_map.find(internal_data);
@@ -390,8 +403,17 @@ class Scope : public std::enable_shared_from_this<Scope> {
           holder_map.erase(it);
         }
       }, class_template);
-      context->SetWeak(receiver, weak_callback_wrapper);
-      scope->SaveWeakCallbackWrapper(std::move(weak_callback_wrapper));
+
+      auto engine = scope->GetEngine().lock();
+      FOOTSTONE_CHECK(engine);
+      if (engine->GetVM()->GetVMType() == VM::kJSEngineHermes) {
+        // weak_callback_wrapper hold by hermes ctx.
+        context->SetWeak(receiver, std::move(weak_callback_wrapper));
+      } else {
+        context->SetWeak(receiver, weak_callback_wrapper);
+        scope->SaveWeakCallbackWrapper(std::move(weak_callback_wrapper));
+      }
+
       info.GetReturnValue()->Set(receiver);
     }, class_template.get());
     std::vector<std::shared_ptr<PropertyDescriptor>> properties;
@@ -439,7 +461,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
                                                                 nullptr));
     }
     for (size_t i = 0; i < class_template->functions.size(); ++i) {
-      //todo(polly) why &
       auto function_define_pointer = &class_template->functions[i];
       auto function = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
         auto function_define = reinterpret_cast<FunctionDefine<T>*>(data);
@@ -484,6 +505,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   void SetCallbackForUriLoader();
 
  private:
+  std::atomic<bool> is_valid_;
   std::weak_ptr<Engine> engine_;
   std::shared_ptr<Ctx> context_;
   std::shared_ptr<CtxValue> bridge_object_;

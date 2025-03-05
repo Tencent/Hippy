@@ -28,6 +28,9 @@ NSString *const HippyDevWebSocketSchemeWs = @"ws";
 NSString *const HippyDevWebSocketSchemeWss = @"wss";
 NSString *const HippyDevWebSocketInfoDebugURL = @"debugUrl=";
 
+static NSString *const kHippyClientRoleForJSC = @"ios_client";
+static NSString *const kHippyClientRoleForHermes = @"android_client"; // temporarily uses android as its identity
+
 @implementation HippyDevInfo
 
 - (void)setScheme:(NSString *)scheme {
@@ -63,7 +66,9 @@ NSString *const HippyDevWebSocketInfoDebugURL = @"debugUrl=";
     _wsURL = [debugWsURL substringFromIndex:range.location + range.length];
 }
 
-- (NSString *)assembleFullWSURLWithClientId:(NSString *)clientId contextName:(NSString *)contextName {
+- (NSString *)assembleFullWSURLWithClientId:(NSString *)clientId 
+                                contextName:(NSString *)contextName
+                             isHermesEngine:(BOOL)usingHermes {
   if (self.port.length <= 0) {
     self.port = [self.scheme isEqualToString:HippyDevWebSocketSchemeWs] ? @"80" : @"443";
   }
@@ -80,7 +85,8 @@ NSString *const HippyDevWebSocketInfoDebugURL = @"debugUrl=";
   } else {
     addressPrefix = [NSString stringWithFormat:@"%@?", addressPrefix];
   }
-  NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=ios_client&deviceName=%@", addressPrefix, clientId, encodedDeviceName];
+  NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=%@&deviceName=%@",
+                          addressPrefix, clientId, (usingHermes ? kHippyClientRoleForHermes : kHippyClientRoleForJSC), encodedDeviceName];
   if (self.versionId.length > 0) {
     devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, self.versionId];
   }

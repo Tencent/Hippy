@@ -30,13 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyDemoViewController : DemoBaseViewController
 
-@property(nonatomic, assign, readonly) DriverType driverType;
-@property(nonatomic, assign, readonly) RenderType renderType;
-@property(nonatomic, strong, readonly, nullable) NSURL *debugURL;
-@property(nonatomic, assign, readonly, getter=isDebugMode) BOOL debugMode;
+@property (nonatomic, assign, readonly) DriverType driverType;
+@property (nonatomic, assign, readonly) RenderType renderType;
+@property (nonatomic, assign, readonly) BOOL useHermesEngine;
+@property (nonatomic, strong, readonly, nullable) NSURL *debugURL;
+@property (nonatomic, assign, readonly, getter=isDebugMode) BOOL debugMode;
 
 - (instancetype)initWithDriverType:(DriverType)driverType
                         renderType:(RenderType)renderType
+                   useHermesEngine:(BOOL)usingHermes
                           debugURL:(NSURL *)debugURL
                        isDebugMode:(BOOL)isDebugMode;
 

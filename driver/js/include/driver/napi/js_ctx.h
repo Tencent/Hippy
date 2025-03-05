@@ -34,12 +34,14 @@
 #include "driver/napi/callback_info.h"
 #include "driver/napi/js_class_definition.h"
 #include "driver/napi/js_ctx_value.h"
-
+#include "driver/vm/native_source_code.h"
 #include "dom/dom_event.h"
 
 namespace hippy {
 inline namespace driver {
+class Scope;
 inline namespace napi {
+class TryCatch;
 
 enum PropertyAttribute {
   /** None. **/
@@ -75,6 +77,7 @@ class WeakCallbackWrapper {
 
   WeakCallback callback;
   void* data;
+  std::weak_ptr<hippy::Scope> scope;
 };
 
 class CtxValue;
@@ -113,6 +116,8 @@ class Ctx {
   virtual ~Ctx() { FOOTSTONE_LOG(INFO) << "~Ctx"; }
 
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) = 0;
+
+  virtual std::shared_ptr<CtxValue> DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) = 0;
 
   virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name,
                                                 const std::shared_ptr<ClassDefinition>& parent,
@@ -216,6 +221,7 @@ class Ctx {
 
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) = 0;
   virtual void ThrowException(const string_view& exception) = 0;
+  virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) = 0;
 
   virtual void SetExternalData(void* data) = 0;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) = 0;
@@ -223,6 +229,12 @@ class Ctx {
                        const std::unique_ptr<WeakCallbackWrapper>& wrapper) = 0;
   virtual void InvalidWeakCallbackWrapper() {}
   virtual void SetReceiverData(std::shared_ptr<CtxValue> value, void* data) {}
+  virtual void SetWeak(std::shared_ptr<CtxValue> value,
+                       std::unique_ptr<WeakCallbackWrapper>&& wrapper) = 0;
+
+  // Get platform-specific internal embedded code
+  virtual std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const = 0;
+
 };
 
 }

@@ -142,9 +142,11 @@ public:
     JSGlobalContextSetName(context_, js_name);
     JSStringRelease(js_name);
   }
-    
+
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& wrapper) override;
-  
+
+  virtual std::shared_ptr<CtxValue> DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) override;
+
   virtual std::shared_ptr<CtxValue> DefineClass(const string_view& name,
                                                 const std::shared_ptr<ClassDefinition>& parent,
                                                 const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
@@ -240,15 +242,20 @@ public:
   
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) override;
   virtual void ThrowException(const string_view& exception) override;
+  virtual std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) override;
   
   virtual void SetExternalData(void* data) override;
   virtual std::shared_ptr<ClassDefinition> GetClassDefinition(const string_view& name) override;
   virtual void SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<WeakCallbackWrapper>& wrapper) override;
+  virtual void SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCallbackWrapper>&& wrapper) override;
   
   string_view GetExceptionMessage(const std::shared_ptr<CtxValue>& exception);
   void* GetPrivateData(const std::shared_ptr<CtxValue>& value);
   void SaveConstructorData(std::unique_ptr<ConstructorData> constructor_data);
   std::shared_ptr<JSCCtxValue> GetClassPrototype(JSClassRef ref);
+  
+  // Get platform-specific internal embedded code
+  std::unique_ptr<NativeSourceCodeProvider> GetNativeSourceCodeProvider() const override;
   
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;

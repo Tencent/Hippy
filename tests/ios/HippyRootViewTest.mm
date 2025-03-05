@@ -29,6 +29,7 @@
 #import "HippyComponentMap.h"
 #import "HippyUIManager+Private.h"
 #import "HippyJSEnginesMapper.h"
+#import "NativeRenderManager.h"
 #import "dom/root_node.h"
 #import <OCMock/OCMock.h>
 
@@ -156,7 +157,9 @@ static NSNumber *const kHippyTestRootTag = @10;
     [self.mockContentView.uiManager.viewRegistry addRootComponent:self.mockRootView rootNode:rootNode forTag:kHippyTestRootTag];
     
     // Set dom_manager
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"
+                                                                                    engineType:""
+                                                                                       isDebug:NO];
     auto domManager = engineResource->GetDomManager();
     [self.mockContentView.uiManager setDomManager:domManager];
     
@@ -178,9 +181,13 @@ static NSNumber *const kHippyTestRootTag = @10;
     OCMVerify([self.mockContentView retrieveCurrentSnapshotData]);
     
     // Set dom_manager
-    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"];
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:@"testKey"
+                                                                                    engineType:""
+                                                                                       isDebug:NO];
     auto domManager = engineResource->GetDomManager();
     [self.mockContentView.uiManager setDomManager:domManager];
+    auto nativeRenderManager = std::make_shared<NativeRenderManager>("testKey");
+    domManager->SetRenderManager(nativeRenderManager);
     
     // Restore snapshot
     BOOL result = [self.mockRootView restoreSnapshotData:snapshotData];

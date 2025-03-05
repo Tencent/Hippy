@@ -8,7 +8,7 @@ const pkg = require('../package.json');
 
 module.exports = {
   mode: 'development',
-  devtool: 'eval-source-map',
+  devtool: 'source-map', // hermes does not support local mode eval
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,

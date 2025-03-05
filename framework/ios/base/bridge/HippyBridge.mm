@@ -92,10 +92,6 @@ NSString *const kHippyNotiErrorKey = @"error";
 const NSUInteger HippyBridgeBundleTypeVendor = 1;
 const NSUInteger HippyBridgeBundleTypeBusiness = 2;
 
-// Launch options keys
-NSString *const kHippyLaunchOptionsDebugModeKey = @"DebugMode";
-NSString *const kHippyLaunchOptionsEnableTurboKey = @"EnableTurbo";
-
 // Global device info keys & values
 static NSString *const kHippyNativeGlobalKeyOS = @"OS";
 static NSString *const kHippyNativeGlobalKeyOSVersion = @"OSVersion";
@@ -118,6 +114,11 @@ static NSString *const kHippyLocalizaitionValueUnknown = @"unknown";
 static NSString *const kHippyRemoteModuleConfigKey = @"remoteModuleConfig";
 static NSString *const kHippyBatchedBridgeConfigKey = @"__hpBatchedBridgeConfig";
 
+// key of launch options, to be deprecated
+static NSString *const kLaunchOptionsDebugMode = @"DebugMode";
+static NSString *const kLaunchOptionsEnableTurbo = @"EnableTurbo";
+static NSString *const kLaunchOptionsUseHermes = @"useHermesEngine";
+
 // Define constants for the URI handlers
 static NSString *const kFileUriScheme = @"file";
 static NSString *const kHpFileUriScheme = @"hpfile";
@@ -135,6 +136,19 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyBridgeFieldParams,
     HippyBridgeFieldCallID,
 };
+
+
+@implementation HippyLaunchOptions
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _enableTurbo = YES;
+    }
+    return self;
+}
+
+@end
 
 
 @interface HippyBridge () {
@@ -198,7 +212,7 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
 
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(nullable NSDictionary *)launchOptions
+                   launchOptions:(NSDictionary *)launchOptions
                      executorKey:(nullable NSString *)executorKey {
     return [self initWithDelegate:delegate
                         bundleURL:nil
@@ -210,7 +224,7 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
 - (instancetype)initWithDelegate:(nullable id<HippyBridgeDelegate>)delegate
                        bundleURL:(nullable NSURL *)bundleURL
                   moduleProvider:(nullable HippyBridgeModuleProviderBlock)block
-                   launchOptions:(nullable NSDictionary *)launchOptions
+                   launchOptions:(nullable id)launchOptions
                      executorKey:(nullable NSString *)executorKey {
     if (self = [super init]) {
         _delegate = delegate;
@@ -218,12 +232,13 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         _pendingLoadingVendorBundleURL = bundleURL;
         _allBundleURLs = [NSMutableArray array];
         _shareOptions = [NSMutableDictionary dictionary];
-        _debugMode = [launchOptions[kHippyLaunchOptionsDebugModeKey] boolValue];
-        _debugURL = _debugMode ? bundleURL : nil;
-        _enableTurbo = !!launchOptions[kHippyLaunchOptionsEnableTurboKey] ? [launchOptions[kHippyLaunchOptionsEnableTurboKey] boolValue] : YES;
-        _engineKey = executorKey.length > 0 ? executorKey : [NSString stringWithFormat:@"%p", self];
+        [self parseLaunchOptions:launchOptions];
+        if (executorKey.length > 0) {
+            _engineKey = [NSString stringWithFormat:@"%@_%d", executorKey, _usingHermesEngine];
+        } else {
+            _engineKey = [NSString stringWithFormat:@"%p", self];
+        }
         HippyLogInfo(@"HippyBridge init begin, self:%p", self);
-
         // Set the log delegate for hippy core module
         registerLogDelegateToHippyCore();
         
@@ -238,6 +253,21 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         HippyLogInfo(@"HippyBridge init end, self:%p", self);
     }
     return self;
+}
+
+- (void)parseLaunchOptions:(id _Nullable)launchOptions {
+    if ([launchOptions isKindOfClass:NSDictionary.class]) {
+        // Compatible with old versions
+        _debugMode = [launchOptions[kLaunchOptionsDebugMode] boolValue];
+        _enableTurbo = !!launchOptions[kLaunchOptionsEnableTurbo] ? [launchOptions[kLaunchOptionsEnableTurbo] boolValue] : YES;
+        _usingHermesEngine = !!launchOptions[kLaunchOptionsUseHermes] ? [launchOptions[kLaunchOptionsUseHermes] boolValue] : NO;
+    } else if ([launchOptions isKindOfClass:HippyLaunchOptions.class]) {
+        HippyLaunchOptions *options = launchOptions;
+        _debugMode = options.debugMode;
+        _enableTurbo = options.enableTurbo;
+        _usingHermesEngine = options.useHermesEngine;
+    }
+
 }
 
 - (void)dealloc {
@@ -260,7 +290,6 @@ dispatch_queue_t HippyJSThread = (id)kCFNull;
         [self.uiManager setBridge:nil];
     }
 }
-
 
 #pragma mark - Setup related
 
@@ -580,9 +609,7 @@ static inline void registerLogDelegateToHippyCore() {
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsPartialBatchDidFlush) {
             [self dispatchBlock:^{
-                @autoreleasepool {
-                    [moduleData.instance partialBatchDidFlush];
-                }
+                [moduleData.instance partialBatchDidFlush];
             } queue:moduleData.methodQueue];
         }
     }
@@ -593,9 +620,7 @@ static inline void registerLogDelegateToHippyCore() {
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsBatchDidComplete) {
             [self dispatchBlock:^{
-                @autoreleasepool {
-                    [moduleData.instance batchDidComplete];
-                }
+                [moduleData.instance batchDidComplete];
             } queue:moduleData.methodQueue];
         }
     }
@@ -789,9 +814,7 @@ static inline void registerLogDelegateToHippyCore() {
         if ([instance respondsToSelector:@selector(invalidate)]) {
             dispatch_group_enter(group);
             [self dispatchBlock:^{
-                @autoreleasepool {
-                    [(id<HippyInvalidating>)instance invalidate];
-                }
+                [(id<HippyInvalidating>)instance invalidate];
                 dispatch_group_leave(group);
             } queue:moduleData.methodQueue];
         }
@@ -806,11 +829,9 @@ static inline void registerLogDelegateToHippyCore() {
     
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
-            @autoreleasepool {
-                [displayLink invalidate];
-                [jsExecutor invalidate];
-                [moduleSetup invalidate];
-            }
+            [displayLink invalidate];
+            [jsExecutor invalidate];
+            [moduleSetup invalidate];
         }];
     });
 }
@@ -907,6 +928,13 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
 
 - (void)setInspectable:(BOOL)isInspectable {
     [self.javaScriptExecutor setInspecable:isInspectable];
+}
+
+- (NSURL *)debugURL {
+    if (_debugMode) {
+        return self.bundleURLs.firstObject;
+    }
+    return nil;
 }
 
 - (void)setRedBoxShowEnabled:(BOOL)enabled {

@@ -61,7 +61,9 @@ std::shared_ptr<ClassTemplate<DomEvent>> MakeEventClassTemplate(
     if (!scope) {
       return nullptr;
     }
-    auto current_event =std::any_cast<std::shared_ptr<DomEvent>>(scope->GetCurrentEvent());
+    std::any event_any = scope->GetCurrentEvent();
+    auto any_pointer = std::any_cast<std::shared_ptr<DomEvent>>(&event_any);
+    auto current_event = static_cast<std::shared_ptr<DomEvent>>(*any_pointer);
     return current_event;
   };
 

@@ -194,7 +194,9 @@ JavaTurboModule::JavaTurboModule(const std::string& name,
     module->func_map[name] = func_object;
     info.GetReturnValue()->Set(func_object);
   }, this);
+
   constructor = ctx->DefineProxy(getter);
+  proxy_handler = ctx->DefineProxyHandler(getter);
   constructor_wrapper = std::move(getter);
 }
 

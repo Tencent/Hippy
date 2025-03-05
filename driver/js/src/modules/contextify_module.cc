@@ -34,10 +34,19 @@
 #include "footstone/logging.h"
 #include "footstone/task.h"
 
-#if JS_V8
+#ifdef JS_V8
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/napi/v8/v8_ctx_value.h"
 #include "driver/napi/v8/v8_try_catch.h"
+#endif
+
+#ifdef JS_HERMES
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#include "hermes/hermes.h"
+#pragma clang diagnostic pop
+#include "driver/napi/hermes/hermes_ctx_value.h"
 #endif
 
 using string_view = footstone::stringview::string_view;
@@ -50,7 +59,6 @@ using TryCatch = hippy::napi::TryCatch;
 
 constexpr char kCurDir[] = "__HIPPYCURDIR__";
 
-
 namespace hippy {
 inline namespace driver {
 inline namespace module {
@@ -58,16 +66,13 @@ inline namespace module {
 GEN_INVOKE_CB(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
 GEN_INVOKE_CB(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
 
-void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo &info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo& info, void* data) { // NOLINT(readability-convert-member-functions-to-static)
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
-#ifdef JS_V8
-  auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
-#else
   auto context = scope->GetContext();
-#endif
-
   string_view key;
   if (!context->GetValueString(info[0], &key)) {
     info.GetExceptionValue()->Set(context, "The first argument must be non-empty string.");
@@ -75,12 +80,14 @@ void ContextifyModule::RunInThisContext(hippy::napi::CallbackInfo &info, void* d
   }
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
-  const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      key, string_view::Encoding::Utf8).utf8_value()));
-  std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
+  auto file_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(key, string_view::Encoding::Utf8).utf8_value());
+  auto source_code_provider = context->GetNativeSourceCodeProvider();
+  const auto &source_code = source_code_provider->GetNativeSourceCode(file_name);
+  std::shared_ptr<TryCatch> try_catch = hippy::TryCatch::CreateTryCatchScope(true, context);
   string_view str_view(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_), source_code.length_);
 #ifdef JS_V8
-  auto ret = context->RunScript(str_view, key, false, nullptr, false);
+  auto v8_context = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  auto ret = v8_context->RunScript(str_view, key, false, nullptr, false);
 #else
   auto ret = context->RunScript(str_view, key);
 #endif
@@ -97,7 +104,9 @@ void ContextifyModule::RemoveCBFunc(const string_view& uri) {
 }
 
 void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+  std::any slot_any = info.GetSlot();
+  auto any_pointer = std::any_cast<void*>(&slot_any);
+  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   if (!scope) {
@@ -114,6 +123,29 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
     return;
   }
   FOOTSTONE_DLOG(INFO) << "uri = " << uri;
+
+  // This is a temporary special logic for hermes
+  // that the front end did not handle when packing dynamically loaded modules
+  // due to the different file suffixes required by the Hermes engine
+  // TODO: Remove this special logic in the future
+  auto engine = scope->GetEngine().lock();
+  if (engine && engine->GetVM()->GetVMType() == VM::kJSEngineHermes) {
+    std::string oriUri = StringViewUtils::ToStdString(StringViewUtils::CovertToUtf8(uri, uri.encoding()).utf8_value());
+    
+    // Check that the oriUri begins with "file://" and ends with ".js"
+    const std::string filePrefix = "file://";
+    const std::string jsSuffix = ".js";
+    
+    if (oriUri.rfind(filePrefix, 0) == 0 && oriUri.size() >= jsSuffix.size() &&
+        oriUri.rfind(jsSuffix) == oriUri.size() - jsSuffix.size()) {
+      // modify the ext to .hbc
+      oriUri = oriUri.substr(0, oriUri.size() - jsSuffix.size()) + ".hbc";
+      
+      // replace the uri object
+      uri = string_view(oriUri);
+      FOOTSTONE_DLOG(INFO) << "change file ext from .js to .hbc for hermes";
+    }
+  }
 
   std::shared_ptr<hippy::napi::CtxValue> param = info[1];
   std::shared_ptr<hippy::napi::CtxValue> function;
@@ -137,8 +169,9 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  auto cb = [this, weak_scope, weak_function, encode, uri](
-      UriLoader::RetCode ret_code, const std::unordered_map<std::string, std::string>&, UriLoader::bytes content) {
+  auto cb = [this, weak_scope, weak_function, encode, uri](UriLoader::RetCode ret_code,
+                                                           const std::unordered_map<std::string, std::string>&,
+                                                           UriLoader::bytes content) {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
       return;
@@ -159,8 +192,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
     if (ret_code != UriLoader::RetCode::Success || content.empty()) {
       FOOTSTONE_LOG(WARNING) << "Load uri = " << uri << ", code empty";
     } else {
-      FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << content.length()
-                           << ", encode = " << encode
+      FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << content.length() << ", encode = " << encode
                            << ", code = " << string_view(content);
     }
     auto callback = [this, weak_scope, weak_function, move_code = std::move(content), cur_dir, file_name, uri]() {
@@ -178,9 +210,9 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         FOOTSTONE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
         auto cur_dir_value = ctx->CreateString(cur_dir);
         ctx->SetProperty(global_object, cur_dir_key, cur_dir_value);
-        auto try_catch = CreateTryCatchScope(true, scope->GetContext());
+        auto try_catch = hippy::TryCatch::CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
-        string_view view_code(reinterpret_cast<const string_view::char8_t_ *>(move_code.c_str()), move_code.length());
+        string_view view_code(reinterpret_cast<const string_view::char8_t_*>(move_code.c_str()), move_code.length());
         scope->RunJS(view_code, uri, file_name);
         if (last_dir_str_obj) {
           ctx->SetProperty(global_object, cur_dir_key, last_dir_str_obj, hippy::napi::PropertyAttribute::ReadOnly);
@@ -192,6 +224,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
       } else {
         string_view err_msg = uri + " not found";
         error = ctx->CreateException(string_view(err_msg));
+        FOOTSTONE_LOG(ERROR) << err_msg;;
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
@@ -199,9 +232,9 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         FOOTSTONE_DLOG(INFO) << "run js cb";
         if (!error) {
           error = ctx->CreateNull();
+          std::shared_ptr<CtxValue> argv[] = {error};
+          ctx->CallFunction(function, ctx->GetGlobalObject(), 1, argv);
         }
-        std::shared_ptr<CtxValue> argv[] = {error};
-        ctx->CallFunction(function, ctx->GetGlobalObject(), 1, argv);
         RemoveCBFunc(uri);
       }
     };
@@ -241,7 +274,6 @@ std::shared_ptr<CtxValue> ContextifyModule::BindFunction(std::shared_ptr<Scope> 
   return object;
 }
 
-}
-}
-}
-
+}  // namespace module
+}  // namespace driver
+}  // namespace hippy

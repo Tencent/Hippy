@@ -25,20 +25,18 @@
 #include <cstdint>
 
 #include "connector/java_turbo_module.h"
+#include "footstone/logging.h"
+#include "footstone/string_view.h"
+#include "footstone/string_view_utils.h"
 #include "jni/data_holder.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
-#include "footstone/logging.h"
-#include "footstone/string_view.h"
-#include "footstone/string_view_utils.h"
-#include "driver/napi/v8/v8_ctx.h"
 
 using namespace hippy::napi;
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;
-using V8Ctx = hippy::V8Ctx;
 
 constexpr char kTurboKey[] = "getTurboModule";
 
@@ -46,10 +44,8 @@ namespace hippy {
 inline namespace framework {
 inline namespace turbo {
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
-             "install",
-             "(J)I",
-             Install)
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager",  // NOLINT(cert-err58-cpp)
+             "install", "(J)I", Install)
 
 jclass turbo_module_manager_clazz;
 jmethodID get_method_id;
@@ -57,8 +53,7 @@ jmethodID get_method_id;
 /**
  * com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager.get
  */
-std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Scope>& scope,
-                                              const std::string& module_name) {
+std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Scope>& scope, const std::string& module_name) {
   FOOTSTONE_DLOG(INFO) << "enter QueryTurboModuleImpl " << module_name.c_str();
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring name = j_env->NewStringUTF(module_name.c_str());
@@ -90,8 +85,8 @@ void GetTurboModule(CallbackInfo& info, void* data) {
     info.GetReturnValue()->SetUndefined();
     return;
   }
-  auto u8_name = StringViewUtils::ToStdString(
-      StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf8).utf8_value());
+  auto u8_name =
+      StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf8).utf8_value());
   std::shared_ptr<CtxValue> result;
   auto has_instance = scope->HasTurboInstance(u8_name);
   if (!has_instance) {
@@ -107,7 +102,15 @@ void GetTurboModule(CallbackInfo& info, void* data) {
     auto java_turbo_module = std::make_shared<JavaTurboModule>(u8_name, module_impl, ctx);
 
     // 4. bind c++ JavaTurboModule to js
+#ifdef JS_V8
     result = ctx->NewInstance(java_turbo_module->constructor, 0, nullptr, java_turbo_module.get());
+#elif defined(JS_HERMES)
+    std::shared_ptr<CtxValue> argv[] = {java_turbo_module->proxy_handler};
+    result = ctx->NewInstance(java_turbo_module->constructor, 1, argv, java_turbo_module.get());
+#else
+    FOOTSTONE_LOG(ERROR) << "js engine not support jsi";
+    return info.GetReturnValue()->SetUndefined();
+#endif
 
     // 5. add To Cache
     scope->SetTurboInstance(u8_name, result);
@@ -124,14 +127,13 @@ void GetTurboModule(CallbackInfo& info, void* data) {
 }
 
 void TurboModuleManager::Init(JNIEnv* j_env) {
-  jclass clazz =
-      j_env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
+  jclass clazz = j_env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
   turbo_module_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(clazz));
   j_env->DeleteLocalRef(clazz);
 
   get_method_id = j_env->GetMethodID(turbo_module_manager_clazz, "get",
-                       "(Ljava/lang/String;)Lcom/tencent/mtt/hippy/modules/"
-                       "nativemodules/HippyNativeModuleBase;");
+                                     "(Ljava/lang/String;)Lcom/tencent/mtt/hippy/modules/"
+                                     "nativemodules/HippyNativeModuleBase;");
 }
 
 void TurboModuleManager::Destroy(JNIEnv* j_env) {
@@ -176,6 +178,6 @@ int Install(JNIEnv* j_env, jobject j_obj, jlong j_scope_id) {
   return 0;
 }
 
-}
-}
-}
+}  // namespace turbo
+}  // namespace framework
+}  // namespace hippy

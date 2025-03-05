@@ -31,11 +31,7 @@
 #include "footstone/platform/ios/looper_driver.h"
 #include "footstone/task_runner.h"
 
-EngineResource::EngineResource() {
-    Setup("Hippy Dom Thread");
-}
-
-void EngineResource::Setup(const std::string name) {
+void EngineResource::Setup(const std::string name, const std::string vmType, bool isDebug) {
     auto driver = std::make_unique<footstone::LooperDriver>();
     dom_worker_ = std::make_shared<footstone::WorkerImpl>(name, false, std::move(driver));
     dom_worker_->Start();
@@ -45,18 +41,22 @@ void EngineResource::Setup(const std::string name) {
     dom_manager_ = std::make_shared<hippy::DomManager>();
     dom_manager_->SetTaskRunner(task_runner);
     engine_ = std::make_shared<hippy::Engine>();
-    engine_->AsyncInitialize(task_runner, std::make_shared<hippy::VM::VMInitParam>(), nullptr);
+    auto initParam = std::make_shared<hippy::VM::VMInitParam>();
+    if (!vmType.empty()) {
+        initParam->vm_type = vmType;
+    }
+    initParam->is_debug = isDebug;
+    engine_->AsyncInitialize(task_runner, initParam, nullptr);
 }
 
-EngineResource::EngineResource(const std::string name) {
+EngineResource::EngineResource(const std::string name, const std::string vmType, bool isDebug) {
     std::ostringstream stream;
     if (name.length()) {
         stream << "Hippy Dom " << name << " Thread";
-    }
-    else {
+    } else {
         stream << "Hippy Dom Thread";
     }
-    Setup(stream.str());
+    Setup(stream.str(), vmType, isDebug);
 }
 
 EngineResource::~EngineResource() {
@@ -92,7 +92,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
     return instance;
 }
 
-- (std::shared_ptr<EngineResource>)createJSEngineResourceForKey:(NSString *)key {
+- (std::shared_ptr<EngineResource>)createJSEngineResourceForKey:(NSString *)key engineType:(const std::string &)vmType isDebug:(BOOL)isDebug {
     std::lock_guard<std::mutex> lock(_mutex);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
@@ -101,7 +101,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<EngineResource> engineSource = std::make_shared<EngineResource>([key UTF8String]);
+        std::shared_ptr<EngineResource> engineSource = std::make_shared<EngineResource>([key UTF8String], vmType, isDebug);
         [self setEngine:engineSource forKey:key];
         return engineSource;
     }

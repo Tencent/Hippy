@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
   
   s.name             = 'hippy'
-  s.version          = '3.0.0'
+  s.version          = '3.4.0'
   s.summary          = 'Hippy Cross Platform Framework'
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform 
@@ -23,10 +23,10 @@ Pod::Spec.new do |s|
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
 
   s.prepare_command = <<-CMD
-      ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
+    ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
   CMD
   
   s.subspec 'Base' do |base|
@@ -79,8 +79,8 @@ Pod::Spec.new do |s|
     framework.frameworks = 'CoreServices'
     framework.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     framework.dependency 'hippy/Base'
     framework.dependency 'hippy/JSDriver'
@@ -95,15 +95,20 @@ Pod::Spec.new do |s|
     footstone.libraries = 'c++'
     footstone.source_files = ['modules/footstone/**/*.{h,cc}']
     footstone.project_header_files = ['modules/footstone/**/*.h']
-    footstone.exclude_files = ['modules/footstone/include/footstone/platform/adr', 'modules/footstone/src/platform/adr', 'modules/footstone/include/footstone/platform/ohos', 'modules/footstone/src/platform/ohos']
+    footstone.exclude_files = [
+    'modules/footstone/include/footstone/platform/adr',
+    'modules/footstone/src/platform/adr',
+    'modules/footstone/include/footstone/platform/ohos',
+    'modules/footstone/src/platform/ohos'
+    ]
     footstone.header_mappings_dir = 'modules/footstone/include/'
     
     header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/footstone' + ' $(PODS_TARGET_SRCROOT)/modules/footstone/include'
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
       'HEADER_SEARCH_PATHS' => header_search_paths,
     }
   end
@@ -114,8 +119,8 @@ Pod::Spec.new do |s|
     footstoneutils.project_header_files = ['modules/ios/footstoneutils/*.h']
     footstoneutils.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     footstoneutils.dependency 'hippy/Footstone'
     footstoneutils.dependency 'hippy/Base'
@@ -131,8 +136,8 @@ Pod::Spec.new do |s|
     vfs.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'HEADER_SEARCH_PATHS' => header_search_paths,
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     vfs.dependency 'hippy/Footstone'
   end
@@ -147,38 +152,24 @@ Pod::Spec.new do |s|
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
         'driver/js/src/napi/v8',
-        'driver/js/include/driver/runtime',
-        'driver/js/src/runtime', 
-        'driver/js/include/driver/vm/v8', 
+        'driver/js/include/driver/vm/v8',
         'driver/js/src/vm/v8',
+        'driver/js/include/driver/napi/hermes',
+        'driver/js/src/napi/hermes',
+        'driver/js/include/driver/vm/hermes',
+        'driver/js/src/vm/hermes',
         'driver/js/include/driver/napi/jsh',
         'driver/js/src/napi/jsh',
         'driver/js/include/driver/vm/jsh', 
         'driver/js/src/vm/jsh'
       ]
-    elsif js_engine == "v8"
-      driver.exclude_files = [
-        'driver/js/include/driver/napi/jsc',
-        'driver/js/src/napi/jsc', 
-        'driver/js/include/driver/vm/jsc', 
-        'driver/js/src/vm/jsc',
-        'driver/js/include/driver/napi/jsh',
-        'driver/js/src/napi/jsh',
-        'driver/js/include/driver/vm/jsh', 
-        'driver/js/src/vm/jsh'
-      ]
-    else
+    elsif js_engine == "hermes"
       driver.exclude_files = [
         'driver/js/include/driver/napi/v8',
         'driver/js/src/napi/v8',
-        'driver/js/include/driver/runtime',
-        'driver/js/src/runtime', 
-        'driver/js/include/vm/v8', 
-        'driver/js/src/vm/v8', 
-        'driver/js/include/driver/napi/jsc',
-        'driver/js/src/napi/jsc', 
-        'driver/js/include/vm/jsc', 
-        'driver/js/src/vm/jsc',
+        'driver/js/include/driver/vm/v8',
+        'driver/js/src/vm/v8',
+        'driver/js/src/vm/hermes/native_source_code_hermes_android.cc',
         'driver/js/include/driver/napi/jsh',
         'driver/js/src/napi/jsh',
         'driver/js/include/driver/vm/jsh', 
@@ -189,8 +180,9 @@ Pod::Spec.new do |s|
     definition_engine = ''
     if js_engine == "jsc"
       definition_engine = 'JS_JSC=1'
-    elsif js_engine == "v8" 
-      definition_engine = 'JS_V8=1'
+    elsif js_engine == "hermes"
+      definition_engine = 'JS_HERMES=1 JS_JSC=1'
+      driver.dependency 'hippy_hermes_full'
     else
     end
     
@@ -199,8 +191,8 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => header_search_paths,
       'GCC_PREPROCESSOR_DEFINITIONS' => definition_engine,
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     driver.dependency 'hippy/Footstone'
     driver.dependency 'hippy/Dom'
@@ -230,8 +222,8 @@ Pod::Spec.new do |s|
     dom.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'HEADER_SEARCH_PATHS' => dom_pod_target_header_path,
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     dom.dependency 'hippy/Footstone'
     if layout_engine == "Taitank"
@@ -248,8 +240,8 @@ Pod::Spec.new do |s|
     domutils.private_header_files = ['modules/ios/domutils/*.h']
     domutils.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     domutils.dependency 'hippy/Dom'
     domutils.dependency 'hippy/FootstoneUtils'
@@ -263,8 +255,8 @@ Pod::Spec.new do |s|
       taitank.private_header_files = ['dom/dom_project/_deps/taitank-src/src/*.h']
       taitank.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-        'GCC_ENABLE_CPP_RTTI' => false,
+        'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+        'GCC_ENABLE_CPP_RTTI' => true,
         'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) LAYOUT_ENGINE_TAITANK=1',
       }
       taitank.libraries = 'c++'
@@ -277,8 +269,8 @@ Pod::Spec.new do |s|
       yoga.private_header_files = ['dom/include/dom/yoga_layout_node.h', 'dom/dom_project/_deps/yoga-src/yoga/**/*.h']
       yoga.pod_target_xcconfig = {
         'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-        'GCC_ENABLE_CPP_RTTI' => false,
+        'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+        'GCC_ENABLE_CPP_RTTI' => true,
         'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) LAYOUT_ENGINE_YOGA=1',
       }
       yoga.libraries = 'c++'
@@ -315,12 +307,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'devtools\' read begin'
     devtools.libraries = 'c++'
     devtools_exclude_files = Array.new;
-    if js_engine == "jsc"
-      devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
-    elsif js_engine == "v8"
-    else
-      devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
-    end
+    devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
     devtools.exclude_files = devtools_exclude_files
     devtools.project_header_files = [
       #devtools_integration/native
@@ -348,8 +335,8 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => pod_search_path,
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1 ASIO_NO_TYPEID ASIO_NO_EXCEPTIONS ASIO_DISABLE_ALIGNOF _WEBSOCKETPP_NO_EXCEPTIONS_ JSON_NOEXCEPTION BASE64_STATIC_DEFINE',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-      'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-      'GCC_ENABLE_CPP_RTTI' => false,
+      'GCC_ENABLE_CPP_EXCEPTIONS' => true,
+      'GCC_ENABLE_CPP_RTTI' => true,
     }
     devtools.user_target_xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1'
@@ -361,23 +348,6 @@ Pod::Spec.new do |s|
     devtools.dependency 'hippy/Dom'
     devtools.dependency 'hippy/VFS'
     puts 'hippy subspec \'devtools\' read end'
-  end
-
-  if js_engine == "v8"
-    s.subspec 'v8' do |v8|
-      puts 'hippy subspec \'v8\' read begin'
-      v8.source_files = ['v8forios/v8/include']
-      v8.private_header_files = ['v8forios/v8/include']
-      v8.pod_target_xcconfig = {
-        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-        'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/v8forios/v8/include $(PODS_TARGET_SRCROOT)/v8forios/v8/include/v8',
-        'GCC_ENABLE_CPP_EXCEPTIONS' => false,
-        'GCC_ENABLE_CPP_RTTI' => false,
-      }
-      v8.libraries = 'c++'
-      v8.vendored_library = 'v8forios/v8/libv8.a'
-      puts 'hippy subspec \'v8\' read end'
-    end
   end
 
   s.test_spec 'UnitTests' do |test_spec|

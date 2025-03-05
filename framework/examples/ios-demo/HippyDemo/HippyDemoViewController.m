@@ -38,12 +38,14 @@
 
 - (instancetype)initWithDriverType:(DriverType)driverType
                         renderType:(RenderType)renderType
+                   useHermesEngine:(BOOL)usingHermes
                           debugURL:(NSURL *)debugURL
                        isDebugMode:(BOOL)isDebugMode {
     self = [super init];
     if (self) {
         _driverType = driverType;
         _renderType = renderType;
+        _useHermesEngine = usingHermes;
         _debugURL = debugURL;
         _debugMode = isDebugMode;
     }
@@ -93,13 +95,21 @@
 - (void)registerLogFunction {
     // Register your custom log function for Hippy,
     // use HippyDefaultLogFunction as an example, it outputs logs to stderr.
-    HippySetLogFunction(HippyDefaultLogFunction);
+    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+        // output hippy sdk's log to your App log
+        // this is a demo imp, output to console:
+        HippyDefaultLogFunction(level, source, fileName, lineNumber, message);
+    });
 }
 
 - (void)runHippyDemo {
     // Necessary configuration:
     NSString *moduleName = @"Demo";
-    NSDictionary *launchOptions = @{ @"DebugMode": @(_debugMode) };
+    // Set launch options for hippy bridge
+    HippyLaunchOptions *launchOptions = [HippyLaunchOptions new];
+    launchOptions.debugMode = _debugMode;
+    launchOptions.useHermesEngine = _useHermesEngine;
+    // Prepare initial properties for js side
     NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
     HippyBridge *bridge = nil;
@@ -132,6 +142,7 @@
     // Config whether jsc is inspectable, Highly recommended setting,
     // since inspectable of JSC is disabled by default since iOS 16.4
     [bridge setInspectable:YES];
+    
     _hippyBridge = bridge;
     rootView.frame = self.contentAreaView.bounds;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;

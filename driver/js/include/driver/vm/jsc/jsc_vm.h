@@ -40,7 +40,7 @@ inline namespace vm {
 
 class JSCVM : public VM, public std::enable_shared_from_this<JSCVM> {
 public:
-  JSCVM(): VM() { vm_ = JSContextGroupCreate(); }
+  JSCVM(const std::shared_ptr<VM::VMInitParam>& param): VM(param) { vm_ = JSContextGroupCreate(); }
   
   ~JSCVM() {
     JSContextGroupRelease(vm_);
@@ -52,6 +52,7 @@ public:
   virtual std::shared_ptr<Ctx> CreateContext() override;
   
   static JSStringRef CreateJSCString(const footstone::string_view& str_view);
+  static std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 };
 
 }

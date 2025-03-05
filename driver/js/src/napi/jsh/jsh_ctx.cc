@@ -31,6 +31,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/vm/jsh/jsh_vm.h"
 #include "driver/vm/native_source_code.h"
+#include "driver/vm/jsh/native_source_code_jsh.h"
 #include "footstone/check.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
@@ -1531,6 +1532,23 @@ bool JSHCtx::CheckJSVMStatus(JSVM_Env env, JSVM_Status status) {
   }
 
   return status == JSVM_OK;
+}
+
+std::shared_ptr<CtxValue> JSHCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  // unused in jsh
+  return nullptr;
+}
+
+std::shared_ptr<TryCatch> JSHCtx::CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
+  return std::make_shared<JSHTryCatch>(enable, ctx);
+}
+
+void JSHCtx::SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCallbackWrapper>&& wrapper) {
+    FOOTSTONE_UNIMPLEMENTED();
+}
+
+std::unique_ptr<NativeSourceCodeProvider> JSHCtx::GetNativeSourceCodeProvider() const {
+  return std::make_unique<NativeSourceCodeProviderJSH>();
 }
 
 }  // namespace napi

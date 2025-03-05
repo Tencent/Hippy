@@ -86,19 +86,6 @@ void HippyFatal(NSError *error) {
     HippyFatalHandler fatalHandler = HippyGetFatalHandler();
     if (fatalHandler) {
         fatalHandler(error);
-    } else {
-#if HIPPY_DEBUG
-        @try {
-            NSString *name = [NSString stringWithFormat:@"%@: %@", HippyFatalExceptionName, error.localizedDescription];
-            NSString *message = HippyFormatError(error.localizedDescription, error.userInfo[HippyJSStackTraceKey], 75);
-            if (failReason) {
-                name = [NSString stringWithFormat:@"%@: %@[Reason]: %@", HippyFatalExceptionName, error.localizedDescription, failReason];
-            }
-            [NSException raise:name format:@"%@", message];
-        } @catch (NSException *e) {
-            // no op
-        }
-#endif  //#ifdef DEBUG
     }
 }
 

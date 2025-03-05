@@ -39,7 +39,7 @@ typedef void (^HippyContextCreatedBlock)(void);
 @interface HippyJSExecutor : NSObject<HippyInvalidating>
 
 /// HippyBridge instance
-@property (nonatomic, weak) HippyBridge *bridge;
+@property (nonatomic, weak, readonly) HippyBridge *bridge;
 
 /// Whether the executor has been invalidated
 @property (nonatomic, readonly, getter=isValid) BOOL valid;

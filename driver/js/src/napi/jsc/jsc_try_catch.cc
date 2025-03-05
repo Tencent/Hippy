@@ -30,10 +30,6 @@ inline namespace napi {
 
 using string_view = footstone::string_view;
 
-std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
-                                              std::shared_ptr<Ctx> ctx) {
-  return std::make_shared<JSCTryCatch>(enable, ctx);
-}
 
 JSCTryCatch::JSCTryCatch(bool enable, std::shared_ptr<Ctx> ctx)
 : TryCatch(enable, ctx) {

@@ -26,8 +26,9 @@
 #include "driver/napi/jsc/jsc_ctx_value.h"
 #include "driver/napi/jsc/jsc_class_definition.h"
 #include "driver/napi/callback_info.h"
-#include "driver/vm/native_source_code.h"
+#include "driver/napi/jsc/jsc_try_catch.h"
 #include "driver/vm/jsc/jsc_vm.h"
+#include "driver/vm/jsc/native_source_code_jsc.h"
 
 
 namespace hippy {
@@ -266,6 +267,10 @@ std::shared_ptr<CtxValue>  JSCCtx::DefineProxy(const std::unique_ptr<FunctionWra
   JSObjectRef fn_obj = JSObjectMake(context_, cls_ref, private_data.get());
   SaveConstructorData(std::move(private_data));
   return std::make_shared<JSCCtxValue>(context_, fn_obj);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  return nullptr;
 }
 
 std::shared_ptr<CtxValue> JSCCtx::DefineClass(const string_view& name,
@@ -931,7 +936,8 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(const std::shared_ptr<CtxValue>& 
   std::vector<JSValueRef> values(argc);
   for (size_t i = 0; i < argc; i++) {
     auto arg_value = std::static_pointer_cast<JSCCtxValue>(argv[i]);
-    values[i] = arg_value->value_;
+    FOOTSTONE_DCHECK(arg_value);
+    values[i] = arg_value ? arg_value->value_ : JSValueMakeNull(context_);
   }
 
   auto ret_value_ref = JSObjectCallAsFunction(context_, function_object, receiver_object, argc, values.data(), &exception);
@@ -1004,6 +1010,10 @@ void JSCCtx::ThrowException(const std::shared_ptr<CtxValue> &exception) {
 
 void JSCCtx::ThrowException(const string_view& exception) {
   ThrowException(CreateException(exception));
+}
+
+std::shared_ptr<TryCatch> JSCCtx::CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
+  return std::make_shared<JSCTryCatch>(enable, ctx);
 }
 
 JSPropertyAttributes ConvertPropertyAttribute(PropertyAttribute attr) {
@@ -1252,6 +1262,14 @@ void JSCCtx::SetWeak(std::shared_ptr<CtxValue> value, const std::unique_ptr<Weak
     auto constructor_data = reinterpret_cast<ConstructorData*>(private_data);
     constructor_data->weak_callback_wrapper = wrapper.get();
   }
+}
+
+void JSCCtx::SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCallbackWrapper>&& wrapper) {
+    FOOTSTONE_UNIMPLEMENTED();
+}
+
+std::unique_ptr<NativeSourceCodeProvider> JSCCtx::GetNativeSourceCodeProvider() const {
+  return std::make_unique<NativeSourceCodeProviderJSC>();
 }
 
 }  // namespace napi

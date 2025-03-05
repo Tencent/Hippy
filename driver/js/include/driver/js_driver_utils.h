@@ -24,9 +24,11 @@
 
 #include <functional>
 #include <memory>
-
 #include "driver/scope.h"
 #include "footstone/string_view.h"
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#endif
 
 namespace hippy {
 inline namespace driver {
@@ -80,6 +82,10 @@ class JsDriverUtils {
                                                   byte_string)>& callback);
   static void LoadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data);
   static void UnloadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data);
+    
+  static void InitDevTools(const std::shared_ptr<Scope>& scope,
+                           const std::shared_ptr<VM>& vm,
+                           const std::shared_ptr<hippy::devtools::DevtoolsDataSource>& source);
 };
 
 } // namespace driver

@@ -95,10 +95,10 @@ export default class TextExpo extends React.Component {
   }
   incrementFontWeight() {
     const { fontWeight } = this.state;
-    if (fontWeight == '1000') {
+    if (fontWeight === '1000') {
       return;
     }
-    var weightNumber = parseInt(fontWeight, 10);
+    let weightNumber = parseInt(fontWeight, 10);
     weightNumber += 100;
     this.setState({
       fontWeight: weightNumber.toString(),
@@ -110,7 +110,7 @@ export default class TextExpo extends React.Component {
     if (fontWeight === '100') {
       return;
     }
-    var weightNumber = parseInt(fontWeight, 10);
+    let weightNumber = parseInt(fontWeight, 10);
     weightNumber -= 100;
     this.setState({
       fontWeight: weightNumber.toString(),

@@ -21,42 +21,15 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const { execSync } = require('child_process');
 const babel = require('@babel/core');
-
-/**
- * Babel configuration
- */
-const babelConfig = {
-  flutter: {
-    comments: false,
-    compact: false,
-  },
-  android: {
-    comments: false,
-    compact: false,
-  },
-  ios: {
-    presets: [
-      [
-        '@babel/env',
-        {
-          targets: {
-            safari: '8',
-          },
-        },
-      ],
-    ],
-    comments: false,
-    compact: false,
-  },
-};
 
 /**
  * Code header and content
  */
 const CodePieces = {
-  header() {
-    return `/*
+  header: {
+    piece1: `/*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
@@ -79,12 +52,22 @@ const CodePieces = {
 #include <unordered_map>
 
 #include "driver/vm/native_source_code.h"
-#include "footstone/macros.h"
+#include "footstone/macros.h"`,
+    piece2_v8: `
+#include "driver/vm/v8/native_source_code_v8.h"`,
+    piece2_jsc: `
+#include "driver/vm/jsc/native_source_code_jsc.h"`,
+    piece2_jsh: `
+#include "driver/vm/jsh/native_source_code_jsh.h"`,
+    piece2_hermes: `
+#include "driver/vm/hermes/native_source_code_hermes.h"`,
+    piece2_flutter: '',
+    piece3: `
 
 
-namespace {`;
+namespace {`,
   },
-  android: {
+  common: {
     piece1: `
 }  // namespace
 
@@ -94,72 +77,67 @@ inline namespace driver {
 static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
   {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
   {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
+    piece2_v8: `
 };
 
-const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+static NativeSourceCode GetNativeSourceCodeImp(const std::string& filename) {
   const auto it = global_base_js_source_map.find(filename);
   return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+NativeSourceCode NativeSourceCodeProviderV8::GetNativeSourceCode(const std::string &filename) const {
+  return GetNativeSourceCodeImp(filename);
 }
 
 } // namespace driver
 } // namespace hippy
 `,
-  },
-  ios: {
-    piece1: `
-}  // namespace
-
-namespace hippy {
-inline namespace driver {
-
-const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
-  const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-    {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
-    {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
-  };
-  const auto it = global_base_js_source_map.find(filename);
-  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
-}
-
-} // namespace driver
-} // namespace hippy
-`,
-  },
-  flutter: {
-    piece1: `
-}  // namespace
-
-namespace hippy {
-inline namespace driver {
-
-static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-  {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
-  {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
+    piece2_jsc: `
 };
 
-const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+static NativeSourceCode GetNativeSourceCodeImp(const std::string& filename) {
   const auto it = global_base_js_source_map.find(filename);
   return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+NativeSourceCode NativeSourceCodeProviderJSC::GetNativeSourceCode(const std::string &filename) const {
+  return GetNativeSourceCodeImp(filename);
 }
 
 } // namespace driver
 } // namespace hippy
 `,
-  },
-  ohos: {
-    piece1: `
-}  // namespace
+    piece2_jsh: `
+};
 
-namespace hippy {
-inline namespace driver {
+static NativeSourceCode GetNativeSourceCodeImp(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
 
-static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-  {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
-  {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
+NativeSourceCode NativeSourceCodeProviderJSH::GetNativeSourceCode(const std::string &filename) const {
+  return GetNativeSourceCodeImp(filename);
+}
+
+} // namespace driver
+} // namespace hippy
+`,
+    piece2_hermes: `
+};
+
+static NativeSourceCode GetNativeSourceCodeImp(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+NativeSourceCode NativeSourceCodeProviderHermes::GetNativeSourceCode(const std::string &filename) const {
+  return GetNativeSourceCodeImp(filename);
+}
+
+} // namespace driver
+} // namespace hippy
+`,
+    piece2_flutter: `
 };
 
 const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
@@ -172,21 +150,6 @@ const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
 `,
   },
 };
-
-/**
- * Initial the code git st buffer header and footer.
- */
-const wrapperBeginBuffer = Buffer.from('(function(exports, require, internalBinding) {');
-const wraperBeginByteArr = [];
-for (let i = 0; i < wrapperBeginBuffer.length; i += 1) {
-  wraperBeginByteArr.push(wrapperBeginBuffer[i]);
-}
-
-const wrapperEndBuffer = Buffer.from('});');
-const wraperEndByteArr = [];
-for (let i = 0; i < wrapperEndBuffer.length; i += 1) {
-  wraperEndByteArr.push(wrapperEndBuffer[i]);
-}
 
 /**
  * Get the absolute full path
@@ -197,26 +160,32 @@ function getAbsolutePath(relativePath) {
 }
 
 /**
- * Get the core js files list for specific platform.
+ * Get the core js files list for specific renderer.
  *
- * @param {android|ios} platform - specific platform.
+ * @param {android|ios|flutter} renderer - specific renderer.
  */
-function getAllRequiredFiles(platform) {
+function getAllRequiredFiles(renderer, engine) {
   return new Promise((resole) => {
+    let hippyPath = getAbsolutePath(`../lib/entry/${renderer}/hippy.js`);
+    if (renderer === 'android' || renderer === 'ios') {
+      hippyPath = getAbsolutePath(`../lib/entry/${renderer}/${engine}/hippy.js`);
+    }
+
     const rl = readline.createInterface({
-      input: fs.createReadStream(getAbsolutePath(`../lib/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(hippyPath),
     });
     const filePaths = [
       getAbsolutePath('../lib/bootstrap.js'),
-      getAbsolutePath(`../lib/entry/${platform}/hippy.js`),
+      hippyPath,
       getAbsolutePath('../lib/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
       const lineSlice = line.split('//')[0];
-      if (lineSlice.indexOf('require(\'') > -1 || lineSlice.indexOf('require("') > -1) {
+      if (lineSlice.indexOf('require(\'') > -1
+          || lineSlice.indexOf('require("') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
-        filePaths.push(getAbsolutePath(`../lib/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../lib/entry/${renderer}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -226,20 +195,73 @@ function getAllRequiredFiles(platform) {
 }
 
 /**
+ * Wrap the compiled code with a header and footer.
+ *
+ * @param {string} code - The compiled JavaScript code.
+ * @returns {string} - The wrapped code.
+ */
+function wrapCodeIfNeeded(code, fileName) {
+  if (fileName === 'bootstrap' || fileName === 'ExceptionHandle') {
+    return code;
+  }
+  const header = '(function(exports, require, internalBinding) {';
+  const footer = '});';
+  return `${header}${code}${footer}`;
+}
+
+/**
  * Read the file content to be a buffer.
  *
- * @param {android|ios} platform - specific platform.
+ * @param {android|ios|flutter} renderer - specific renderer.
+ * @param {v8|jsc|hermes} engine - js engine to use.
  * @param {string} filePath - the file path will read.
  */
-function readFileToBuffer(platform, filePath) {
-  switch (platform) {
+function readFileToBuffer(renderer, engine, filePath) {
+  const fileName = path.basename(filePath, '.js');
+  switch (renderer) {
     case 'ohos':
-    case 'flutter':
-    case 'android':
-    case 'ios': {
+    case 'flutter': {
       const code = fs.readFileSync(filePath).toString();
-      const compiled = babel.transform(code, babelConfig[platform]);
-      return Buffer.from(compiled.code);
+      const babelConfig = { comments: false, compact: false };
+      const compiled = babel.transform(code, babelConfig);
+      return Buffer.from(wrapCodeIfNeeded(compiled.code, fileName));
+    }
+    case 'android': {
+      if (engine === 'hermes') {
+        const code = fs.readFileSync(filePath).toString();
+        // see ios hermes notes bellow
+        const babelConfig = { presets: [['@babel/env', { targets: { chrome: 41 } }]], comments: false, compact: true };
+        // Compile the code using Babel
+        const compiled = babel.transform(code, babelConfig);
+        // Wrap the compiled code with header and footer
+        const wrappedCode = wrapCodeIfNeeded(compiled.code, fileName);
+        return Buffer.from(wrappedCode);
+      }
+      if (engine === 'v8') {
+        const code = fs.readFileSync(filePath).toString();
+        const babelConfig = { comments: false, compact: false };
+        const compiled = babel.transform(code, babelConfig);
+        return Buffer.from(wrapCodeIfNeeded(compiled.code, fileName));
+      }
+    }
+    case 'ios': {
+      if (engine === 'hermes') {
+        const code = fs.readFileSync(filePath).toString();
+        // since hermes does not support es6 class currently, use chrome: 41 to avoid generating incompatible code
+        // A more reasonable approach is to use a configuration such as metro-react-native-babel-preset
+        const babelConfig = { presets: [['@babel/env', { targets: { chrome: 41 } }]], comments: false, compact: true };
+        // Compile the code using Babel
+        const compiled = babel.transform(code, babelConfig);
+        // Wrap the compiled code with header and footer
+        const wrappedCode = wrapCodeIfNeeded(compiled.code, fileName);
+        return Buffer.from(wrappedCode);
+      }
+      if (engine === 'jsc') {
+        const code = fs.readFileSync(filePath).toString();
+        const babelConfig = { presets: [['@babel/env', { targets: { safari: '8' } }]], comments: false, compact: false };
+        const compiled = babel.transform(code, babelConfig);
+        return Buffer.from(wrapCodeIfNeeded(compiled.code, fileName));
+      }
     }
     default:
       return null;
@@ -247,42 +269,87 @@ function readFileToBuffer(platform, filePath) {
 }
 
 /**
+ * Get the hermes compiler path.
+ */
+const getHippyHermescPath = () => {
+  const hermesPath = path.resolve(__dirname, '../node_modules/@hippy/hermesc');
+  console.log('hermes package path:', hermesPath);
+  let hermesc = `${hermesPath}/%OS%-bin/hermesc`;
+  switch (process.platform) {
+    case 'win32':
+      hermesc = hermesc.replace('%OS%', 'win64');
+      break;
+    case 'darwin':
+      hermesc = hermesc.replace('%OS%', 'osx');
+      break;
+    default:
+      hermesc.replace('%OS%', 'linux64');
+      break;
+  }
+  console.log('hermesc path:', hermesc);
+  return hermesc;
+};
+
+
+/**
  * Read the js files and generate the core cpp files.
  *
- * @param {android|ios} platform - specific platform.
+ * @param {android|ios|flutter} renderer - specific renderer.
+ * @param {v8|jsc|hermes|null} engine - js engine to use.
  * @param {string} buildDirPath - output directory.
  */
-function generateCpp(platform, buildDirPath) {
-  let code = CodePieces.header(platform);
+function generateCpp(renderer, engine, buildDirPath) {
+  let code = CodePieces.header.piece1;
+  code += CodePieces.header[`piece2_${engine}`];
+  code += CodePieces.header.piece3;
 
-  getAllRequiredFiles(platform).then((filesArr) => {
+  getAllRequiredFiles(renderer, engine).then((filesArr) => {
     filesArr.forEach((filePath) => {
       const fileName = path.basename(filePath, '.js');
-      const fileBuffer = readFileToBuffer(platform, filePath);
-      const byteArr = [];
-      for (let i = 0; i < fileBuffer.length; i += 1) {
-        byteArr.push(fileBuffer[i]);
-      }
-      if (fileName === 'bootstrap' || fileName === 'ExceptionHandle') {
-        code += `
-  const uint8_t k_${fileName}[] = { ${byteArr.join(',')},0 };  // NOLINT`;
+      const fileBuffer = readFileToBuffer(renderer, engine, filePath);
+
+      // compile to hbc if using hermes engine
+      let codeBuffer;
+      if (engine === 'hermes') {
+        const tempFilePath = path.join(__dirname, `${fileName}_temp.js`);
+        const tempHbcFilePath = `${tempFilePath}.hbc`;
+        fs.writeFileSync(tempFilePath, fileBuffer);
+        const hermesCompilerPath = getHippyHermescPath();
+        execSync(`${hermesCompilerPath} -emit-binary -out ${tempHbcFilePath} ${tempFilePath} -O -g0 -Wno-undefined-variable`);
+        const hbcBuffer = fs.readFileSync(tempHbcFilePath);
+        console.log(`Compiled ${fileName}, HBC buffer length: ${hbcBuffer.length}`);
+        fs.unlinkSync(tempFilePath);
+        fs.unlinkSync(tempHbcFilePath);
+        codeBuffer = hbcBuffer;
       } else {
-        code += `
-  const uint8_t k_${fileName}[] = { ${wraperBeginByteArr.join(',')},${byteArr.join(',')},${wraperEndByteArr.join(',')},0 };  // NOLINT`;
+        codeBuffer = fileBuffer;
       }
+
+      // write to byte array
+      const byteArr = [];
+      for (let i = 0; i < codeBuffer.length; i += 1) {
+        byteArr.push(codeBuffer[i]);
+      }
+
+      code +=  `
+  const uint8_t k_${fileName}[] = { ${byteArr.join(',')},0 };  // NOLINT`;
     });
 
-    code += CodePieces[platform].piece1;
+    code += CodePieces.common.piece1;
 
     for (let i = 2; i < filesArr.length; i += 1) {
       const fileName = path.basename(filesArr[i], '.js');
       code += `
-      {"${fileName}.js", {k_${fileName}, ARRAY_SIZE(k_${fileName}) - 1}},  // NOLINT`;
+  {"${fileName}.js", {k_${fileName}, ARRAY_SIZE(k_${fileName}) - 1}},  // NOLINT`;
     }
 
-    code += CodePieces[platform].piece2;
+    code += CodePieces.common[`piece2_${engine}`];
 
-    const targetPath = `${buildDirPath}/native_source_code_${platform}.cc`;
+    let targetPath = `${buildDirPath}/native_source_code_${engine}.cc`;
+    if (engine === 'hermes') {
+      targetPath = `${buildDirPath}/native_source_code_${engine}_${renderer}.cc`;
+    }
+
     fs.writeFile(targetPath, code, (err) => {
       if (err) {
         /* eslint-disable-next-line no-console */
@@ -290,13 +357,16 @@ function generateCpp(platform, buildDirPath) {
         return;
       }
       /* eslint-disable-next-line no-console */
-      console.log(`${platform} convert success, output ${targetPath}`);
+      console.log(`${renderer} convert success, output ${targetPath}`);
     });
   });
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
-generateCpp('android', getAbsolutePath('../../../driver/js/src/vm/v8/'));
-generateCpp('ohos', getAbsolutePath('../../../driver/js/src/vm/v8/'));
-generateCpp('flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));
+generateCpp('ios', 'jsc', getAbsolutePath('../../../driver/js/src/vm/jsc/'));
+generateCpp('ios', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
+generateCpp('android', 'v8', getAbsolutePath('../../../driver/js/src/vm/v8/'));
+generateCpp('android', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/'));
+generateCpp('ohos', 'jsh', getAbsolutePath('../../../driver/js/src/vm/jsh/'));
+// generateCpp('ohos', 'hermes', getAbsolutePath('../../../driver/js/src/vm/hermes/')); // not support ohos yet
+generateCpp('flutter', 'flutter', getAbsolutePath('../../../framework/voltron/core/src/bridge/'));

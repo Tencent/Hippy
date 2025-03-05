@@ -29,7 +29,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/vm/v8/v8_vm.h"
 #include "driver/vm/v8/serializer.h"
-#include "driver/vm/native_source_code.h"
+#include "driver/vm/v8/native_source_code_v8.h"
 #include "footstone/check.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
@@ -1381,6 +1381,11 @@ std::shared_ptr<CtxValue> V8Ctx::DefineProxy(const std::unique_ptr<FunctionWrapp
   return std::make_shared<V8CtxValue>(isolate_, func_tpl->GetFunction(context).ToLocalChecked());
 }
 
+std::shared_ptr<CtxValue> V8Ctx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
+  // unused in v8
+  return nullptr;
+}
+
 std::shared_ptr<CtxValue> V8Ctx::DefineClass(const string_view& name,
                                              const std::shared_ptr<ClassDefinition>& parent,
                                              const std::unique_ptr<FunctionWrapper>& constructor_wrapper,
@@ -1520,6 +1525,19 @@ void  V8Ctx::SetWeak(std::shared_ptr<CtxValue> value,
       wrapper->callback(wrapper->data, internal);
     });
   }, v8::WeakCallbackType::kParameter);
+}
+
+void V8Ctx::SetWeak(std::shared_ptr <CtxValue> value,
+                    std::unique_ptr <WeakCallbackWrapper>&& wrapper) {
+  FOOTSTONE_UNREACHABLE();
+}
+
+std::shared_ptr<TryCatch> V8Ctx::CreateTryCatchScope(bool enable, std::shared_ptr <Ctx> ctx) {
+  return std::make_shared<V8TryCatch>(enable, ctx);
+}
+
+std::unique_ptr<NativeSourceCodeProvider> V8Ctx::GetNativeSourceCodeProvider() const {
+  return std::make_unique<NativeSourceCodeProviderV8>();
 }
 
 }  // namespace napi

@@ -554,7 +554,9 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     };
     animation->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
-    auto class_template_ptr = std::any_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(scope->GetClassTemplate("Animation"));
+    std::any animation_any = scope->GetClassTemplate("Animation");
+    auto any_pointer = std::any_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(&animation_any);
+    auto class_template_ptr = static_cast<std::shared_ptr<ClassTemplate<CubicBezierAnimation>>>(*any_pointer);
     class_template_ptr->holder_ctx_values.emplace_back(func);
     return nullptr;
   };
@@ -835,7 +837,9 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     };
     animation_set->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
         event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
-    auto class_template_ptr = std::any_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(scope->GetClassTemplate("AnimationSet"));
+    std::any animation_set_any = scope->GetClassTemplate("AnimationSet");
+    auto any_pointer = std::any_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(&animation_set_any);
+    auto class_template_ptr = static_cast<std::shared_ptr<ClassTemplate<AnimationSet>>>(*any_pointer);
     class_template_ptr->holder_ctx_values.emplace_back(func);
     return nullptr;
   };

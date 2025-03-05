@@ -34,8 +34,8 @@
 #include <objc/message.h>
 
 #include "footstone/string_view_utils.h"
-#include "driver/napi/jsc/jsc_ctx.h"
-#include "driver/napi/jsc/jsc_ctx_value.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 
 using namespace hippy;
 using namespace napi;
@@ -84,7 +84,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
   // get argument
   NSMutableArray *argumentArray = @[].mutableCopy;
-  for (NSInteger i = 0; i < count; ++i) {
+  for (NSUInteger i = 0; i < count; ++i) {
       std::shared_ptr<napi::CtxValue> ctxValue = *(args + i);
       [argumentArray addObject:convertCtxValueToObjcObject(ctx, ctxValue, weakSelf)?: [NSNull null]];
   }

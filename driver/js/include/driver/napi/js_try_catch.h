@@ -47,12 +47,11 @@ class TryCatch {
   virtual std::shared_ptr<CtxValue> Exception() = 0;
   virtual footstone::string_view GetExceptionMessage() = 0;
 
+  static std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx);
  protected:
   bool enable_;
   std::shared_ptr<Ctx> ctx_;
 };
-
-std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx);
 
 }
 }

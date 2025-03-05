@@ -91,7 +91,7 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
 #ifdef ENABLE_INSPECTOR
       auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform->GetTracingController());
       devtools::DevtoolsDataSource::OnGlobalTracingControlGenerate(trace);
-#endif    
+#endif
     }
   }
   create_params_.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
@@ -292,7 +292,7 @@ string_view V8VM::GetStackTrace(v8::Isolate* isolate,
 }
 
 
-std::shared_ptr<VM> CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
+std::shared_ptr<VM> V8VM::CreateVM(const std::shared_ptr<VM::VMInitParam>& param) {
   return std::make_shared<V8VM>(std::static_pointer_cast<V8VMInitParam>(param));
 }
 

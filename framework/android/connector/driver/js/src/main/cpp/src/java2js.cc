@@ -46,7 +46,7 @@ using V8BridgeUtils = hippy::JsDriverUtils;
 namespace hippy {
 inline namespace runtime {
 
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
 #endif

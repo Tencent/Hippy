@@ -517,9 +517,7 @@ std::vector<std::string> ConvertUtils::GetMethodArgTypesFromSignature(
   return method_args;
 }
 
-std::shared_ptr<CtxValue> ConvertUtils::ToHostObject(const std::shared_ptr<Ctx>& ctx,
-                                                     jobject& j_obj,
-                                                     std::string name,
+std::shared_ptr<CtxValue> ConvertUtils::ToHostObject(const std::shared_ptr<Ctx>& ctx, jobject& j_obj, std::string name,
                                                      std::shared_ptr<Scope> scope) {
   if (!j_obj) {
     return ctx->CreateNull();
@@ -527,7 +525,16 @@ std::shared_ptr<CtxValue> ConvertUtils::ToHostObject(const std::shared_ptr<Ctx>&
   JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   std::shared_ptr<JavaRef> ret = std::make_shared<JavaRef>(j_env, j_obj);
   auto host_obj = std::make_shared<JavaTurboModule>(name, ret, ctx);
-  auto instance = ctx->NewInstance(host_obj->constructor, 0, nullptr, host_obj.get());
+  std::shared_ptr<CtxValue> instance = nullptr;
+#ifdef JS_V8
+  instance = ctx->NewInstance(host_obj->constructor, 0, nullptr, host_obj.get());
+#elif defined(JS_HERMES)
+  std::shared_ptr<CtxValue> argv[] = {host_obj->proxy_handler};
+  instance = ctx->NewInstance(host_obj->constructor, 1, argv, host_obj.get());
+#else
+  FOOTSTONE_LOG(ERROR) << "js engine not support to host object";
+  return ctx->CreateNull();
+#endif
   scope->SetTurboInstance(name, instance);
   scope->SetTurboHostObject(name, host_obj);
   return instance;

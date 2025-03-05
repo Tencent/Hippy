@@ -25,9 +25,10 @@
 #ifdef __cplusplus
 
 #import "HippyOCTurboModule.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #include <memory>
-#include "driver/napi/jsc/jsc_ctx.h"
-#include "driver/napi/jsc/jsc_ctx_value.h"
+#include "driver/napi/js_ctx.h"
+#include "driver/napi/js_ctx_value.h"
 
 namespace hippy {
 inline namespace driver {

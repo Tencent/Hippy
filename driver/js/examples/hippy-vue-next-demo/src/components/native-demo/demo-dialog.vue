@@ -197,6 +197,7 @@ export default defineComponent({
       onClickView,
       onClickOpenSecond,
       onClickDialogConfig,
+      onOrientationChange,
     };
   },
 });

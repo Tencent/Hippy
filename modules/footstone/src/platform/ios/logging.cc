@@ -84,6 +84,12 @@ LogMessage::~LogMessage() {
   } else {
     default_delegate_(stream_, severity_);
   }
+  
+#ifdef DEBUG
+  if (severity_ >= TDF_LOG_FATAL) {
+    abort();
+  }
+#endif /* DEBUG */
 }
 
 
