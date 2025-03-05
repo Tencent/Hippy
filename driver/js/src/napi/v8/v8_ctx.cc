@@ -1382,7 +1382,7 @@ std::shared_ptr<CtxValue> V8Ctx::DefineProxy(const std::unique_ptr<FunctionWrapp
 }
 
 std::shared_ptr<CtxValue> V8Ctx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
-  FOOTSTONE_UNREACHABLE();
+  // unused in v8
   return nullptr;
 }
 
