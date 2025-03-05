@@ -37,7 +37,7 @@ if (!example) {
   return;
 }
 
-const use_hermes_engine = process.argv[3] === 'hermes';
+const useHermesEngine = process.argv[3] === 'hermes';
 const engine = process.argv[3];
 
 const BASE_PATH = process.cwd();
@@ -86,7 +86,7 @@ console.log(`1/3 Start to install ${example} dependencies.`);
 runScript('npm install --legacy-peer-deps');
 
 console.log(`2/3 Start to build project ${example}.`);
-if (!use_hermes_engine) {
+if (!useHermesEngine) {
   runScript('npm run hippy:vendor'); // Build vendor js
   runScript('npm run hippy:build'); // Build index js
 

@@ -32,8 +32,8 @@
         </div>
         <waterfall-item
           v-else
-          :fullSpan="true",
-          :isHeader="true",
+          :fullSpan="true"
+          :isHeader="true"
           class="banner-view"
         >
           <span>Banner View</span>
@@ -59,8 +59,8 @@
           />
         </waterfall-item>
         <waterfall-item
-          :fullSpan="true",
-          :isFooter="true",
+          :fullSpan="true"
+          :isFooter="true"
           class="banner-view"
         >
           <span>Footer View</span>
