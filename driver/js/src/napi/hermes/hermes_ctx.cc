@@ -63,7 +63,7 @@ constexpr char kProxyTargetObject[] = "proxy_target_object";
 constexpr char kIsProxyObject[] = "is_proxy_object";
 constexpr char kJsonStringify[] = "function(obj) { return JSON.stringify(obj); }";
 
-// 确保返回数据以空字符结尾
+// Ensure that the returned data ends with a null character
 static uint8_t* EnsureNullTerminated(const uint8_t* data, size_t len) {
   if (!data || len == 0) {
     return nullptr;
@@ -268,33 +268,33 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
   auto hermes_ctx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
   if (hermes_ctx == nullptr) return facebook::jsi::Value::undefined();
 
-    CallbackInfo cb_info;
-    cb_info.SetSlot(scope_any);
-
-    if (this_value.isObject()) {
-        auto instance_object = this_value.asObject(runtime);
-        
-        if (instance_object.hasNativeState<LocalNativeState>(runtime)) {
-            auto local_native_state = instance_object.getNativeState<LocalNativeState>(runtime);
-            auto data = local_native_state->Get();
-            cb_info.SetData(data);
-        }
-
-        if (instance_object.hasProperty(runtime, kProtoKey)) {
-            auto proto_object = instance_object.getProperty(runtime, kProtoKey).asObject(runtime);
-            if (proto_object.hasNativeState<LocalNativeState>(runtime)) {
-                auto local_native_state = proto_object.getNativeState<LocalNativeState>(runtime);
-                void *data;
-                if (instance_object.hasProperty(runtime, kUniqueIdInLocalStateKey)) {
-                    int uniqueID = (int)instance_object.getProperty(runtime, kUniqueIdInLocalStateKey).asNumber();
-                    data = local_native_state->Get(uniqueID);
-                } else {
-                    data = local_native_state->Get();
-                }
-                cb_info.SetData(data);
-            }
-        }
+  CallbackInfo cb_info;
+  cb_info.SetSlot(scope_any);
+  
+  if (this_value.isObject()) {
+    auto instance_object = this_value.asObject(runtime);
+    
+    if (instance_object.hasNativeState<LocalNativeState>(runtime)) {
+      auto local_native_state = instance_object.getNativeState<LocalNativeState>(runtime);
+      auto data = local_native_state->Get();
+      cb_info.SetData(data);
     }
+    
+    if (instance_object.hasProperty(runtime, kProtoKey)) {
+      auto proto_object = instance_object.getProperty(runtime, kProtoKey).asObject(runtime);
+      if (proto_object.hasNativeState<LocalNativeState>(runtime)) {
+        auto local_native_state = proto_object.getNativeState<LocalNativeState>(runtime);
+        void *data;
+        if (instance_object.hasProperty(runtime, kUniqueIdInLocalStateKey)) {
+          int uniqueID = (int)instance_object.getProperty(runtime, kUniqueIdInLocalStateKey).asNumber();
+          data = local_native_state->Get(uniqueID);
+        } else {
+          data = local_native_state->Get();
+        }
+        cb_info.SetData(data);
+      }
+    }
+  }
 
   if (this_value.isObject()) {
     cb_info.SetReceiver(std::make_shared<HermesCtxValue>(runtime, this_value.asObject(runtime)));
@@ -333,7 +333,7 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
 }
 
 void fatalHandler(const std::string &message) {
-    FOOTSTONE_LOG(FATAL) << "Received Hermes Fatal Error: %s\n" << message.c_str();
+  FOOTSTONE_LOG(FATAL) << "Received Hermes Fatal Error: %s\n" << message.c_str();
 }
 
 constexpr char kHippyHermes[] = "HippyHermesBridge";
@@ -379,11 +379,11 @@ HermesCtx::~HermesCtx() {
 #ifdef ENABLE_INSPECTOR
 void HermesCtx::SetupDebugAgent(facebook::hermes::debugger::EnqueueRuntimeTaskFunc enqueueRuntimeTask,
                                 facebook::hermes::cdp::OutboundMessageFunc messageCallback) {
-    cdpDebugAPI_ = CDPDebugAPI::create(*runtime_);
-    cdpAgent_ = CDPAgent::create(0,
-                                 *cdpDebugAPI_,
-                                 enqueueRuntimeTask,
-                                 messageCallback);
+  cdpDebugAPI_ = CDPDebugAPI::create(*runtime_);
+  cdpAgent_ = CDPAgent::create(0,
+                               *cdpDebugAPI_,
+                               enqueueRuntimeTask,
+                               messageCallback);
 }
 #endif /* ENABLE_INSPECTOR */
 
@@ -395,19 +395,21 @@ std::shared_ptr<CtxValue> HermesCtx::DefineProxy(const std::unique_ptr<FunctionW
 std::shared_ptr<CtxValue> HermesCtx::DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) {
   auto proxy_getter = facebook::jsi::Function::createFromHostFunction(
       *runtime_, PropNameID::forAscii(*runtime_, ""), 3,
-      [proxy_handler_pointer = proxy_handler.get()](Runtime& runtime, const Value& this_value, const Value* args,
+      [proxy_handler_pointer = proxy_handler.get()](Runtime& runtime,
+                                                    const Value& this_value,
+                                                    const Value* args,
                                                     size_t count) -> Value {
         // proxy get method argument (target, property, receiver)
         if (count != 3) return Value::undefined();
         if (!args[1].isString()) return Value::undefined();
         std::string method_name = args[1].toString(runtime).utf8(runtime);
 
-        // 获取 Proxy 对象的原始 target 对象
+        // Get the original target of the Proxy object
         if (method_name == kProxyTargetObject) return Value(runtime, args[0]);
-        // 判断是否是 Proxy 对象
+        // Check whether it is a Proxy object
         if (method_name == kIsProxyObject) return Value(true);
 
-        // 返回 jsi 需要的函数, 现在只支持了函数的返回
+        // Return functions required by jsi, now only function returns are supported
         return facebook::jsi::Function::createFromHostFunction(
             runtime, PropNameID::forAscii(runtime, ""), 1,
             [proxy_handler_pointer = proxy_handler_pointer, method_name](Runtime& runtime, const Value& this_value,
@@ -1134,11 +1136,13 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
 
 // MARK: - Exception Handle
 
-// TODO: add throw exception
-void HermesCtx::ThrowException(const std::shared_ptr<CtxValue>& exception) {}
+void HermesCtx::ThrowException(const std::shared_ptr<CtxValue>& exception) {
+  exception_ = (std::static_pointer_cast<HermesExceptionCtxValue>(exception));
+}
 
-// TODO: add throw exception
-void HermesCtx::ThrowException(const string_view& exception) {}
+void HermesCtx::ThrowException(const string_view& exception) {
+  ThrowException(CreateException(exception));
+}
 
 std::shared_ptr<TryCatch> HermesCtx::CreateTryCatchScope(bool enable, std::shared_ptr<Ctx> ctx) {
   return std::make_shared<HermesTryCatch>(enable, ctx);
