@@ -430,23 +430,24 @@ static NSString *const HippyPageScrollStateDragging = @"dragging";
 
 - (NSUInteger)targetPageIndexFromTargetContentOffsetX:(CGFloat)targetContentOffsetX {
     NSInteger thePage = -1;
-    if (fabs(targetContentOffsetX) < FLT_EPSILON) {
-        thePage = 0;
-    } else {
-        for (int i = 0; i < self.viewPagerItems.count; i++) {
-            UIView *pageItem = self.viewPagerItems[i];
-            CGPoint point = [self middlePointOfView:pageItem];
-            if (point.x > targetContentOffsetX) {
-                thePage = i;
-                break;
-            }
+    NSUInteger count = self.viewPagerItems.count;
+    if (count == 0) {
+        return 0;
+    }
+
+    for (int i = 0; i < count; i++) {
+        UIView *pageItem = self.viewPagerItems[i];
+        CGPoint point = [self middlePointOfView:pageItem];
+        if (point.x > targetContentOffsetX) {
+            thePage = i;
+            break;
         }
     }
-    if (thePage == -1) {
-        thePage = 0;
-    } else if (thePage >= self.viewPagerItems.count) {
-        thePage = self.viewPagerItems.count - 1;
-    }
+    
+    // Make sure the index is within legal limits
+    thePage = MIN(MAX(thePage, 0), count - 1);
+    
+    // Update cache and return result
     if (_lastPageIndex != thePage) {
         _lastPageIndex = thePage;
         _lastSelectedPageItem = self.viewPagerItems[thePage];
