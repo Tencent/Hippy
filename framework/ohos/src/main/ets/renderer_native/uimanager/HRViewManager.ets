@@ -38,6 +38,7 @@ import { HRCreateMutation,
   HRUpdateEventListenerMutation,
   HRUpdateLayoutMutation,
   HRUpdateMutation } from './HRMutation'
+import { NodeContent } from '@kit.ArkUI'
 
 export type HippyEndBatchCallback = () => void
 
@@ -292,7 +293,7 @@ export class HRViewManager {
   }
 
   // for c-api
-  createRenderViewForCApi(tag: number, viewName: string): HippyRenderBaseView | null {
+  createRenderViewForCApi(tag: number, viewName: string, childSlot: NodeContent): HippyRenderBaseView | null {
     let renderView: HippyRenderBaseView | null = null
     if (viewName == "WebView") {
       renderView = new HRWebView(this.ctx);
@@ -302,6 +303,9 @@ export class HRViewManager {
         let creator = customCreatorMap.get(viewName)
         if (creator) {
           renderView = creator(this.ctx)
+          if (renderView) {
+            (renderView as HippyCustomComponentView).childSlot = childSlot
+          }
         }
       }
     }
