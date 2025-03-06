@@ -24,7 +24,7 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
 - **启动时间**：首帧耗时（FP指标）减少约 50% ～ 60%
 - **内存占用**：一般场景内存降低约 20% ～ 40%
 
-> Android 平台性能参考数据将在 Beta 版发布后提供。
+> 其他平台性能参考数据将在 Beta 版发布后提供。
 
 ## 终端切换步骤
 
@@ -35,7 +35,7 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
     打开你的项目目录下的 `Podfile` 文件，添加环境变量以指定使用 Hermes 引擎：
 
     ```ruby
-    ENV['js_engine'] = 'jsc' # js engine configuration for hippy, options are: 'jsc'/'hermes'.
+    ENV['js_engine'] = 'hermes' # js engine configuration for hippy, options are: 'jsc'/'hermes'.
     ```
 
     同时，在 `Podfile` 文件中添加 Hermes 依赖：
@@ -150,7 +150,7 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
 
    推荐使用以下 Babel 预设和插件，以确保项目能够兼容 Hermes 引擎，以 Babel 为例：：
 
-    ```json
+    ```js
     module.exports = {
         presets : [
             ['module:metro-react-native-babel-preset'],
