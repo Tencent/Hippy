@@ -33,6 +33,7 @@ import {
   buildHippyRenderViewForCApi,
   CallRenderViewMethodParamsForCApi,
   CreateRenderViewParamsForCApi,
+  CreateRenderViewResultForCApi,
   OnChildInsertedParamsForCApi,
   OnChildRemovedParamsForCApi,
   RemoveRenderViewParamsForCApi,
@@ -65,7 +66,7 @@ import { HRDisplaySyncUtils } from './utils/HRDisplaySyncUtils'
 import { HRMeasureResult } from './utils/HRMeasure'
 import { HRPosition, HRRect, HRSize } from './utils/HRTypes'
 import { HRValueUtils } from './utils/HRValueUtils'
-import { BuilderNode, FrameNode } from '@kit.ArkUI'
+import { BuilderNode, FrameNode, NodeContent } from '@kit.ArkUI'
 import HippyRenderBaseView from './components/base/HippyRenderBaseView'
 import { HippyRootView } from '.'
 import {
@@ -642,7 +643,7 @@ key1               value1
   }
 
   // for c-api
-  createRenderViewForCApi(params: CreateRenderViewParamsForCApi): FrameNode | null {
+  createRenderViewForCApi(params: CreateRenderViewParamsForCApi): CreateRenderViewResultForCApi | null {
     let viewManager = this.renderManager.getViewManager(params.rootTag)
     if (!viewManager) {
       return null
@@ -655,7 +656,8 @@ key1               value1
 
     let context = AppStorage.get<UIContext>('UIContextForHippy');
 
-    let view = viewManager.createRenderViewForCApi(params.tag, params.viewName)
+    let childSlot: NodeContent = new NodeContent()
+    let view = viewManager.createRenderViewForCApi(params.tag, params.viewName, childSlot)
     if (!view) {
       return null
     }
@@ -666,7 +668,7 @@ key1               value1
     let builderNodeManger = this.renderManager.getBuilerNodeManager(params.rootTag)
     builderNodeManger?.addCustomViewBuilderNode(params.tag, builderNode)
 
-    return builderNode.getFrameNode()!;
+    return { frameNode: builderNode.getFrameNode()!, childSlot: childSlot }
   }
 
   // for c-api

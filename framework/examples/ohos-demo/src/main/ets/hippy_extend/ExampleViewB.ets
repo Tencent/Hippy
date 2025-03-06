@@ -62,6 +62,8 @@ export struct ExampleComponentB {
   build() {
     Stack() {
       Text("This is a custom component B.")
+      // 该自定义组件有Hippy子组件或其它自定义子组件时，必须加Slot来衔接子组件
+      ContentSlot(this.renderView.childSlot)
     }
     .applyRenderViewBaseAttr(this.renderView)
   }

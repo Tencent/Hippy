@@ -32,51 +32,50 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-CustomTsView::CustomTsView(std::shared_ptr<NativeRenderContext> &ctx, ArkUI_NodeHandle nodeHandle) : BaseView(ctx), customNodeHandle_(nodeHandle) {
+CustomTsView::CustomTsView(std::shared_ptr<NativeRenderContext> &ctx, ArkUI_NodeHandle nodeHandle,
+  ArkUI_NodeContentHandle contentHandle) : BaseView(ctx), customNodeHandle_(nodeHandle), contentHandle_(contentHandle) {
 
 }
 
 CustomTsView::~CustomTsView() {
   if (!children_.empty()) {
-    if (subContainerNode_) {
+    if (contentNode_) {
       for (const auto &child : children_) {
-        subContainerNode_->RemoveChild(child->GetLocalRootArkUINode());
+        contentNode_->RemoveChild(child->GetLocalRootArkUINode());
       }
     }
     children_.clear();
-  }
-  if (containerNode_) {
-    containerNode_->RemoveChild(tsNode_.get());
-    containerNode_->RemoveChild(subContainerNode_.get());
   }
   if (customNodeHandle_) {
     NativeNodeApi::GetInstance()->disposeNode(customNodeHandle_);
     customNodeHandle_ = nullptr;
   }
+  contentHandle_ = nullptr;
 }
 
-StackNode *CustomTsView::GetLocalRootArkUINode() {
-  return containerNode_.get();
+CustomTsNode *CustomTsView::GetLocalRootArkUINode() {
+  return tsNode_.get();
 }
 
 void CustomTsView::CreateArkUINodeImpl() {
-  containerNode_ = std::make_shared<StackNode>();
   tsNode_ = std::make_shared<CustomTsNode>(customNodeHandle_);
   tsNode_->MarkReleaseHandle(false);
-  subContainerNode_ = std::make_shared<StackNode>();
-
-  containerNode_->AddChild(tsNode_.get());
-  containerNode_->AddChild(subContainerNode_.get());
-  containerNode_->SetClip(true);
-  subContainerNode_->SetWidthPercent(1.f);
-  subContainerNode_->SetHeightPercent(1.f);
-  subContainerNode_->SetHitTestMode(ARKUI_HIT_TEST_MODE_NONE);
+  contentNode_ = std::make_shared<StackNode>();
+  contentNode_->SetWidthPercent(1.f);
+  contentNode_->SetHeightPercent(1.f);
+  contentNode_->SetHitTestMode(ARKUI_HIT_TEST_MODE_NONE);
+  if (contentHandle_) {
+    OH_ArkUI_NodeContent_RegisterCallback(contentHandle_, nullptr);
+    OH_ArkUI_NodeContent_AddNode(contentHandle_, contentNode_->GetArkUINodeHandle());
+  }
 }
 
 void CustomTsView::DestroyArkUINodeImpl() {
-  containerNode_ = nullptr;
+  if (contentHandle_) {
+    OH_ArkUI_NodeContent_RemoveNode(contentHandle_, contentNode_->GetArkUINodeHandle());
+  }
   tsNode_ = nullptr;
-  subContainerNode_ = nullptr;
+  contentNode_ = nullptr;
 }
 
 bool CustomTsView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
@@ -99,12 +98,12 @@ void CustomTsView::OnChildRemoved(std::shared_ptr<BaseView> const &childView, in
 
 void CustomTsView::OnChildInsertedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
   BaseView::OnChildInsertedImpl(childView, index);
-  subContainerNode_->InsertChild(childView->GetLocalRootArkUINode(), index);
+  contentNode_->InsertChild(childView->GetLocalRootArkUINode(), index);
 }
 
 void CustomTsView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
   BaseView::OnChildRemovedImpl(childView, index);
-  subContainerNode_->RemoveChild(childView->GetLocalRootArkUINode());
+  contentNode_->RemoveChild(childView->GetLocalRootArkUINode());
 }
 
 void CustomTsView::OnCustomTsViewChildInserted(uint32_t tag, std::shared_ptr<BaseView> const &childView, int32_t index) {
