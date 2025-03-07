@@ -50,6 +50,10 @@ export class HippyRemoteBundleLoader implements HippyBundleLoader {
 
     const fileDownloadCb = new ProcessorCallbackImpl()
     fileDownloadCb.onHandleCompleted = () => {
+      if (holder.filePath.length == 0) {
+        LogUtils.e("HippyRemoteBundleLoader", "download file failed, url: " + this.mUrl);
+        return;
+      }
       const uri = HippyFileBundleLoader.FILE_STR + holder.filePath;
       let ret = bridge.runScriptFromUri(uri, this.mCanUseCodeCache, this.mCodeCacheTag, callback);
       LogUtils.d("HippyRemoteBundleLoader", "load: ret" + ret);
