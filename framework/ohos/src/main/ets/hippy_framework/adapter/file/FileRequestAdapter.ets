@@ -83,7 +83,7 @@ export class FileRequestAdapter implements HippyFileAdapter {
         LogUtils.i(FILE_REQ_TAG, 'Download task url:' + mDataHolder.uri);
         LogUtils.i(FILE_REQ_TAG, 'Download task filePath:' + filePath);
         if (err != undefined) {
-          LogUtils.i(FILE_REQ_TAG, `Failed to request the download. Code: ${err.code}, message: ${err.message}`);
+          LogUtils.e(FILE_REQ_TAG, `Failed to request the download. Code: ${err.code}, message: ${err.message}`);
           return;
         }
         downloadTask = data;
