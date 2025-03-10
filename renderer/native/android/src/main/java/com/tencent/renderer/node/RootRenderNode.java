@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.renderer.utils.ChoreographerUtils;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,15 +76,23 @@ public class RootRenderNode extends RenderNode {
 
     @Override
     public void updateEventListener(@NonNull Map<String, Object> newEvents) {
+        if (mEvents == null) {
+            mEvents = new HashMap<>();
+        }
         for (Entry<String, Object> entry : newEvents.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (key != null && value instanceof Boolean) {
                 // Need to check and register for animation events
                 handleRootEvent(key, (Boolean) value);
+
+                if ((Boolean) value) {
+                    mEvents.put(key, value);
+                } else {
+                    mEvents.remove(key);
+                }
             }
         }
-        mEvents = newEvents;
     }
 
     private void handleRootEvent(@NonNull String event, boolean enable) {
