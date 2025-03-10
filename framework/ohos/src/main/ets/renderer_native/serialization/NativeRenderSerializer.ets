@@ -41,7 +41,15 @@ export class NativeRenderSerializer extends PrimitiveValueSerializer {
     if (object instanceof Map) {
       this.assignId(object)
       if (object.size > 0) {
-        this.writeMap(object as Map<HippyAny, HippyAny>)
+        let keys = object.keys()
+        for (let key of keys) {
+          if(typeof key == 'string') {
+            this.writeObject(object as Map<string, HippyAny>)
+          } else {
+            this.writeMap(object as Map<HippyAny, HippyAny>)
+          }
+          break
+        }
       } else {
         this.writeObject(object as Map<string, HippyAny>)
       }
@@ -79,6 +87,15 @@ export class NativeRenderSerializer extends PrimitiveValueSerializer {
   writeObject(map: Map<string, HippyAny>) {
     this.writeTag(NativeRenderSerializationTag.BEGIN_OBJECT)
     let count = 0
+    map.forEach((value: HippyAny, key: string) => {
+      count++
+      if (key == null) {
+        this.writeString("null")
+      } else {
+        this.writeString(key)
+      }
+      this.writeValue(value)
+    })
     Object.keys(map).forEach(key => {
       count++
       if (key == null) {
