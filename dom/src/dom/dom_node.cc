@@ -221,6 +221,7 @@ std::tuple<float, float> DomNode::GetLayoutSize() {
 }
 
 void DomNode::SetLayoutSize(float width, float height) {
+  
   layout_node_->SetWidth(width);
   layout_node_->SetHeight(height);
 }
@@ -432,7 +433,7 @@ CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) 
   }
   auto it = func_cb_map_->find(name);
   if (it != func_cb_map_->end()) {
-    auto cb_map = it->second;
+    auto& cb_map = it->second;
     auto cb_it = cb_map.find(id);
     if (cb_it != cb_map.end()) {
       auto ret = std::move(cb_it->second);
