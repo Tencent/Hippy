@@ -971,7 +971,16 @@ void BaseView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &p
 }
 
 void BaseView::UpdateEventListener(HippyValueObjectType &newEvents) {
-  events_ = newEvents;
+  for (auto it = newEvents.begin(); it != newEvents.end(); it++) {
+    if (it->second.IsBoolean()) {
+      bool add = it->second.ToBooleanChecked();
+      if (add) {
+        events_[it->first] = it->second;
+      } else {
+        events_.erase(it->first);
+      }
+    }
+  }
 }
 
 bool BaseView::CheckRegisteredEvent(std::string &eventName) {

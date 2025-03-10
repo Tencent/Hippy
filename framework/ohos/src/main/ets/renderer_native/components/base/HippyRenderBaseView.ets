@@ -149,7 +149,19 @@ export default abstract class HippyRenderBaseView {
   }
 
   updateEventListener(newEvents: HippyMap) {
-    this.events = newEvents
+    if (!this.events) {
+      this.events = new Map<string, HippyAny>()
+    }
+    newEvents.forEach((value: HippyAny, key: string) => {
+      if (typeof value == 'boolean') {
+        let add = value as boolean
+        if (add) {
+          this.events?.set(key, value)
+        } else {
+          this.events?.delete(key)
+        }
+      }
+    })
   }
 
   checkRegisteredEvent(eventName: string): boolean {
