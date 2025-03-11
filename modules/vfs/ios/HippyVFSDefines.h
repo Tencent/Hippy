@@ -24,6 +24,8 @@
 #define HippyVFSDefines_h
 
 #import <Foundation/Foundation.h>
+
+#if defined(__cplusplus)
 #include <functional>
 #include <memory>
 
@@ -33,6 +35,12 @@ constexpr char kRequestFromOC[] = "kRequestFromOC";
 
 constexpr char kHeaderBody[] = "kHeaderBody";
 constexpr char kHeaderMethod[] = "kHeaderMethod";
+
+class VFSUriHandler;
+typedef std::shared_ptr<VFSUriHandler>(^VFSGetNextHandlerBlock)(void);
+
+#endif /* defined(__cplusplus) */
+
 
 enum HippyVFSRscType {
     HippyVFSRscTypeOther = 0,
@@ -59,8 +67,5 @@ typedef void(^VFSHandlerCompletionBlock)(NSData *_Nullable data,
                                          NSDictionary *_Nullable userInfo,
                                          NSURLResponse *_Nullable response,
                                          NSError * _Nullable error);
-
-class VFSUriHandler;
-typedef std::shared_ptr<VFSUriHandler>(^VFSGetNextHandlerBlock)(void);
 
 #endif /* HippyVFSDefines_h */
