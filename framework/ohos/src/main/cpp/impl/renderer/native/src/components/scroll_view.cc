@@ -149,9 +149,11 @@ void ScrollView::CheckFireEndDragEvent() {
   if (isDragging_) {
     isDragging_ = false;
     std::string endDragEventName = HREventUtils::EVENT_SCROLLER_END_DRAG;
-    std::string momentumBeginEventName = HREventUtils::EVENT_SCROLLER_MOMENTUM_BEGIN;
     this->EmitScrollEvent(endDragEventName);
-    this->EmitScrollEvent(momentumBeginEventName);
+    if (isScrollStarted_) {
+      std::string momentumBeginEventName = HREventUtils::EVENT_SCROLLER_MOMENTUM_BEGIN;
+      this->EmitScrollEvent(momentumBeginEventName);
+    }
   }
 }
 
@@ -214,9 +216,12 @@ void ScrollView::OnScroll(float xOffset, float yOffset) {
   }
 }
 
-void ScrollView::OnScrollStart() {}
+void ScrollView::OnScrollStart() {
+  isScrollStarted_ = true;
+}
 
 void ScrollView::OnScrollStop() {
+  isScrollStarted_ = false;
   lastScrollTime_ = 0;
   lastScrollOffset_ = 0;
   std::string eventName = std::string(HREventUtils::EVENT_SCROLLER_MOMENTUM_END);

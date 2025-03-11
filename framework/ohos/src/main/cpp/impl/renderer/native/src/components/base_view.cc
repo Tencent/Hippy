@@ -984,8 +984,10 @@ void BaseView::UpdateEventListener(HippyValueObjectType &newEvents) {
 }
 
 bool BaseView::CheckRegisteredEvent(std::string &eventName) {
-  if (events_.size() > 0 && events_.find(eventName) != events_.end()) {
-    auto value = events_[eventName];
+  std::string name = eventName;
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+  if (events_.size() > 0 && events_.find(name) != events_.end()) {
+    auto value = events_[name];
     bool boolValue = false;
     bool isBool = value.ToBoolean(boolValue);
     if (isBool) {

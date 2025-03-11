@@ -57,9 +57,10 @@ private:
 
   std::shared_ptr<ScrollNode> scrollNode_;
   std::shared_ptr<StackNode> stackNode_;
-  bool isDragging_;
-  float lastScrollOffset_;
-  int64_t lastScrollTime_;
+  bool isDragging_ = false;
+  bool isScrollStarted_ = false;
+  float lastScrollOffset_ = 0;
+  int64_t lastScrollTime_ = 0;
 };
 
 } // namespace native
