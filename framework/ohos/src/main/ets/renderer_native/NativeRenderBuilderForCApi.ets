@@ -20,7 +20,7 @@
 import { HippyAny, HippyMap } from '../support/common/HippyTypes'
 import HippyRenderBaseView from './components/base/HippyRenderBaseView'
 import { HRWeb, HRWebView } from './components/web/HRWebView'
-import { NodeContent } from '@kit.ArkUI'
+import { NodeContent, FrameNode } from '@kit.ArkUI'
 
 export interface CreateRenderViewParamsForCApi {
   rootTag: number
