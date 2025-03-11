@@ -26,8 +26,7 @@
 #import "HippyImageView.h"
 #import "HippyUIManager.h"
 #import "TypeConverter.h"
-#import "VFSUriLoader.h"
-#import "HippyBridge+Private.h"
+#import "HippyBridge+VFS.h"
 
 
 @implementation HippyImageViewManager
@@ -71,10 +70,6 @@ HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
-    auto loader = [self.bridge vfsUriLoader].lock();
-    if (!loader) {
-        return;
-    }
     id<HippyImageCustomLoaderProtocol> customLoader = self.bridge.imageLoader;
     NSDictionary *extraReqInfo;
     if (customLoader) {
@@ -83,9 +78,14 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     }
     
     __weak HippyImageView *weakView = view;
-    loader->RequestUntrustedContent(source, extraReqInfo, imageLoadOperationQueue(),
-                                    nil, ^(NSData * _Nullable data, NSDictionary * _Nullable userInfo,
-                                           NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [self.bridge loadContentUsingVFS:source
+                           extraInfo:extraReqInfo
+                      operationQueue:imageLoadOperationQueue()
+                            progress:nil
+                          completion:^(NSData * _Nullable data,
+                                       NSDictionary * _Nullable userInfo,
+                                       NSURLResponse * _Nullable response,
+                                       NSError * _Nullable error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             HippyImageView *strongView = weakView;
             if (strongView) {
@@ -93,7 +93,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
                 strongView.defaultImage = image;
             }
         });
-    });
+    }];
 }
 
 
@@ -114,10 +114,6 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
     }
     NSString *standardizeAssetUrlString = path;
     __weak HippyImageView *weakView = view;
-    auto loader = [self.bridge vfsUriLoader].lock();
-    if (!loader) {
-        return;
-    }
     id<HippyImageCustomLoaderProtocol> customLoader = self.bridge.imageLoader;
     NSDictionary *extraReqInfo;
     if (customLoader) {
@@ -128,8 +124,14 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
     }
     
     __weak __typeof(self)weakSelf = self;
-    loader->RequestUntrustedContent(path, extraReqInfo, imageLoadOperationQueue(), nil,
-                                    ^(NSData *data, NSDictionary *userInfo, NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentUsingVFS:path
+                           extraInfo:extraReqInfo
+                      operationQueue:imageLoadOperationQueue()
+                            progress:nil
+                          completion:^(NSData * _Nullable data,
+                                       NSDictionary * _Nullable userInfo,
+                                       NSURLResponse * _Nullable response,
+                                       NSError * _Nullable error) {
         __strong __typeof(weakSelf)strongSelf = weakSelf;
         HippyBridge *bridge = strongSelf.bridge;
         if (bridge) {
@@ -168,7 +170,7 @@ static NSOperationQueue *imageLoadOperationQueue(void) {
                 dispatch_async(dispatch_get_main_queue(), reloadImageInMain);
             }
         }
-    });
+    }];
 }
 
 #pragma mark - Border Related
