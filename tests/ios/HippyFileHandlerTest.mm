@@ -22,7 +22,7 @@
 
 #import <XCTest/XCTest.h>
 #import <hippy/HippyBridge.h>
-#import <hippy/HippyFileHandler.h>
+#import "HippyFileHandler.h"
 
 @interface HippyFileHandlerTest : XCTestCase
 
