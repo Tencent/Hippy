@@ -24,8 +24,9 @@
 #import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
 #import "HippyUIManager.h"
-
+#import "HippyAssert.h"
 #include "dom/dom_listener.h"
+
 
 typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
@@ -146,6 +147,12 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     
     NSHashTable<UIView *> *_onInterceptTouchEventView;
     NSHashTable<UIView *> *_onInterceptPullUpEventView;
+    
+    
+    // Gesture handling principle: must ensure that touch events are paired,
+    // Use the following variable to check for correctness
+    NSMutableArray<UIView *> *_realTouchBeganViews;
+    
 }
 
 - (instancetype)initWithRootView:(UIView *)view bridge:(HippyBridge *)bridge {
@@ -154,7 +161,9 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         _moveViews = [NSMutableArray new];
         _startPoint = CGPointZero;
         _rootView = view;
-        _touchBeganViews = [NSMutableArray new];
+        _touchBeganViews = [NSMutableArray array];
+        _realTouchBeganViews = [NSMutableArray array];
+        
         self.delegate = self;
         self.cancelsTouchesInView = NO;
         _onInterceptTouchEventView = [NSHashTable weakObjectsHashTable];
@@ -200,6 +209,9 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 point = [view convertPoint:point toView:_rootView];
                 if (view.onTouchDown) {
                     if ([self checkViewBelongToTouchHandler:view]) {
+                        // Records the view that has sent touch events
+                        [_realTouchBeganViews addObject:view];
+                        
                         const char *name = hippy::kTouchStartEvent;
                         [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchDown(point,
@@ -252,7 +264,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         UIView *touchView = beganView;
         CGPoint locationPoint = [touch locationInView:touchView];
         touchView = touchView?:[self.view.window hitTest:locationPoint withEvent:event];
-        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"] inView:touchView
+        NSDictionary *result = [self responseViewForAction:@[@"onTouchEnd", @"onPressOut", @"onClick"]
+                                                    inView:touchView
                                                    atPoint:locationPoint];
 
         UIView *view = result[@"onTouchEnd"][@"view"];
@@ -264,11 +277,14 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
 
-            if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
+            if (!clickView || !_onClickView || (clickIndex != NSNotFound && index <= clickIndex)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
-                if (view.onTouchEnd) {
+                // Make sure the view has already sent a TouchDown event
+                if (view.onTouchEnd && [_realTouchBeganViews containsObject:view]) {
                     if ([self checkViewBelongToTouchHandler:view]) {
+                        [_realTouchBeganViews removeObject:view];
+                        
                         const char *name = hippy::kTouchEndEvent;
                         [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchEnd(point,
@@ -340,8 +356,10 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
     [_touchBeganViews removeAllObjects];
+    [_realTouchBeganViews removeAllObjects];
     [_onInterceptTouchEventView removeAllObjects];
     [_onInterceptPullUpEventView removeAllObjects];
+    HippyAssert([_realTouchBeganViews count] == 0, @"The touch event is not paired!");
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -431,7 +449,6 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         return;
     }
     [self clearTimer];
-    _onClickView = nil;
 
     {
         NSInteger index = [_moveTouches indexOfObject:touch];
@@ -574,6 +591,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     NSMutableArray *findActions = [NSMutableArray arrayWithArray:actions];
     UIView *view = (UIView *)targetView;
     NSInteger index = 0;
+    
     while (view) {
         BOOL onInterceptTouchEvent = view.onInterceptTouchEvent;
         BOOL onInterceptPullUpEvent = view.onInterceptPullUpEvent;
@@ -607,14 +625,16 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 [findActions removeObject:@"onPressOut"];
             }
 
-            if ([findActions containsObject:@"onClick"] && view.onClick) {
-                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
-                [findActions removeObject:@"onClick"];
-            }
-
-            if ([findActions containsObject:@"onLongClick"] && view.onLongClick) {
-                [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onLongClick"];
-                [findActions removeObject:@"onLongClick"];
+            if (isPointInsideView(view, point)) {
+                if ([findActions containsObject:@"onClick"] && view.onClick) {
+                    [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
+                    [findActions removeObject:@"onClick"];
+                }
+                
+                if ([findActions containsObject:@"onLongClick"] && view.onLongClick) {
+                    [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onLongClick"];
+                    [findActions removeObject:@"onLongClick"];
+                }
             }
 
             if ([findActions containsObject:@"onTouchDown"] && view.onTouchDown) {
