@@ -166,8 +166,8 @@ export class HippyHttpRequest {
     return!TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect);
   }
 
-  public getBody(): string | Object | ArrayBuffer {
-    if (this.mBody == null) return ""
+  public getBody(): string | Object | ArrayBuffer | undefined {
+    if (!this.mBody) return undefined
     try {
       let jsonObject: Record<string, Object> = JSON.parse(this.mBody);
       let contentType = this.mHeaders.get('content-type')
@@ -186,7 +186,7 @@ export class HippyHttpRequest {
         return result.toString();
       }
     } catch (e) {
-      LogUtils.e(HIPPY_HTTP_REQUEST_TAG, 'http body parse error: ' + this.mBody);
+      LogUtils.e(HIPPY_HTTP_REQUEST_TAG, 'http body parse error: ' + this.mBody + ', exception: ' + e);
       return this.mBody;
     }
   }
