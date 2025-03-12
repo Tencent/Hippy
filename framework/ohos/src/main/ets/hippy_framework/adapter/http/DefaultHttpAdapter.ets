@@ -62,7 +62,7 @@ export class DefaultHttpAdapter implements HippyHttpAdapter {
         {
           method: request.getMethod(),
           header: header,
-          extraData: request.getBody(),
+          extraData: request.getBody(), // extraData没有时，传undefined，不能传空串，传空串请求会加&
           readTimeout: request.getReadTimeout(),
           connectTimeout: request.getConnectTimeout()
         }, (err, data) => {
