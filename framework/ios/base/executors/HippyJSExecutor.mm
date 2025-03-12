@@ -550,8 +550,7 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
         }
         auto tryCatch = hippy::TryCatch::CreateTryCatchScope(true, context);
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(context);
-        NSString *finalName = [NSString stringWithFormat:@"HippyContext: %@", contextName];
-        jsc_context->SetName((__bridge CFStringRef)finalName);
+        jsc_context->SetName((__bridge CFStringRef)contextName);
         if (tryCatch->HasCaught()) {
             HippyLogWarn(@"set context throw exception");
         }
