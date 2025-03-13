@@ -87,10 +87,14 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
     // convert to ARGB if it isn't
     if (CGImageGetBitsPerPixel(imageRef) != 32 || CGImageGetBitsPerComponent(imageRef) != 8
         || !((CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask))) {
-        UIGraphicsBeginImageContextWithOptions(inputImage.size, NO, inputImage.scale);
-        [inputImage drawAtPoint:CGPointZero];
-        imageRef = UIGraphicsGetImageFromCurrentImageContext().CGImage;
-        UIGraphicsEndImageContext();
+        UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+        format.opaque = NO;
+        format.scale = inputImage.scale;
+        UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:inputImage.size format:format];
+        UIImage *renderedImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+            [inputImage drawAtPoint:CGPointZero];
+        }];
+        imageRef = renderedImage.CGImage;
     }
     
     vImage_Buffer buffer1, buffer2;

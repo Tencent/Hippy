@@ -666,26 +666,27 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
                     contentBlock(nil);
                 }
                 
-                UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-                //draw background image
-                CGSize imageSize = decodedImage.size;
-                CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
-                CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-                CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0,
-                                                   (targetSize.height - drawSize.height) / 2.0);
-                
-                [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
-                                                    borderInsets.top + backgroundPositionY + originOffset.y,
-                                                    drawSize.width,
-                                                    drawSize.height)];
-                //draw border
-                CGSize size = theFrame.size;
-                [image drawInRect:(CGRect) { CGPointZero, size }];
-                
-                //output image
-                UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-                UIGraphicsEndImageContext();
-                contentBlock(resultingImage);
+                UIGraphicsImageRendererFormat *rendererFormat = [UIGraphicsImageRendererFormat preferredFormat];
+                rendererFormat.scale = image.scale;
+                UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:theFrame.size format:rendererFormat];
+                UIImage *renderedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                    // draw background image
+                    CGSize imageSize = decodedImage.size;
+                    CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, borderInsets).size;
+                    CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
+                    CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.0,
+                                                       (targetSize.height - drawSize.height) / 2.0);
+                    [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                        borderInsets.top + backgroundPositionY + originOffset.y,
+                                                        drawSize.width,
+                                                        drawSize.height)];
+                    // draw border
+                    if (image) {
+                        CGSize size = theFrame.size;
+                        [image drawInRect:(CGRect) { CGPointZero, size }];
+                    }
+                }];
+                contentBlock(renderedImage);
             }];
         });
         return NO;
@@ -700,11 +701,17 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
             info.size = size;
             info.cornerRadii = cornerRadii;
-            UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
-            [gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
-            [image drawInRect:(CGRect) { CGPointZero, size }];
-            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
+            
+            UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat defaultFormat];
+            format.scale = image.scale;
+            UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size format:format];
+            UIImage *resultingImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                CGContextRef context = rendererContext.CGContext;
+                // Draw gradient
+                [gradientObject drawInContext:context canvasInfo:info];
+                // Draw border image
+                [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+            }];
             contentBlock(resultingImage);
         });
         return NO;
