@@ -21,7 +21,7 @@
  */
 
 #include "driver/modules/performance/performance_frame_timing_module.h"
-
+#include "driver/modules/performance/performance_entry_module.h"
 #include "driver/performance/performance_frame_timing.h"
 #include "footstone/time_point.h"
 #include "footstone/string_view.h"
@@ -70,6 +70,11 @@ std::shared_ptr<ClassTemplate<PerformanceFrameTiming>> RegisterPerformanceFrameT
     }
     return std::static_pointer_cast<PerformanceFrameTiming>(entries.back());
   };
+
+#ifdef JS_JSH
+  auto entry_properties = hippy::RegisterPerformanceEntryPropertyDefine<PerformanceFrameTiming>(weak_scope);
+  class_template.properties.insert(class_template.properties.end(), entry_properties.begin(), entry_properties.end());
+#endif
 
   return std::make_shared<ClassTemplate<PerformanceFrameTiming>>(std::move(class_template));
 }

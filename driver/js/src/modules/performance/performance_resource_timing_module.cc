@@ -21,7 +21,7 @@
  */
 
 #include "driver/modules/performance/performance_resource_timing_module.h"
-
+#include "driver/modules/performance/performance_entry_module.h"
 #include "driver/performance/performance_resource_timing.h"
 #include "footstone/time_point.h"
 #include "footstone/string_view.h"
@@ -71,6 +71,11 @@ std::shared_ptr<ClassTemplate<PerformanceResourceTiming>> RegisterPerformanceRes
     }
     return std::static_pointer_cast<PerformanceResourceTiming>(entries.back());
   };
+
+#ifdef JS_JSH
+  auto entry_properties = hippy::RegisterPerformanceEntryPropertyDefine<PerformanceResourceTiming>(weak_scope);
+  class_template.properties.insert(class_template.properties.end(), entry_properties.begin(), entry_properties.end());
+#endif
 
   PropertyDefine<PerformanceResourceTiming> initiator_type;
   initiator_type.name = "initiatorType";

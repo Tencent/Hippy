@@ -21,7 +21,7 @@
  */
 
 #include "driver/modules/performance/performance_paint_timing_module.h"
-
+#include "driver/modules/performance/performance_entry_module.h"
 #include "driver/performance/performance_paint_timing.h"
 
 using string_view = footstone::string_view;
@@ -68,6 +68,11 @@ std::shared_ptr<ClassTemplate<PerformancePaintTiming>> RegisterPerformancePaintT
     }
     return std::static_pointer_cast<PerformancePaintTiming>(entries.back());
   };
+
+#ifdef JS_JSH
+  auto entry_properties = hippy::RegisterPerformanceEntryPropertyDefine<PerformancePaintTiming>(weak_scope);
+  class_template.properties.insert(class_template.properties.end(), entry_properties.begin(), entry_properties.end());
+#endif
 
   return std::make_shared<ClassTemplate<PerformancePaintTiming>>(std::move(class_template));
 }

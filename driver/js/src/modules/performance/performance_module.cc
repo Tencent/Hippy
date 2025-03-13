@@ -33,7 +33,10 @@
 #include "footstone/time_point.h"
 #include "footstone/string_view.h"
 #ifdef JS_V8
-#include "driver/vm/v8/memory_module.h"
+#include "driver/vm/v8/memory_module_v8.h"
+#endif
+#ifdef JS_JSH
+#include "driver/vm/jsh/memory_module_jsh.h"
 #endif
 
 using string_view = footstone::string_view;
@@ -411,8 +414,10 @@ std::shared_ptr<ClassTemplate<Performance>> RegisterPerformance(const std::weak_
     if (!scope) {
       return nullptr;
     }
-#ifdef JS_V8
+#if defined(JS_V8)
     return GetV8Memory(scope);
+#elif defined(JS_JSH)
+    return GetJSHMemory(scope);
 #else
     auto context = scope->GetContext();
     return context->CreateUndefined();
