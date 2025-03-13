@@ -71,6 +71,7 @@ set(SOURCE_SET
   src/utils/hr_text_convert_utils.cc
   src/utils/hr_url_utils.cc
   src/utils/hr_display_sync_utils.cc
+  src/utils/hr_perf_utils.cc
   src/virtual/hr_virtual_view_manager.cc
   src/virtual/hr_virtual_view.cc
   src/arkui/arkui_node.cc

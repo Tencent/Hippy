@@ -164,14 +164,14 @@ export class VfsManager {
       holder.index = index
       const processor = this.processorChain[index]
       if (isSync) {
-        processor.handleRequestSync(holder)
+        processor.handleResponseSync(holder)
         this.traverseGoBack(holder, true)
       } else {
         let callback = new ProcessorCallbackImpl()
         callback.onHandleCompleted = () => {
           this.traverseGoBack(holder, false)
         }
-        processor.handleRequestAsync(holder, callback)
+        processor.handleResponseAsync(holder, callback)
       }
     } else if (!isSync) {
       if (holder.requestFrom == RequestFrom.LOCAL) {

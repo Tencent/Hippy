@@ -60,6 +60,7 @@ import { DevServerCallBack } from './devsupport/DevServerCallBack';
 import { HippyJsException } from './common/HippyJsException';
 import { DimensionsUtil } from '../support/utils/DimensionsUtil';
 import { PixelUtil } from "../support/utils/PixelUtil";
+import systemDateTime from '@ohos.systemDateTime';
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private libHippy: HippyLibrary
@@ -75,6 +76,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   public enableV8Serialization: boolean;
   public mRemoteServerUrl: string;
   public mGroupId: number;
+  public mInitStartTime: number = 0;
   public mMonitor: TimeMonitor;
   public mServerHost: string;
   public mThirdPartyAdapter: HippyThirdPartyAdapter | null;
@@ -188,6 +190,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       this.params,
       domMgr,
       this.mGlobalConfigs,
+      this.mInitStartTime,
       this.mMonitor,
       this.mCoreBundleLoader,
       this.mDevSupportManager,
@@ -261,6 +264,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   }
 
   public initEngine(initEngineCallback: HippyEngineInitCallback): void {
+    this.mInitStartTime = systemDateTime.getTime();
     this.initDevModule();
     this.initEngineCallback = initEngineCallback;
     this.startEngine();

@@ -154,7 +154,7 @@ void AnimationFrameModule::UpdateFrame(const std::shared_ptr<Scope>& scope) {
 
   std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
 
-#ifdef ANDROID
+#if defined(ANDROID) || defined(__OHOS__)
   std::shared_ptr<CtxValue> action_value = context->CreateString("callBack");
   auto param = context->CreateObject();
   auto result_key = context->CreateString("result");

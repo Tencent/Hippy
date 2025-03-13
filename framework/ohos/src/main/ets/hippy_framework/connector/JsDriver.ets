@@ -172,14 +172,7 @@ export class JsDriver {
     startTime: number,
     endTime: number
   ) {
-    this.libHippy?.JsDriver_OnNativeInitEnd(this.instanceId, startTime, endTime)
-  }
-
-  onFirstFrameEnd(
-    rootId: number,
-    time: number
-  ) {
-    this.libHippy?.JsDriver_OnFirstFrameEnd(this.instanceId, rootId, time)
+    this.libHippy?.JsDriver_OnNativeInitEnd(this.instanceId, BigInt(startTime), BigInt(endTime))
   }
 
   onResourceLoadEnd(
@@ -189,7 +182,7 @@ export class JsDriver {
     retCode: number,
     errorMsg: string
   ) {
-    this.libHippy?.JsDriver_OnResourceLoadEnd(this.instanceId, uri, startTime, endTime, retCode, errorMsg)
+    this.libHippy?.JsDriver_OnResourceLoadEnd(this.instanceId, uri, BigInt(startTime), BigInt(endTime), retCode, errorMsg)
   }
 
   callFunction(

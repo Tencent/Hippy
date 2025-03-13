@@ -22,25 +22,17 @@
 
 #pragma once
 
-#include <map>
-#include "renderer/native_render_provider.h"
+#include "renderer/native_render_context.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class NativeRenderProviderManager {
+class HRPerfUtils {
 public:
-  static void AddRenderProvider(uint32_t instance_id, std::shared_ptr<NativeRenderProvider> &provider);
-  static void RemoveRenderProvider(uint32_t instance_id);
-  static std::shared_ptr<NativeRenderProvider> &GetRenderProvider(uint32_t instance_id);
-
-  static void SaveRootIdWithScopeId(uint32_t root_id, uint32_t scope_id);
-  static uint32_t GetScopeIdOfRootId(uint32_t root_id);
-
-private:
-  static std::map<uint32_t, std::shared_ptr<NativeRenderProvider>> provider_map_;
-  static std::map<uint32_t, uint32_t> root_id_map_;
+  static void OnFirstPaint(std::shared_ptr<NativeRenderContext> &ctx);
+  static void OnFirstContentfulPaint(std::shared_ptr<NativeRenderContext> &ctx);
+  static int64_t GetTimeMilliSeconds();
 };
 
 } // namespace native

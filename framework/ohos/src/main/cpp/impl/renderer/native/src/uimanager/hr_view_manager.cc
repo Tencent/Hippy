@@ -35,6 +35,7 @@
 #include "renderer/components/rich_text_view.h"
 #include "renderer/dom_node/hr_node_props.h"
 #include "renderer/native_render_context.h"
+#include "renderer/utils/hr_perf_utils.h"
 #include "footstone/logging.h"
 
 namespace hippy {
@@ -147,6 +148,7 @@ void HRViewManager::reportFirstViewAdd() {
   std::vector<napi_value> args = {};
   auto delegateObject = arkTs.GetObject(ts_render_provider_ref_);
   delegateObject.Call("onFirstPaint", args);
+  HRPerfUtils::OnFirstPaint(ctx_);
 }
 
 void HRViewManager::reportFirstContentViewAdd() {
@@ -155,6 +157,7 @@ void HRViewManager::reportFirstContentViewAdd() {
   std::vector<napi_value> args = {};
   auto delegateObject = arkTs.GetObject(ts_render_provider_ref_);
   delegateObject.Call("onFirstContentfulPaint", args);
+  HRPerfUtils::OnFirstContentfulPaint(ctx_);
 }
 
 void HRViewManager::prepareReportFirstContentViewAdd(std::shared_ptr<HRMutation> &m) {
@@ -167,6 +170,7 @@ void HRViewManager::prepareReportFirstContentViewAdd(std::shared_ptr<HRMutation>
           if (key.length() > 0 && key == "paintType") {
             FOOTSTONE_DLOG(ERROR) << "TimeMonitor, fcp start";
             isFirstContentViewAdd = FCPType::WAIT;
+            break;
           }
         }
       }

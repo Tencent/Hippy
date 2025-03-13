@@ -82,13 +82,12 @@ export interface HippyLibrary {
     callback: NativeCallback
   ): boolean;
   JsDriver_SetRootNode(instanceId: number, rootId: number): void;
-  JsDriver_OnNativeInitEnd(instanceId: number, startTime: number, endTime: number): void;
-  JsDriver_OnFirstFrameEnd(instanceId: number, rootId: number, time: number): void;
+  JsDriver_OnNativeInitEnd(instanceId: number, startTime: bigint, endTime: bigint): void;
   JsDriver_OnResourceLoadEnd(
     instanceId: number,
     uri: string,
-    startTime: number,
-    endTime: number,
+    startTime: bigint,
+    endTime: bigint,
     retCode: number,
     errorMsg: string): void;
   JsDriver_CallFunction(instanceId: number, action: string, callback: NativeCallback, buffer: ArrayBuffer): void;
