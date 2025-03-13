@@ -125,10 +125,13 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
             return;
         }
         // root view snapshot
-        UIGraphicsBeginImageContextWithOptions(rootView.frame.size, NO, scale);
-        [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
-        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
+        UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+        format.scale = scale;
+        UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:rootView.frame.size format:format];
+        UIImage *resultImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+            [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
+        }];
+        
         if (resultImage) {
             NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
             NSString *base64String = [self imageToBase64String:resultImage format:self.format];
