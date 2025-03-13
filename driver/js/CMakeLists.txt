@@ -181,7 +181,7 @@ if ("${JS_ENGINE}" STREQUAL "V8" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
           src/napi/v8/v8_class_definition.cc
           src/napi/v8/v8_try_catch.cc
           src/vm/v8/interrupt_queue.cc
-          src/vm/v8/memory_module.cc
+          src/vm/v8/memory_module_v8.cc
           src/vm/v8/native_source_code_v8.cc
           src/vm/v8/serializer.cc
           src/vm/v8/v8_vm.cc)
@@ -210,6 +210,7 @@ if ("${JS_ENGINE}" STREQUAL "JSH")
             src/napi/jsh/jsh_class_definition.cc
             src/napi/jsh/jsh_ctx.cc
             src/napi/jsh/jsh_try_catch.cc
+            src/vm/jsh/memory_module_jsh.cc
             src/vm/jsh/jsh_vm.cc
             src/vm/jsh/native_source_code_jsh.cc)
 endif ()

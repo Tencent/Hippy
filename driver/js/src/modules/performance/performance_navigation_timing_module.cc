@@ -21,7 +21,7 @@
  */
 
 #include "driver/modules/performance/performance_navigation_timing_module.h"
-
+#include "driver/modules/performance/performance_entry_module.h"
 #include "driver/performance/performance_resource_timing.h"
 #include "footstone/time_point.h"
 #include "footstone/string_view.h"
@@ -74,6 +74,12 @@ std::shared_ptr<ClassTemplate<PerformanceNavigationTiming>> RegisterPerformanceN
     }
     return std::static_pointer_cast<PerformanceNavigationTiming>(entries.back());
   };
+
+#ifdef JS_JSH
+  // JSVM没有继承链接口，所以基类方法需要这里补下
+  auto entry_properties = hippy::RegisterPerformanceEntryPropertyDefine<PerformanceNavigationTiming>(weak_scope);
+  class_template.properties.insert(class_template.properties.end(), entry_properties.begin(), entry_properties.end());
+#endif
 
 #define ADD_PROPERTY(prop_var, prop_name, get_prop_method) \
   PropertyDefine<PerformanceNavigationTiming> prop_var; \

@@ -20,18 +20,18 @@
  *
  */
 
-#include "driver/vm/v8/memory_module.h"
+#include "driver/vm/jsh/memory_module_jsh.h"
 
 #include <string>
 
-#include "driver/napi/v8/v8_ctx.h"
+#include "driver/napi/jsh/jsh_ctx.h"
 #include "driver/scope.h"
 #include "driver/modules/module_register.h"
 #include "footstone/logging.h"
 
 using string_view = footstone::string_view;
 using Ctx = hippy::napi::Ctx;
-using V8Ctx = hippy::napi::V8Ctx;
+using JSHCtx = hippy::napi::JSHCtx;
 using CtxValue = hippy::napi::CtxValue;
 
 namespace hippy {
@@ -44,23 +44,27 @@ constexpr char kUsedJSHeapSize[] = "usedJSHeapSize";
 constexpr char kJsNumberOfNativeContexts[] = "jsNumberOfNativeContexts";
 constexpr char kJsNumberOfDetachedContexts[] = "jsNumberOfDetachedContexts";
 
-std::shared_ptr<CtxValue> GetV8Memory(std::shared_ptr<Scope> scope) {
-  auto ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
-  v8::Isolate* isolate = ctx->isolate_;
-  v8::HandleScope handle_scope(isolate);
-  auto heap_statistics = std::make_shared<v8::HeapStatistics>();
-  isolate->GetHeapStatistics(heap_statistics.get());
+std::shared_ptr<CtxValue> GetJSHMemory(std::shared_ptr<Scope> scope) {
+  JSVM_HeapStatistics heap_statistics;
+  memset(&heap_statistics, 0, sizeof(JSVM_HeapStatistics));
+
+  auto ctx = std::static_pointer_cast<JSHCtx>(scope->GetContext());
+  JSHHandleScope handleScope(ctx->env_);
+  JSVM_Status status = OH_JSVM_GetHeapStatistics(ctx->vm_, &heap_statistics);
+  if (status != JSVM_OK) {
+    return ctx->CreateObject(std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>());
+  }
 
   auto jsHeapSizeLimitValue =
-      ctx->CreateNumber(static_cast<double>(heap_statistics->heap_size_limit()));
+      ctx->CreateNumber(static_cast<double>(heap_statistics.heapSizeLimit));
   auto totalJSHeapSizeValue =
-      ctx->CreateNumber(static_cast<double>(heap_statistics->total_heap_size()));
+      ctx->CreateNumber(static_cast<double>(heap_statistics.totalHeapSize));
   auto usedJSHeapSizeValue =
-      ctx->CreateNumber(static_cast<double>(heap_statistics->used_heap_size()));
+      ctx->CreateNumber(static_cast<double>(heap_statistics.usedHeapSize));
   auto jsNumberOfNativeContextsValue =
-      ctx->CreateNumber(static_cast<double>(heap_statistics->number_of_native_contexts()));
+      ctx->CreateNumber(static_cast<double>(heap_statistics.numberOfNativeContexts));
   auto jsNumberOfDetachedContextsValue =
-      ctx->CreateNumber(static_cast<double>(heap_statistics->number_of_detached_contexts()));
+      ctx->CreateNumber(static_cast<double>(heap_statistics.numberOfDetachedContexts));
 
   auto jsHeapSizeLimit = ctx->CreateString(kJsHeapSizeLimit);
   auto totalJSHeapSize = ctx->CreateString(kTotalJSHeapSize);
@@ -86,7 +90,7 @@ void MemoryModule::Get(hippy::napi::CallbackInfo& info, void* data) {
   auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
-  info.GetReturnValue()->Set(GetV8Memory(scope));
+  info.GetReturnValue()->Set(GetJSHMemory(scope));
 }
 
 std::shared_ptr<CtxValue> MemoryModule::BindFunction(std::shared_ptr<Scope> scope,

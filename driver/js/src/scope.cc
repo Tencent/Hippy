@@ -56,7 +56,7 @@
 #include "footstone/task_runner.h"
 
 #ifdef JS_V8
-#include "driver/vm/v8/memory_module.h"
+#include "driver/vm/v8/memory_module_v8.h"
 #include "driver/napi/v8/v8_ctx.h"
 #include "driver/vm/v8/v8_vm.h"
 #endif /* JS_V8 */
@@ -67,6 +67,7 @@
 #endif /* JS_HERMES */
 
 #ifdef JS_JSH
+#include "driver/vm/jsh/memory_module_jsh.h"
 #include "driver/napi/jsh/jsh_ctx.h"
 #include "driver/vm/jsh/jsh_vm.h"
 #endif /* JS_JSH */
@@ -215,7 +216,7 @@ void Scope::BindModule() {
   module_object_map_["ContextifyModule"] = std::make_shared<ContextifyModule>();
   module_object_map_["UIManagerModule"] = std::make_shared<UIManagerModule>();
   module_object_map_["AnimationFrameModule"] = std::make_shared<AnimationFrameModule>();
-#ifdef JS_V8
+#if defined(JS_V8) || defined(JS_JSH)
   module_object_map_["MemoryModule"] = std::make_shared<MemoryModule>();
 #endif
   module_object_map_["LayoutModule"] = std::make_shared<LayoutModule>();
