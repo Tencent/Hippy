@@ -19,9 +19,15 @@
  */
 
 export class UrlUtils {
+  public static PREFIX_BASE64_DATA: string = "data:";
+  public static PREFIX_BASE64: string = ";base64,";
 
   public static isWebUrl(url: string) : boolean {
     const regex = new RegExp('^https?:\/\/.+', 'i');
     return regex.test(url);
+  }
+
+  public static isBase64Url(url: string) : boolean {
+    return url.length > 0 && url.startsWith(UrlUtils.PREFIX_BASE64_DATA) && url.indexOf(UrlUtils.PREFIX_BASE64) >= 0;
   }
 }

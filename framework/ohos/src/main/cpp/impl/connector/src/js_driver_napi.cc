@@ -37,6 +37,7 @@
 #include "footstone/string_view_utils.h"
 #include "footstone/worker_manager.h"
 #include "vfs/handler/asset_handler.h"
+#include "renderer/native_render_provider_manager.h"
 
 #ifdef JS_V8
 #include "driver/vm/v8/v8_vm.h"
@@ -404,6 +405,7 @@ static napi_value SetRootNode(napi_env env, napi_callback_info info) {
   auto flag = persistent_map.Find(root_id, root_node);
   FOOTSTONE_CHECK(flag);
   scope->SetRootNode(root_node);
+  NativeRenderProviderManager::SaveRootIdWithScopeId(root_id, scope_id);
   return arkTs.GetUndefined();
 }
 
@@ -411,8 +413,8 @@ static napi_value OnNativeInitEnd(napi_env env, napi_callback_info info) {
   ArkTS arkTs(env);
   auto args = arkTs.GetCallbackArgs(info);
   uint32_t scope_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
-  int64_t startTime = static_cast<int64_t>(arkTs.GetInteger(args[1]));
-  int64_t endTime = static_cast<int64_t>(arkTs.GetInteger(args[2]));
+  int64_t startTime = arkTs.GetInt64(args[1]);
+  int64_t endTime = arkTs.GetInt64(args[2]);
 
   auto scope = GetScope(scope_id);
   auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
@@ -431,14 +433,12 @@ static napi_value OnNativeInitEnd(napi_env env, napi_callback_info info) {
   return arkTs.GetUndefined();
 }
 
-static napi_value OnFirstFrameEnd(napi_env env, napi_callback_info info) {
-  ArkTS arkTs(env);
-  auto args = arkTs.GetCallbackArgs(info);
-  uint32_t scope_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
-  uint32_t root_id = static_cast<uint32_t>(arkTs.GetInteger(args[1]));
-  int64_t time = static_cast<int64_t>(arkTs.GetInteger(args[2]));
-
+// Ohos上，View都是C语言的，在Render模块，直接调用JSDriver不方便，所以这里定义，Render里声明使用
+extern "C" void OnFirstPaintEndForView(uint32_t scope_id, uint32_t root_id, int64_t time) {
   auto scope = GetScope(scope_id);
+  if (!scope) {
+    return;
+  }
   auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
@@ -452,6 +452,7 @@ static napi_value OnFirstFrameEnd(napi_env env, napi_callback_info info) {
         return;
       }
       auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+      entry->SetHippyRunApplicationEnd(dom_manager->GetDomStartTimePoint(root_id));
       entry->SetHippyDomStart(dom_manager->GetDomStartTimePoint(root_id));
       entry->SetHippyDomEnd(dom_manager->GetDomEndTimePoint(root_id));
       entry->SetHippyFirstFrameStart(dom_manager->GetDomEndTimePoint(root_id));
@@ -459,7 +460,26 @@ static napi_value OnFirstFrameEnd(napi_env env, napi_callback_info info) {
     };
     runner->PostTask(std::move(task));
   }
-  return arkTs.GetUndefined();
+}
+
+extern "C" void OnFirstContentfulPaintEndForView(uint32_t scope_id, int64_t time) {
+  auto scope = GetScope(scope_id);
+  if (!scope) {
+    return;
+  }
+  auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
+  if (runner) {
+    std::weak_ptr<Scope> weak_scope = scope;
+    auto task = [weak_scope, time]() {
+      auto scope = weak_scope.lock();
+      if (!scope) {
+        return;
+      }
+      auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+      entry->SetHippyFirstContentfulPaintEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(time)));
+    };
+    runner->PostTask(std::move(task));
+  }
 }
 
 static napi_value OnResourceLoadEnd(napi_env env, napi_callback_info info) {
@@ -467,8 +487,8 @@ static napi_value OnResourceLoadEnd(napi_env env, napi_callback_info info) {
   auto args = arkTs.GetCallbackArgs(info);
   uint32_t scope_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
   std::string uri_str = arkTs.GetString(args[1]);
-  int64_t start_time = static_cast<int64_t>(arkTs.GetInteger(args[2]));
-  int64_t end_time = static_cast<int64_t>(arkTs.GetInteger(args[3]));
+  int64_t start_time = arkTs.GetInt64(args[2]);
+  int64_t end_time = arkTs.GetInt64(args[3]);
   int32_t ret_code = static_cast<int32_t>(arkTs.GetInteger(args[4]));
   std::string error_msg_str = arkTs.GetString(args[5]);
 
@@ -506,7 +526,6 @@ REGISTER_OH_NAPI("JsDriver", "JsDriver_UnloadInstance", UnloadInstance)
 REGISTER_OH_NAPI("JsDriver", "JsDriver_RunScriptFromUri", RunScriptFromUri)
 REGISTER_OH_NAPI("JsDriver", "JsDriver_SetRootNode", SetRootNode)
 REGISTER_OH_NAPI("JsDriver", "JsDriver_OnNativeInitEnd", OnNativeInitEnd)
-REGISTER_OH_NAPI("JsDriver", "JsDriver_OnFirstFrameEnd", OnFirstFrameEnd)
 REGISTER_OH_NAPI("JsDriver", "JsDriver_OnResourceLoadEnd", OnResourceLoadEnd)
 
 napi_value OhNapi_OnLoad(napi_env env, napi_value exports) {

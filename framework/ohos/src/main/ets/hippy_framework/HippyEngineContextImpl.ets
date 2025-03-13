@@ -25,6 +25,7 @@ import { LogUtils } from '../support/utils/LogUtils';
 import { HippyRootView } from '../renderer_native/HippyRootView';
 import { NativeRender } from '../renderer_native/NativeRender';
 import { HippyRootViewManager } from '../renderer_native/HippyRootViewManager';
+import { PerformanceProcessor } from './PerformanceProcessor';
 
 export class HippyEngineContextImpl implements HippyEngineContext {
   public vfsManager: VfsManager
@@ -35,6 +36,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   private mEngineInitParams: EngineInitParams;
   private mGlobalConfigs: HippyGlobalConfigs;
   private mDomManager: DomManager;
+  private mInitStartTime: number = 0;
   private mMonitor: TimeMonitor;
   private mModuleManager: HippyModuleManager;
   private mBridgeManager: HippyBridgeManager | null = null;
@@ -53,6 +55,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     params: EngineInitParams,
     domManager: DomManager | null,
     globalConfigs: HippyGlobalConfigs,
+    initStartTime: number,
     monitor: TimeMonitor,
     coreBundleLoader: HippyBundleLoader | null,
     devSupportManager: DevSupportManager| null,
@@ -63,8 +66,10 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     this.mGlobalConfigs = globalConfigs;
     const resourceLoader = new HippyResourceLoader(this)
     this.vfsManager = new VfsManager(this.libHippy)
+    this.vfsManager.addProcessorAtFirst(new PerformanceProcessor(this))
     this.vfsManager.addProcessorAtLast(new DefaultProcessor(resourceLoader))
     this.mDomManager = domManager ? domManager : new DomManager(this.libHippy, this.mGlobalConfigs.getDomManagerConcurrentNum());
+    this.mInitStartTime = initStartTime;
     this.mMonitor = monitor;
     this.mCoreBundleLoader = coreBundleLoader;
     this.mDebugMode = params.debugMode;
@@ -154,7 +159,9 @@ export class HippyEngineContextImpl implements HippyEngineContext {
         params.groupId,
         params.thirdPartyAdapter,
         params.v8InitParams,
-        this.mJsDriver);
+        this.mJsDriver,
+        this.mInitStartTime
+      );
       this.mBridgeManager = bridgeManagerImpl;
       this.mJsDriver.setBridgeCallback(bridgeManagerImpl);
       this.mDevSupportManager = devSupportManager;

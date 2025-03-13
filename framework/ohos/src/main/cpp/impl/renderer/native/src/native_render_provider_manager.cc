@@ -27,6 +27,7 @@ inline namespace render {
 inline namespace native {
 
 std::map<uint32_t, std::shared_ptr<NativeRenderProvider>> NativeRenderProviderManager::provider_map_;
+std::map<uint32_t, uint32_t> NativeRenderProviderManager::root_id_map_;
 
 void NativeRenderProviderManager::AddRenderProvider(uint32_t instance_id, std::shared_ptr<NativeRenderProvider> &provider) {
   provider_map_[instance_id] = provider;
@@ -38,6 +39,18 @@ void NativeRenderProviderManager::RemoveRenderProvider(uint32_t instance_id) {
 
 std::shared_ptr<NativeRenderProvider> &NativeRenderProviderManager::GetRenderProvider(uint32_t instance_id) {
   return provider_map_[instance_id];
+}
+
+void NativeRenderProviderManager::SaveRootIdWithScopeId(uint32_t root_id, uint32_t scope_id) {
+  root_id_map_[root_id] = scope_id;
+}
+
+uint32_t NativeRenderProviderManager::GetScopeIdOfRootId(uint32_t root_id) {
+  auto it = root_id_map_.find(root_id);
+  if (it != root_id_map_.end()) {
+    return it->second;
+  }
+  return 0;
 }
 
 } // namespace native

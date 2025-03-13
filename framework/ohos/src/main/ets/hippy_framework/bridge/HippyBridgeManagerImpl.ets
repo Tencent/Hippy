@@ -41,6 +41,7 @@ import { HippyBridgeImpl } from './HippyBridgeImpl';
 import { HippyBridgeManager } from './HippyBridgeManager';
 import { HippyCallNativeParams } from './HippyCallNativeParams';
 import { util } from '@kit.ArkTS';
+import systemDateTime from '@ohos.systemDateTime';
 
 export enum BridgeState {
   UNINITIALIZED = 0,
@@ -75,6 +76,7 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
   public mIsDevModule: boolean;
   public mDebugServerHost: string;
   public mGroupId: number;
+  public mInitStartTime: number = 0;
   public mThirdPartyAdapter: HippyThirdPartyAdapter | null;
   public mV8InitParams: V8InitParams | null;
   public mJsDriver: JsDriver;
@@ -92,12 +94,15 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
     groupId: number,
     thirdPartyAdapter: HippyThirdPartyAdapter | null,
     v8InitParams: V8InitParams | null,
-    jsDriver: JsDriver) {
+    jsDriver: JsDriver,
+    initStartTime: number
+  ) {
 
     this.mContext = context;
     this.libHippy = libHippy;
     this.mCoreBundleLoader = coreBundleLoader;
     this.mGroupId = groupId;
+    this.mInitStartTime = initStartTime;
     this.mThirdPartyAdapter = thirdPartyAdapter;
     this.mEnableV8Serialization = enableV8Serialization;
     this.mIsDevModule = isDevModule;
@@ -258,9 +263,11 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
   }
 
   initJSBridgeCallback(result: number, reason: string, initBridgeCallback: NativeCallback): void {
-    LogUtils.i('hippy', 'jsDriver initialize callback, instanceId: %{public}d' + this.mJsDriver.instanceId);
-    if (result != 0) {
-      LogUtils.e('hippy', 'jsDriver initialize error, result: ' + result + ', reason: ' + reason);
+    LogUtils.i('hippy', 'init JSBridge callback, instanceId: %{public}d' + this.mJsDriver.instanceId);
+    if (result != 0 || this.mBridgeState == BridgeState.DESTROYED) {
+      LogUtils.e('hippy', 'init JSBridge callback error, result: ' + result + ', reason: ' + reason + ', bridge state: ' + this.mBridgeState);
+      this.reportException('init JSBridge callback error', '');
+      return;
     }
 
     if (this.mContext != null) {
@@ -273,6 +280,10 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
     // if (mThirdPartyAdapter != null) {
     //   mThirdPartyAdapter.onRuntimeInit(runtimeId);
     // }
+
+    // performance
+    this.mJsDriver.onNativeInitEnd(this.mInitStartTime, systemDateTime.getTime());
+
     if (this.mCoreBundleLoader != null) {
       const timeMonitor = this.mContext.getMonitor();
       // add load vendor js perf log
