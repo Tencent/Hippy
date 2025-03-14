@@ -3,7 +3,11 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: ''
-assignees: 'zoomchan-cxj'
+assignees:
+ - zealotchen0
+ - wwwcg
+ - siguangli2018
+ - etkmao
 
 ---
 
