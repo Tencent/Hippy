@@ -75,10 +75,14 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
     // convert to ARGB if it isn't
     if (CGImageGetBitsPerPixel(imageRef) != 32 || CGImageGetBitsPerComponent(imageRef) != 8
         || !((CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask))) {
-        UIGraphicsBeginImageContextWithOptions(inputImage.size, NO, inputImage.scale);
-        [inputImage drawAtPoint:CGPointZero];
-        imageRef = UIGraphicsGetImageFromCurrentImageContext().CGImage;
-        UIGraphicsEndImageContext();
+        UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+        format.opaque = NO;
+        format.scale = inputImage.scale;
+        UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:inputImage.size format:format];
+        UIImage *renderedImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+            [inputImage drawAtPoint:CGPointZero];
+        }];
+        imageRef = renderedImage.CGImage;
     }
     
     vImage_Buffer buffer1, buffer2;
@@ -511,25 +515,43 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     }
 }
 
-/// 生成一个圆形图
-/// @param oldImage UIImage
+/// Generates a circular image from the input image
+/// @param oldImage Source UIImage to process
+///
+/// The completeness of the method needs to be optimized,
+/// and considering it has not been made public,
+/// these historical codes are temporarily retained.
 - (UIImage *)circleImage:(UIImage *)oldImage {
+    // Calculate scaled dimensions
     CGSize oldImageSize = CGSizeMake(oldImage.size.width * 3, oldImage.size.height * 3);
     CGFloat minLength = MIN(oldImageSize.width, oldImageSize.height);
-    CGFloat centerX = minLength * 0.5;
-    CGFloat centerY = minLength * 0.5;
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(minLength, minLength), NO, 0.0);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    // 画小圆
-    CGFloat smallRadius = minLength * 0.5;
-    CGContextAddArc(ctx, centerX, centerY, smallRadius, 0, M_PI * 2, 0);
-    CGContextClip(ctx);
-    CGFloat imageX = centerX - oldImageSize.width * 0.5;
-    CGFloat imageY = centerY - oldImageSize.height * 0.5;
-    [oldImage drawInRect:CGRectMake(imageX, imageY, oldImageSize.width, oldImageSize.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
+    CGFloat center = minLength * 0.5;
+    
+    // Configure renderer format
+    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+    format.opaque = NO;  // Maintain transparency
+    format.scale = 0.0;  // Automatic scale factor
+    
+    // Create image renderer
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc]
+                                         initWithSize:CGSizeMake(minLength, minLength)
+                                         format:format];
+    
+    return [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+        CGContextRef ctx = context.CGContext;
+        
+        // Create circular clipping path
+        CGContextAddArc(ctx, center, center, center, 0, M_PI * 2, 0);
+        CGContextClip(ctx);
+        
+        // Calculate image drawing rect
+        CGFloat imageX = center - oldImageSize.width * 0.5;
+        CGFloat imageY = center - oldImageSize.height * 0.5;
+        CGRect drawRect = CGRectMake(imageX, imageY, oldImageSize.width, oldImageSize.height);
+        
+        // Draw original image within clipped context
+        [oldImage drawInRect:drawRect];
+    }];
 }
 
 - (void)updateCornerRadius {
