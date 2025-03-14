@@ -23,6 +23,7 @@
 #include "driver/napi/jsh/jsh_ctx.h"
 #include <hilog/log.h>
 #include <sys/stat.h>
+#include <set>
 
 #include "driver/base/js_value_wrapper.h"
 #include "driver/napi/jsh/jsh_ctx_value.h"
@@ -193,6 +194,27 @@ JSVM_Value InvokeJsCallbackOnConstruct(JSVM_Env env, JSVM_CallbackInfo info) {
   return thisArg;
 }
 
+class JSHInvalidEnvManager {
+public:
+  void AddEnv(JSVM_Env env) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    envs_.insert(env);
+  }
+  void RemoveEnv(JSVM_Env env) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    envs_.erase(env);
+  }
+  bool HasEnv(JSVM_Env env) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return envs_.find(env) != envs_.end();
+  }
+private:
+  std::set<JSVM_Env> envs_;
+  std::mutex mutex_;
+};
+
+static JSHInvalidEnvManager gInvalidEnvMgr;
+
 void JSHCtx::SetReceiverData(std::shared_ptr<CtxValue> value, void* data) {
   auto jsh_value = std::static_pointer_cast<JSHCtxValue>(value);
   auto status = OH_JSVM_Wrap(env_, jsh_value->GetValue(), data, nullptr, nullptr, nullptr);
@@ -205,6 +227,25 @@ exception_cb_(exception_cb), exception_cb_external_data_(external_data) {
   FOOTSTONE_DCHECK(status == JSVM_OK);
   status = OH_JSVM_OpenEnvScope(env_, &env_scope_);
   FOOTSTONE_DCHECK(status == JSVM_OK);
+}
+
+JSHCtx::~JSHCtx() {
+  for (auto st : callback_structs_) {
+    delete st;
+  }
+  for (auto arr : prop_descriptor_arrays_) {
+    delete []arr;
+  }
+  for (auto property_st : property_structs_) {
+    delete property_st;
+  }
+  template_map_.clear();
+  OH_JSVM_CloseEnvScope(env_, env_scope_);
+  env_scope_ = nullptr;
+  gInvalidEnvMgr.AddEnv(env_);
+  OH_JSVM_DestroyEnv(env_);
+  gInvalidEnvMgr.RemoveEnv(env_);
+  env_ = nullptr;
 }
 
 std::shared_ptr<CtxValue> JSHCtx::CreateTemplate(const std::unique_ptr<FunctionWrapper>& wrapper) {
@@ -1472,6 +1513,9 @@ bool JSHCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
 }
 
 void JSH_Finalize(JSVM_Env env, void* finalizeData, void* finalizeHint) {
+  if (gInvalidEnvMgr.HasEnv(env)) {
+    return;
+  }
   if (!finalizeData) {
     return;
   }

@@ -70,22 +70,7 @@ class JSHCtx : public Ctx {
 
   explicit JSHCtx(JSVM_VM vm, ExceptionMessageCallback exception_cb, void *external_data);
 
-  ~JSHCtx() {
-    for (auto st : callback_structs_) {
-      delete st;
-    }
-    for (auto arr : prop_descriptor_arrays_) {
-      delete []arr;
-    }
-    for (auto property_st : property_structs_) {
-      delete property_st;
-    }
-    template_map_.clear();
-    OH_JSVM_CloseEnvScope(env_, env_scope_);
-    env_scope_ = nullptr;
-    OH_JSVM_DestroyEnv(env_);
-    env_ = nullptr;
-  }
+  ~JSHCtx();
 
   virtual std::shared_ptr<CtxValue> DefineProxy(const std::unique_ptr<FunctionWrapper>& constructor_wrapper) override;
   virtual std::shared_ptr<CtxValue> DefineProxyHandler(const std::unique_ptr<FunctionWrapper>& proxy_handler) override;
