@@ -3,7 +3,11 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: ''
-assignees: 'zoomchan-cxj'
+assignees:
+ - zealotchen0
+ - wwwcg
+ - siguangli2018
+ - etkmao
 
 ---
 
