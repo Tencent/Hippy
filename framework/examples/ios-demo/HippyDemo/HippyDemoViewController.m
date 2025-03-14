@@ -191,10 +191,14 @@
     pageCache.renderType = _renderType;
     pageCache.debugURL = _debugURL;
     pageCache.debugMode = _debugMode;
-    UIGraphicsBeginImageContextWithOptions(_hippyRootView.bounds.size, NO, [UIScreen mainScreen].scale);
-    [_hippyRootView drawViewHierarchyInRect:_hippyRootView.bounds afterScreenUpdates:YES];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+    
+    // Render view hierarchy into image context
+    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:_hippyRootView.bounds.size format:format];
+    UIImage *image = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+        [_hippyRootView drawViewHierarchyInRect:_hippyRootView.bounds afterScreenUpdates:YES];
+    }];
+
     pageCache.snapshot = image;
     return pageCache;
 }
