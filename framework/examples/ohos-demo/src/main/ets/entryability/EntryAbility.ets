@@ -62,7 +62,7 @@ export default class EntryAbility extends UIAbility {
       })
       hilog.info(0x0000, 'DemoTag', 'resources/resfile的绝对路径 : %{public}s', this.context.resourceDir);
       // this.context.resourceDir 的值是 '/data/storage/el1/bundle/entry/resources/resfile'
-      // 把字体路径告知 C 层需要实现 HippyAPIProvider 的 getCustomFontPathMap 方法。
+      // 把字体路径告知 C 层需要实现 HippyFontAdapter 的 getCustomFontPathMap 方法。
     });
   }
 

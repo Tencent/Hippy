@@ -17,14 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyAny } from '../../../support/common/HippyTypes'
 
-export interface FontAdapter {
-  getFontScale(): number
-
-  getEmoticonText(text: string, fontSize: number): string
-
-  getCustomFontFilePath(fontFamily: string, style: number): string
-
-  getCustomTypeface(fontFamily: string, style: number): HippyAny
+export interface HippyFontAdapter {
+  getCustomFontPathMap(): Map<string, string> | null
 }

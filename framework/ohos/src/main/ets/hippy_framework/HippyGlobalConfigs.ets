@@ -22,7 +22,7 @@ import { HippyDeviceAdapter } from './adapter/device/HippyDeviceAdapter';
 import { HippyExceptionHandlerAdapter } from './adapter/exception/HippyExceptionHandlerAdapter';
 import { HippyExecutorSupplierAdapter } from './adapter/executor/HippyExecutorSupplierAdapter';
 import { HippyFileAdapter } from './adapter/file/HippyFileAdapter';
-import { HippyFontScaleAdapter } from './adapter/font/HippyFontScaleAdapter';
+import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
 import { HippyHttpAdapter } from './adapter/http/HippyHttpAdapter';
 import { HippyLogAdapter } from './adapter/log/HippyLogAdapter';
 import { HippyEngineMonitorAdapter } from './adapter/monitor/HippyEngineMonitorAdapter';
@@ -66,7 +66,7 @@ export class HippyGlobalConfigs {
   /**
    * font scale adapter
    */
-  private mFontScaleAdapter: HippyFontScaleAdapter | null;
+  private mFontAdapter: HippyFontAdapter | null;
   /**
    * font so loader adapter
    */
@@ -91,7 +91,7 @@ export class HippyGlobalConfigs {
     this.mStorageAdapter = params.storageAdapter;
     this.mExecutorSupplierAdapter = params.executorSupplier;
     this.mEngineMonitorAdapter = params.engineMonitor;
-    this.mFontScaleAdapter = params.fontScaleAdapter;
+    this.mFontAdapter = params.fontAdapter;
     this.mSoLoaderAdapter = params.soLoader;
     this.mDeviceAdapter = params.deviceAdapter;
     this.mLogAdapter = params.logAdapter;
@@ -138,8 +138,8 @@ export class HippyGlobalConfigs {
     return this.mExceptionHandler;
   }
 
-  public getFontScaleAdapter(): HippyFontScaleAdapter | null {
-    return this.mFontScaleAdapter;
+  public getFontAdapter(): HippyFontAdapter | null {
+    return this.mFontAdapter;
   }
 
   public getDeviceAdapter(): HippyDeviceAdapter | null {

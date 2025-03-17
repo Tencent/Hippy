@@ -29,7 +29,6 @@ import { VfsManager } from '../vfs/VfsManager';
 import HippyRenderBaseView from './components/base/HippyRenderBaseView';
 import { ImageDecoderAdapter } from './components/image/ImageDecoderAdapter';
 import { ImageLoaderAdapter } from './components/image/ImageLoaderAdapter';
-import { FontAdapter } from './components/richtext/FontAdapter';
 import { FrameworkProxy } from './FrameworkProxy'
 import { WrappedHippyBizViewBuilder } from './HippyBizViewBuilder';
 import {
@@ -57,9 +56,6 @@ export interface NativeRender {
   // getImageDecoderAdapter(): ImageDecoderAdapter | null
 
   getVfsManager(): VfsManager | null
-
-  // TODO(eksea)
-  // getFontAdapter(): FontAdapter | null
 
   // TODO(eksea)
   // getBackgroundExecutor(): HippyExecutor | null

@@ -58,9 +58,6 @@ export class ExampleAPIProvider implements HippyAPIProvider {
     return null
   }
 
-  getCustomFontPathMap(): Map<string, string> | null {
-    return null
-  }
 }
 
 @Builder

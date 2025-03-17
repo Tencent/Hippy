@@ -59,14 +59,6 @@ export class ExampleAPIProvider implements HippyAPIProvider {
     return null
   }
 
-  // 注册字体路径至hippy测量函数
-  getCustomFontPathMap(): Map<string, string> | null {
-    let map = new Map<string, string>();
-    // 暂时hardcode路径在此，生产环境应通过Context属性获取字体文件路径
-    map.set("TTTGB", "/data/storage/el1/bundle/entry/resources/resfile/fonts/TTTGB.otf");
-    return map
-  }
-
 }
 
 

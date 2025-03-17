@@ -21,7 +21,6 @@ import { HippyException } from '../support/common/HippyException';
 import { HippyExecutor } from '../support/common/HippyExecutor';
 import { VfsManager } from '../vfs/VfsManager';
 import { ImageDecoderAdapter } from './components/image/ImageDecoderAdapter';
-import { FontAdapter } from './components/richtext/FontAdapter';
 
 export interface FrameworkProxy {
 
@@ -29,9 +28,6 @@ export interface FrameworkProxy {
 
   // TODO(eksea)
   // getImageDecoderAdapter(): ImageDecoderAdapter
-
-  // TODO(eksea)
-  // getFontAdapter(): FontAdapter
 
   getVfsManager(): VfsManager
 

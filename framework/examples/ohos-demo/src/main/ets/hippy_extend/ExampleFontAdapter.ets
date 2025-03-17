@@ -17,22 +17,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyFontScaleAdapter } from './HippyFontScaleAdapter';
+import { HippyFontAdapter } from 'hippy'
 
-export class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
-  public getFontScale(): number {
-    return 1;
+export class ExampleFontAdapter implements HippyFontAdapter {
+
+  // 注册字体路径至hippy测量函数
+  getCustomFontPathMap(): Map<string, string> | null {
+    let map = new Map<string, string>();
+    // 暂时hardcode路径在此，生产环境应通过Context属性获取字体文件路径
+    map.set("TTTGB", "/data/storage/el1/bundle/entry/resources/resfile/fonts/TTTGB.otf");
+    return map;
   }
 
-  public getEmoticonText(text: string, fontSize: number): string {
-    return text;
-  }
-
-  public getCustomFontFilePath(fontFamilyName: string, style: number): string {
-    return "";
-  }
-
-  public getCustomTypeface(fontFamily: string, style: number): FontStyle {
-    return FontStyle.Normal;
-  }
 }

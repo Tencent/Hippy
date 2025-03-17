@@ -27,8 +27,7 @@ import { DefaultExceptionHandler } from './adapter/exception/DefaultExceptionHan
 import { HippyExceptionHandlerAdapter } from './adapter/exception/HippyExceptionHandlerAdapter';
 import { DefaultExecutorSupplierAdapter } from './adapter/executor/DefaultExecutorSupplierAdapter';
 import { HippyExecutorSupplierAdapter } from './adapter/executor/HippyExecutorSupplierAdapter';
-import { DefaultFontScaleAdapter } from './adapter/font/DefaultFontScaleAdapter';
-import { HippyFontScaleAdapter } from './adapter/font/HippyFontScaleAdapter';
+import { DefaultFontAdapter } from './adapter/font/DefaultFontAdapter';
 import { DefaultHttpAdapter } from './adapter/http/DefaultHttpAdapter';
 import { HippyHttpAdapter } from './adapter/http/HippyHttpAdapter';
 import { DefaultLogAdapter } from './adapter/log/DefaultLogAdapter';
@@ -50,6 +49,7 @@ import { FileRequestAdapter } from './adapter/file/FileRequestAdapter';
 import { LogUtils } from '../support/utils/LogUtils';
 import { HippyRootView } from '../renderer_native';
 import { WrappedHippyCustomRenderViewBuilder } from '../renderer_native/HippyRenderViewBuilder';
+import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
 
 export interface HippyEngine {
   initEngine(initCallbak: HippyEngineInitCallback): void
@@ -156,8 +156,8 @@ export class EngineInitParams {
   public executorSupplier: HippyExecutorSupplierAdapter | null = null;
   // 可选参数 Engine Monitor adapter
   public engineMonitor: HippyEngineMonitorAdapter | null = null;
-  // 可选参数 font scale adapter
-  public fontScaleAdapter: HippyFontScaleAdapter | null = null;
+  // 可选参数 font adapter
+  public fontAdapter: HippyFontAdapter | null = null;
   // 可选参数 so加载位置
   public soLoader: HippySoLoaderAdapter | null = null;
   // 可选参数 device adapter
@@ -191,8 +191,8 @@ export class EngineInitParams {
     if (this.httpAdapter === null) {
       this.httpAdapter = new DefaultHttpAdapter()
     }
-    if (this.fontScaleAdapter === null) {
-      this.fontScaleAdapter = new DefaultFontScaleAdapter()
+    if (this.fontAdapter === null) {
+      this.fontAdapter = new DefaultFontAdapter()
     }
     if (this.storageAdapter === null) {
       this.storageAdapter = new DefaultStorageAdapter(this.context)

@@ -32,6 +32,7 @@ import { HippyValue } from 'hippy/src/main/ets/support/common/HippyTypes'
 import { buildCustomRenderView, ExampleAPIProvider } from '../hippy_extend/ExampleAPIProvider'
 import { HippyLibrary } from 'hippy/src/main/ets/hippy_library/HippyLibrary'
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
+import { ExampleFontAdapter } from '../hippy_extend/ExampleFontAdapter'
 
 export enum DriverMode {
   JS_REACT,
@@ -108,6 +109,8 @@ struct PageConfiguration {
 
     params.providers = new Array(new ExampleAPIProvider())
     params.enableTurbo = true
+
+    params.fontAdapter = new ExampleFontAdapter()
 
     params.coreJSAssetsPath = "react/vendor.ohos.js"
     if (info.driver === DriverMode.JS_VUE_2) {
