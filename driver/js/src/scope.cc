@@ -367,138 +367,78 @@ void Scope::RegisterJavascriptClasses() {
                         PropertyAttribute::ReadOnly);
 }
 
-hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {
-  uint32_t dom_id = event_listener_info.dom_id;
-  const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback.lock();
-  FOOTSTONE_DCHECK(js_function != nullptr);
-  const bool added = HasListener(event_listener_info);
-  if (added)  {
-    return hippy::dom::EventListenerInfo{dom_id, event_name, event_listener_info.use_capture,
-                                         kInvalidListenerId, nullptr};
+hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& info) {
+  auto js_function = info.callback.lock();
+  if (!js_function) {
+    return {info.dom_id, info.event_name, info.use_capture, kInvalidListenerId, nullptr};
   }
-  uint64_t listener_id = hippy::dom::FetchListenerId();
-
-  // bind dom event id and js function
-  auto event_node_it = bind_listener_map_.find(dom_id);
-  if (event_node_it == bind_listener_map_.end()) {
-    bind_listener_map_[dom_id] = std::unordered_map<
-        std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>();
+  
+  // Check whether it already exists
+  bool exists = FindListenerImpl(info, [](auto&&...) { return true; });
+  if (exists) {
+    return {info.dom_id, info.event_name, info.use_capture, kInvalidListenerId, nullptr};
   }
-  auto event_name_it = bind_listener_map_[dom_id].find(event_name);
-  if (event_name_it == bind_listener_map_[dom_id].end()) {
-    bind_listener_map_[dom_id][event_name] =
-        std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>();
-  }
-
-  bind_listener_map_[dom_id][event_name][listener_id] = js_function;
-  return hippy::dom::EventListenerInfo{dom_id, event_name, event_listener_info.use_capture, listener_id,
-                                       [weak_scope = weak_from_this(), event_listener_info](
-                                               const std::shared_ptr<hippy::dom::DomEvent>& event) {
+  
+  // Generate new ID
+  const uint64_t new_id = FetchListenerId();
+  const EventKey key{info.dom_id, info.event_name, info.use_capture};
+  
+  // Automatically create entries
+  auto& listeners = bind_listener_map_[key];
+  listeners.emplace(new_id, js_function);
+  
+  // Create a callback lambda
+  auto callback = [weak_scope = weak_from_this(), info, callback = js_function](const auto& event) {
     auto scope = weak_scope.lock();
-    if (!scope) {
+    if (!scope) return;
+    
+    auto context = scope->GetContext();
+    if (!context) return;
+    
+    // Event handling logic
+    scope->SetCurrentEvent(std::make_any<std::shared_ptr<hippy::dom::DomEvent>>(event));
+    auto event_class = scope->GetJavascriptClass(kEventName);
+    auto event_instance = context->NewInstance(event_class, 0, nullptr, event.get());
+    
+    if (!context->IsFunction(callback)) {
+      context->ThrowException("Callback is not a function");
       return;
     }
-    std::weak_ptr<Ctx> weak_context = scope->GetContext();
-    auto context = weak_context.lock();
-    if (context) {
-      auto callback = event_listener_info.callback.lock();
-      if (callback == nullptr) return;
-      scope->SetCurrentEvent(std::make_any<std::shared_ptr<hippy::dom::DomEvent>>(event));
-      auto event_class = scope->GetJavascriptClass(kEventName);
-      auto event_instance = context->NewInstance(event_class, 0, nullptr, event.get());
-      FOOTSTONE_DCHECK(callback) << "callback is nullptr";
-      if (!callback) {
-        return;
-      }
-      auto flag = context->IsFunction(callback);
-      if (!flag) {
-        context->ThrowException(footstone::string_view("callback is not a function"));
-        return;
-      }
-      std::shared_ptr<CtxValue> argv[] = { event_instance };
-      context->CallFunction(callback, context->GetGlobalObject(), 1, argv);
-    }
-  }};
+    
+    std::shared_ptr<CtxValue> argv[] = {event_instance};
+    context->CallFunction(callback, context->GetGlobalObject(), 1, argv);
+  };
+  return {info.dom_id, info.event_name, info.use_capture, new_id, std::move(callback)};
 }
 
-hippy::dom::EventListenerInfo Scope::RemoveListener(const EventListenerInfo& event_listener_info) {
-  uint32_t dom_id = event_listener_info.dom_id;
-  const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback.lock();
-  FOOTSTONE_DCHECK(js_function != nullptr);
-
-  hippy::dom::EventListenerInfo result{dom_id, event_name, event_listener_info.use_capture,
-                                       kInvalidListenerId, nullptr};
-  const uint64_t listener_id = GetListenerId(event_listener_info);
-  if (listener_id == kInvalidListenerId) {
-    return result;
-  }
-
-  // unbind dom event id and js function
-  auto event_node_it = bind_listener_map_.find(dom_id);
-  if (event_node_it == bind_listener_map_.end()) {
-    return result;
-  }
-  auto event_name_it = bind_listener_map_[dom_id].find(event_name);
-  if (event_name_it == bind_listener_map_[dom_id].end()) {
-    return result;
-  }
-  bind_listener_map_[dom_id][event_name].erase(listener_id);
-  result.listener_id = listener_id;
+hippy::dom::EventListenerInfo Scope::RemoveListener(const EventListenerInfo& info) {
+  hippy::dom::EventListenerInfo result{info.dom_id, info.event_name, info.use_capture, kInvalidListenerId, nullptr};
+  
+  FindListenerImpl(info, [&](uint64_t id, auto&&) {
+    const EventKey key{info.dom_id, info.event_name, info.use_capture};
+    if (auto it = bind_listener_map_.find(key); it != bind_listener_map_.end()) {
+      it->second.erase(id);
+      if (it->second.empty()) {
+        bind_listener_map_.erase(it);
+      }
+      result.listener_id = id;
+    }
+    return true;
+  });
   return result;
 }
 
-bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
-  uint32_t dom_id = event_listener_info.dom_id;
-  const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback.lock();
-  FOOTSTONE_DCHECK(js_function != nullptr);
-
-  auto id_it = bind_listener_map_.find(dom_id);
-  if (id_it == bind_listener_map_.end()) {
-    return false;
-  }
-  auto name_it = id_it->second.find(event_name);
-  if (name_it == id_it->second.end()) {
-    return false;
-  }
-
-  for (const auto& v : name_it->second) {
-    FOOTSTONE_DCHECK(v.second != nullptr);
-    if (v.second != nullptr) {
-      bool ret = context_->Equals(v.second, js_function);
-      if (ret)
-        return true;
-    }
-  }
-
-  return false;
+bool Scope::HasListener(const EventListenerInfo& info) {
+  return FindListenerImpl(info, [](auto&&...) { return true; });
 }
 
-uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
-  uint32_t dom_id = event_listener_info.dom_id;
-  const std::string& event_name = event_listener_info.event_name;
-  const auto& js_function = event_listener_info.callback.lock();
-  FOOTSTONE_DCHECK(js_function != nullptr);
-
-  auto event_node_it = bind_listener_map_.find(dom_id);
-  if (event_node_it == bind_listener_map_.end()) {
-    return kInvalidListenerId;
-  }
-  auto event_name_it = bind_listener_map_[dom_id].find(event_name);
-  if (event_name_it == bind_listener_map_[dom_id].end()) {
-    return kInvalidListenerId;
-  }
-  for (const auto& v : bind_listener_map_[dom_id][event_name]) {
-    FOOTSTONE_DCHECK(v.second != nullptr);
-    if (v.second != nullptr) {
-      bool ret = context_->Equals(v.second, js_function);
-      if (ret)
-        return v.first;
-    }
-  }
-  return kInvalidListenerId;
+uint64_t Scope::GetListenerId(const EventListenerInfo& info) {
+  uint64_t found_id = kInvalidListenerId;
+  FindListenerImpl(info, [&](uint64_t id, auto&&) {
+    found_id = id;
+    return true;
+  });
+  return found_id;
 }
 
 void Scope::RunJS(const string_view& data,
