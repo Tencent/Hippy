@@ -17,14 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FontAdapter } from '../../../renderer_native/components/richtext/FontAdapter'
+import { HippyFontAdapter } from './HippyFontAdapter';
 
-export interface HippyFontScaleAdapter extends FontAdapter {
-  getFontScale(): number
+export class DefaultFontAdapter implements HippyFontAdapter {
 
-  getEmoticonText(text: string, fontSize: number): string
+  getCustomFontPathMap(): Map<string, string> | null {
+    return null;
+  }
 
-  getCustomFontFilePath(fontFamily: string, style: number): string
-
-  getCustomTypeface(fontFamily: string, style: number): FontStyle
 }

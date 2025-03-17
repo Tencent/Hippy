@@ -44,7 +44,6 @@ import { HRRenderViewCreator } from './components/HippyRenderRegisterMap'
 import { ImageDecoderAdapter } from './components/image/ImageDecoderAdapter'
 import { ImageLoader } from './components/image/ImageLoader'
 import { ImageLoaderAdapter } from './components/image/ImageLoaderAdapter'
-import { FontAdapter } from './components/richtext/FontAdapter'
 import { FrameworkProxy } from './FrameworkProxy'
 import { NativeRender } from './NativeRender'
 import { NativeRenderContext } from './NativeRenderContext'
@@ -195,11 +194,6 @@ export class NativeRenderImpl implements NativeRender {
   getVfsManager(): VfsManager | null {
     return this.frameworkProxy ? this.frameworkProxy.getVfsManager() : null
   }
-
-  // TODO(eksea)
-  // getFontAdapter(): FontAdapter | null {
-  //   return this.frameworkProxy ? this.frameworkProxy.getFontAdapter() : null
-  // }
 
   // TODO(eksea)
   // getBackgroundExecutor(): HippyExecutor | null {

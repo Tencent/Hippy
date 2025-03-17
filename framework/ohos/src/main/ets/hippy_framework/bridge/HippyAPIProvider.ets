@@ -31,5 +31,4 @@ export interface HippyAPIProvider {
 
   getCustomMappingRenderViewMap(): Map<string, string> | null
 
-  getCustomFontPathMap(): Map<string, string> | null
 }

@@ -92,24 +92,24 @@ font.registerFont({
 
 ## 配置字体路径到 C 层
 
-继承 `HippyAPIProvider` 接口并配置自定义字体 familyName 和文件路径：
+继承 `HippyFontAdapter` 接口并配置自定义字体 familyName 和文件路径：
 
 ```typescript
-export class ExampleAPIProvider implements HippyAPIProvider {
+export class ExampleFontAdapter implements HippyFontAdapter {
   // 注册字体路径至hippy测量函数
   getCustomFontPathMap(): Map<string, string> | null {
     let map = new Map<string, string>();
     // 暂时hardcode路径在此，生产环境应通过Context属性获取字体文件路径
     map.set("TTTGB", "/data/storage/el1/bundle/entry/resources/resfile/fonts/TTTGB.otf");
-    return map
+    return map;
   }
 }
 ```
 
-具体代码可参考 Demo 里 [ExampleAPIProvider.ets](https://github.com/Tencent/Hippy/blob/main/framework/examples/ohos-demo/src/main/ets/hippy_extend/ExampleAPIProvider.ets)
+具体代码可参考 Demo 里 [ExampleFontAdapter.ets](https://github.com/Tencent/Hippy/blob/main/framework/examples/ohos-demo/src/main/ets/hippy_extend/ExampleFontAdapter.ets)
 
-配置 `ExampleAPIProvider` 到 `EngineInitParams` 参数:
+配置 `ExampleFontAdapter` 到 `EngineInitParams` 参数:
 
 ```typescript
-params.providers = new Array(new ExampleAPIProvider())
+params.fontAdapter = new ExampleFontAdapter()
 ```
