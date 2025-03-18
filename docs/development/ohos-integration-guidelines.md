@@ -186,3 +186,11 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET} PUBLIC ${PUBLIC_SOURCE_SET}
 > 构建的 Har 包较大说明：
 为了方便定位crash，配置了debugSymbol strip为false，构建的har包里so带详细符号，所以size较大，App集成后会自动strip掉符号变小。
 比如：har包有3.8M，其中解压后libhippy.so大小为13.9M，strip符号变小后har包大小为1.9M，解压后so大小为6.2M。
+
+## 常见问题
+
+### 页面白屏问题
+
+- 先用 ArkUI Inspector 工具检查界面上是否有元素，其中 Hippy 组件的 id 都是 “HippyId+数字”的形式
+- 如果界面上有元素，但看着白屏，可能1:元素 size 为0，进而可能布局更新有问题，可能2:元素无可见属性设置，可能业务没有更新数据
+- 如果界面上无元素，可能 JS Bundle 加载失败，检查控制台 Log，搜索 “JSHCtx::RunScript” 关键词，检查附近 JS 文件是否加载到并正确执行
