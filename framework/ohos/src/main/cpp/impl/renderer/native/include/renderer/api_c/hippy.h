@@ -29,9 +29,9 @@
 #endif
 
 typedef enum HippyLayoutEngineType {
-  HippyLayoutEngineDefault = 0,
-  HippyLayoutEngineTaitank,
-  HippyLayoutEngineYoga
+  HippyLayoutEngineDefault = 0, // 当编译SDK时配置使用Taitank或Yoga，该选项跟随配置的布局引擎；当编译SDK时配置Taitank和Yoga并存，该选项默认选择Taitank
+  HippyLayoutEngineTaitank,     // 当编译SDK时配置Taitank和Yoga并存，该选项用来选择Taitank
+  HippyLayoutEngineYoga         // 当编译SDK时配置Taitank和Yoga并存，该选项用来选择Yoga
 } HippyLayoutEngineType;
 
 HIPPY_EXTERN uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id, HippyLayoutEngineType layout_engine_type = HippyLayoutEngineDefault);
