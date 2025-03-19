@@ -417,6 +417,9 @@ static napi_value OnNativeInitEnd(napi_env env, napi_callback_info info) {
   int64_t endTime = arkTs.GetInt64(args[2]);
 
   auto scope = GetScope(scope_id);
+  if (!scope) {
+    return arkTs.GetUndefined();
+  }
   auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
@@ -498,6 +501,9 @@ static napi_value OnResourceLoadEnd(napi_env env, napi_callback_info info) {
   auto uri = string_view(uri_str);
   auto error_msg = string_view(error_msg_str);
   auto scope = GetScope(scope_id);
+  if (!scope) {
+    return arkTs.GetUndefined();
+  }
   auto runner = scope->GetEngine().lock()->GetJsTaskRunner();
   if (runner) {
     std::weak_ptr<Scope> weak_scope = scope;
