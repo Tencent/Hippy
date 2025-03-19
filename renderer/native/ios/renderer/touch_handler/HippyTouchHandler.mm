@@ -28,6 +28,10 @@
 #include "dom/dom_listener.h"
 
 
+// Threshold of click failure due to movement
+static float const kClickEventMoveCancelThreshold = 5.0f;
+
+
 typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 
 @interface UIView (HippyViewExtensions)
@@ -138,11 +142,13 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     NSTimer *_touchLongTimer;
     BOOL _bPressIn;
     BOOL _bLongClick;
+    // Flag indicates whether click event should be untriggered due to "touchMove"
+    BOOL _shouldCancelClickView;
 
     __weak UIView *_rootView;
     NSMutableArray<UIView *> *_touchBeganViews;
 
-    CGPoint _startPoint;
+    CGPoint _startPointInWindow;
     HippyBridge *_bridge;
     
     NSHashTable<UIView *> *_onInterceptTouchEventView;
@@ -159,7 +165,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     if (self = [super initWithTarget:nil action:NULL]) {
         _moveTouches = [NSMutableArray new];
         _moveViews = [NSMutableArray new];
-        _startPoint = CGPointZero;
+        _startPointInWindow = CGPointZero;
         _rootView = view;
         _touchBeganViews = [NSMutableArray array];
         _realTouchBeganViews = [NSMutableArray array];
@@ -184,7 +190,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     }
 
     UITouch *touch = [touches anyObject];
-    _startPoint = [touch locationInView:touch.view];
+    _startPointInWindow = [touch locationInView:touch.window];
     {
         UIView *touchView = [touch view];
         CGPoint locationPoint = [touch locationInView:touchView];
@@ -232,6 +238,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         }
 
         _onClickView = clickView;
+        _shouldCancelClickView = NO;
 
         if (result[@"onLongClick"][@"view"]) {
             _onLongClickView = result[@"onLongClick"][@"view"];
@@ -277,6 +284,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
 
+            // If "no click view was found" or "not start from a click view" or
+            // "the click index is greater or equal than touch index"
             if (!clickView || !_onClickView || (clickIndex != NSNotFound && index <= clickIndex)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
@@ -334,7 +343,7 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
             }
         }
 
-        if (clickView && clickView == _onClickView) {
+        if (clickView && clickView == _onClickView && !_shouldCancelClickView) {
             if (!_bLongClick && clickView.onClick) {
                 if ([self checkViewBelongToTouchHandler:clickView]) {
                     const char *name = hippy::kClickEvent;
@@ -442,13 +451,18 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     }
 
     UITouch *touch = [touches anyObject];
-    CGPoint point = [touch locationInView:touch.view];
-
-    float dis = hypotf(_startPoint.x - point.x, _startPoint.y - point.y);
+    CGPoint pointInWindow = [touch locationInView:touch.window];
+    float dis = hypotf(_startPointInWindow.x - pointInWindow.x, _startPointInWindow.y - pointInWindow.y);
     if (dis < 1.f) {
         return;
     }
+    
     [self clearTimer];
+    
+    // Set click trigger threshold to 5pt
+    if (dis > kClickEventMoveCancelThreshold && _onClickView && !_shouldCancelClickView) {
+        _shouldCancelClickView = YES;
+    }
 
     {
         NSInteger index = [_moveTouches indexOfObject:touch];
@@ -602,7 +616,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         }
         
         if (onInterceptPullUpEvent) {
-            if (point.y < _startPoint.y) {
+            CGPoint pointInWindow = [targetView convertPoint:point toView:targetView.window];
+            if (pointInWindow.y < _startPointInWindow.y) {
                 findActions = [NSMutableArray arrayWithArray:actions];
                 [result removeAllObjects];
                 [_onInterceptPullUpEventView addObject:view];
@@ -656,9 +671,14 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 [findActions removeObject:@"onTouchEnd"];
             }
 
-            if (touchInterceptEvent)
+            if (touchInterceptEvent) {
                 break;
-            view = [view nextResponseViewAtPoint:point];
+            }
+            
+            // find next response view and update to point in the new coordinate system
+            UIView *nextResponseView = [view nextResponseViewAtPoint:point];
+            point = [view convertPoint:point toView:nextResponseView];
+            view = nextResponseView;
             index++;
         }
     }
