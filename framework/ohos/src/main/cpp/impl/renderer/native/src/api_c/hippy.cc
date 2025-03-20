@@ -28,6 +28,7 @@
 #define ROOT_VIEW_ID_INCREMENT 10
 
 static uint32_t sHippyRootIdCounter = 0;
+static std::mutex sMutex;
 
 using namespace hippy;
 
@@ -44,6 +45,7 @@ static hippy::LayoutEngineType HippyLayoutEngineTypeToInnerType(HippyLayoutEngin
 }
 
 uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id, HippyLayoutEngineType layout_engine_type) {
+  std::lock_guard<std::mutex> lock(sMutex);
   sHippyRootIdCounter += ROOT_VIEW_ID_INCREMENT;
   uint32_t root_id = sHippyRootIdCounter;
   double density = HRPixelUtils::GetDensity();
