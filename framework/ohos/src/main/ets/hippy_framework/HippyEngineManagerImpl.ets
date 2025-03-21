@@ -61,6 +61,7 @@ import { HippyJsException } from './common/HippyJsException';
 import { DimensionsUtil } from '../support/utils/DimensionsUtil';
 import { PixelUtil } from "../support/utils/PixelUtil";
 import systemDateTime from '@ohos.systemDateTime';
+import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventListener";
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private libHippy: HippyLibrary
@@ -416,9 +417,16 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
 
   onEngineResume(): void {
     PixelUtil.updateDensity(this.libHippy)
+    this.mEngineContext?.mEngineLifecycleEventListeners?.forEach((value: HippyEngineLifecycleEventListener) => {
+      value.onEngineResume();
+    });
+    this.mEngineContext?.onInstanceResume();
   }
 
   onEnginePause(): void {
-
+    this.mEngineContext?.mEngineLifecycleEventListeners?.forEach((value: HippyEngineLifecycleEventListener) => {
+      value.onEnginePause();
+    });
+    this.mEngineContext?.onInstancePause();
   }
 }

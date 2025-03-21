@@ -19,6 +19,7 @@
  */
 export * from "./HippyEngine"
 export * from "./HippyEngineContext"
+export * from "./HippyEngineLifecycleEventListener"
 export * from "./HippyGlobalConfigs"
 export * from "./HippyResourceLoader"
 

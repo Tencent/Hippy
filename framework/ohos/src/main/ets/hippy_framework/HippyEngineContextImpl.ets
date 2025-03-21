@@ -26,6 +26,7 @@ import { HippyRootView } from '../renderer_native/HippyRootView';
 import { NativeRender } from '../renderer_native/NativeRender';
 import { HippyRootViewManager } from '../renderer_native/HippyRootViewManager';
 import { PerformanceProcessor } from './PerformanceProcessor';
+import { HippyEngineLifecycleEventListener } from './HippyEngineLifecycleEventListener';
 
 export class HippyEngineContextImpl implements HippyEngineContext {
   public vfsManager: VfsManager
@@ -33,6 +34,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   public mCoreBundleLoader: HippyBundleLoader | null = null;
   public nativeRenderProvider: NativeRenderProvider | null = null
   public nativeRenderer: NativeRenderer | null = null
+  public mEngineLifecycleEventListeners: Set<HippyEngineLifecycleEventListener> | null = null;
   private mEngineInitParams: EngineInitParams;
   private mGlobalConfigs: HippyGlobalConfigs;
   private mDomManager: DomManager;
@@ -279,7 +281,11 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     this.loadModuleCallback = null;
     this.reloadEngineCallback = null;
     // this.onDestroyVfs(this.vfsManager.getVfsId());
-}
+
+    if (this.mEngineLifecycleEventListeners) {
+      this.mEngineLifecycleEventListeners.clear();
+    }
+  }
 
   getDomManagerId(): number {
     return this.mDomManager.getDomManagerId();
@@ -351,4 +357,37 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     let view = HippyRootViewManager.getRootView(rootId)
     return view ? view : null
   }
+
+  addEngineLifecycleEventListener(listener: HippyEngineLifecycleEventListener): void {
+    if (!this.mEngineLifecycleEventListeners) {
+      this.mEngineLifecycleEventListeners = new Set();
+    }
+    this.mEngineLifecycleEventListeners.add(listener);
+  }
+
+  removeEngineLifecycleEventListener(listener: HippyEngineLifecycleEventListener): void {
+    if (this.mEngineLifecycleEventListeners) {
+      this.mEngineLifecycleEventListeners.delete(listener);
+    }
+  }
+
+  onInstanceLoad(rootId: number): void {
+  }
+
+  onInstanceResume(): void {
+    if (this.rootView) {
+      this.getBridgeManager()?.resumeInstance(this.rootView.getRootId())
+    }
+  }
+
+  onInstancePause(): void {
+    if (this.rootView) {
+      this.getBridgeManager()?.pauseInstance(this.rootView.getRootId())
+    }
+  }
+
+  onInstanceDestroy(rootId: number): void {
+
+  }
+
 }
