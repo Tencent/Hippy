@@ -5,6 +5,7 @@
   - [双端一致性](feature/feature3.0/cross-platform-consistency.md)
   - [Performance API](feature/feature3.0/performance.md)
   - [Screenshot](feature/feature3.0/screenshot.md)
+  - [自定义字体](feature/feature3.0/custom-font.md)
 - 2.0+
   - [动画](feature/feature2.0/animation.md)
   - [日志](feature/feature2.0/console.md)
