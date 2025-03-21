@@ -31,6 +31,7 @@ import { DevtoolsManager } from './devsupport/DevtoolsManager';
 import { NativeRender } from '../renderer_native/NativeRender';
 import { HippyRootView } from '../renderer_native/HippyRootView';
 import { NativeRenderProvider } from '../renderer_native/NativeRenderProvider';
+import { HippyEngineLifecycleEventListener } from '.';
 
 export interface HippyEngineContext {
 
@@ -79,4 +80,8 @@ export interface HippyEngineContext {
   setComponentName(component: string): void
 
   getComponentName(): string;
+
+  addEngineLifecycleEventListener(listener: HippyEngineLifecycleEventListener): void;
+
+  removeEngineLifecycleEventListener(listener: HippyEngineLifecycleEventListener): void;
 }
