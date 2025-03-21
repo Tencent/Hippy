@@ -452,6 +452,20 @@ const Native: NeedToTyped = {
     },
   },
   /**
+   * operations for font
+   */
+  FontLoader: {
+    /**
+     * Download the font from the url.
+     *
+     * @param {string} fontFamily - The font family to download, 
+     * @param {string} url - The url where to download the font.
+     */
+    load(fontFamily: string, url: string) {
+      return callNativeWithPromise.call(this, 'FontLoaderModule', 'load', fontFamily, url);
+    },
+  },
+  /**
    * Network operations
    */
   NetInfo,

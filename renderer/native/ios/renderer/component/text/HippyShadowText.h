@@ -49,6 +49,7 @@ extern NSAttributedStringKey const HippyShadowViewAttributeName;
 
 @property (nonatomic, strong) UIColor *color;
 @property (nonatomic, copy) NSString *fontFamily;
+@property (nonatomic, copy) NSString *fontUrl;
 @property (nonatomic, assign) CGFloat fontSize;
 @property (nonatomic, copy) NSString *fontWeight;
 @property (nonatomic, copy) NSString *fontStyle;
@@ -83,6 +84,7 @@ extern NSAttributedStringKey const HippyShadowViewAttributeName;
 @interface HippyAttributedStringStyleInfo : NSObject
 
 @property (nonatomic, strong) NSString *fontFamily;
+@property (nonatomic, strong) NSString *fontUrl;
 @property (nonatomic, strong) NSNumber *fontSize;
 @property (nonatomic, strong) NSString *fontWeight;
 @property (nonatomic, strong) NSString *fontStyle;

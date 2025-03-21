@@ -337,6 +337,10 @@ public class NativeRenderProvider {
         updateRootSize(mInstanceId, rootId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
+    public void onFontLoaded(int rootId) {
+        onFontLoaded(mInstanceId, rootId);
+    }
+
     public void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync) {
         updateNodeSize(mInstanceId, rootId, nodeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height),
                 isSync);
@@ -432,6 +436,16 @@ public class NativeRenderProvider {
      */
     @SuppressWarnings("JavaJniMissingFunction")
     private native void updateRootSize(int instanceId, int rootId, float width, float height);
+
+    /**
+     * Call back from Android system when size changed, just like horizontal and vertical screen
+     * switching, call this jni interface to invoke dom tree relayout.
+     *
+     * @param rootId the root node id
+     * @param instanceId the unique id of native (C++) render manager
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    private native void onFontLoaded(int instanceId, int rootId);
 
     /**
      * Updates the size to the specified node, such as modal node, should set new window size before
