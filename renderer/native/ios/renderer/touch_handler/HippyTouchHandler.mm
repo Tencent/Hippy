@@ -284,9 +284,12 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
 
-            // If "no click view was found" or "not start from a click view" or
-            // "the click index is greater or equal than touch index"
-            if (!clickView || !_onClickView || (clickIndex != NSNotFound && index <= clickIndex)) {
+            // If "no click view was found" or "not start from a click view" or "clickView not the original"
+            // or "the click index is greater or equal than touch index"
+            if (!clickView ||
+                !_onClickView ||
+                (clickView != _onClickView) ||
+                (clickIndex != NSNotFound && index <= clickIndex)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
                 // Make sure the view has already sent a TouchDown event
@@ -361,6 +364,8 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         }
     }
 
+    HippyAssert(_realTouchBeganViews.count == 0, @"The touch event is not paired!");
+
     self.state = UIGestureRecognizerStateEnded;
     [_moveViews removeAllObjects];
     [_moveTouches removeAllObjects];
@@ -368,7 +373,6 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     [_realTouchBeganViews removeAllObjects];
     [_onInterceptTouchEventView removeAllObjects];
     [_onInterceptPullUpEventView removeAllObjects];
-    HippyAssert([_realTouchBeganViews count] == 0, @"The touch event is not paired!");
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -400,12 +404,20 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
             if (clickView) {
                 clickIndex = [result[@"onClick"][@"index"] integerValue];
             }
-
-            if (clickView == nil || (index <= clickIndex && clickIndex != NSNotFound)) {
+            
+            // If "no click view was found" or "not start from a click view" or "clickView not the original"
+            // or "the click index is greater or equal than touch index"
+            if (!clickView ||
+                !_onClickView ||
+                (clickView != _onClickView) ||
+                (clickIndex != NSNotFound && index <= clickIndex)) {
                 CGPoint point = [touch locationInView:view];
                 point = [view convertPoint:point toView:_rootView];
-                if (view.onTouchCancel) {
+                // Make sure the view has already sent a TouchDown event
+                if (view.onTouchCancel && [_realTouchBeganViews containsObject:view]) {
                     if ([self checkViewBelongToTouchHandler:view]) {
+                        [_realTouchBeganViews removeObject:view];
+                        
                         const char *name = hippy::kTouchCancelEvent;
                         [self willSendGestureEvent:@(name) withPagePoint:point toView:view];
                         view.onTouchCancel(point,
@@ -433,10 +445,14 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
             }
         }
     }
+    
+    HippyAssert(_realTouchBeganViews.count == 0, @"The touch event is not paired!");
+    
     self.state = UIGestureRecognizerStateCancelled;
     self.enabled = NO;
     self.enabled = YES;
     [_touchBeganViews removeAllObjects];
+    [_realTouchBeganViews removeAllObjects];
     [_onInterceptTouchEventView removeAllObjects];
     [_onInterceptPullUpEventView removeAllObjects];
 }
@@ -587,11 +603,14 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     return view;
 }
 
-- (NSDictionary<NSString *, UIView *> *)responseViewForAction:(NSArray *)actions inView:(UIView *)targetView atPoint:(CGPoint)point {
+- (NSDictionary<NSString *, UIView *> *)responseViewForAction:(NSArray *)actions
+                                                       inView:(UIView *)targetView
+                                                      atPoint:(CGPoint)point {
     NSDictionary *result = [self nextResponseViewForAction:actions inView:targetView atPoint:point];
     NSNumber *innerTag = [targetView hippyTagAtPoint:point];
     if (innerTag && ![targetView.hippyTag isEqual:innerTag]) {
         UIView *innerView = [_bridge.uiManager viewForHippyTag:innerTag onRootTag:targetView.rootTag];
+        point = [targetView convertPoint:point toView:innerView];
         NSDictionary *innerResult = [self nextResponseViewForAction:actions inView:innerView atPoint:point];
         NSMutableDictionary *mergedResult = [result mutableCopy];
         [mergedResult addEntriesFromDictionary:innerResult];
@@ -600,7 +619,9 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     return result;
 }
 
-- (NSDictionary<NSString *, UIView *> *)nextResponseViewForAction:(NSArray *)actions inView:(UIView *)targetView atPoint:(CGPoint)point {
+- (NSDictionary<NSString *, UIView *> *)nextResponseViewForAction:(NSArray *)actions
+                                                           inView:(UIView *)targetView
+                                                          atPoint:(CGPoint)point {
     NSMutableDictionary *result = [NSMutableDictionary new];
     NSMutableArray *findActions = [NSMutableArray arrayWithArray:actions];
     UIView *view = (UIView *)targetView;
@@ -881,6 +902,7 @@ static BOOL IsGestureEvent(const char *name) {
     if ([_bridge.delegate respondsToSelector:@selector(willSendGestureEvent:withPagePoint:toView:)]) {
         [_bridge.delegate willSendGestureEvent:eventName withPagePoint:point toView:view];
     }
+    HippyLogTrace(@"Will send %@ to view (%@ %@)", eventName, view.class, view.hippyTag);
 }
 
 
