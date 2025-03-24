@@ -287,6 +287,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(visibility, NSString, HippyView) {
 }
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
+    if (![view isKindOfClass:HippyView.class]) {
+        return;
+    }
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
         // Old background image need to be cleaned up in time due to view's reuse
