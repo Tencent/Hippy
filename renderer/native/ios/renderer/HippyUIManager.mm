@@ -541,7 +541,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             view.rootTag = rootTag;
             view.hippyShadowView = shadowView;
             view.uiManager = self;
-            [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
+            @try {
+                [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
+            } @catch (NSException *exception) {
+                HippyLogError(@"Exception while setting props for view (%@ of %@), %@", view.class, view.hippyTag, props);
+            }
+            
         }
     }
     return view;
@@ -567,7 +572,11 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
             // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
             // so to ensure that it is up-to-date, it can only be retrieved each time.
             NSDictionary<NSNumber *, UIView *> *viewRegistry = [self.viewRegistry componentsForRootTag:shadowView.rootTag];
-            block(viewRegistry, nil);
+            @try {
+                block(viewRegistry, nil);
+            } @catch (NSException *exception) {
+                HippyLogError(@"Exception while executing blocks when create list! %@", shadowView);
+            }
         }
     }
     [self.viewRegistry clearTempCacheAfterAcquireAllStoredWeakComponentsForRootTag:shadowView.rootTag];
@@ -737,6 +746,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 #pragma mark Schedule Block
 
 - (void)addUIBlock:(HippyViewManagerUIBlock)block {
+    HippyAssertNotMainQueue();
     if (!block || !_viewRegistry) {
         return;
     }
@@ -771,7 +781,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                         // Note: viewRegistry may be modified in the block, and it may be stored internally as NSMapTable
                         // so to ensure that it is up-to-date, it can only be retrieved each time.
                         NSDictionary* viewReg = [strongSelf.viewRegistry componentsForRootTag:@(rootTag)];
-                        block(strongSelf, viewReg);
+                        if (block) block(strongSelf, viewReg);
                     } @catch (NSException *exception) {
                         HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                     }
