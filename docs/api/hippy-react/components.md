@@ -127,9 +127,6 @@ import icon from './qb_icon_new.png';
 | renderPullFooter   | 最低支持版本`2.14.0`， 设置列表底部上拉刷新条，配合 `onFooterReleased`、`onFooterPulling` 和 `collapsePullFooter` 使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS、hippy-react-web、Voltron` |
 | onFooterPulling   | 最低支持版本`2.14.0`，上拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据上拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS、hippy-react-web、Voltron` |
 | onFooterReleased   |  最低支持版本`2.14.0`，上拉超出一定距离，松手后触发。 | `() => any`                                                   | `Android、iOS、hippy-react-web、Voltron` |
-| editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
-| delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
-| onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |
 | nestedScrollPriority* | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `Android最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)`    | `Android、iOS` |
 | nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
 | nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
@@ -148,6 +145,8 @@ import icon from './qb_icon_new.png';
   
   如未设置任何滚动优先级时，iOS平台的默认值为`none`，即与系统默认行为保持一致。当指定任意一方向的优先级后，其他方向默认值为`self`；
   Android平台默认值始终为`self`。
+
+* 请注意，由于底层组件实现变化，原iOS 2.9版本起支持的侧滑删除相关属性（ `editable`、`delText`、`delete` ）在升级3.x后已不再默认内置支持，如需使用，可通过自定义组件实现。
 
 ## 方法
 

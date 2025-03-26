@@ -395,8 +395,6 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android、Voltron、Ohos` |
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer、Voltron`    |
-| editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
-| delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
 | nestedScrollPriority* | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `Android最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)`    | `Android、iOS` |
 | nestedScrollLeftPriority | 嵌套时**从右往左**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
 | nestedScrollTopPriority | 嵌套时**从下往上**滚动事件的处理优先级，会覆盖 `nestedScrollPriority` 对应方向的值。`最低支持版本 2.16.0，iOS最低支持版本3.3.3` | `enum(self,parent,none)` | `Android、iOS` |
@@ -416,6 +414,8 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
   如未设置任何滚动优先级时，iOS平台的默认值为`none`，即与系统默认行为保持一致。当指定任意一方向的优先级后，其他方向默认值为`self`；
   Android平台默认值始终为`self`。
 
+* 请注意，由于底层组件实现变化，原iOS 2.9版本起支持的侧滑删除相关属性（ `editable`、`delText`、`delete` ）在升级3.x后已不再默认内置支持，如需使用，可通过自定义组件实现。
+
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
@@ -427,7 +427,8 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | scrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | scrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用，`2.14.6` 版本后支持 `offset` 相关参数 | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer、Voltron、Ohos` |
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、Web-Renderer、Voltron`    |
-| delete      | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
+
+* 请注意，由于底层组件实现变化，原iOS 2.9版本起支持的侧滑删除相关属性（ `editable`、`delText`、`delete` ）在升级3.x后已不再默认内置支持，如需使用，可通过自定义组件实现。
 
 ## 方法
 
