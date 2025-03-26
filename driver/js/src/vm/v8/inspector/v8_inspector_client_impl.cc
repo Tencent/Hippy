@@ -151,6 +151,20 @@ void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorCon
           inspector_context->SetSession(std::move(session));
           return;
         }
+#ifdef __OHOS__
+        // 特殊逻辑：Ohos上v8 debug时，chrome输入命令（一定是键盘敲入，箭头选择没问题）会发生未知原因的crash，crash
+        // 在v8内StartSideEffectCheckMode里，crash总是在第2次如下命令串时触发，没办法先兜底保证不crash。
+        // 带来问题：如果有键盘敲入命令的使用方法，命令输出和输入会错位1条。
+        // 后续处理：Ohos上JSVM调试ok后，v8调试将不再使用。
+        static bool hasSideEffectCheck = false;
+        if (str.rfind(u"\"method\":\"Runtime.evaluate\",\"params\":{\"expression\":\"(async function(){ await 1; })()\",\"contextId\":1,\"throwOnSideEffect\":true}}") != std::string::npos) {
+          if (hasSideEffectCheck) {
+            return;
+          } else {
+            hasSideEffectCheck = true;
+          }
+        }
+#endif
         message_view = v8_inspector::StringView(
             reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
         break;
