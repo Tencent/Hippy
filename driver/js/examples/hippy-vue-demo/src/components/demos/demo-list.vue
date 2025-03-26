@@ -6,14 +6,11 @@
       :style="horizontal && { height: 50, flex: 0 }"
       :horizontal="horizontal"
       :exposureEventEnabled="true"
-      :delText="delText"
-      :editable="true"
       :bounces="true"
       :rowShouldSticky="true"
       :overScrollEnabled="true"
       :scrollEventThrottle="1000"
       @endReached="onEndReached"
-      @delete="onDelete"
       @scroll="onScroll"
       @momentumScrollBegin="onMomentumScrollBegin"
       @momentumScrollEnd="onMomentumScrollEnd"
@@ -188,7 +185,6 @@ export default {
       Vue,
       loadingState: 'Loading now...',
       dataSource: [],
-      delText: 'Delete',
       horizontal: undefined,
     };
   },
@@ -222,9 +218,6 @@ export default {
       return new Promise((resolve) => {
         setTimeout(() => resolve(mockDataArray), 600);
       });
-    },
-    onDelete(event) {
-      this.dataSource.splice(event.index, 1);
     },
     async onEndReached() {
       const { dataSource, isLoading } = this;

@@ -6,14 +6,11 @@
       :style="horizontal && { height: 50, flex: 0 }"
       :horizontal="horizontal"
       :exposureEventEnabled="true"
-      :delText="delText"
-      :editable="true"
       :bounces="true"
       :rowShouldSticky="true"
       :overScrollEnabled="true"
       :scrollEventThrottle="1000"
       @endReached="onEndReached"
-      @delete="onDelete"
       @scroll="onScroll"
       @momentumScrollBegin="onMomentumScrollBegin"
       @momentumScrollEnd="onMomentumScrollEnd"
@@ -196,7 +193,6 @@ export default defineComponent({
     const dataSource: Ref<any[]> = ref([]);
     const list = ref(null);
     const horizontal = ref(false);
-    const delText = 'Delete';
     let isLoading = false;
 
     /**
@@ -220,15 +216,6 @@ export default defineComponent({
       dataSource.value = [...data, ...newData];
       // release lock
       isLoading = false;
-    };
-
-    /**
-       * delete data
-       */
-    const onDelete = (event: ListViewEvent) => {
-      if (typeof event.index !== 'undefined') {
-        dataSource.value.splice(event.index, 1);
-      }
     };
 
     /**
@@ -264,12 +251,10 @@ export default defineComponent({
     return {
       loadingState,
       dataSource,
-      delText,
       list,
       STYLE_LOADING,
       horizontal,
       onAppear,
-      onDelete,
       onDisappear,
       onEndReached,
       onWillAppear,
