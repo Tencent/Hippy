@@ -29,7 +29,7 @@ ios_tool_chain_path=${root_dir}/buildconfig/cmake/ios.toolchain.cmake
 #devtools project
 cd ./devtools/devtools-integration/ios
 rm -rf ./DevtoolsBackend
-cmake ./CMakeLists.txt -B ./DevtoolsBackend -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DENABLE_ARC=YES -DDEPLOYMENT_TARGET=11.0 -DENABLE_INSPECTOR=YES
+cmake ./CMakeLists.txt -B ./DevtoolsBackend -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=${ios_tool_chain_path} -DPLATFORM=OS64COMBINED -DENABLE_ARC=YES -DDEPLOYMENT_TARGET=11.0 -DENABLE_INSPECTOR=YES -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 echo -e "\033[33m devtools cmake build end\033[0m"
 
 #layout project - use taitank by deault
