@@ -30,7 +30,7 @@ inline namespace value {
 class Deserializer {
   using HippyValueObjectType = footstone::HippyValue::HippyValueObjectType;
  public:
-  Deserializer(const std::vector<const uint8_t>& data);
+  Deserializer(const std::vector<uint8_t>& data);
   Deserializer(const uint8_t* data, size_t size);
   ~Deserializer();
 
