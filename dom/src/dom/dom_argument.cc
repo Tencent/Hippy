@@ -52,7 +52,7 @@ bool DomArgument::ToObject(footstone::value::HippyValue& hippy_value) const {
     return true;
   } else if (argument_type_ == ArgumentType::BSON) {
     auto vec = std::any_cast<std::vector<uint8_t>>(&data_);
-    std::vector<const uint8_t> bson(vec->begin(), vec->end());
+    std::vector<uint8_t> bson(vec->begin(), vec->end());
     return ConvertBsonToObject(bson, hippy_value);
   }
   return false;
@@ -69,7 +69,7 @@ bool DomArgument::ConvertObjectToBson(const footstone::value::HippyValue& hippy_
   return true;
 }
 
-bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, footstone::value::HippyValue& hippy_value) {
+bool DomArgument::ConvertBsonToObject(const std::vector<uint8_t>& bson, footstone::value::HippyValue& hippy_value) {
   footstone::value::Deserializer deserializer(bson);
   deserializer.ReadHeader();
   bool ret = deserializer.ReadValue(hippy_value);
