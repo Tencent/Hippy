@@ -637,7 +637,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                               id obj = arguments[i];
                               function_params[i] = [obj convertToCtxValue:context];
                           }
-                          auto tryCatch = hippy::CreateTryCatchScope(true, context);
+                          auto tryCatch = hippy::TryCatch::CreateTryCatchScope(true, context);
                           resultValue = context->CallFunction(method_value, global_object, arguments.count, function_params);
                           if (tryCatch->HasCaught()) {
                               exception = tryCatch->GetExceptionMessage();
@@ -707,7 +707,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                         id obj = arguments[i];
                         function_params[i] = [obj convertToCtxValue:context];
                     }
-                    auto tryCatch = hippy::CreateTryCatchScope(true, context);
+                    auto tryCatch = hippy::TryCatch::CreateTryCatchScope(true, context);
                     resultValue = context->CallFunction(batchedbridge_value, global_object, arguments.count, function_params);
                     if (tryCatch->HasCaught()) {
                         exception = tryCatch->GetExceptionMessage();

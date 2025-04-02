@@ -220,7 +220,7 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                 }
                 auto workerManager = std::make_shared<footstone::WorkerManager>(1);
             	auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>();
-		devtools_data_source->CreateDevtoolsService([wsURL UTF8String], workerManager);
+		        devtools_data_source->CreateDevtoolsService([wsURL UTF8String], workerManager);
                 if (bridge.usingHermesEngine) {
                     // InitDevTools will bind devtools_data_source to scope
                     hippy::JsDriverUtils::InitDevTools(scope, engine->GetVM(), devtools_data_source);
