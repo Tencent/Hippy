@@ -118,10 +118,10 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
     }
 
     return React.cloneElement(child as any, {
-      nextFocusDownId,
-      nextFocusUpId,
-      nextFocusLeftId,
-      nextFocusRightId,
+      nextFocusDownId: nextFocusDown,
+      nextFocusUpId: nextFocusUp,
+      nextFocusLeftId: nextFocusLeft,
+      nextFocusRightId: nextFocusRight,
       requestFocus,
       onClick,
       focusable: true,
