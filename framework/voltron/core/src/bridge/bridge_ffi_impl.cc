@@ -59,8 +59,6 @@ using voltron::Sp;
 using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 using footstone::WorkerManager;
-using string_view = footstone::stringview::string_view;
-using StringViewUtils = footstone::stringview::StringViewUtils;
 
 std::atomic<int32_t> voltronEngineIndex = 0;
 
@@ -488,9 +486,7 @@ EXTERN_C uint32_t CreateDevtoolsFFI(const char16_t* char_data_dir,
   worker_manager = std::make_shared<footstone::WorkerManager>(1);
 
   auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>();
-  devtools_data_source->CreateDevtoolsService(
-      StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(ws_url, string_view::Encoding::Utf8).utf8_value()),
-      worker_manager);
+  devtools_data_source->CreateDevtoolsService(ws_url, worker_manager);
   id = hippy::devtools::DevtoolsDataSource::Insert(devtools_data_source);
   FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
 #endif
