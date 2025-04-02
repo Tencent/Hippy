@@ -29,9 +29,11 @@ export default class FocusableExpo extends React.Component {
           focusStyle={{ backgroundColor: 'red' }}
           noFocusStyle={{ backgroundColor: 'blue' }}
         >
+          <View style={{ flex: 1 }}>
           <Text style={{ color: 'white' }}>
             {clickindex === index ? `我被点击了${index}` : `没有被点击${index}`}
           </Text>
+          </View>
         </Focusable>
       </View>
     );
