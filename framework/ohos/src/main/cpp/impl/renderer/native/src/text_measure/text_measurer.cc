@@ -171,6 +171,22 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
     paddingLeft_ = doubleValue;
     paddingRight_ = doubleValue;
   }
+  if (GetPropValue(propMap, HRNodeProps::PADDING_LEFT, propValue)) {
+    auto doubleValue = HippyValue2Double(propValue);
+    paddingLeft_ = doubleValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::PADDING_RIGHT, propValue)) {
+    auto doubleValue = HippyValue2Double(propValue);
+    paddingRight_ = doubleValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::PADDING_TOP, propValue)) {
+    auto doubleValue = HippyValue2Double(propValue);
+    paddingTop_ = doubleValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::PADDING_BOTTOM, propValue)) {
+    auto doubleValue = HippyValue2Double(propValue);
+    paddingBottom_ = doubleValue;
+  }
 
 #ifdef MEASURE_TEXT_CHECK_PROP
   const static std::vector<std::string> dropProp = {
@@ -507,7 +523,9 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
     // fix text measure width wrong when maxWidth is nan or 0
     maxWidth = std::numeric_limits<double>::max();
   }
-  
+
+  maxWidth -= ((paddingLeft_ + paddingRight_) * density);
+
   OH_Drawing_TypographyLayout(typography_, maxWidth);
     
   // MATE 60, beta5, "新品" "商店" text cannot be fully displayed. So add 0.5.
