@@ -352,13 +352,13 @@ bool CheckUseCodeCacheBeforeRunScript(const string_view& code_cache_path) {
       FOOTSTONE_LOG(INFO) << "Check code cache, count = " << static_cast<int>(count);
       ++count;
       std::string saveContent;
-      saveContent.push_back(count);
+      saveContent.push_back((char)count);
       HippyFile::SaveFile(fail_count_path, saveContent);
     }
   } else {
     FOOTSTONE_LOG(INFO) << "Check code cache, no count";
     std::string saveContent;
-    saveContent.push_back(1);
+    saveContent.push_back((char)1);
     HippyFile::SaveFile(fail_count_path, saveContent);
   }
   return true;
