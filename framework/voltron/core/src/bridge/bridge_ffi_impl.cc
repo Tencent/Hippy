@@ -59,6 +59,7 @@ using voltron::Sp;
 using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 using footstone::WorkerManager;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 std::atomic<int32_t> voltronEngineIndex = 0;
