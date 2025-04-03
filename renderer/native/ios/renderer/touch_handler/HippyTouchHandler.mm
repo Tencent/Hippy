@@ -364,7 +364,9 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         }
     }
 
-    HippyAssert(_realTouchBeganViews.count == 0, @"The touch event is not paired!");
+    if (_realTouchBeganViews.count > 0) {
+        HippyLogWarn(@"The touch event is not paired!");
+    }
 
     self.state = UIGestureRecognizerStateEnded;
     [_moveViews removeAllObjects];
@@ -446,7 +448,9 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
         }
     }
     
-    HippyAssert(_realTouchBeganViews.count == 0, @"The touch event is not paired!");
+    if (_realTouchBeganViews.count > 0) {
+        HippyLogWarn(@"The touch event is not paired!");
+    }
     
     self.state = UIGestureRecognizerStateCancelled;
     self.enabled = NO;
