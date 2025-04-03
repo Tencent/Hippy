@@ -125,7 +125,7 @@ private:
   bool onScrollEventEnable_ = false;
 
   bool hasPullHeader_ = false;
-  float pullHeaderHeight_ = 0;
+  float pullHeaderWH_ = 0;
 
   ScrollAction pullAction_ = ScrollAction::None;
   std::shared_ptr<PullHeaderView> headerView_ = nullptr;
@@ -138,11 +138,11 @@ private:
   std::vector<int32_t> stickyStack_;
 
   bool isDragging_ = false;
-  float lastMoveY_ = 0;
+  float lastMoveOffset_ = 0;
 
   bool headerViewFullVisible_ = false;
   bool footerViewFullVisible_ = false;
-  float lastItemFullVisibleYOffset_ = 0;
+  float lastItemFullVisibleOffset_ = 0;
 
   uint64_t end_batch_callback_id_ = 0;
   
