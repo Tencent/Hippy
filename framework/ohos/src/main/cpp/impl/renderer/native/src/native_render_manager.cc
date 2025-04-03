@@ -785,6 +785,21 @@ void NativeRenderManager::UpdateLayout_C(std::weak_ptr<RootNode> root_node, cons
       m->padding_bottom_ = HRPixelUtils::DpToVp(result.paddingBottom);
     }
     mutations[i] = m;
+#ifdef OHOS_DRAW_TEXT
+    auto node = nodes[i];
+    if (node) {
+      auto cache = draw_text_node_manager_->GetCache(root->GetId());
+      auto it = cache->draw_text_nodes_.find(node->GetId());
+      if (it != cache->draw_text_nodes_.end()) {
+        if (result.width > 0) {
+          int64_t ret = 0;
+          DoMeasureText(root_node, node, DpToPx(result.width), static_cast<int32_t>(LayoutMeasureMode::AtMost),
+                        DpToPx(result.height), static_cast<int32_t>(LayoutMeasureMode::AtMost), ret);
+          cache->draw_text_nodes_.erase(it);
+        }
+      }
+    }
+#endif
   }
   
   c_render_provider_->UpdateLayout(root_id, mutations);
@@ -852,20 +867,6 @@ void NativeRenderManager::EndBatch_C(std::weak_ptr<RootNode> root_node) {
   auto root = root_node.lock();
   if (root) {
 #ifdef OHOS_DRAW_TEXT
-    auto cache = draw_text_node_manager_->GetCache(root->GetId());
-    for (auto it : cache->draw_text_nodes_) {
-      auto node = it.second.lock();
-      if (node) {
-        float width = 0;
-        float height = 0;
-        if (GetTextNodeSizeProp(node, width, height)) {
-          int64_t result = 0;
-          DoMeasureText(root_node, node, DpToPx(width), static_cast<int32_t>(LayoutMeasureMode::AtMost),
-                        DpToPx(height), static_cast<int32_t>(LayoutMeasureMode::AtMost), result);
-        }
-      }
-    }
-    cache->draw_text_nodes_.clear();
     // when density changed
     if (HRPixelUtils::GetDensity() != density_) {
       auto textNodes = root->GetAllTextNodes();
