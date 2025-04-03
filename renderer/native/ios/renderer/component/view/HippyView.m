@@ -367,7 +367,8 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
         });
         return NO;
     } else if (self.gradientObject) {
-        CGSize size = theFrame.size;
+        CGSize size = CGSizeMake(HippyRoundPixelValue(theFrame.size.width),
+                                 HippyRoundPixelValue(theFrame.size.height));
         if (0 >= size.width || 0 >= size.height) {
             contentBlock(nil);
             return YES;
