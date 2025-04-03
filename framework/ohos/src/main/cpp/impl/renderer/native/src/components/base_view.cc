@@ -84,6 +84,15 @@ void BaseView::SetParent(std::shared_ptr<BaseView> parent) {
 
 void BaseView::CreateArkUINode(bool isFromLazy, int index) {
   if (GetLocalRootArkUINode()) {
+    // For move view
+    auto parent = parent_.lock();
+    if (parent) {
+      if (!parent->GetLocalRootArkUINode()) {
+        return;
+      }
+      auto child_index = index < 0 ? parent->IndexOfChild(shared_from_this()) : index;
+      parent->OnChildInsertedImpl(shared_from_this(), child_index);
+    }
     return;
   }
   
