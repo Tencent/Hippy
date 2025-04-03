@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.4](https://github.com/Tencent/Hippy/compare/3.3.3...3.3.4) (2025-04-03)
+
+
+### Bug Fixes
+
+* **core:** fix DomNode cb_map erase bug ([d85f64c](https://github.com/Tencent/Hippy/commit/d85f64cef6b7a75dc778fecf2cb3e813d2ecda63))
+* **ios:**  fix ios perf multithread crash ([fc868f6](https://github.com/Tencent/Hippy/commit/fc868f6fc7c73cee1d1eae3bc7d6a27407843cbe))
+* **ios:** 1px gap in gradient background under special circumstances ([#4246](https://github.com/Tencent/Hippy/issues/4246)) ([37bba9a](https://github.com/Tencent/Hippy/commit/37bba9a6fca76eda1c0f08935c178dbf65b198ee))
+* **ios:** add protection when setting unsupported prop for component ([#4237](https://github.com/Tencent/Hippy/issues/4237)) ([3679ae3](https://github.com/Tencent/Hippy/commit/3679ae3966fcd573e395676ee938cd009e0d1f7e))
+* **ios:** char_traits compile error for xcode 16.3 ([#4242](https://github.com/Tencent/Hippy/issues/4242)) ([9c16179](https://github.com/Tencent/Hippy/commit/9c16179de3ae2a29fdb6ea06c5bd37aafdf1413f))
+* **ios:** optimization of nested scroll in multi-layer nested scenarios ([#4248](https://github.com/Tencent/Hippy/issues/4248)) ([c5933f6](https://github.com/Tencent/Hippy/commit/c5933f6d7da0f22f465baa659edae58b2ecf8f58))
+* **ios:** optimize smoothness of nested scroll in special scenarios ([#4204](https://github.com/Tencent/Hippy/issues/4204)) ([038997b](https://github.com/Tencent/Hippy/commit/038997b8466bcdf8c74087ee9b1556de7c5f13fd))
+* **ios:** resolve gestures related bugs ([3867e56](https://github.com/Tencent/Hippy/commit/3867e56f4a6f6655ab149ee1d009ece1b5f65190))
+* **ios:** resolve occasional index OOB when no items in ViewPager ([#4208](https://github.com/Tencent/Hippy/issues/4208)) ([282b7c6](https://github.com/Tencent/Hippy/commit/282b7c6e026f4cafc32934d197d15aa99be75cd5))
+* **ios:** resolve touch events not paired issue under special scenarios ([#4238](https://github.com/Tencent/Hippy/issues/4238)) ([3c1484d](https://github.com/Tencent/Hippy/commit/3c1484d99a66853938f0f1f1ba06446137ce1921))
+* **ios:** resolve touch handler issue ([#4232](https://github.com/Tencent/Hippy/issues/4232)) ([ceea809](https://github.com/Tencent/Hippy/commit/ceea80939f60ae93f71bcbb97e9dc7c2ab385d82))
+* **react:** fix focusable view container error ([#4196](https://github.com/Tencent/Hippy/issues/4196)) ([574c5b7](https://github.com/Tencent/Hippy/commit/574c5b7b53674e7935378d194c59f59cac0a4c07))
+* **react:** fix focusable view container error ([#4243](https://github.com/Tencent/Hippy/issues/4243)) ([f83ce11](https://github.com/Tencent/Hippy/commit/f83ce11a3781f178eabf21ad0642e591028303c7))
+
+
+### Performance Improvements
+
+* **ios:** draw backgroundImage asynchronously for performance ([#4153](https://github.com/Tencent/Hippy/issues/4153)) ([582b0a8](https://github.com/Tencent/Hippy/commit/582b0a820470632843d17d3265f78e34b03d25d2)), closes [#3844](https://github.com/Tencent/Hippy/issues/3844)
+
+
+
+
+
 ## [3.3.3](https://github.com/Tencent/Hippy/compare/3.3.3-rc.0...3.3.3) (2025-02-17)
 
 

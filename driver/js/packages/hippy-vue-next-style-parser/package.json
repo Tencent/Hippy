@@ -1,6 +1,6 @@
 {
   "name": "@hippy/hippy-vue-next-style-parser",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "A css subset parser for hippy-vue-next",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",

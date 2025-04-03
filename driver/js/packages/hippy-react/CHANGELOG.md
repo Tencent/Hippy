@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.4](https://github.com/Tencent/Hippy/compare/3.3.3...3.3.4) (2025-04-03)
+
+
+### Bug Fixes
+
+* **react:** fix focusable view container error ([#4196](https://github.com/Tencent/Hippy/issues/4196)) ([574c5b7](https://github.com/Tencent/Hippy/commit/574c5b7b53674e7935378d194c59f59cac0a4c07))
+* **react:** fix focusable view container error ([#4243](https://github.com/Tencent/Hippy/issues/4243)) ([f83ce11](https://github.com/Tencent/Hippy/commit/f83ce11a3781f178eabf21ad0642e591028303c7))
+
+
+
+
+
 ## [3.3.3](https://github.com/Tencent/Hippy/compare/3.3.3-rc.0...3.3.3) (2025-02-17)
 
 
