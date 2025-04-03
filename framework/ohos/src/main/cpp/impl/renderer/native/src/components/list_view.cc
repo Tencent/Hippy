@@ -179,9 +179,9 @@ void ListView::CallImpl(const std::string &method, const std::vector<HippyValue>
     auto yOffset = HRValueUtils::GetFloat(params[1]);
     auto animated = HRValueUtils::GetBool(params[2], false);
     if (isVertical_) {
-      yOffset += pullHeaderHeight_;
+      yOffset += pullHeaderWH_;
     } else {
-      xOffset += pullHeaderHeight_;
+      xOffset += pullHeaderWH_;
     }
     listNode_->ScrollTo(xOffset, yOffset, animated);
   } else if (method == "scrollToTop") {
@@ -355,7 +355,7 @@ void ListView::HandleOnChildrenUpdated() {
     if (children_[0]->GetViewType() == PULL_HEADER_VIEW_TYPE) {
       headerView_ = std::static_pointer_cast<PullHeaderView>(children_[0]);
       hasPullHeader_ = true;
-      pullHeaderHeight_ = headerView_->GetHeight();
+      pullHeaderWH_ = isVertical_ ? headerView_->GetHeight() : headerView_->GetWidth();
     }
     if (children_[childrenCount - 1]->GetViewType() == PULL_FOOTER_VIEW_TYPE) {
       footerView_ = std::static_pointer_cast<PullFooterView>(children_[childrenCount - 1]);
@@ -528,23 +528,24 @@ void ListView::CheckPullOnItemVisibleAreaChange(int32_t index, bool isVisible, f
     }
   } else if (footerView_ && index == lastIndex - 1) {
     if (isVisible && currentRatio >= 1.0) {
-      lastItemFullVisibleYOffset_ = listNode_->GetScrollOffset().y;
+      lastItemFullVisibleOffset_ = isVertical_ ? listNode_->GetScrollOffset().y : listNode_->GetScrollOffset().x;
     }
   }
 }
 
 void ListView::CheckPullOnScroll() {
   auto offset = listNode_->GetScrollOffset();
-  auto yOff = offset.y;
+  auto xyOff = isVertical_ ? offset.y : offset.x;
 
   if (headerView_ && pullAction_ == ScrollAction::PullHeader) {
+    auto headerWH = isVertical_ ? headerView_->GetHeight() : headerView_->GetWidth();
     HippyValueObjectType params;
-    params[CONTENT_OFFSET] = HRPixelUtils::VpToDp(-yOff + headerView_->GetHeight());
+    params[CONTENT_OFFSET] = HRPixelUtils::VpToDp(-xyOff + headerWH);
     HREventUtils::SendComponentEvent(headerView_->GetCtx(), headerView_->GetTag(),
                                      HREventUtils::EVENT_PULL_HEADER_PULLING, std::make_shared<HippyValue>(params));
   } else if (footerView_ && pullAction_ == ScrollAction::PullFooter) {
     HippyValueObjectType params;
-    params[CONTENT_OFFSET] = HRPixelUtils::VpToDp(yOff - lastItemFullVisibleYOffset_);
+    params[CONTENT_OFFSET] = HRPixelUtils::VpToDp(xyOff - lastItemFullVisibleOffset_);
     HREventUtils::SendComponentEvent(footerView_->GetCtx(), footerView_->GetTag(),
                                      HREventUtils::EVENT_PULL_FOOTER_PULLING, std::make_shared<HippyValue>(params));
   }
@@ -553,11 +554,12 @@ void ListView::CheckPullOnScroll() {
 void ListView::CheckStickyOnItemVisibleAreaChange(int32_t index, bool isVisible, float currentRatio) {
   auto moveUp = false;
   auto offset = listNode_->GetScrollOffset();
-  if (lastMoveY_ != 0 && offset.y > lastMoveY_) {
+  auto moveOffset = isVertical_ ? offset.y : offset.x;
+  if (lastMoveOffset_ != 0 && moveOffset > lastMoveOffset_) {
     moveUp = true;
-    lastMoveY_ = offset.y;
+    lastMoveOffset_ = moveOffset;
   } else {
-    lastMoveY_ = offset.y;
+    lastMoveOffset_ = moveOffset;
   }
 
   if (!isVisible && moveUp) {
@@ -582,12 +584,14 @@ void ListView::CheckStickyOnItemVisibleAreaChange(int32_t index, bool isVisible,
 void ListView::CheckInitOffset() {
   if (listNode_) {
     if (initialOffset_ > 0) {
-      float y = 0;
+      float xy = 0;
       if (headerView_ != nullptr) {
-        y = headerView_->GetHeight();
+        xy = isVertical_ ? headerView_->GetHeight() : headerView_->GetWidth();
       }
-      y += initialOffset_;
-      listNode_->ScrollTo(0, y, true);
+      xy += initialOffset_;
+      float xOff = isVertical_ ? 0 : xy;
+      float yOff = isVertical_ ? xy : 0;
+      listNode_->ScrollTo(xOff, yOff, true);
       initialOffset_ = 0;
     }
   }
