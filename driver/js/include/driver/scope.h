@@ -122,6 +122,29 @@ struct ClassTemplate {
   std::vector<std::shared_ptr<CtxValue>> holder_ctx_values;
 };
 
+
+// Structured key types for `bind_listener_map_`
+struct EventKey {
+  uint32_t dom_id;
+  std::string event_name;
+  bool use_capture;
+  
+  struct Hash {
+    size_t operator()(const EventKey& key) const {
+      return std::hash<uint32_t>()(key.dom_id) ^
+      (std::hash<std::string>()(key.event_name) << 1) ^
+      (std::hash<bool>()(key.use_capture) << 2);
+    }
+  };
+  
+  bool operator==(const EventKey& other) const {
+    return dom_id == other.dom_id &&
+    event_name == other.event_name &&
+    use_capture == other.use_capture;
+  }
+};
+
+
 class Scope : public std::enable_shared_from_this<Scope> {
  public:
   using string_view = footstone::stringview::string_view;
@@ -497,6 +520,26 @@ class Scope : public std::enable_shared_from_this<Scope> {
                                  properties.size(),
                                  properties.data());
   }
+  
+  template<typename F>
+  bool FindListenerImpl(const EventListenerInfo& info, F&& handler) {
+    const EventKey key{info.dom_id, info.event_name, info.use_capture};
+    auto it = bind_listener_map_.find(key);
+    if (it == bind_listener_map_.end()) return false;
+    
+    auto& listeners = it->second;
+    auto js_function = info.callback.lock();
+    if (!js_function) return false;
+    
+    for (auto& [id, weak_func] : listeners) {
+      if (auto func = weak_func.lock()) {
+        if (context_->Equals(func, js_function)) {
+          return handler(id, func);
+        }
+      }
+    }
+    return false;
+  }
 
  private:
   friend class Engine;
@@ -515,8 +558,8 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::unique_ptr<RegisterMap> extra_function_map_; // store some callback functions
   uint32_t call_ui_function_callback_id_;
   std::unordered_map<uint32_t, std::shared_ptr<CtxValue>> call_ui_function_callback_holder_;
-  std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
-      bind_listener_map_; // bind js function and dom event listener id
+  // bind js function and dom event listener id
+  std::unordered_map<EventKey, std::unordered_map<uint64_t, std::weak_ptr<CtxValue>>, EventKey::Hash> bind_listener_map_;
   std::any current_event_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::weak_ptr<UriLoader> loader_;
