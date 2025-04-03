@@ -34,6 +34,7 @@
 @synthesize nestedGestureDelegate; \
 @synthesize cascadeLockForNestedScroll; \
 @synthesize isLockedInNestedScroll; \
+@synthesize tempLastContentOffsetForMultiLayerNested;
 
 
 /// Delegate for handling nested scrolls' gesture conflict
@@ -75,6 +76,10 @@
 /// Whether is temporarily locked in current DidScroll callback.
 /// It is used to determine whether to block the sending of onScroll events.
 @property (nonatomic, assign) BOOL isLockedInNestedScroll;
+
+/// lastContentOffset value recorded for multi-level nested scenarios
+/// Use only once, set to nil after use.
+@property (nonatomic, strong) NSValue *tempLastContentOffsetForMultiLayerNested;
 
 @end
 
