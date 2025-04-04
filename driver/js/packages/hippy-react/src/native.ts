@@ -22,6 +22,7 @@ import * as HippyGlobal from './global';
 import * as Clipboard from './modules/clipboard';
 import * as Cookie from './modules/cookie-module';
 import * as ImageLoader from './modules/image-loader-module';
+import * as FontLoader from './modules/font-loader-module';
 import * as NetworkInfo from './modules/network-info';
 import * as UIManager from './modules/ui-manager-module';
 import BackAndroid from './modules/back-android';
@@ -52,6 +53,7 @@ export {
   Device,
   HippyRegister,
   ImageLoader,
+  FontLoader,
   NetworkInfo,
   UIManager,
   flushSync,

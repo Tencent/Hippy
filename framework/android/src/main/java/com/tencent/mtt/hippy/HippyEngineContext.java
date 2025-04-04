@@ -68,6 +68,8 @@ public interface HippyEngineContext extends BaseEngineContext {
 
     ThreadExecutor getThreadExecutor();
 
+    RenderConnector getRenderer();
+
     ViewGroup getRootView();
 
     View getRootView(int rootId);

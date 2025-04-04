@@ -24,6 +24,7 @@
 
 #import "HippyFont.h"
 #import "HippyLog.h"
+#import "HippyFontLoaderModule.h"
 
 
 static NSCache *fontCache;
@@ -102,7 +103,7 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
             [cache removeAllObjects];
         }];
     });
-    
+
     NSArray<NSString *> *names = [cache objectForKey:familyName];
     if (!names) {
         names = [UIFont fontNamesForFamilyName:familyName] ?: [NSArray new];
@@ -115,8 +116,9 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
-    return [HippyFont updateFont:nil 
+    return [HippyFont updateFont:nil
                       withFamily:[HippyConvert NSString:json[@"fontFamily"]]
+                             url:[HippyConvert NSString:json[@"fontUrl"]]
                             size:[HippyConvert NSNumber:json[@"fontSize"]]
                           weight:[HippyConvert NSString:json[@"fontWeight"]]
                            style:[HippyConvert NSString:json[@"fontStyle"]]
@@ -197,12 +199,18 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
 + (UIFont *)updateFont:(UIFont *)font
             withFamily:(NSString *)family
+                   url:(NSString *)url
                   size:(NSNumber *)size
                 weight:(NSString *)weight
                  style:(NSString *)style
                variant:(NSArray<NativeRenderFontVariantDescriptor *> *)variant
        scaleMultiplier:(CGFloat)scaleMultiplier {
     // Defaults
+    if (url) {
+        dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
+            [HippyFontLoaderModule loadFontIfNeeded:family fromUrl:url];
+        });
+    }
     static NSString *defaultFontFamily;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -231,7 +239,9 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     if (scaleMultiplier > 0.0 && scaleMultiplier != 1.0) {
         fontSize = round(fontSize * scaleMultiplier);
     }
-    familyName = [HippyConvert NSString:family] ?: familyName;
+    if ([HippyConvert NSString:family] && family.length != 0) {
+        familyName = family;
+    }
     isItalic = style ? [HippyConvert NativeRenderFontStyle:style] : isItalic;
     fontWeight = weight ? [HippyConvert NativeRenderFontWeight:weight] : fontWeight;
 
@@ -258,15 +268,25 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
             }
         }
     }
+    
+    if (!didFindFont && fontNamesForFamilyName(familyName).count == 0) {
+        dispatch_async([HippyFontLoaderModule getFontSerialQueue], ^{
+            [HippyFontLoaderModule registerFontIfNeeded:familyName];
+        });
+    }
 
     // Gracefully handle being given a font name rather than font family, for
     // example: "Helvetica Light Oblique" rather than just "Helvetica".
     if (!didFindFont && familyName.length > 0 && fontNamesForFamilyName(familyName).count == 0) {
-        familyName = font.familyName;
-        fontWeight = weight ? fontWeight : weightOfFont(font);
-        isItalic = style ? isItalic : isItalicFont(font);
-        isCondensed = isCondensedFont(font);
-        font = cachedSystemFont(fontSize, fontWeight);
+        font = [UIFont fontWithName:familyName size:fontSize];
+        if (font) {
+            didFindFont = YES;
+        } else {
+            fontWeight = weight ? fontWeight : weightOfFont(font);
+            isItalic = style ? isItalic : isItalicFont(font);
+            isCondensed = isCondensedFont(font);
+            font = cachedSystemFont(fontSize, fontWeight);
+        }
 
         if (font) {
             // It's actually a font name, not a font family name,
@@ -311,7 +331,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     if (!font && names.count > 0) {
         font = [UIFont fontWithName:names[0] size:fontSize];
     }
-    
+
     // Apply font variants to font object
     if (variant) {
         NSArray *fontFeatures = [HippyConvert NativeRenderFontVariantDescriptorArray:variant];
