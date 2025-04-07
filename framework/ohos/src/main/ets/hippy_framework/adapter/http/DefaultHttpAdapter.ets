@@ -33,6 +33,7 @@ import { http } from '@kit.NetworkKit';
 import { HippyJsException } from '../../common/HippyJsException';
 import { HippyModulePromise } from '../../modules/HippyModulePromise';
 import { ArgumentUtils } from '../../../support/utils/ArgumentUtils';
+import util from '@ohos.util';
 
 const DEFAULT_HTTP_ADAPTER_TAG = 'DefaultHttpAdapter'
 
@@ -72,6 +73,7 @@ export class DefaultHttpAdapter implements HippyHttpAdapter {
             } else {
               callback.onTaskSuccess(request, this.createResponse(data));
             }
+            LogUtils.i(DEFAULT_HTTP_ADAPTER_TAG, 'ResultType:' + data.resultType);
             LogUtils.i(DEFAULT_HTTP_ADAPTER_TAG, 'Result:' + data.result);
             LogUtils.i(DEFAULT_HTTP_ADAPTER_TAG, 'code:' + data.responseCode);
             LogUtils.i(DEFAULT_HTTP_ADAPTER_TAG, 'header:' + JSON.stringify(data.header));
@@ -91,7 +93,17 @@ export class DefaultHttpAdapter implements HippyHttpAdapter {
     let response = new HippyHttpResponse();
     response.setStatusCode(res.responseCode);
     response.setRspHeaderMap(res.header);
-    response.result = res.result.toString();
+    if (res.resultType == http.HttpDataType.STRING) {
+      response.result = res.result.toString();
+    } else if (res.resultType == http.HttpDataType.ARRAY_BUFFER) {
+      try {
+        let bytes = new Uint8Array(res.result as ArrayBuffer)
+        let decoder = util.TextDecoder.create("utf-8");
+        response.result = decoder.decodeToString(bytes);
+      } catch (error) {
+        LogUtils.e('hippy http', 'Failed to decode resp result, error: ' + JSON.stringify(error));
+      }
+    }
     return response;
   }
 
