@@ -10,7 +10,10 @@ import { HippyBridgeManagerImpl } from './bridge/HippyBridgeManagerImpl';
 import { DomManager } from './connector/DomManager';
 import { JsDriver } from './connector/JsDriver';
 import { NativeRenderer } from './connector/NativeRenderer';
-import { EngineInitParams, HippyLayoutEngineType, ModuleLoadParams } from './HippyEngine';
+import { EngineInitParams, HippyLayoutEngineType,
+  ModuleListener,
+  ModuleLoadParams,
+  ModuleLoadStatus} from './HippyEngine';
 import { HippyEngineContext } from './HippyEngineContext';
 import { HippyGlobalConfigs } from './HippyGlobalConfigs';
 import { HippyModuleManagerImpl, HippyNativeModuleCreator } from './modules/HippyModuleManagerImpl';
@@ -48,7 +51,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   private mDevSupportManager: DevSupportManager | null = null;
   private mDevtoolsManager: DevtoolsManager | null = null;
   private mDebugMode: boolean;
-  private loadModuleCallback: Function | null = null;
+  private mModuleListener: ModuleListener | null = null;
   private reloadEngineCallback: Function | null = null;
   private component: string = '';
   private rootView: HippyRootView | null = null;
@@ -184,8 +187,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     }
   }
 
-  setLoadModuleCallback(loadModuleCallback: Function | null) {
-    this.loadModuleCallback = loadModuleCallback;
+  setLoadModuleListener(moduleListener: ModuleListener | null) {
+    this.mModuleListener = moduleListener;
   }
 
   setRootView(rootView: HippyRootView) {
@@ -193,9 +196,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   }
 
   onLoadModuleCompleted(statusCode: number, msg: string): void {
-    if (this.loadModuleCallback) {
-        this.loadModuleCallback(statusCode, msg);
-    }
+    this.mModuleListener?.onLoadCompleted(statusCode, msg);
+    this.mGlobalConfigs.getEngineMonitorAdapter()?.onLoadModuleCompleted(statusCode, this.getComponentName());
   }
 
   public setComponentName(component: string) {
@@ -278,7 +280,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     this.nativeRenderer?.destroyNativeRenderManager();
     this.mModuleManager.destroy();
     this.vfsManager.destroy();
-    this.loadModuleCallback = null;
+    this.mModuleListener = null;
     this.reloadEngineCallback = null;
     // this.onDestroyVfs(this.vfsManager.getVfsId());
 
@@ -346,6 +348,7 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     } else {
       if (error instanceof HippyJsException) {
         this.mGlobalConfigs.getExceptionHandler()?.handleJsException(error);
+        this.mModuleListener?.onJsException(error);
       } else {
         // TODO Native Exception
         this.mGlobalConfigs.getExceptionHandler()?.handleNativeException(new HippyJsException('', ''), true);
