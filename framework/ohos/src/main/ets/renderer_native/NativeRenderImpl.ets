@@ -219,9 +219,9 @@ export class NativeRenderImpl implements NativeRender {
     this.libHippy?.NativeRenderProvider_UpdateNodeSize(this.instanceId, rootId, nodeId, w, h, isSync)
   }
 
-  updateDimension(width: number, height: number, shouldUseScreenDisplay: boolean, systemUiVisibilityChanged: boolean) {
+  async updateDimension(width: number, height: number): Promise<void> {
     if (this.frameworkProxy != null) {
-      this.frameworkProxy.updateDimension(width, height, shouldUseScreenDisplay, systemUiVisibilityChanged)
+      await this.frameworkProxy.updateDimension(width, height)
     }
   }
 

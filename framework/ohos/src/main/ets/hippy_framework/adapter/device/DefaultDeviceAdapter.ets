@@ -22,11 +22,8 @@ import { DimensionsUtil } from '../../../support/utils/DimensionsUtil';
 import { HippyDeviceAdapter } from './HippyDeviceAdapter';
 
 export class DefaultDeviceAdapter implements HippyDeviceAdapter {
-  getDimensions(ww: number, wh: number, context: Context, shouldUseScreenDisplay: boolean): Promise<HippyMap> {
-    return DimensionsUtil.getDimensions(ww, wh, context, shouldUseScreenDisplay)
-  }
 
-  reviseDimensionIfNeed(context: Context, dimensionMap: HippyMap, shouldUseScreenDisplay: boolean, systemUiVisibilityChanged: boolean) {
+  reviseDimensionIfNeed(context: Context, dimensionMap: HippyMap) {
     // Default do nothing here
   }
 }

@@ -21,6 +21,6 @@ export class Dimensions extends HippyJavaScriptModuleBase {
   public static METHOD_SET: string = 'set';
 
   public set(dimension: HippyMap): void {
-    this.callJs(Dimensions.MODULE_NAME, Dimensions.MODULE_NAME, dimension, null);
+    this.callJs(Dimensions.MODULE_NAME, Dimensions.METHOD_SET, dimension, null);
   }
 }

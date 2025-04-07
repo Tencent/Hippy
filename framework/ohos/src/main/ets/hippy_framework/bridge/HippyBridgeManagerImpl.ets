@@ -341,12 +341,11 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
     let context = this.mContext.getGlobalConfigs().getContext();
     if (context == null) return ""
     let globalParams = new Map<string, HippyAny>()
-    let dimensionMap = await DimensionsUtil.getDimensions(-1, -1, context, true);
+    let dimensionMap = await DimensionsUtil.getDimensions(-1, -1, context);
     if (this.mContext.getGlobalConfigs() != null
       && this.mContext.getGlobalConfigs().getDeviceAdapter() != null) {
       this.mContext.getGlobalConfigs()
-        .getDeviceAdapter()?.reviseDimensionIfNeed(context, dimensionMap, false,
-        false);
+        .getDeviceAdapter()?.reviseDimensionIfNeed(context, dimensionMap);
     }
     DimensionsUtil.convertDimensionsToDp(dimensionMap);
     globalParams.set("Dimensions", dimensionMap)

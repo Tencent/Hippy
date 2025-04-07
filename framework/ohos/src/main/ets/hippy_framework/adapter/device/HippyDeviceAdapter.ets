@@ -20,8 +20,5 @@
 import { HippyMap } from '../../../support/common/HippyTypes'
 
 export interface HippyDeviceAdapter {
-  reviseDimensionIfNeed(context: Context, dimensionMap: HippyMap, shouldUseScreenDisplay: boolean,
-                        systemUiVisibilityChanged: boolean): void
-
-  getDimensions(ww: number, wh: number, context: Context, shouldUseScreenDisplay: boolean): Promise<HippyMap>
+  reviseDimensionIfNeed(context: Context, dimensionMap: HippyMap): void
 }

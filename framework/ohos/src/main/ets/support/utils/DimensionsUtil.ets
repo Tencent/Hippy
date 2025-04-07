@@ -33,8 +33,7 @@ export class DimensionsUtil {
   private static SHOW_NAV_BAR_RES_NAME = "config_showNavigationBar";
   private static NAVIGATE_BAR_HEIGHT = 0;
 
-  static async getDimensions(ww: number, wh: number, context: Context,
-                             shouldUseScreenDisplay: boolean): Promise<HippyMap> {
+  static async getDimensions(ww: number, wh: number, context: Context): Promise<HippyMap> {
     let displayClass: display.Display = display.getDefaultDisplaySync();
     await DimensionsUtil.getStatusBarHeight(displayClass);
     let dimensionMap = new Map<string, HippyValue | Map<string, HippyValue>>()
