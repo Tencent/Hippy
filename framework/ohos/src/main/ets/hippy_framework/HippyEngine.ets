@@ -50,11 +50,13 @@ import { LogUtils } from '../support/utils/LogUtils';
 import { HippyRootView } from '../renderer_native';
 import { WrappedHippyCustomRenderViewBuilder } from '../renderer_native/HippyRenderViewBuilder';
 import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
+import { HippyJsException } from './common/HippyJsException';
 
 export interface HippyEngine {
-  initEngine(initCallbak: HippyEngineInitCallback): void
+  initEngine(listener: EngineListener): void
 
-  loadModule(loadParams: ModuleLoadParams, loadCallback: HippyModuleLoadCallback): HippyRootView | null
+  loadModule(loadParams: ModuleLoadParams): HippyRootView | null
+  loadModuleWithListener(loadParams: ModuleLoadParams, listener: ModuleListener | null): HippyRootView | null
 
   destroyModule(rootId: number, destroyCallback: HippyModuleDestroyCallback): void
 
@@ -79,10 +81,6 @@ export function createHippyEngine(params: EngineInitParams): HippyEngine {
   params.libHippy?.Setting_SetFlags(params.enableUpdateAnimLog);
   return new HippyEngineManagerImpl(params)
 }
-
-export type HippyEngineInitCallback = (statusCode: EngineInitStatus, msg: string) => void
-
-export type HippyModuleLoadCallback = (statusCode: ModuleLoadStatus, msg: string) => void
 
 export type HippyModuleDestroyCallback = (result: boolean) => void
 
@@ -295,3 +293,23 @@ export enum ModuleLoadStatus {
   STATUS_REPEAT_LOAD = -204,    // 重复加载同一JSBundle
 }
 
+export interface EngineListener {
+  /**
+   * callback after initialization
+   *
+   * @param statusCode status code from initializing procedure
+   * @param msg Message from initializing procedure
+   */
+  onInitialized(statusCode: EngineInitStatus, msg: string): void;
+}
+
+export interface ModuleListener {
+
+  onLoadCompleted(statusCode: ModuleLoadStatus, msg: string): void;
+
+  onJsException(exception: HippyJsException): boolean;
+
+  onFirstViewAdded(): void;
+
+  onFirstContentfulPaint(): void;
+}

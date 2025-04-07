@@ -40,5 +40,7 @@ export * from "./adapter/thirdparty/HippyThirdPartyAdapter"
 
 export * from "./bridge/HippyAPIProvider"
 
+export * from "./common/HippyJsException"
+
 export * from "./modules/native"
 export * from "./modules/HippyModuleManagerImpl"

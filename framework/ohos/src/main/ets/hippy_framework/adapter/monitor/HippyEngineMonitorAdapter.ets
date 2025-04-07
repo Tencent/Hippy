@@ -22,9 +22,9 @@ import { MonitorGroup } from '../../../support/utils/TimeMonitor'
 import { HippyCallNativeParams } from '../../bridge/HippyCallNativeParams'
 
 export interface HippyEngineMonitorAdapter {
-  onEngineInitialized(statusCode: EngineInitStatus, monitorGroup: MonitorGroup): void
+  onEngineInitialized(statusCode: EngineInitStatus): void
 
-  onLoadModuleCompleted(statusCode: ModuleLoadStatus, componentName: string, monitorGroup: MonitorGroup): void
+  onLoadModuleCompleted(statusCode: ModuleLoadStatus, componentName: string): void
 
   onFirstPaintCompleted(componentName: string): void
 

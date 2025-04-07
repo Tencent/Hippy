@@ -31,7 +31,7 @@ export class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
     LogUtils.i(DEFAULT_ENGIN_MONITOR_TAG, "engine initialization completed with result: " + statusCode);
   }
 
-  onLoadModuleCompleted(statusCode: ModuleLoadStatus): void {
+  onLoadModuleCompleted(statusCode: ModuleLoadStatus, componentName: string): void {
     LogUtils.i(DEFAULT_ENGIN_MONITOR_TAG, "load module completed with result: " + statusCode);
   }
 
