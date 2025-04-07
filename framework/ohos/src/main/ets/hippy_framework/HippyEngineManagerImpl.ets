@@ -49,7 +49,7 @@ import { HippyThirdPartyAdapter } from './adapter/thirdparty/HippyThirdPartyAdap
 import { HippyEngineContext } from './HippyEngineContext'
 import { HippyEngineContextImpl } from './HippyEngineContextImpl';
 import { LogUtils } from '../support/utils/LogUtils';
-import { HippyAny, HippyMap } from '../support/common/HippyTypes';
+import { HippyAny, HippyMap, HippyValue } from '../support/common/HippyTypes';
 import { DeviceEventModule } from './modules/native';
 import { HippyRemoteBundleLoader } from './bridge/bundleloader/HippyRemoteBundleLoader';
 import { EventDispatcher } from './modules/javascript/EventDispatcher';
@@ -62,6 +62,7 @@ import { DimensionsUtil } from '../support/utils/DimensionsUtil';
 import { PixelUtil } from "../support/utils/PixelUtil";
 import systemDateTime from '@ohos.systemDateTime';
 import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventListener";
+import { Dimensions } from "./modules/javascript/Dimensions";
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private libHippy: HippyLibrary
@@ -354,7 +355,37 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     this.mGlobalConfigs.getExceptionHandler()?.handleNativeException(exception, true);
   }
 
-  updateDimension(width: number, height: number, shouldUseScreenDisplay: boolean, systemUiVisibilityChanged: boolean): void {
+  async updateDimension(width: number, height: number): Promise<void> {
+    if (!this.mEngineContext) {
+      return;
+    }
+    let context = this.mEngineContext.getGlobalConfigs().getContext();
+    if (!context) {
+      return;
+    }
+    let dimensionMap = await DimensionsUtil.getDimensions(-1, -1, context);
+    let dimensionW: number = 0;
+    let dimensionH: number = 0;
+    if (dimensionMap) {
+      let windowMap = dimensionMap.get("windowPhysicalPixels") as Map<string, HippyValue>;
+      if (windowMap) {
+        dimensionW = windowMap.get("width") as number;
+        dimensionH = windowMap.get("height") as number;
+      }
+      LogUtils.i('hippy', "updateDimension: " + dimensionMap);
+    }
+    if (height < 0 || dimensionW == dimensionH) {
+      let deviceAdapter = this.mEngineContext.getGlobalConfigs().getDeviceAdapter();
+      deviceAdapter?.reviseDimensionIfNeed(context, dimensionMap);
+    }
+    DimensionsUtil.convertDimensionsToDp(dimensionMap);
+    let manager = this.mEngineContext.getModuleManager();
+    if (manager) {
+      let eventModule = manager.getJavaScriptModule(Dimensions.MODULE_NAME);
+      if (eventModule) {
+        (eventModule as Dimensions).set(dimensionMap);
+      }
+    }
   }
 
   onSizeChanged(rootId: number, w: number, h: number, ow: number, oh: number): void {

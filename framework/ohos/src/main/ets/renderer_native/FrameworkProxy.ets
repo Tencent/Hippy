@@ -44,7 +44,7 @@ export interface FrameworkProxy {
 
   handleNativeException(exception: HippyException): void
 
-  updateDimension(width: number, height: number, shouldUseScreenDisplay: boolean, systemUiVisibilityChanged: boolean): void
+  updateDimension(width: number, height: number): Promise<void>
 
   onSizeChanged(rootId: number, w: number, h: number, ow: number, oh: number): void
 }
