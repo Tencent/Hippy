@@ -43,7 +43,7 @@ enum class Direction;
 
 @interface HippyShadowView () {
     __weak HippyShadowView *_superview;
-    NSMutableArray<HippyShadowView *> *_objectSubviews;
+    NSMutableArray<HippyShadowView *> *_shadowSubviews;
     BOOL _recomputePadding;
     BOOL _recomputeMargin;
     BOOL _recomputeBorder;
