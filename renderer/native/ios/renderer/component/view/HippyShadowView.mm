@@ -77,7 +77,6 @@
     if ((self = [super init])) {
         _propagationLifecycle = NativeRenderUpdateLifecycleUninitialized;
         _frame = CGRectMake(0, 0, NAN, NAN);
-        _objectSubviews = [NSMutableArray array];
         _confirmedLayoutDirection = hippy::Direction::Inherit;
         _layoutDirection = hippy::Direction::Inherit;
     }
@@ -165,11 +164,19 @@
         HippyFatal(HippyErrorWithMessage(@"Illegal nil shadow subview in insertHippySubview!"));
         return;
     }
-    if (atIndex <= [_objectSubviews count]) {
-        [_objectSubviews insertObject:subview atIndex:atIndex];
-    } else {
-        [_objectSubviews addObject:subview];
+
+    @synchronized (self) {
+        if (!_shadowSubviews) {
+            _shadowSubviews = [NSMutableArray array];
+        }
+        
+        if (atIndex <= [_shadowSubviews count]) {
+            [_shadowSubviews insertObject:subview atIndex:atIndex];
+        } else {
+            [_shadowSubviews addObject:subview];
+        }
     }
+    
     subview->_superview = self;
     _didUpdateSubviews = YES;
     [self dirtyText:NO];
@@ -190,7 +197,10 @@
     [subview dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     _didUpdateSubviews = YES;
     subview->_superview = nil;
-    [_objectSubviews removeObject:subview];
+    
+    @synchronized (self) {
+        [_shadowSubviews removeObject:subview];
+    }
 }
 
 - (void)removeFromHippySuperview {
@@ -199,7 +209,11 @@
 }
 
 - (NSArray<HippyShadowView *> *)hippySubviews {
-    return _objectSubviews;
+    NSArray<HippyShadowView *> *subviews;
+    @synchronized (self) {
+        subviews = _shadowSubviews.copy ?: @[];
+    }
+    return subviews;
 }
 
 - (HippyShadowView *)parent {
@@ -211,7 +225,7 @@
 }
 
 - (NSNumber *)hippyTagAtPoint:(CGPoint)point {
-    for (HippyShadowView *renderObject in _objectSubviews) {
+    for (HippyShadowView *renderObject in self.hippySubviews) {
         if (CGRectContainsPoint(renderObject.frame, point)) {
             CGPoint relativePoint = point;
             CGPoint origin = renderObject.frame.origin;
@@ -238,7 +252,7 @@
     [string appendString:self.description];
     [string appendString:@"\n"];
 
-    for (HippyShadowView *subview in _objectSubviews) {
+    for (HippyShadowView *subview in self.hippySubviews) {
         [subview addRecursiveDescriptionToString:string atLevel:level + 1];
     }
 }
