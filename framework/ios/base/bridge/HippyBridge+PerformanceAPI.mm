@@ -51,7 +51,8 @@ using namespace footstone;
         uint32_t rootId = rootTag.unsignedIntValue;
         std::weak_ptr<hippy::DomManager> weak_domManager = domManager;
         std::weak_ptr<hippy::Performance> weak_performance = performance;
-        std::vector<std::function<void()>> ops = {[rootId, weak_domManager, weak_performance] {
+        TimePoint tp = footstone::TimePoint::SystemNow();
+        std::vector<std::function<void()>> ops = {[rootId, weak_domManager, weak_performance, tp] {
             auto domManager = weak_domManager.lock();
             auto performance = weak_performance.lock();
             if (!domManager || !performance) {
@@ -65,7 +66,7 @@ using namespace footstone;
             entry->SetHippyDomStart(domManager->GetDomStartTimePoint(rootId));
             entry->SetHippyDomEnd(domManager->GetDomEndTimePoint(rootId));
             entry->SetHippyFirstFrameStart(domManager->GetDomEndTimePoint(rootId));
-            entry->SetHippyFirstFrameEnd(footstone::TimePoint::SystemNow());
+            entry->SetHippyFirstFrameEnd(tp);
 #if HIPPY_DEBUG
             int64_t totalFPTime = (entry->GetHippyFirstFrameEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
             int64_t nativeInit = (entry->GetHippyNativeInitEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
@@ -87,11 +88,22 @@ using namespace footstone;
     auto domManager = scope->GetDomManager().lock();
     auto performance = scope->GetPerformance();
     if (domManager && performance) {
-        auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
-        if (!entry) {
-            return;
-        }
-        entry->SetHippyFirstContentfulPaintEnd(footstone::TimePoint::SystemNow());
+        std::weak_ptr<hippy::DomManager> weak_domManager = domManager;
+        std::weak_ptr<hippy::Performance> weak_performance = performance;
+        TimePoint tp = footstone::TimePoint::SystemNow();
+        std::vector<std::function<void()>> ops = {[weak_domManager, weak_performance, tp] {
+            auto domManager = weak_domManager.lock();
+            auto performance = weak_performance.lock();
+            if (!domManager || !performance) {
+                return;
+            }
+            auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
+            if (!entry) {
+                return;
+            }
+            entry->SetHippyFirstContentfulPaintEnd(tp);
+        }};
+        domManager->PostTask(hippy::Scene(std::move(ops)));
     }
 }
 
