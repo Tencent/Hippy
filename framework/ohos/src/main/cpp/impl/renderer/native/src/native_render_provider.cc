@@ -143,7 +143,9 @@ void NativeRenderProvider::UpdateTextMeasurer(uint32_t root_id, uint32_t node_id
   OhNapiTaskRunner *taskRunner = OhNapiTaskRunner::Instance(ts_env_);
   taskRunner->RunAsyncTask([render_impl = render_impl_, root_id, node_id, text_measurer]() {
     auto view_manager = render_impl->GetHRManager()->GetViewManager(root_id);
-    view_manager->GetRenderContext()->GetTextMeasureManager()->SaveNewTextMeasurer(node_id, text_measurer);
+    if (view_manager) {
+      view_manager->GetRenderContext()->GetTextMeasureManager()->SaveNewTextMeasurer(node_id, text_measurer);
+    }
   });
 }
 
