@@ -20,17 +20,12 @@
  *
  */
 
-#pragma once
-
-#include "renderer/components/base_view.h"
-#include "renderer/native_render_context.h"
+#include "renderer/components/waterfall_item_adapter.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_parent_text, bool is_parent_waterfall, std::shared_ptr<NativeRenderContext> &ctx);
-bool HippyIsLazyCreateView(const std::string &view_type);
 
 } // namespace native
 } // namespace render

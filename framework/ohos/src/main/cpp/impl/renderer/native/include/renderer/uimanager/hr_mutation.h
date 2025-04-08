@@ -58,6 +58,7 @@ public:
   int32_t index_ = -1;
   footstone::value::HippyValue::HippyValueObjectType props_;
   bool is_parent_text_ = false;
+  bool is_parent_waterfall_ = false;
 };
 
 class HRUpdateMutation : public HRMutation {

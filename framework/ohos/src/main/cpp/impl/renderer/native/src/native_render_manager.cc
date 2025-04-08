@@ -448,6 +448,9 @@ void NativeRenderManager::CreateRenderNode_C(std::weak_ptr<RootNode> root_node, 
         m->props_ = mergedProps;
       }
     }
+    if (parentNode && parentNode->GetViewName() == "WaterfallView") {
+      m->is_parent_waterfall_ = true;
+    }
     mutations[i] = m;
 
     if (isCustomMeasure) {

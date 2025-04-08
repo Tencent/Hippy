@@ -129,6 +129,8 @@ set(SOURCE_SET
   src/components/text_input_view.cc
   src/components/waterfall_item_view.cc
   src/components/waterfall_view.cc
+  src/components/waterfall_pull_footer_view.cc
+  src/components/waterfall_pull_header_view.cc
   src/recycle/recycle_view.cc
   src/text_measure/font_collection_manager.cc
   src/text_measure/text_measurer.cc

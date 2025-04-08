@@ -124,6 +124,8 @@ public:
   virtual uint32_t GetTotalChildCount() const;
   virtual HRPosition GetPostion() const;
   virtual HRPosition GetAbsolutePosition() const;
+  virtual HRSize GetLayoutSize() const;
+  virtual HRPosition GetLayoutPosition() const;
   virtual HRPosition GetLayoutPositionInScreen() const;
   virtual HRPosition GetLayoutPositionInWindow() const;
 
