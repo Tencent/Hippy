@@ -28,14 +28,12 @@ inline namespace render {
 inline namespace native {
 
 static constexpr ArkUI_NodeEventType FLOW_ITEM_NODE_EVENT_TYPES[] = {
-  NODE_EVENT_ON_VISIBLE_AREA_CHANGE,
-  NODE_ON_CLICK,  
 };
 
 WaterFlowItemNode::WaterFlowItemNode()
     : ArkUINode(NativeNodeApi::GetInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_FLOW_ITEM)) {
   for (auto eventType : FLOW_ITEM_NODE_EVENT_TYPES) {
-    ArkUI_NumberValue value[] = {{.f32 = 0.f},{.f32 = 1.f}};
+    ArkUI_NumberValue value[] = {{.f32 = 0.f}, {.f32 = 1.f}};
     ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
     MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, eventType, 0, &item));
   }    
@@ -48,28 +46,20 @@ WaterFlowItemNode::~WaterFlowItemNode() {
 }
 
 void WaterFlowItemNode::SetNodeDelegate(FlowItemNodeDelegate* delegate){
-    flowItemNodeDelegate_ = delegate;
+  flowItemNodeDelegate_ = delegate;
 }
 
 void WaterFlowItemNode::OnNodeEvent(ArkUI_NodeEvent *event) {
   if (flowItemNodeDelegate_ == nullptr) {
     return;
   }
-  auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
-//  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" event = "<<eventType; 
-  auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
-
-  if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_VISIBLE_AREA_CHANGE) {
-    bool isVisible = nodeComponentEvent->data[0].i32;
-    float currentRatio = nodeComponentEvent->data[1].f32;
-    flowItemNodeDelegate_->OnFlowItemVisibleAreaChange(itemIndex_,isVisible,currentRatio);
-  } else if(eventType == NODE_ON_CLICK){
-    flowItemNodeDelegate_->OnFlowItemClick(itemIndex_);    
-  }
+  // auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
+  // auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
+  // FOOTSTONE_DLOG(INFO) << __FUNCTION__ << " event = " << eventType;
 }
 
-void WaterFlowItemNode::SetConstraintSize(float minWidth,float maxWidth,float minHeight,float maxHeight) {
-  ArkUI_NumberValue value[] = {{.f32 = minWidth},{.f32 = maxWidth},{.f32 = minHeight},{.f32 = maxHeight}};
+void WaterFlowItemNode::SetConstraintSize(float minWidth, float maxWidth, float minHeight, float maxHeight) {
+  ArkUI_NumberValue value[] = {{.f32 = minWidth}, {.f32 = maxWidth}, {.f32 = minHeight}, {.f32 = maxHeight}};
   ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
   MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_WATER_FLOW_ITEM_CONSTRAINT_SIZE, &item));
   SetSubAttributeFlag((uint32_t)AttributeFlag::WATER_FLOW_ITEM_CONSTRAINT_SIZE);

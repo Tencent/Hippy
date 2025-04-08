@@ -171,6 +171,24 @@ HRPosition ArkUINode::GetAbsolutePosition() const {
   return HRPosition{x, y};
 }
 
+HRSize ArkUINode::GetLayoutSize() const {
+  ArkUI_IntSize size;
+  auto status = OH_ArkUI_NodeUtils_GetLayoutSize(nodeHandle_, &size);
+  if (status == ARKUI_ERROR_CODE_NO_ERROR) {
+    return HRSize{ HRPixelUtils::PxToDp((float)size.width), HRPixelUtils::PxToDp((float)size.height) };
+  }
+  return HRSize{0, 0};
+}
+
+HRPosition ArkUINode::GetLayoutPosition() const {
+  ArkUI_IntOffset offset;
+  auto status = OH_ArkUI_NodeUtils_GetLayoutPosition(nodeHandle_, &offset);
+  if (status == ARKUI_ERROR_CODE_NO_ERROR) {
+    return HRPosition{ HRPixelUtils::PxToDp((float)offset.x), HRPixelUtils::PxToDp((float)offset.y) };
+  }
+  return HRPosition{0, 0};
+}
+
 HRPosition ArkUINode::GetLayoutPositionInScreen() const {
   ArkUI_IntOffset offset;
   auto status = OH_ArkUI_NodeUtils_GetLayoutPositionInScreen(nodeHandle_, &offset);

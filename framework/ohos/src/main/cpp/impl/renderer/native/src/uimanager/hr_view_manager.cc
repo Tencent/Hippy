@@ -195,7 +195,7 @@ void HRViewManager::ApplyMutations() {
 void HRViewManager::ApplyMutation(std::shared_ptr<HRMutation> &m) {
   if (m->type_ == HRMutationType::CREATE) {
     auto tm = std::static_pointer_cast<HRCreateMutation>(m);
-    auto view = CreateRenderView(tm->tag_, tm->view_name_, tm->is_parent_text_);
+    auto view = CreateRenderView(tm->tag_, tm->view_name_, tm->is_parent_text_, tm->is_parent_waterfall_);
     if (view) {
       UpdateProps(view, tm->props_);
       InsertSubRenderView(tm->parent_tag_, view, tm->index_);
@@ -245,7 +245,7 @@ std::shared_ptr<BaseView> HRViewManager::FindRenderView(uint32_t tag) {
   return nullptr;
 }
 
-std::shared_ptr<BaseView> HRViewManager::CreateRenderView(uint32_t tag, std::string &view_name, bool is_parent_text) {
+std::shared_ptr<BaseView> HRViewManager::CreateRenderView(uint32_t tag, std::string &view_name, bool is_parent_text, bool is_parent_waterfall) {
   auto exist_view = FindRenderView(tag);
   if (exist_view) {
     return exist_view;
@@ -265,7 +265,7 @@ std::shared_ptr<BaseView> HRViewManager::CreateRenderView(uint32_t tag, std::str
   // build-in view
   auto it = mapping_render_views_.find(view_name);
   auto real_view_name = it != mapping_render_views_.end() ? it->second : view_name;
-  auto view = HippyCreateRenderView(real_view_name, is_parent_text, ctx_);
+  auto view = HippyCreateRenderView(real_view_name, is_parent_text, is_parent_waterfall, ctx_);
   if (view) {
     view->SetTag(tag);
     view->SetViewType(real_view_name);
@@ -278,8 +278,8 @@ std::shared_ptr<BaseView> HRViewManager::CreateRenderView(uint32_t tag, std::str
   return nullptr;
 }
 
-std::shared_ptr<BaseView> HRViewManager::PreCreateRenderView(uint32_t tag, std::string &view_name, bool is_parent_text) {
-  return CreateRenderView(tag, view_name, is_parent_text);
+std::shared_ptr<BaseView> HRViewManager::PreCreateRenderView(uint32_t tag, std::string &view_name, bool is_parent_text, bool is_parent_waterfall) {
+  return CreateRenderView(tag, view_name, is_parent_text, is_parent_waterfall);
 }
 
 void HRViewManager::RemoveRenderView(uint32_t tag) {

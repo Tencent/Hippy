@@ -36,12 +36,12 @@ PullHeaderView::PullHeaderView(std::shared_ptr<NativeRenderContext> &ctx) : List
 PullHeaderView::~PullHeaderView() {}
 
 bool PullHeaderView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
-//  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" propKey = "<<propKey; 
+//  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" propKey = "<<propKey;
   return ListItemView::SetPropImpl(propKey, propValue);
 }
 
-void PullHeaderView::OnSetPropsEndImpl(){
-  return ListItemView::OnSetPropsEndImpl();  
+void PullHeaderView::OnSetPropsEndImpl() {
+  return ListItemView::OnSetPropsEndImpl();
 }
 
 void PullHeaderView::CallImpl(const std::string &method, const std::vector<HippyValue> params,

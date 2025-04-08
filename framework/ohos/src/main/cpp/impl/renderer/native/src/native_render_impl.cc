@@ -121,7 +121,7 @@ void NativeRenderImpl::PreCreateNode(uint32_t root_id, const std::vector<std::sh
 
   for (uint32_t i = 0; i < mutations.size(); i++) {
     auto &m = mutations[i];
-    view_manager->PreCreateRenderView(m->tag_, m->view_name_, m->is_parent_text_);
+    view_manager->PreCreateRenderView(m->tag_, m->view_name_, m->is_parent_text_, m->is_parent_waterfall_);
     view_manager->PreUpdateProps(m->tag_, m->props_);
   }
 }

@@ -35,13 +35,19 @@ public:
   virtual ~WaterFlowNodeDelegate() = default;
   virtual void OnWaterFlowScrollIndex(int32_t firstIndex, int32_t lastIndex) {}
   virtual void OnWaterFlowDidScroll(float_t offset, ArkUI_ScrollState state) {}
-  virtual void OnWaterFlowWillScroll(float_t offset, ArkUI_ScrollState state, int32_t source) {} //TODO ArkUI_ScrollSource not define in current sdk
+  virtual void OnWaterFlowWillScroll(float_t offset, ArkUI_ScrollState state, int32_t source) {}
+  virtual void OnScroll(float scrollOffsetX, float scrollOffsetY) {}
+  virtual void OnScrollStart() {}
+  virtual void OnScrollStop() {}
+  virtual void OnReachStart() {}
+  virtual void OnReachEnd() {}
 };
 
 class WaterFlowNode : public ArkUINode {
 protected:
   enum class AttributeFlag {
     SCROLL_EDGE_EFFECT = 0,
+    SCROLL_OFFSET,
     WATER_FLOW_SCROLL_TO_INDEX,
     WATER_FLOW_COLUMN_TEMPLATE,
     WATER_FLOW_ROW_TEMPLATE,
@@ -53,32 +59,40 @@ protected:
     SCROLL_NESTED_SCROLL,
     SCROLL_BAR_DISPLAY_MODE,
     WATER_FLOW_FOOTER,
+    WATER_FLOW_SECTION_OPTION,
+    WATER_FLOW_NODE_ADAPTER,
   };
   WaterFlowNodeDelegate *waterFlowNodeDelegate_ = nullptr;
-  int32_t itemIndex_ = -1;
 public:
   WaterFlowNode();
   ~WaterFlowNode();
 
   HRPoint GetScrollOffset();
   void SetScrollEdgeEffect(ArkUI_EdgeEffect effect);
-  void SetColumnGap(float_t gap); 
+  void SetColumnGap(float_t gap);
   void SetRowGap(float_t gap);
-  void SetColumnsTemplate(std::string columnsTemplate);
-  void SetRowTemplate(std::string rowsTemplate);
+  void SetColumnsTemplate(const std::string &columnsTemplate);
+  void SetRowTemplate(const std::string &rowsTemplate);
   void SetCachedCount(int32_t count);  
   void SetLayoutDirection(ArkUI_FlexDirection direction);
-  void SetNodeDelegate(WaterFlowNodeDelegate *delegate);
-  void SetItemIndex(int32_t index) { itemIndex_ = index; }
-  void ScrollToIndex(int32_t index, bool animated,ArkUI_ScrollAlignment align = ArkUI_ScrollAlignment::ARKUI_SCROLL_ALIGNMENT_AUTO);    
-  void OnNodeEvent(ArkUI_NodeEvent *event) override;    
-    
-  void SetScrollEnableInteraction(bool bEnable);  
+  void ScrollTo(float offsetX, float offsetY, bool animated);
+  void ScrollToIndex(int32_t index, bool animated, ArkUI_ScrollAlignment align);
+
+  void SetEnableScrollInteraction(bool bEnable);
   void SetNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward);
   void SetScrollBarDisplayMode(ArkUI_ScrollBarDisplayMode mode);
   void SetFooter(ArkUI_NodeHandle footer);
+  void SetSectionOption(ArkUI_WaterFlowSectionOption *option);
+  void SetLazyAdapter(ArkUI_NodeAdapterHandle adapterHandle);
   
+  void ResetLazyAdapter();
   void ResetAllAttributes() override;
+
+  void OnNodeEvent(ArkUI_NodeEvent *event) override;
+  void SetNodeDelegate(WaterFlowNodeDelegate *delegate);
+
+private:
+  bool hasAdapter_ = false;
 };
 
 } // namespace native

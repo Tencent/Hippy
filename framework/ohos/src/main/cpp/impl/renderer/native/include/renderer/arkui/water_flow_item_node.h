@@ -23,7 +23,6 @@
 #pragma once
 
 #include "renderer/arkui/arkui_node.h"
-#include <cmath>
 #include <cstdint>
 
 namespace hippy {
@@ -33,8 +32,6 @@ inline namespace native {
 class FlowItemNodeDelegate {
 public:
   virtual ~FlowItemNodeDelegate() = default;
-  virtual void OnFlowItemVisibleAreaChange(int32_t index, bool isVisible, float currentRatio) {}
-  virtual void OnFlowItemClick(int32_t index){}
 };
 
 class WaterFlowItemNode : public ArkUINode {
@@ -48,11 +45,11 @@ public:
   WaterFlowItemNode();
   ~WaterFlowItemNode();
 
-  void OnNodeEvent(ArkUI_NodeEvent *event) override;  
-  void SetNodeDelegate(FlowItemNodeDelegate* delegate);  
-  void SetConstraintSize(float minWidth,float maxWidth,float minHeight,float maxHeight);
+  void OnNodeEvent(ArkUI_NodeEvent *event) override;
+  void SetNodeDelegate(FlowItemNodeDelegate* delegate);
+  void SetConstraintSize(float minWidth, float maxWidth, float minHeight, float maxHeight);
   void SetItemIndex(int32_t index) { itemIndex_ = index; }
-  
+
   void ResetAllAttributes() override;
 };
 

@@ -23,45 +23,37 @@
 #pragma once
 
 #include "renderer/components/base_view.h"
-#include "renderer/arkui/stack_node.h"
-#include "renderer/arkui/water_flow_item_node.h"
+#include "renderer/components/waterfall_item_view.h"
+#include <cstdint>
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class WaterfallItemView : public BaseView {
+class WaterfallPullHeaderView : public WaterfallItemView {
 public:
-  WaterfallItemView(std::shared_ptr<NativeRenderContext> &ctx);
-  ~WaterfallItemView();
-
+  WaterfallPullHeaderView(std::shared_ptr<NativeRenderContext> &ctx);
+  ~WaterfallPullHeaderView();
+  
   ArkUINode *GetLocalRootArkUINode() override;
   void CreateArkUINodeImpl() override;
   void DestroyArkUINodeImpl() override;
   bool RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
   bool ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
-  bool SetViewProp(const std::string &propKey, const HippyValue &propValue) override;
-  bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
-  void OnSetPropsEndImpl() override;
   
   void OnChildInsertedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) override;
   void OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) override;
-  void UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) override;
   
-  float GetWidth();
-  float GetHeight();
-  std::string &GetType() { return type_; }
+  bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
+  void CallImpl(const std::string &method, const std::vector<HippyValue> params,
+                    std::function<void(const HippyValue &result)> callback) override;
+  void OnSetPropsEndImpl() override;
+
+private:
+  void OnHeadRefreshFinish(int32_t delay = 0);
+  void OnHeaderRefresh();
   
-  constexpr static const char *HEAD_BANNER_TYPE = "HeadBanner";
-  constexpr static const char *FOOT_BANNER_TYPE = "FootBanner";
-  
-protected:
-  std::shared_ptr<WaterFlowItemNode> itemNode_;
-  
-  float width_ = 0;
-  float height_ = 0;
-  
-  std::string type_;
+  std::shared_ptr<StackNode> headerItemNode_;
 };
 
 } // namespace native
