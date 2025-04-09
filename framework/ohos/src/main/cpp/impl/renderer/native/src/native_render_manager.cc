@@ -778,7 +778,7 @@ void NativeRenderManager::UpdateLayout_C(std::weak_ptr<RootNode> root_node, cons
     mutations[i] = m;
 #ifdef OHOS_DRAW_TEXT
     auto node = nodes[i];
-    if (node) {
+    if (node->GetViewName() == "Text") {
       auto cache = draw_text_node_manager_->GetCache(root->GetId());
       auto it = cache->draw_text_nodes_.find(node->GetId());
       if (it != cache->draw_text_nodes_.end()) {
@@ -786,7 +786,6 @@ void NativeRenderManager::UpdateLayout_C(std::weak_ptr<RootNode> root_node, cons
           int64_t ret = 0;
           DoMeasureText(root_node, node, DpToPx(result.width), static_cast<int32_t>(LayoutMeasureMode::AtMost),
                         DpToPx(result.height), static_cast<int32_t>(LayoutMeasureMode::AtMost), ret);
-          cache->draw_text_nodes_.erase(it);
         }
       }
     }
