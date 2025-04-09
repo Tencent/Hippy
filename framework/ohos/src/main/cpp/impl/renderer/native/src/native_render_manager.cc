@@ -63,15 +63,6 @@ constexpr char kText[] = "text";
 constexpr char kEnableScale[] = "enableScale";
 constexpr char kNumberOfLines[] = "numberOfLines";
 
-#define MARK_DIRTY_PROPERTY(STYLES, FIND_STYLE, NODE) \
-  do {                                                \
-    FOOTSTONE_DCHECK(NODE != nullptr);                \
-    if (STYLES->find(FIND_STYLE) != STYLES->end()) {  \
-      NODE->MarkDirty();                              \
-      return;                                         \
-    }                                                 \
-  } while (0)
-
 namespace hippy {
 inline namespace render {
 inline namespace native {
@@ -1348,21 +1339,24 @@ void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, 
     if (node) {
       auto diff_style = node->GetDiffStyle();
       if (diff_style) {
-        MARK_DIRTY_PROPERTY(diff_style, kFontStyle, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kLetterSpacing, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kColor, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kFontSize, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kFontFamily, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kFontWeight, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kTextDecorationLine, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kTextShadowOffset, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kTextShadowRadius, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kTextShadowColor, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kLineHeight, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kTextAlign, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kText, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kEnableScale, node->GetLayoutNode());
-        MARK_DIRTY_PROPERTY(diff_style, kNumberOfLines, node->GetLayoutNode());
+        FOOTSTONE_DCHECK(node->GetLayoutNode() != nullptr);
+        if (diff_style->find(kFontStyle) != diff_style->end()
+          || diff_style->find(kLetterSpacing) != diff_style->end()
+          || diff_style->find(kColor) != diff_style->end()
+          || diff_style->find(kFontSize) != diff_style->end()
+          || diff_style->find(kFontFamily) != diff_style->end()
+          || diff_style->find(kFontWeight) != diff_style->end()
+          || diff_style->find(kTextDecorationLine) != diff_style->end()
+          || diff_style->find(kTextShadowOffset) != diff_style->end()
+          || diff_style->find(kTextShadowRadius) != diff_style->end()
+          || diff_style->find(kTextShadowColor) != diff_style->end()
+          || diff_style->find(kLineHeight) != diff_style->end()
+          || diff_style->find(kTextAlign) != diff_style->end()
+          || diff_style->find(kText) != diff_style->end()
+          || diff_style->find(kEnableScale) != diff_style->end()
+          || diff_style->find(kNumberOfLines) != diff_style->end()) {
+          node->GetLayoutNode()->MarkDirty();
+        }
         
 #ifdef OHOS_DRAW_TEXT
         if (diff_style->find(kFontStyle) != diff_style->end()
