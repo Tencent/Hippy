@@ -25,6 +25,7 @@
 #include "footstone/string_view_utils.h"
 #include "oh_napi/ark_ts.h"
 #include "renderer/dom_node/hr_node_props.h"
+#include <native_drawing/drawing_brush.h>
 
 namespace hippy {
 inline namespace render {
@@ -221,6 +222,16 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
   }
   OH_Drawing_SetTextStyleColor(txtStyle, color);
 
+  OH_Drawing_Brush *brush = nullptr;
+  if (GetPropValue(propMap, HRNodeProps::BACKGROUND_COLOR, propValue)) {
+    auto uintValue = HippyValue2Uint(propValue);
+    brush = OH_Drawing_BrushCreate();
+    if (brush) {
+      OH_Drawing_BrushSetColor(brush, uintValue);
+      OH_Drawing_SetTextStyleBackgroundBrush(txtStyle, brush);
+    }
+  }
+
   double fontSize = 14; // 默认的fontSize是14
   if (GetPropValue(propMap, HRNodeProps::FONT_SIZE, propValue)) {
     auto doubleValue = HippyValue2Double(propValue);
@@ -356,6 +367,9 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
 
   OH_ArkUI_StyledString_PopTextStyle(styled_string_);
   OH_Drawing_DestroyTextStyle(txtStyle);
+  if (brush) {
+    OH_Drawing_BrushDestroy(brush);
+  }
 
 #ifdef MEASURE_TEXT_CHECK_PROP
   const static std::vector<std::string> dropProp = {
