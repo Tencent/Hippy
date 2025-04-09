@@ -102,10 +102,8 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
     auto strValue = HippyValue2String(propValue);
     if (strValue == "center") {
       text_align_ = TEXT_ALIGN_CENTER;
-    } else if (strValue == "end") {
+    } else if (strValue == "right") {
       text_align_ = TEXT_ALIGN_END;
-    } else if (strValue == "justify") {
-      text_align_ = TEXT_ALIGN_JUSTIFY;
     }
   }
   OH_Drawing_SetTypographyTextAlign(typographyStyle_, text_align_);
