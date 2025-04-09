@@ -156,9 +156,22 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
     }
   }
 
-  OH_Drawing_FontCollection *fontCollection = fontCache ? fontCache->fontCollection_ : nullptr;
+// 因为使用了API14才有的接口，App也需要升级最低支持版本为API14，否则会加载so crash。
+// 这里临时定义宏，如果有业务暂时不方便升级到API14，可以临时define为0。
+#define OHOS_HAS_API14 1
+#if OHOS_HAS_API14
+  OH_Drawing_FontCollection *fontCollection = nullptr;
+  bool hasCustomFont = (fontFamilyNames.size() > 0) ? true : false;
+  if (hasCustomFont) {
+    fontCollection = fontCache ? fontCache->fontCollection_ : nullptr;
+  } else {
+    fontCollection = OH_Drawing_GetFontCollectionGlobalInstance();
+  }
   styled_string_ = OH_ArkUI_StyledString_Create(typographyStyle_, fontCollection);
-  
+#else
+  OH_Drawing_FontCollection *fontCollection = fontCache ? fontCache->fontCollection_ : nullptr;
+#endif
+
   if (GetPropValue(propMap, HRNodeProps::LINE_HEIGHT, propValue)) {
     auto doubleValue = HippyValue2Double(propValue);
     lineHeight_ = doubleValue;
