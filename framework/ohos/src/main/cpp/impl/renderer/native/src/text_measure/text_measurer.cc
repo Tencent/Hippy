@@ -127,15 +127,18 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   }
 
   OH_Drawing_EllipsisModal em = ELLIPSIS_MODAL_TAIL;
+  std::string ellipsis = "...";
   if (GetPropValue(propMap, HRNodeProps::ELLIPSIZE_MODE, propValue)) {
     auto strValue = HippyValue2String(propValue);
     if (strValue == "head") {
       em = ELLIPSIS_MODAL_HEAD;
     } else if (strValue == "middle") {
       em = ELLIPSIS_MODAL_MIDDLE;
+    } else if (strValue == "clip") {
+      ellipsis = "";
     }
   }
-  OH_Drawing_SetTypographyTextEllipsis(typographyStyle_, "...");
+  OH_Drawing_SetTypographyTextEllipsis(typographyStyle_, ellipsis.c_str());
   OH_Drawing_SetTypographyTextEllipsisModal(typographyStyle_, em);
 
   if (fontCache) {
