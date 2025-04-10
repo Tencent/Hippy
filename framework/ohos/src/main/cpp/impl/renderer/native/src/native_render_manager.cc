@@ -62,6 +62,9 @@ constexpr char kTextAlign[] = "textAlign";
 constexpr char kText[] = "text";
 constexpr char kEnableScale[] = "enableScale";
 constexpr char kNumberOfLines[] = "numberOfLines";
+#ifdef OHOS_DRAW_TEXT
+constexpr char kBackgroundColor[] = "backgroundColor";
+#endif
 
 namespace hippy {
 inline namespace render {
@@ -1342,6 +1345,9 @@ void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, 
         if (diff_style->find(kFontStyle) != diff_style->end()
           || diff_style->find(kLetterSpacing) != diff_style->end()
           || diff_style->find(kColor) != diff_style->end()
+#ifdef OHOS_DRAW_TEXT
+          || diff_style->find(kBackgroundColor) != diff_style->end()
+#endif
           || diff_style->find(kFontSize) != diff_style->end()
           || diff_style->find(kFontFamily) != diff_style->end()
           || diff_style->find(kFontWeight) != diff_style->end()
@@ -1361,6 +1367,7 @@ void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, 
         if (diff_style->find(kFontStyle) != diff_style->end()
           || diff_style->find(kLetterSpacing) != diff_style->end()
           || diff_style->find(kColor) != diff_style->end()
+          || diff_style->find(kBackgroundColor) != diff_style->end()
           || diff_style->find(kFontSize) != diff_style->end()
           || diff_style->find(kFontFamily) != diff_style->end()
           || diff_style->find(kFontWeight) != diff_style->end()
