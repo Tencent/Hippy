@@ -203,6 +203,7 @@ class HermesCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateMap(const std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>>& map) override;
   virtual std::shared_ptr<CtxValue> CreateArray(size_t count, std::shared_ptr<CtxValue> value[]) override;
   virtual std::shared_ptr<CtxValue> CreateException(const string_view& msg) override;
+  std::shared_ptr<HermesExceptionCtxValue> CreateException(const string_view& msg, const std::exception_ptr exptr);
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(void* buffer, size_t length) override;
 
   // Get From Value

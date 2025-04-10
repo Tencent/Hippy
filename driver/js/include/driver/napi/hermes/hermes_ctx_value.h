@@ -68,11 +68,15 @@ class HermesCtxValue : public CtxValue {
   Type type_;
 };
 
-class HermesExceptionCtxValue : public CtxValue {
- public:
-  HermesExceptionCtxValue(std::exception_ptr exception, std::string& message) : exception_(exception), message_(message) {}
-  std::string Message() const { return message_; }
- private:
+class HermesExceptionCtxValue : public HermesCtxValue {
+public:
+  HermesExceptionCtxValue(Runtime& runtime,
+                          const std::exception_ptr exception,
+                          const std::string& message,
+                          const Object& value)
+  : HermesCtxValue(runtime, value), exception_(std::move(exception)), message_(message) {}
+  const std::string& GetMessage() const { return message_; }
+private:
   std::exception_ptr exception_;
   std::string message_;
 };
