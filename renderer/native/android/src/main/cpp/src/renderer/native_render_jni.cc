@@ -77,6 +77,11 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "(IIFF)V",
              UpdateRootSize)
 
+REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
+             "onFontLoaded",
+             "(II)V",
+             OnFontLoaded)
+
 static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
   auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
@@ -147,6 +152,51 @@ void GetPropsRegisterForRender(const std::shared_ptr<JavaRef>& j_render_manager,
 
 jobject GetNativeRendererInstance(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {
   return nullptr;
+}
+
+void MarkTextNodeDirtyRecursive(const std::shared_ptr<DomNode>& node) {
+    if (!node) {
+        return;
+    }
+    uint32_t child_count = node->GetChildCount();
+    for (uint32_t i = 0; i < child_count; i++) {
+        MarkTextNodeDirtyRecursive(node->GetChildAt(i));
+    }
+    if (node->GetViewName() == "TextInput" || node->GetViewName() == "Text") {
+        auto layout_node = node->GetLayoutNode();
+        layout_node->MarkDirty();
+    }
+}
+
+void OnFontLoaded(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id) {
+    auto& map = NativeRenderManager::PersistentMap();
+    std::shared_ptr<NativeRenderManager> render_manager;
+    bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
+    if (!ret) {
+        FOOTSTONE_DLOG(WARNING) << "OnFontLoaded j_render_manager_id invalid";
+        return;
+    }
+    std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
+    if (dom_manager == nullptr) {
+        FOOTSTONE_DLOG(WARNING) << "OnFontLoaded dom_manager is nullptr";
+        return;
+    }
+    auto& root_map = RootNode::PersistentMap();
+    std::shared_ptr<RootNode> root_node;
+    uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+    ret = root_map.Find(root_id, root_node);
+    if (!ret) {
+        FOOTSTONE_DLOG(WARNING) << "OnFontLoaded root_node is nullptr";
+        return;
+    }
+
+    std::vector<std::function<void()>> ops;
+    ops.emplace_back([dom_manager, root_node]{
+        MarkTextNodeDirtyRecursive(root_node);
+        dom_manager->DoLayout(root_node);
+        dom_manager->EndBatch(root_node);
+    });
+    dom_manager->PostTask(Scene(std::move(ops)));
 }
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id,
