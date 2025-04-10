@@ -96,7 +96,7 @@ static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<Herm
   auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
   auto context = scope->GetContext();
   footstone::string_view description("Hermes Engine JS Exception");
-  footstone::string_view stack(exception->Message());
+  footstone::string_view stack(exception->GetMessage());
   callback(scope->GetBridge(), description, stack);
 }
 
@@ -742,7 +742,22 @@ std::shared_ptr<CtxValue> HermesCtx::CreateException(const string_view& msg) {
   auto u8_msg = StringViewUtils::CovertToUtf8(msg, msg.encoding());
   auto str = StringViewUtils::ToStdString(u8_msg.utf8_value());
   auto exptr = std::make_exception_ptr(facebook::jsi::JSINativeException(str));
-  return std::make_shared<HermesExceptionCtxValue>(exptr, str);
+  
+  auto msg_key = CreateString("message");
+  auto msg_value = CreateString(msg);
+  auto exception = std::static_pointer_cast<HermesCtxValue>(CreateObject({{ msg_key, msg_value }}));
+  return std::make_shared<HermesExceptionCtxValue>(*runtime_, exptr, str, exception->GetValue(runtime_).asObject(*runtime_));
+}
+
+std::shared_ptr<HermesExceptionCtxValue> HermesCtx::CreateException(const string_view& msg, const std::exception_ptr exptr) {
+  FOOTSTONE_DLOG(INFO) << "HermesCtx::CreateException msg = " << msg;
+  auto u8_msg = StringViewUtils::CovertToUtf8(msg, msg.encoding());
+  auto str = StringViewUtils::ToStdString(u8_msg.utf8_value());
+  
+  auto msg_key = CreateString("message");
+  auto msg_value = CreateString(msg);
+  auto exception = std::static_pointer_cast<HermesCtxValue>(CreateObject({{ msg_key, msg_value }}));
+  return std::make_shared<HermesExceptionCtxValue>(*runtime_, exptr, str, exception->GetValue(runtime_).asObject(*runtime_));
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CreateByteBuffer(void* buffer, size_t length) {
@@ -787,7 +802,7 @@ std::shared_ptr<CtxValue> HermesCtx::CallFunction(const std::shared_ptr<CtxValue
   } catch (const facebook::jsi::JSIException& err) {
     auto exptr = std::current_exception();
     std::string message(err.what());
-    exception_ = std::make_shared<HermesExceptionCtxValue>(exptr, message);
+    exception_ = CreateException(message.c_str(), exptr);
     return nullptr;
   }
 }
@@ -1129,7 +1144,7 @@ std::shared_ptr<CtxValue> HermesCtx::RunScript(const string_view& data, const st
   } catch (facebook::jsi::JSIException& err) {
     auto exptr = std::current_exception();
     std::string message(err.what());
-    exception_ = std::make_shared<HermesExceptionCtxValue>(exptr, message);
+    exception_ = CreateException(message.c_str(), exptr);
     return nullptr;
   }
 }
@@ -1153,7 +1168,7 @@ string_view HermesCtx::GetExceptionMessage(const std::shared_ptr<CtxValue>& exce
     return string_view();
   }
   auto hermes_exception = std::static_pointer_cast<HermesExceptionCtxValue>(exception);
-  std::string message = hermes_exception->Message();
+  std::string message = hermes_exception->GetMessage();
   FOOTSTONE_DLOG(ERROR) << "GetExceptionMessage msg = " << message;
   return string_view(message);
 }
