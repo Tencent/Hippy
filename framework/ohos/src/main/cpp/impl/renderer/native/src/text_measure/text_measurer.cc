@@ -658,7 +658,7 @@ int32_t TextMeasurer::HippyValue2Int(HippyValue &value) {
 }
 
 uint32_t TextMeasurer::HippyValue2Uint(HippyValue &value) {
-  return (uint32_t)(int32_t)HippyValue2Double(value);
+  return (uint32_t)(int64_t)HippyValue2Double(value);
 }
 
 } // namespace native
