@@ -240,7 +240,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mEngineContext.getJsDriver().recordFirstPaintEndTime(System.currentTimeMillis(), rootId);
         mEngineContext.getMonitor().addPoint(TimeMonitor.MONITOR_GROUP_PAINT,
                 TimeMonitor.MONITOR_POINT_FIRST_CONTENTFUL_PAINT);
-        mGlobalConfigs.getEngineMonitorAdapter().onFirstPaintCompleted(mEngineContext.getComponentName());
+        mGlobalConfigs.getEngineMonitorAdapter().onFirstPaintCompleted(mEngineContext.getComponentName(),
+                mMonitor.getGroup(TimeMonitor.MONITOR_GROUP_PAINT));
         if (mModuleListener != null) {
             mModuleListener.onFirstViewAdded();
         }
@@ -250,7 +251,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public void onFirstContentfulPaint() {
         mEngineContext.getJsDriver().recordFirstContentfulPaintEndTime(System.currentTimeMillis());
         mEngineContext.getMonitor().endGroup(TimeMonitor.MONITOR_GROUP_PAINT);
-        mGlobalConfigs.getEngineMonitorAdapter().onFirstContentfulPaintCompleted(mEngineContext.getComponentName());
+        mGlobalConfigs.getEngineMonitorAdapter().onFirstContentfulPaintCompleted(mEngineContext.getComponentName(),
+                mMonitor.getGroup(TimeMonitor.MONITOR_GROUP_PAINT));
         if (mModuleListener != null) {
             mModuleListener.onFirstContentfulPaint();
         }
@@ -453,7 +455,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                         throw new IllegalArgumentException("context is not activity");
                     }
                 }
-                // Above Android O, use PixelCopy, because another way view.draw will cause Software rendering doesn't support hardware bitmaps
+                // Above Android O, use PixelCopy, because another way view.draw will cause Software rendering
+                // doesn't support hardware bitmaps
                 int[] location = new int[2];
                 view.getLocationInWindow(location);
                 Window window = getViewWindow((Activity) context, view);
@@ -699,7 +702,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     private void onEngineInitialized(EngineInitStatus statusCode, Throwable error) {
-        mGlobalConfigs.getEngineMonitorAdapter().onEngineInitialized(statusCode);
+        mGlobalConfigs.getEngineMonitorAdapter()
+                .onEngineInitialized(statusCode, mMonitor.getGroup(TimeMonitor.MONITOR_GROUP_INIT_ENGINE));
         for (EngineListener listener : mEventListeners) {
             listener.onInitialized(statusCode, error == null ? null : error.toString());
         }
@@ -1161,7 +1165,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @Nullable String msg) {
             notifyModuleLoaded(statusCode, msg);
             mGlobalConfigs.getEngineMonitorAdapter()
-                    .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName());
+                    .onLoadModuleCompleted(statusCode, mEngineContext.getComponentName(),
+                            mMonitor.getGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE));
         }
 
         @Override
