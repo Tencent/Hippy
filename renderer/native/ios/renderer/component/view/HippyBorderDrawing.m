@@ -22,6 +22,7 @@
 
 #import "HippyBorderDrawing.h"
 #import "HippyLog.h"
+#import "HippyRenderUtils.h"
 
 static const CGFloat HippyViewBorderThreshold = 0.001;
 
@@ -38,15 +39,17 @@ BOOL HippyCornerRadiiAreEqual(HippyCornerRadii cornerRadii) {
 }
 
 BOOL HippyBorderColorsAreEqual(HippyBorderColors borderColors) {
-    return CGColorEqualToColor(borderColors.left, borderColors.right) && CGColorEqualToColor(borderColors.left, borderColors.top)
-           && CGColorEqualToColor(borderColors.left, borderColors.bottom);
+    return CGColorEqualToColor(borderColors.left.CGColor, borderColors.right.CGColor) &&
+    CGColorEqualToColor(borderColors.left.CGColor, borderColors.top.CGColor) &&
+    CGColorEqualToColor(borderColors.left.CGColor, borderColors.bottom.CGColor);
 }
 
 HippyCornerInsets HippyGetCornerInsets(HippyCornerRadii cornerRadii, UIEdgeInsets edgeInsets) {
-    return (HippyCornerInsets) { {
-                                     MAX(0, cornerRadii.topLeft - edgeInsets.left),
-                                     MAX(0, cornerRadii.topLeft - edgeInsets.top),
-                                 },
+    return (HippyCornerInsets) {
+        {
+            MAX(0, cornerRadii.topLeft - edgeInsets.left),
+            MAX(0, cornerRadii.topLeft - edgeInsets.top),
+        },
         {
             MAX(0, cornerRadii.topRight - edgeInsets.right),
             MAX(0, cornerRadii.topRight - edgeInsets.top),
@@ -154,182 +157,224 @@ CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerR
     return HippyPathCreateWithRoundedRect(rect, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
 }
 
-static CGContextRef HippyUIGraphicsBeginImageContext(CGSize size, CGColorRef backgroundColor, BOOL hasCornerRadii, BOOL drawToEdge) {
-    const CGFloat alpha = CGColorGetAlpha(backgroundColor);
+static UIGraphicsImageRenderer *
+HippyMakeUIGraphicsImageRenderer(CGSize size, UIColor *backgroundColor, BOOL hasCornerRadii, BOOL drawToEdge) {
+    const CGFloat alpha = CGColorGetAlpha(backgroundColor.CGColor);
     const BOOL opaque = (drawToEdge || !hasCornerRadii) && alpha == 1.0;
-    UIGraphicsBeginImageContextWithOptions(size, opaque, 0.0);
-    return UIGraphicsGetCurrentContext();
+    UIGraphicsImageRendererFormat *const rendererFormat = [UIGraphicsImageRendererFormat defaultFormat];
+    rendererFormat.opaque = opaque;
+    UIGraphicsImageRenderer *const renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size format:rendererFormat];
+    return renderer;
 }
 
-static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii, CGSize viewSize, UIEdgeInsets borderInsets, HippyBorderColors borderColors,
-    CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
+static UIEdgeInsets HippyRoundInsetsToPixel(UIEdgeInsets edgeInsets) {
+    edgeInsets.top = HippyRoundPixelValue(edgeInsets.top);
+    edgeInsets.bottom = HippyRoundPixelValue(edgeInsets.bottom);
+    edgeInsets.left = HippyRoundPixelValue(edgeInsets.left);
+    edgeInsets.right = HippyRoundPixelValue(edgeInsets.right);
+    
+    return edgeInsets;
+}
+
+static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii,
+                                         CGSize viewSize,
+                                         UIEdgeInsets borderInsets,
+                                         HippyBorderColors borderColors,
+                                         UIColor *backgroundColor,
+                                         BOOL drawToEdge,
+                                         BOOL drawBackgrondColor) {
+    // Incorrect render for cornerRadii that are not proportional to device pixel:
+    // Two colors are drawn when only one background color is given.
+    cornerRadii = (HippyCornerRadii){
+        HippyRoundPixelValue(cornerRadii.topLeft),
+        HippyRoundPixelValue(cornerRadii.topRight),
+        HippyRoundPixelValue(cornerRadii.bottomLeft),
+        HippyRoundPixelValue(cornerRadii.bottomRight)
+    };
+    
     const BOOL hasCornerRadii = HippyCornerRadiiAreAboveThreshold(cornerRadii);
     const HippyCornerInsets cornerInsets = HippyGetCornerInsets(cornerRadii, borderInsets);
-
-    const BOOL makeStretchable
-        = (borderInsets.left + cornerInsets.topLeft.width + borderInsets.right + cornerInsets.bottomRight.width <= viewSize.width)
-          && (borderInsets.left + cornerInsets.bottomLeft.width + borderInsets.right + cornerInsets.topRight.width <= viewSize.width)
-          && (borderInsets.top + cornerInsets.topLeft.height + borderInsets.bottom + cornerInsets.bottomRight.height <= viewSize.height)
-          && (borderInsets.top + cornerInsets.topRight.height + borderInsets.bottom + cornerInsets.bottomLeft.height <= viewSize.height);
-
-    const UIEdgeInsets edgeInsets = (UIEdgeInsets) { borderInsets.top + MAX(cornerInsets.topLeft.height, cornerInsets.topRight.height),
+    
+    // Incorrect render for borders that are not proportional to device pixel: borders get stretched and become
+    // significantly bigger than expected.
+    // Rdar: http://www.openradar.me/15959788
+    borderInsets = HippyRoundInsetsToPixel(borderInsets);
+    
+    const BOOL makeStretchable =
+    (borderInsets.left + cornerInsets.topLeft.width + borderInsets.right + cornerInsets.bottomRight.width <= viewSize.width) &&
+    (borderInsets.left + cornerInsets.bottomLeft.width + borderInsets.right + cornerInsets.topRight.width <= viewSize.width) &&
+    (borderInsets.top + cornerInsets.topLeft.height + borderInsets.bottom + cornerInsets.bottomRight.height <= viewSize.height) &&
+    (borderInsets.top + cornerInsets.topRight.height + borderInsets.bottom + cornerInsets.bottomLeft.height <= viewSize.height);
+    
+    UIEdgeInsets edgeInsets = (UIEdgeInsets){
+        borderInsets.top + MAX(cornerInsets.topLeft.height, cornerInsets.topRight.height),
         borderInsets.left + MAX(cornerInsets.topLeft.width, cornerInsets.bottomLeft.width),
         borderInsets.bottom + MAX(cornerInsets.bottomLeft.height, cornerInsets.bottomRight.height),
         borderInsets.right + MAX(cornerInsets.bottomRight.width, cornerInsets.topRight.width) };
 
     const CGSize size = makeStretchable ? (CGSize){
-    // 1pt for the middle stretchable area along each axis
-    edgeInsets.left + 1 + edgeInsets.right,
-    edgeInsets.top + 1 + edgeInsets.bottom
-  } : viewSize;
-
-    CGContextRef ctx = HippyUIGraphicsBeginImageContext(size, backgroundColor, hasCornerRadii, drawToEdge);
-    const CGRect rect = { .size = size };
-    CGPathRef path = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
-
-    if (backgroundColor) {
-        if (!drawBackgrondColor) {
-            backgroundColor = [UIColor clearColor].CGColor;
+        // 1pt for the middle stretchable area along each axis
+        edgeInsets.left + 1 + edgeInsets.right,
+        edgeInsets.top + 1 + edgeInsets.bottom
+    } : viewSize;
+    
+    UIGraphicsImageRenderer *const imageRenderer = HippyMakeUIGraphicsImageRenderer(size, backgroundColor, hasCornerRadii, drawToEdge);
+    UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull rendererContext) {
+        const CGContextRef context = rendererContext.CGContext;
+        const CGRect rect = {.size = size};
+        CGPathRef path = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
+        
+        if (backgroundColor) {
+            CGContextSetFillColorWithColor(context, drawBackgrondColor ? backgroundColor.CGColor : [UIColor clearColor].CGColor);
+            CGContextAddPath(context, path);
+            CGContextFillPath(context);
         }
-        CGContextSetFillColorWithColor(ctx, backgroundColor);
-        CGContextAddPath(ctx, path);
-        CGContextFillPath(ctx);
-    }
-
-    CGContextAddPath(ctx, path);
-    CGPathRelease(path);
-
-    CGPathRef insetPath = HippyPathCreateWithRoundedRect(UIEdgeInsetsInsetRect(rect, borderInsets), cornerInsets, NULL);
-
-    CGContextAddPath(ctx, insetPath);
-    CGContextEOClip(ctx);
-
-    BOOL hasEqualColors = HippyBorderColorsAreEqual(borderColors);
-    if ((drawToEdge || !hasCornerRadii) && hasEqualColors) {
-        CGContextSetFillColorWithColor(ctx, borderColors.left);
-        CGContextAddRect(ctx, rect);
-        CGContextAddPath(ctx, insetPath);
-        CGContextEOFillPath(ctx);
-
-    } else {
-        CGPoint topLeft = (CGPoint) { borderInsets.left, borderInsets.top };
-        if (cornerInsets.topLeft.width > 0 && cornerInsets.topLeft.height > 0) {
-            CGPoint points[2];
-            HippyEllipseGetIntersectionsWithLine(
-                (CGRect) { topLeft, { 2 * cornerInsets.topLeft.width, 2 * cornerInsets.topLeft.height } }, CGPointZero, topLeft, points);
-            if (!isnan(points[1].x) && !isnan(points[1].y)) {
-                topLeft = points[1];
+        
+        CGContextAddPath(context, path);
+        CGPathRelease(path);
+        
+        CGPathRef insetPath = HippyPathCreateWithRoundedRect(UIEdgeInsetsInsetRect(rect, borderInsets), cornerInsets, NULL);
+        
+        CGContextAddPath(context, insetPath);
+        CGContextEOClip(context);
+        
+        BOOL hasEqualColors = HippyBorderColorsAreEqual(borderColors);
+        if ((drawToEdge || !hasCornerRadii) && hasEqualColors) {
+            CGContextSetFillColorWithColor(context, borderColors.left.CGColor);
+            CGContextAddRect(context, rect);
+            CGContextAddPath(context, insetPath);
+            CGContextEOFillPath(context);
+            
+        } else {
+            CGPoint topLeft = (CGPoint){borderInsets.left, borderInsets.top};
+            if (cornerInsets.topLeft.width > 0 && cornerInsets.topLeft.height > 0) {
+                CGPoint points[2];
+                HippyEllipseGetIntersectionsWithLine((CGRect){topLeft, {2 * cornerInsets.topLeft.width, 2 * cornerInsets.topLeft.height}},
+                                                     CGPointZero,
+                                                     topLeft,
+                                                     points);
+                if (!isnan(points[1].x) && !isnan(points[1].y)) {
+                    topLeft = points[1];
+                }
             }
-        }
-
-        CGPoint bottomLeft = (CGPoint) { borderInsets.left, size.height - borderInsets.bottom };
-        if (cornerInsets.bottomLeft.width > 0 && cornerInsets.bottomLeft.height > 0) {
-            CGPoint points[2];
-            HippyEllipseGetIntersectionsWithLine((CGRect) { { bottomLeft.x, bottomLeft.y - 2 * cornerInsets.bottomLeft.height },
-                                                     { 2 * cornerInsets.bottomLeft.width, 2 * cornerInsets.bottomLeft.height } },
-                (CGPoint) { 0, size.height }, bottomLeft, points);
-            if (!isnan(points[1].x) && !isnan(points[1].y)) {
-                bottomLeft = points[1];
+            
+            CGPoint bottomLeft = (CGPoint){borderInsets.left, size.height - borderInsets.bottom};
+            if (cornerInsets.bottomLeft.width > 0 && cornerInsets.bottomLeft.height > 0) {
+                CGPoint points[2];
+                HippyEllipseGetIntersectionsWithLine((CGRect){
+                    {bottomLeft.x, bottomLeft.y - 2 * cornerInsets.bottomLeft.height},
+                    {2 * cornerInsets.bottomLeft.width, 2 * cornerInsets.bottomLeft.height}},
+                                                     (CGPoint){0, size.height},
+                                                     bottomLeft,
+                                                     points);
+                if (!isnan(points[1].x) && !isnan(points[1].y)) {
+                    bottomLeft = points[1];
+                }
             }
-        }
-
-        CGPoint topRight = (CGPoint) { size.width - borderInsets.right, borderInsets.top };
-        if (cornerInsets.topRight.width > 0 && cornerInsets.topRight.height > 0) {
-            CGPoint points[2];
-            HippyEllipseGetIntersectionsWithLine((CGRect) { { topRight.x - 2 * cornerInsets.topRight.width, topRight.y },
-                                                     { 2 * cornerInsets.topRight.width, 2 * cornerInsets.topRight.height } },
-                (CGPoint) { size.width, 0 }, topRight, points);
-            if (!isnan(points[0].x) && !isnan(points[0].y)) {
-                topRight = points[0];
+            
+            CGPoint topRight = (CGPoint){size.width - borderInsets.right, borderInsets.top};
+            if (cornerInsets.topRight.width > 0 && cornerInsets.topRight.height > 0) {
+                CGPoint points[2];
+                HippyEllipseGetIntersectionsWithLine(
+                                                     (CGRect){
+                                                         {topRight.x - 2 * cornerInsets.topRight.width, topRight.y},
+                                                         {2 * cornerInsets.topRight.width, 2 * cornerInsets.topRight.height}},
+                                                     (CGPoint){size.width, 0},
+                                                     topRight,
+                                                     points);
+                if (!isnan(points[0].x) && !isnan(points[0].y)) {
+                    topRight = points[0];
+                }
             }
-        }
-
-        CGPoint bottomRight = (CGPoint) { size.width - borderInsets.right, size.height - borderInsets.bottom };
-        if (cornerInsets.bottomRight.width > 0 && cornerInsets.bottomRight.height > 0) {
-            CGPoint points[2];
-            HippyEllipseGetIntersectionsWithLine(
-                (CGRect) { { bottomRight.x - 2 * cornerInsets.bottomRight.width, bottomRight.y - 2 * cornerInsets.bottomRight.height },
-                    { 2 * cornerInsets.bottomRight.width, 2 * cornerInsets.bottomRight.height } },
-                (CGPoint) { size.width, size.height }, bottomRight, points);
-            if (!isnan(points[0].x) && !isnan(points[0].y)) {
-                bottomRight = points[0];
+            
+            CGPoint bottomRight = (CGPoint){size.width - borderInsets.right, size.height - borderInsets.bottom};
+            if (cornerInsets.bottomRight.width > 0 && cornerInsets.bottomRight.height > 0) {
+                CGPoint points[2];
+                HippyEllipseGetIntersectionsWithLine(
+                                                     (CGRect){
+                                                         {bottomRight.x - 2 * cornerInsets.bottomRight.width,
+                                                             bottomRight.y - 2 * cornerInsets.bottomRight.height},
+                                                         {2 * cornerInsets.bottomRight.width, 2 * cornerInsets.bottomRight.height}},
+                                                     (CGPoint){size.width, size.height},
+                                                     bottomRight,
+                                                     points);
+                if (!isnan(points[0].x) && !isnan(points[0].y)) {
+                    bottomRight = points[0];
+                }
             }
-        }
-
-        CGColorRef currentColor = NULL;
-
-        // RIGHT
-        if (borderInsets.right > 0) {
-            const CGPoint points[] = {
-                (CGPoint) { size.width, 0 },
-                topRight,
-                bottomRight,
-                (CGPoint) { size.width, size.height },
-            };
-
-            currentColor = borderColors.right;
-            CGContextAddLines(ctx, points, sizeof(points) / sizeof(*points));
-        }
-
-        // BOTTOM
-        if (borderInsets.bottom > 0) {
-            const CGPoint points[] = {
-                (CGPoint) { 0, size.height },
-                bottomLeft,
-                bottomRight,
-                (CGPoint) { size.width, size.height },
-            };
-
-            if (!CGColorEqualToColor(currentColor, borderColors.bottom)) {
-                CGContextSetFillColorWithColor(ctx, currentColor);
-                CGContextFillPath(ctx);
-                currentColor = borderColors.bottom;
+            
+            UIColor *currentColor = nil;
+            
+            // RIGHT
+            if (borderInsets.right > 0) {
+                const CGPoint points[] = {
+                    (CGPoint){size.width, 0},
+                    topRight,
+                    bottomRight,
+                    (CGPoint){size.width, size.height},
+                };
+                
+                currentColor = borderColors.right;
+                CGContextAddLines(context, points, sizeof(points) / sizeof(*points));
             }
-            CGContextAddLines(ctx, points, sizeof(points) / sizeof(*points));
-        }
-
-        // LEFT
-        if (borderInsets.left > 0) {
-            const CGPoint points[] = {
-                CGPointZero,
-                topLeft,
-                bottomLeft,
-                (CGPoint) { 0, size.height },
-            };
-
-            if (!CGColorEqualToColor(currentColor, borderColors.left)) {
-                CGContextSetFillColorWithColor(ctx, currentColor);
-                CGContextFillPath(ctx);
-                currentColor = borderColors.left;
+            
+            // BOTTOM
+            if (borderInsets.bottom > 0) {
+                const CGPoint points[] = {
+                    (CGPoint){0, size.height},
+                    bottomLeft,
+                    bottomRight,
+                    (CGPoint){size.width, size.height},
+                };
+                
+                if (!CGColorEqualToColor(currentColor.CGColor, borderColors.bottom.CGColor)) {
+                    CGContextSetFillColorWithColor(context, currentColor.CGColor);
+                    CGContextFillPath(context);
+                    currentColor = borderColors.bottom;
+                }
+                CGContextAddLines(context, points, sizeof(points) / sizeof(*points));
             }
-            CGContextAddLines(ctx, points, sizeof(points) / sizeof(*points));
-        }
-
-        // TOP
-        if (borderInsets.top > 0) {
-            const CGPoint points[] = {
-                CGPointZero,
-                topLeft,
-                topRight,
-                (CGPoint) { size.width, 0 },
-            };
-
-            if (!CGColorEqualToColor(currentColor, borderColors.top)) {
-                CGContextSetFillColorWithColor(ctx, currentColor);
-                CGContextFillPath(ctx);
-                currentColor = borderColors.top;
+            
+            // LEFT
+            if (borderInsets.left > 0) {
+                const CGPoint points[] = {
+                    CGPointZero,
+                    topLeft,
+                    bottomLeft,
+                    (CGPoint){0, size.height},
+                };
+                
+                if (!CGColorEqualToColor(currentColor.CGColor, borderColors.left.CGColor)) {
+                    CGContextSetFillColorWithColor(context, currentColor.CGColor);
+                    CGContextFillPath(context);
+                    currentColor = borderColors.left;
+                }
+                CGContextAddLines(context, points, sizeof(points) / sizeof(*points));
             }
-            CGContextAddLines(ctx, points, sizeof(points) / sizeof(*points));
+            
+            // TOP
+            if (borderInsets.top > 0) {
+                const CGPoint points[] = {
+                    CGPointZero,
+                    topLeft,
+                    topRight,
+                    (CGPoint){size.width, 0},
+                };
+                
+                if (!CGColorEqualToColor(currentColor.CGColor, borderColors.top.CGColor)) {
+                    CGContextSetFillColorWithColor(context, currentColor.CGColor);
+                    CGContextFillPath(context);
+                    currentColor = borderColors.top;
+                }
+                CGContextAddLines(context, points, sizeof(points) / sizeof(*points));
+            }
+            
+            CGContextSetFillColorWithColor(context, currentColor.CGColor);
+            CGContextFillPath(context);
         }
-
-        CGContextSetFillColorWithColor(ctx, currentColor);
-        CGContextFillPath(ctx);
-    }
-
-    CGPathRelease(insetPath);
-
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+        
+        CGPathRelease(insetPath);
+    }];
 
     if (makeStretchable) {
         image = [image resizableImageWithCapInsets:edgeInsets];
@@ -398,8 +443,14 @@ static UIImage *HippyGetSolidBorderImage(HippyCornerRadii cornerRadii, CGSize vi
 // of gradients _along_ a path (NB: clipping a path and drawing a linear gradient
 // is _not_ equivalent).
 
-static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, HippyCornerRadii cornerRadii, CGSize viewSize,
-    UIEdgeInsets borderInsets, HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
+static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle,
+                                                  HippyCornerRadii cornerRadii,
+                                                  CGSize viewSize,
+                                                  UIEdgeInsets borderInsets,
+                                                  HippyBorderColors borderColors,
+                                                  UIColor *backgroundColor,
+                                                  BOOL drawToEdge,
+                                                  BOOL drawBackgrondColor) {
     NSCParameterAssert(borderStyle == HippyBorderStyleDashed || borderStyle == HippyBorderStyleDotted);
 
     if (!HippyBorderColorsAreEqual(borderColors) || !HippyBorderInsetsAreEqual(borderInsets)) {
@@ -407,60 +458,68 @@ static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, 
         return nil;
     }
 
+    // make sure borderInsets are proportional to device pixel
+    borderInsets = HippyRoundInsetsToPixel(borderInsets);
     const CGFloat lineWidth = borderInsets.top;
     if (lineWidth <= 0.0) {
         return nil;
     }
+    
+    // make sure cornerRadii are proportional to device pixel
+    cornerRadii = (HippyCornerRadii){
+        HippyRoundPixelValue(cornerRadii.topLeft),
+        HippyRoundPixelValue(cornerRadii.topRight),
+        HippyRoundPixelValue(cornerRadii.bottomLeft),
+        HippyRoundPixelValue(cornerRadii.bottomRight)
+    };
 
     const BOOL hasCornerRadii = HippyCornerRadiiAreAboveThreshold(cornerRadii);
-    CGContextRef ctx = HippyUIGraphicsBeginImageContext(viewSize, backgroundColor, hasCornerRadii, drawToEdge);
-    const CGRect rect = { .size = viewSize };
+    UIGraphicsImageRenderer *const imageRenderer = HippyMakeUIGraphicsImageRenderer(viewSize, backgroundColor, hasCornerRadii, drawToEdge);
+    return [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull rendererContext) {
+        const CGContextRef context = rendererContext.CGContext;
+        const CGRect rect = {.size = viewSize};
+        
+        if (backgroundColor) {
+            CGPathRef outerPath = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
+            CGContextAddPath(context, outerPath);
+            CGPathRelease(outerPath);
 
-    if (backgroundColor) {
-        CGPathRef outerPath = HippyPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
-        CGContextAddPath(ctx, outerPath);
-        CGPathRelease(outerPath);
-        if (!drawBackgrondColor) {
-            backgroundColor = [UIColor clearColor].CGColor;
+            CGContextSetFillColorWithColor(context, drawBackgrondColor ? backgroundColor.CGColor : UIColor.clearColor.CGColor);
+            CGContextFillPath(context);
         }
-        CGContextSetFillColorWithColor(ctx, backgroundColor);
-        CGContextFillPath(ctx);
-    }
-
-    // Stroking means that the width is divided in half and grows in both directions
-    // perpendicular to the path, that's why we inset by half the width, so that it
-    // reaches the edge of the rect.
-    CGRect pathRect = CGRectInset(rect, lineWidth / 2.0, lineWidth / 2.0);
-    CGPathRef path = HippyPathCreateWithRoundedRect(pathRect, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
-
-    CGFloat dashLengths[2];
-    dashLengths[0] = dashLengths[1] = (borderStyle == HippyBorderStyleDashed ? 3 : 1) * lineWidth;
-
-    CGContextSetLineWidth(ctx, lineWidth);
-    CGContextSetLineDash(ctx, 0, dashLengths, sizeof(dashLengths) / sizeof(*dashLengths));
-
-    CGContextSetStrokeColorWithColor(ctx, [UIColor yellowColor].CGColor);
-
-    CGContextAddPath(ctx, path);
-    CGContextSetStrokeColorWithColor(ctx, borderColors.top);
-    CGContextStrokePath(ctx);
-
-    CGPathRelease(path);
-
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-
-    return image;
+        
+        // Stroking means that the width is divided in half and grows in both directions
+        // perpendicular to the path, that's why we inset by half the width, so that it
+        // reaches the edge of the rect.
+        CGRect pathRect = CGRectInset(rect, lineWidth / 2.0, lineWidth / 2.0);
+        CGPathRef path = HippyPathCreateWithRoundedRect(pathRect, HippyGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
+        
+        CGFloat dashLengths[2];
+        dashLengths[0] = dashLengths[1] = (borderStyle == HippyBorderStyleDashed ? 3 : 1) * lineWidth;
+        
+        CGContextSetLineWidth(context, lineWidth);
+        CGContextSetLineDash(context, 0, dashLengths, sizeof(dashLengths) / sizeof(*dashLengths));
+        
+        CGContextSetStrokeColorWithColor(context, [UIColor yellowColor].CGColor);
+        
+        CGContextAddPath(context, path);
+        CGContextSetStrokeColorWithColor(context, borderColors.top.CGColor);
+        CGContextStrokePath(context);
+        
+        CGPathRelease(path);
+    }];
 }
 
 UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
-    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
+                             HippyBorderColors borderColors, UIColor *backgroundColor, BOOL drawToEdge, BOOL drawBackgrondColor) {
     switch (borderStyle) {
         case HippyBorderStyleSolid:
-            return HippyGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
+            return HippyGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors,
+                                            backgroundColor, drawToEdge, drawBackgrondColor);
         case HippyBorderStyleDashed:
         case HippyBorderStyleDotted:
-            return HippyGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
+            return HippyGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets,
+                                                     borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
         case HippyBorderStyleNone:
             break;
     }

@@ -40,10 +40,10 @@ typedef struct {
 } HippyCornerInsets;
 
 typedef struct {
-    CGColorRef top;
-    CGColorRef left;
-    CGColorRef bottom;
-    CGColorRef right;
+    UIColor *top;
+    UIColor *left;
+    UIColor *bottom;
+    UIColor *right;
 } HippyBorderColors;
 
 /**
@@ -72,6 +72,6 @@ HIPPY_EXTERN CGPathRef HippyPathCreateWithRoundedRect(CGRect bounds, HippyCorner
  * `borderInsets` defines the border widths for each edge.
  */
 HIPPY_EXTERN UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, HippyCornerRadii cornerRadii, UIEdgeInsets borderInsets,
-    HippyBorderColors borderColors, CGColorRef backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
+    HippyBorderColors borderColors, UIColor *backgroundColor, BOOL drawToEdge, BOOL drawBackgroundColor);
 
 HIPPY_EXTERN CGPathRef HippyPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, HippyCornerRadii cornerRadii);
