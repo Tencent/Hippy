@@ -35,7 +35,7 @@ public class TimeMonitor {
     public static final String MONITOR_POINT_LOAD_MAIN_JS = "loadMainJs";
     public static final String MONITOR_POINT_FIRST_PAINT = "firstPaint";
     public static final String MONITOR_POINT_FIRST_CONTENTFUL_PAINT = "firstContentfulPaint";
-    private int mEngineId;
+    private final int mEngineId;
     @Nullable
     HashMap<String, MonitorGroup> mMonitorGroups;
 
@@ -86,13 +86,21 @@ public class TimeMonitor {
         }
     }
 
-    private static class MonitorGroup {
+    @Nullable
+    public synchronized MonitorGroup getGroup(@NonNull String groupName) {
+        if (mMonitorGroups != null) {
+            return mMonitorGroups.get(groupName);
+        }
+        return null;
+    }
+
+    public static class MonitorGroup {
 
         public final String name;
         public long beginTime = -1;
         public long totalTime = -1;
         public boolean isActive = true;
-        public int engineId = -1;
+        public int engineId;
         @Nullable
         private ArrayList<MonitorPoint> mMonitorPoints;
         @Nullable

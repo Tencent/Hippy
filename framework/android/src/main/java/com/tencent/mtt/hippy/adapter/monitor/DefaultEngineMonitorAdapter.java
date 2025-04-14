@@ -23,32 +23,31 @@ import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
 
 public class DefaultEngineMonitorAdapter implements HippyEngineMonitorAdapter {
 
     private static final String TAG = "DefaultEngineMonitorAdapter";
 
     @Override
-    public void onEngineInitialized(EngineInitStatus statusCode) {
+    public void onEngineInitialized(EngineInitStatus statusCode, @Nullable MonitorGroup group) {
         LogUtils.i(TAG, "engine initialization completed with result: " + statusCode);
     }
 
     @Override
-    public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName) {
-        LogUtils.i(TAG,
-                componentName + " load module completed with result: " + statusCode);
+    public void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName,
+            @Nullable MonitorGroup group) {
+        LogUtils.i(TAG, componentName + " load module completed with result: " + statusCode);
     }
 
     @Override
-    public void onFirstPaintCompleted(@NonNull String componentName) {
-        LogUtils.i(TAG,
-                componentName + " first paint completed with first view added");
+    public void onFirstPaintCompleted(@NonNull String componentName, @Nullable MonitorGroup group) {
+        LogUtils.i(TAG, componentName + " first paint completed with first view added");
     }
 
     @Override
-    public void onFirstContentfulPaintCompleted(@NonNull String componentName) {
-        LogUtils.i(TAG,
-                componentName + " first contentful paint completed last content view added");
+    public void onFirstContentfulPaintCompleted(@NonNull String componentName, @Nullable MonitorGroup group) {
+        LogUtils.i(TAG, componentName + " first contentful paint completed last content view added");
     }
 
     @Override

@@ -288,8 +288,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                                                 "load coreJsBundle failed, check your core jsBundle:"
                                                                         + reason);
                                                     }
-                                                    callback.callback((result == 0), exception);
                                                     timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_INIT_ENGINE);
+                                                    callback.callback((result == 0), exception);
                                                 }
                                             });
                                 } else {
@@ -333,6 +333,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                             @Override
                             public void Call(long result, Message message, String action,
                                     String reason) {
+                                timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE);
+                                timeMonitor.beginGroup(TimeMonitor.MONITOR_GROUP_PAINT);
+                                timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_PAINT, TimeMonitor.MONITOR_POINT_FIRST_PAINT);
                                 if (result == 0) {
                                     if (contextWeakRef.get() != null) {
                                         contextWeakRef.get().onLoadModuleCompleted(ModuleLoadStatus.STATUS_OK,
@@ -345,9 +348,6 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                                 "load module error. loader.load failed. check the file!!");
                                     }
                                 }
-                                timeMonitor.endGroup(TimeMonitor.MONITOR_GROUP_RUN_BUNDLE);
-                                timeMonitor.beginGroup(TimeMonitor.MONITOR_GROUP_PAINT);
-                                timeMonitor.addPoint(TimeMonitor.MONITOR_GROUP_PAINT, TimeMonitor.MONITOR_POINT_FIRST_PAINT);
                             }
                         });
                     } else {

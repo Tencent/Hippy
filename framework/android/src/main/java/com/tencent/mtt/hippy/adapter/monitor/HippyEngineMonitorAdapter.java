@@ -22,16 +22,17 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
+import com.tencent.mtt.hippy.utils.TimeMonitor.MonitorGroup;
 
 public interface HippyEngineMonitorAdapter {
 
-    void onEngineInitialized(EngineInitStatus statusCode);
+    void onEngineInitialized(EngineInitStatus statusCode, @Nullable MonitorGroup group);
 
-    void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName);
+    void onLoadModuleCompleted(ModuleLoadStatus statusCode, @NonNull String componentName, @Nullable MonitorGroup group);
 
-    void onFirstPaintCompleted(@NonNull String componentName);
+    void onFirstPaintCompleted(@NonNull String componentName, @Nullable MonitorGroup group);
 
-    void onFirstContentfulPaintCompleted(@NonNull String componentName);
+    void onFirstContentfulPaintCompleted(@NonNull String componentName, @Nullable MonitorGroup group);
 
     boolean onInterceptCallNative(@NonNull String componentName, @NonNull HippyCallNativeParams params);
 
