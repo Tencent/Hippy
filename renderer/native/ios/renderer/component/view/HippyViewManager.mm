@@ -513,21 +513,21 @@ HIPPY_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, HippyView) {
     }
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, HippyView) {
-    CGColorRef color = nil;
+    UIColor *color = nil;
     if ([view respondsToSelector:@selector(setBorderColor:)]) {
         if (json) {
-            color = [HippyConvert CGColor:json];
+            color = [HippyConvert UIColor:json];
         } else {
-            color = defaultView ? defaultView.borderColor : [UIColor clearColor].CGColor;
+            color = defaultView ? defaultView.borderColor : [UIColor clearColor];
         }
         view.borderColor = color;
     } else {
         if (json) {
-            color = [HippyConvert CGColor:json];
+            color = [HippyConvert UIColor:json];
         } else {
-            color = defaultView ? defaultView.layer.borderColor : [UIColor clearColor].CGColor;
+            color = defaultView ? [UIColor colorWithCGColor:defaultView.layer.borderColor] : [UIColor clearColor];
         }
-        view.layer.borderColor = color;
+        view.layer.borderColor = color.CGColor;
     }
 }
 
@@ -544,34 +544,34 @@ HIPPY_CUSTOM_VIEW_PROPERTY(borderStyle, HippyBorderStyle, HippyView) {
     }
 }
 
-#define NATIVE_RENDER_VIEW_BORDER_PROPERTY(SIDE)                                                                    \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, HippyView) {                            \
+#define HIPPY_VIEW_BORDER_PROPERTY(SIDE)                                                                            \
+    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, HippyView) {                                           \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Width:)]) {                                         \
-            view.border##SIDE##Width = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Width; \
+            view.border##SIDE##Width = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Width;        \
         }                                                                                                           \
     }                                                                                                               \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, HippyView) {                            \
+    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, HippyView) {                                           \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Color:)]) {                                         \
-            view.border##SIDE##Color = json ? [HippyConvert CGColor:json] : defaultView.border##SIDE##Color; \
+            view.border##SIDE##Color = json ? [HippyConvert UIColor:json] : defaultView.border##SIDE##Color;        \
         }                                                                                                           \
     }
 
-NATIVE_RENDER_VIEW_BORDER_PROPERTY(Top)
-NATIVE_RENDER_VIEW_BORDER_PROPERTY(Right)
-NATIVE_RENDER_VIEW_BORDER_PROPERTY(Bottom)
-NATIVE_RENDER_VIEW_BORDER_PROPERTY(Left)
+HIPPY_VIEW_BORDER_PROPERTY(Top)
+HIPPY_VIEW_BORDER_PROPERTY(Right)
+HIPPY_VIEW_BORDER_PROPERTY(Bottom)
+HIPPY_VIEW_BORDER_PROPERTY(Left)
 
-#define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyView) {                               \
+#define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                         \
+    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyView) {                                              \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
-            view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+            view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius;          \
         }                                                                                                               \
     }
 
-NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
-NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
-NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
-NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
+HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
+HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
+HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
+HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 HIPPY_REMAP_VIEW_PROPERTY(zIndex, hippyZIndex, NSInteger)
 
