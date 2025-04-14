@@ -189,36 +189,6 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-void NativeRenderBoarderColorsRetain(HippyBorderColors c) {
-    if (c.top) {
-        CGColorRetain(c.top);
-    }
-    if (c.bottom) {
-        CGColorRetain(c.bottom);
-    }
-    if (c.left) {
-        CGColorRetain(c.left);
-    }
-    if (c.right) {
-        CGColorRetain(c.right);
-    }
-}
-
-void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
-    if (c.top) {
-        CGColorRelease(c.top);
-    }
-    if (c.bottom) {
-        CGColorRelease(c.bottom);
-    }
-    if (c.left) {
-        CGColorRelease(c.left);
-    }
-    if (c.right) {
-        CGColorRelease(c.right);
-    }
-}
-
 - (void)drawShadowForLayer:(HippyCornerRadii)cornerRadii {
     self.layer.shadowPath = nil;
     if (0 != self.shadowSpread && !self.isUseNewShadow) {
@@ -320,7 +290,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     // iOS draws borders in front of the content whereas CSS draws them behind
     // the content. For this reason, only use iOS border drawing when clipping
     // or when the border is hidden.
-    BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top) == 0) || self.clipsToBounds);
+    BOOL borderColorCheck = (borderInsets.top == 0 || (borderColors.top && CGColorGetAlpha(borderColors.top.CGColor) == 0) || self.clipsToBounds);
 
     BOOL useIOSBorderRendering = !isRunningInTest && isCornerEqual && isBorderInsetsEqual && isBorderColorsEqual && borderStyle && borderColorCheck;
 
@@ -330,7 +300,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
 
     if (useIOSBorderRendering && !self.backgroundImage && !self.gradientObject) {
         layer.cornerRadius = cornerRadii.topLeft;
-        layer.borderColor = borderColors.left;
+        layer.borderColor = borderColors.left.CGColor;
         layer.borderWidth = borderInsets.left;
         layer.backgroundColor = backgroundColor.CGColor;
         layer.contents = nil;
@@ -388,7 +358,12 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     const HippyBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = color?:self.backgroundColor;
 
-    CGRect theFrame = self.frame;
+    // make sure frame is proportional to device pixel
+    CGRect theFrame = CGRectMake(HippyRoundPixelValue(self.frame.origin.x),
+                                 HippyRoundPixelValue(self.frame.origin.y),
+                                 HippyRoundPixelValue(self.frame.size.width),
+                                 HippyRoundPixelValue(self.frame.size.height));
+    
     /**
      * If view has already applied a 3d transform,
      * to get its origin frame ,we have to revert 3d transform to its frame
@@ -400,7 +375,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
     UIImage *borderImage = HippyGetBorderImage(self.borderStyle, theFrame.size, cornerRadii, borderInsets,
-                                               borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
+                                               borderColors, backgroundColor, clipToBounds, !self.gradientObject);
     if (!self.backgroundImage && !self.gradientObject) {
         contentBlock(borderImage);
         return YES;
@@ -432,8 +407,7 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
         });
         return NO;
     } else if (self.gradientObject) {
-        CGSize size = CGSizeMake(HippyRoundPixelValue(theFrame.size.width),
-                                 HippyRoundPixelValue(theFrame.size.height));
+        CGSize size = theFrame.size;
         if (0 >= size.width || 0 >= size.height) {
             contentBlock(nil);
             return YES;
@@ -484,14 +458,13 @@ void NativeRenderBoarderColorsRelease(HippyBorderColors c) {
 
 #pragma mark Border Color
 
-#define setBorderColor(side)                                    \
-    -(void)setBorder##side##Color : (CGColorRef)color {         \
-        if (CGColorEqualToColor(_border##side##Color, color)) { \
-            return;                                             \
-        }                                                       \
-        CGColorRelease(_border##side##Color);                   \
-        _border##side##Color = CGColorRetain(color);            \
-        [self.layer setNeedsDisplay];                           \
+#define setBorderColor(side)                                                    \
+    -(void)setBorder##side##Color : (UIColor *)color {                          \
+        if (CGColorEqualToColor(_border##side##Color.CGColor, color.CGColor)) { \
+            return;                                                             \
+        }                                                                       \
+        _border##side##Color = color;                                           \
+        [self.layer setNeedsDisplay];                                           \
     }
 
 setBorderColor()
@@ -546,13 +519,5 @@ setBorderRadius(BottomRight)
     }
 
 setBorderStyle()
-
-- (void)dealloc {
-    CGColorRelease(_borderColor);
-    CGColorRelease(_borderTopColor);
-    CGColorRelease(_borderRightColor);
-    CGColorRelease(_borderBottomColor);
-    CGColorRelease(_borderLeftColor);
-}
 
 @end
