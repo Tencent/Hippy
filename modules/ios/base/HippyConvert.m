@@ -469,7 +469,10 @@ HP_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"
     if ([json isKindOfClass:[NSArray class]]) {
         NSArray *components = [self NSNumberArray:json];
         CGFloat alpha = components.count > 3 ? [self CGFloat:components[3]] : 1.0;
-        return [UIColor colorWithRed:[self CGFloat:components[0]] green:[self CGFloat:components[1]] blue:[self CGFloat:components[2]] alpha:alpha];
+        return [UIColor colorWithRed:[self CGFloat:components[0]]
+                               green:[self CGFloat:components[1]]
+                                blue:[self CGFloat:components[2]]
+                               alpha:alpha];
     } else if ([json isKindOfClass:[NSNumber class]]) {
         NSUInteger argb = [self NSUInteger:json];
         CGFloat a = ((argb >> 24) & 0xFF) / 255.0;
