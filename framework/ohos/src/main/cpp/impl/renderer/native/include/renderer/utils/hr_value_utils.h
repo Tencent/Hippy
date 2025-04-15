@@ -128,13 +128,8 @@ public:
     return defaultValue;
   }
 
-  static std::string GetString(const HippyValue &value) {
-    std::string str;
-    bool result = value.ToString(str);
-    if (result) {
-      return str;
-    }
-    return "";
+  static const std::string& GetString(const HippyValue &value) {
+    return value.ToStringSafe();
   }
   
   static bool GetBool(const HippyValue &value, bool defaultValue) {

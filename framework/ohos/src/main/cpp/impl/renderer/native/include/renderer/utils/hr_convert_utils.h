@@ -37,10 +37,10 @@ using HippyValueArrayType = footstone::value::HippyValue::HippyValueArrayType;
 
 class HRConvertUtils {
 public:
-  static ArkUI_BorderStyle BorderStyleToArk(std::string &str);
-  static ArkUI_ImageSize BackgroundImageSizeToArk(std::string &str);
+  static ArkUI_BorderStyle BorderStyleToArk(const std::string &str);
+  static ArkUI_ImageSize BackgroundImageSizeToArk(const std::string &str);
   static float ToDegrees(const HippyValue &value);
-  static bool TransformToArk(HippyValueArrayType &valueArray, HRTransform &transform);
+  static bool TransformToArk(const HippyValueArrayType &valueArray, HRTransform &transform);
   static ArkUI_ScrollAlignment ScrollAlignmentToArk(const HippyValue &value);
 };
 

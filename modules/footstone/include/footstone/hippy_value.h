@@ -291,6 +291,18 @@ class HippyValue final {
   std::string& ToStringChecked();
 
   /**
+   * @brief 转化成 string 类型
+   * @return return string value
+   */
+  const std::string& ToStringSafe() const;
+
+  /**
+   * @brief 转化成 string 类型
+   * @return return string value
+   */
+  std::string& ToStringSafe();
+
+  /**
    * @brief 转化成 HippyValueObjectType 类型, crash if failed
    * @param obj get HippyValueObjectType value
    * @return return true if success else return false

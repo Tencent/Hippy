@@ -28,7 +28,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-ArkUI_BorderStyle HRConvertUtils::BorderStyleToArk(std::string &str) {
+ArkUI_BorderStyle HRConvertUtils::BorderStyleToArk(const std::string &str) {
   if (str == "solid") {
     return ArkUI_BorderStyle::ARKUI_BORDER_STYLE_SOLID;
   } else if (str == "dotted") {
@@ -39,7 +39,7 @@ ArkUI_BorderStyle HRConvertUtils::BorderStyleToArk(std::string &str) {
   return ArkUI_BorderStyle::ARKUI_BORDER_STYLE_SOLID;
 }
 
-ArkUI_ImageSize HRConvertUtils::BackgroundImageSizeToArk(std::string &str) {
+ArkUI_ImageSize HRConvertUtils::BackgroundImageSizeToArk(const std::string &str) {
   if (str == "contain") {
     return ARKUI_IMAGE_SIZE_CONTAIN;
   } else if (str == "cover") {
@@ -69,17 +69,22 @@ float HRConvertUtils::ToDegrees(const HippyValue &value) {
   return inRadians ? static_cast<float>(180 / M_PI * ret) : ret;
 }
 
-bool HRConvertUtils::TransformToArk(HippyValueArrayType &valueArray, HRTransform &transform) {
+bool HRConvertUtils::TransformToArk(const HippyValueArrayType &valueArray, HRTransform &transform) {
   for (uint32_t i = 0; i < valueArray.size(); i++) {
-    HippyValueObjectType transformObj;
-    if (!valueArray[i].ToObject(transformObj) || transformObj.size() == 0) {
+    if (!valueArray[i].IsObject()) {
       continue;
     }
-    
+    auto& transformObj = valueArray[i].ToObjectChecked();
+    if (transformObj.size() == 0) {
+      continue;
+    }
     for (auto it : transformObj) {
       if (it.first == "matrix") {
-        HippyValueArrayType value;
-        if (!it.second.IsArray() || !it.second.ToArray(value) || value.size() < 16) {
+        if (!it.second.IsArray()) {
+          continue;
+        }
+        auto& value = it.second.ToArrayChecked();
+        if (value.size() < 16) {
           continue;
         }
         HRMatrix matrix;
@@ -154,10 +159,10 @@ bool HRConvertUtils::TransformToArk(HippyValueArrayType &valueArray, HRTransform
           transform.scale = scale;
         }
       } else if (it.first == "translate") {
-        HippyValueArrayType array;
-        if (!it.second.IsArray() || !it.second.ToArray(array)) {
+        if (!it.second.IsArray()) {
           continue;
         }
+        auto& array = it.second.ToArrayChecked();
         HRTranslate translate;
         if (array.size() > 0) {
           double value = 0;

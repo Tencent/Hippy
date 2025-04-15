@@ -85,7 +85,7 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
 #ifdef OHOS_DRAW_TEXT
 #else
   if (propKey == "text") {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!text_.has_value() || value != text_) {
       GetLocalRootArkUINode()->SetSpanContent(value);
       text_ = value;
@@ -99,7 +99,7 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
     }
     return true;
   } else if (propKey == HRNodeProps::FONT_FAMILY) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!fontFamily_.has_value() || value != fontFamily_) {
       GetLocalRootArkUINode()->SetFontFamily(value);
       fontFamily_ = value;
@@ -113,7 +113,7 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
     }
     return true;
   } else if (propKey == HRNodeProps::FONT_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     int32_t style = HRTextConvertUtils::FontStyleToArk(value);
     if (!fontStyle_.has_value() || style != fontStyle_) {
       GetLocalRootArkUINode()->SetFontStyle(style);
@@ -121,7 +121,7 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
     }
     return true;
   } else if (propKey == HRNodeProps::FONT_WEIGHT) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     ArkUI_FontWeight weight = HRTextConvertUtils::FontWeightToArk(value);
     if (!fontWeight_.has_value() || weight != fontWeight_) {
       GetLocalRootArkUINode()->SetFontWeight(weight);
@@ -143,7 +143,7 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
     }
     return true;
   } else if (propKey == HRNodeProps::TEXT_DECORATION_LINE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     decorationType_ = HRTextConvertUtils::TextDecorationTypeToArk(value);
     toSetTextDecoration_ = true;
     return true;
@@ -152,7 +152,7 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
     toSetTextDecoration_ = true;
     return true;
   } else if (propKey == HRNodeProps::TEXT_DECORATION_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     decorationStyle_ = HRTextConvertUtils::TextDecorationStyleToArk(value);
     toSetTextDecoration_ = true;
     return true;
