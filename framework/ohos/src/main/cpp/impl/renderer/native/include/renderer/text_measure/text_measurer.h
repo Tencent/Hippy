@@ -92,6 +92,10 @@ public:
   ArkUI_StyledString *GetStyledString() {
     return styled_string_;
   }
+    
+  OH_Drawing_Typography *GetTypography() {
+    return typography_;
+  }
   
   bool IsRedraw(float maxWidth) {
     return text_align_ != TEXT_ALIGN_START && fabs(measureWidth_ - maxWidth) >= HRPixelUtils::DpToPx(1.0);

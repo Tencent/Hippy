@@ -22,37 +22,28 @@
 
 #pragma once
 
-#include <arkui/native_node.h>
-#include <functional>
-#include <unordered_map>
+#include "renderer/arkui/arkui_node.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class ArkUINode;
-class CustomNode;
-
-class ArkUINodeRegistry {
+class CustomNodeDelegate {
 public:
-  static ArkUINodeRegistry &GetInstance();
+  virtual ~CustomNodeDelegate() = default;
+  virtual void OnForegroundDraw(ArkUI_NodeCustomEvent *event) {}
+};
 
-  void RegisterNode(ArkUINode *node);
-  void UnregisterNode(ArkUINode *node);
+class CustomNode : public ArkUINode {
+public:
+  CustomNode();
+  virtual ~CustomNode();
+    
+  void SetCustomNodeDelegate(CustomNodeDelegate *customNodeDelegate);
+  virtual void OnNodeCustomEvent(ArkUI_NodeCustomEvent *event);
 
-  void RegisterCustomNode(CustomNode *node);
-  void UnregisterCustomNode(CustomNode *node);
-
-private:
-  ArkUINodeRegistry();
-
-  void ReceiveEvent(ArkUI_NodeEvent *event);
-
-  void ReceiveCustomEvent(ArkUI_NodeCustomEvent *event);
-
-  std::unordered_map<ArkUI_NodeHandle, ArkUINode *> nodesByHandle_;
-
-  std::unordered_map<ArkUI_NodeHandle, CustomNode *> customNodesByHandle_;
+protected:
+  CustomNodeDelegate *customNodeDelegate_ = nullptr;
 };
 
 } // namespace native

@@ -22,6 +22,7 @@
 
 #include "renderer/components/rich_text_view.h"
 #include "renderer/arkui/image_node.h"
+#include "renderer/arkui/native_node_api.h"
 #include "renderer/components/rich_text_span_view.h"
 #include "renderer/dom_node/hr_node_props.h"
 #include "renderer/utils/hr_pixel_utils.h"
@@ -48,9 +49,11 @@ RichTextView::~RichTextView() {
     children_.clear();
   }
 #ifdef OHOS_DRAW_TEXT
+# ifndef OHOS_DRAW_CUSTOM_TEXT
   if (textNode_) {
     textNode_->ResetTextContentWithStyledStringAttribute();
   }
+# endif
   auto textMeasureMgr = ctx_->GetTextMeasureManager();
   textMeasureMgr->EraseTextMeasurer(tag_);
   oldUsedTextMeasurerHolder_ = nullptr;
@@ -66,7 +69,16 @@ ArkUINode *RichTextView::GetLocalRootArkUINode() {
 }
 
 void RichTextView::CreateArkUINodeImpl() {
+#ifdef OHOS_DRAW_TEXT
+# ifdef OHOS_DRAW_CUSTOM_TEXT
+  textNode_ = std::make_shared<CustomNode>();
+  textNode_->SetCustomNodeDelegate(this);
+# else
   textNode_ = std::make_shared<TextNode>();
+# endif
+#else
+  textNode_ = std::make_shared<TextNode>();
+#endif
 }
 
 void RichTextView::DestroyArkUINodeImpl() {
@@ -80,6 +92,7 @@ void RichTextView::DestroyArkUINodeImpl() {
 bool RichTextView::RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) {
 #ifdef OHOS_DRAW_TEXT
   textNode_->ResetAllAttributes();
+  textNode_->RemoveSelfFromParent();
   textNode_ = nullptr;
   containerNode_ = nullptr;
   ClearProps();
@@ -255,7 +268,9 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
 
 void RichTextView::OnSetPropsEndImpl() {
 #ifdef OHOS_DRAW_TEXT
+# ifndef OHOS_DRAW_CUSTOM_TEXT
   UpdateDrawTextContent();
+# endif
 #else
   if (!fontSize_.has_value()) {
     float defaultValue = HRNodeProps::FONT_SIZE_SP;
@@ -295,7 +310,9 @@ void RichTextView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPaddin
     textNode_->SetPadding(padding.paddingTop, padding.paddingRight, padding.paddingBottom, padding.paddingLeft);
   }
   drawTextWidth_ = frame.width - padding.paddingLeft - padding.paddingRight;
+# ifndef OHOS_DRAW_CUSTOM_TEXT
   UpdateDrawTextContent();
+# endif
 #else
   textNode_->SetPosition(HRPosition(frame.x, frame.y));
   textNode_->SetSize(HRSize(frame.width, frame.height));
@@ -349,11 +366,11 @@ void RichTextView::ClearProps() {
 }
 
 #ifdef OHOS_DRAW_TEXT
+# ifndef OHOS_DRAW_CUSTOM_TEXT
 void RichTextView::UpdateDrawTextContent() {
   if (drawTextWidth_ <= 0) {
     return;
   }
-  
   std::shared_ptr<TextMeasurer> textMeasurer = nullptr;
   auto textMeasureMgr = ctx_->GetTextMeasureManager();
   if (textMeasureMgr->HasNewTextMeasurer(tag_)) {
@@ -394,6 +411,7 @@ void RichTextView::UpdateDrawTextContent() {
     }
   }
 }
+# endif
 
 void RichTextView::SetClickable(bool flag) {
   if (HandleGestureBySelf()) {
@@ -459,6 +477,45 @@ std::shared_ptr<BaseView> RichTextView::GetTextSpanView(int spanIndex) {
     }
   }
   return nullptr;
+}
+#endif
+
+#if defined(OHOS_DRAW_TEXT) && defined(OHOS_DRAW_CUSTOM_TEXT)
+void RichTextView::OnForegroundDraw(ArkUI_NodeCustomEvent *event) {
+  if (drawTextWidth_ <= 0) {
+    return;
+  }
+
+  std::shared_ptr<TextMeasurer> textMeasurer = nullptr;
+  auto textMeasureMgr = ctx_->GetTextMeasureManager();
+  if (textMeasureMgr->HasNewTextMeasurer(tag_)) {
+    textMeasurer = textMeasureMgr->UseNewTextMeasurer(tag_);
+  } else {
+    textMeasurer = textMeasureMgr->GetUsedTextMeasurer(tag_);
+  }
+  if (!textMeasurer) {
+    return;
+  }
+
+  float pxTextWidth = HRPixelUtils::VpToPx(drawTextWidth_);
+  if (textMeasurer->IsRedraw(pxTextWidth)) {
+    textMeasurer->DoRedraw(pxTextWidth);
+  }
+
+  OH_Drawing_Typography *textTypo = textMeasurer->GetTypography();
+  if (textTypo == nullptr) {
+    return;
+  }
+
+  auto *drawContext = OH_ArkUI_NodeCustomEvent_GetDrawContextInDraw(event);
+  if (drawContext == nullptr) {
+    return;
+  }
+  auto *drawingHandle = reinterpret_cast<OH_Drawing_Canvas *>(OH_ArkUI_DrawContext_GetCanvas(drawContext));
+  if (drawingHandle == nullptr) {
+    return;
+  }
+  OH_Drawing_TypographyPaint(textTypo, drawingHandle, 0, 0);
 }
 #endif
 

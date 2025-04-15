@@ -22,6 +22,7 @@
 
 #include "renderer/arkui/arkui_node_registry.h"
 #include "renderer/arkui/arkui_node.h"
+#include "renderer/arkui/custom_node.h"
 #include "renderer/arkui/native_node_api.h"
 #include "footstone/logging.h"
 
@@ -54,9 +55,29 @@ void ArkUINodeRegistry::UnregisterNode(ArkUINode *node) {
   nodesByHandle_.erase(it);
 }
 
+void ArkUINodeRegistry::RegisterCustomNode(CustomNode *node) {
+  auto [_it, inserted] = customNodesByHandle_.emplace(node->GetArkUINodeHandle(), node);
+  if (!inserted) {
+    FOOTSTONE_LOG(WARNING) << "Custom node with handle " << node->GetArkUINodeHandle() << " was already registered";
+  }
+}
+
+void ArkUINodeRegistry::UnregisterCustomNode(CustomNode *node) {
+  auto it = customNodesByHandle_.find(node->GetArkUINodeHandle());
+  if (it == customNodesByHandle_.end()) {
+    FOOTSTONE_LOG(WARNING) << "Custom node with handle " << node->GetArkUINodeHandle() << " not found";
+    return;
+  }
+
+  customNodesByHandle_.erase(it);
+}
+
 ArkUINodeRegistry::ArkUINodeRegistry() {
   NativeNodeApi::GetInstance()->registerNodeEventReceiver([](ArkUI_NodeEvent* event) {
     ArkUINodeRegistry::GetInstance().ReceiveEvent(event);
+  });
+  NativeNodeApi::GetInstance()->registerNodeCustomEventReceiver([](ArkUI_NodeCustomEvent* event) {
+    ArkUINodeRegistry::GetInstance().ReceiveCustomEvent(event);
   });
 }
 
@@ -72,6 +93,21 @@ void ArkUINodeRegistry::ReceiveEvent(ArkUI_NodeEvent *event) {
     it->second->OnNodeEvent(event);
   } catch (std::exception& e) {
     FOOTSTONE_LOG(ERROR) << "Node receive event exception: " << e.what();
+  }
+}
+
+void ArkUINodeRegistry::ReceiveCustomEvent(ArkUI_NodeCustomEvent *event) {
+  try {
+    ArkUI_NodeHandle nodeHanle = OH_ArkUI_NodeCustomEvent_GetNodeHandle(event);
+    auto it = customNodesByHandle_.find(nodeHanle);
+    if (it == customNodesByHandle_.end()) {
+      FOOTSTONE_LOG(WARNING) << "Custom node with handle " << nodeHanle << " not found";
+      return;
+    }
+
+    it->second->OnNodeCustomEvent(event);
+  } catch (std::exception& e) {
+    FOOTSTONE_LOG(ERROR) << "Custom node receive event exception: " << e.what();
   }
 }
 
