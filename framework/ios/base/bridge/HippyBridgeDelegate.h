@@ -117,5 +117,13 @@
 /// return values less than 0 will be treated as 0.
 - (CGFloat)defaultStatusBarHeightNoMatterHiddenOrNot;
 
+/// Font size multiplier for hippy
+/// 
+/// This value is used to calculate the font size of the text in the hippy page.
+/// The default value is 1.0.
+/// If you want to change the font size of the text in the hippy page,
+/// you can implement this method and return a different value.
+/// The value is multiplied by the default font size to get the actual font size.
+- (CGFloat)fontSizeMultiplierForHippy:(HippyBridge *)bridge;
 
 @end

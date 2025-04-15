@@ -26,6 +26,7 @@
 #import "HippyShadowText.h"
 #import "HippyText.h"
 #import "UIView+Hippy.h"
+#import "HippyUIManager.h"
 
 static void collectDirtyNonTextDescendants(HippyShadowText *renderObject, NSMutableArray *nonTextDescendants) {
     for (HippyShadowView *child in renderObject.hippySubviews) {
@@ -46,7 +47,12 @@ HIPPY_EXPORT_MODULE(Text)
 }
 
 - (HippyShadowView *)shadowView {
-    return [HippyShadowText new];
+    HippyShadowText *shadowText = [HippyShadowText new];
+    HippyUIManager *uiManager = self.bridge.uiManager;
+    if (uiManager.globalFontSizeMultiplier) {
+        shadowText.fontSizeMultiplier = uiManager.globalFontSizeMultiplier.doubleValue;
+    }
+    return shadowText;
 }
 
 #pragma mark - Shadow properties

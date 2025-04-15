@@ -165,8 +165,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _ellipsizeMode = NSLineBreakByTruncatingTail;
         _cachedTextStorageWidth = -1;
         _cachedTextStorageWidthMode = hippy::LayoutMeasureMode::Undefined;
+        _allowFontScaling = YES;
         _fontSizeMultiplier = 1.0;
-        _lineHeightMultiple = 1.0f;
+        _lineHeightMultiple = 1.0;
         _textAlign = NSTextAlignmentLeft;
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;

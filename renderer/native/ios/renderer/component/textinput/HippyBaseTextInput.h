@@ -33,6 +33,10 @@
 /// Font property - FontFamily
 @property (nonatomic, strong) NSString *fontFamily;
 
+/// Multiplier of fontSize,
+/// Can be used to adapt the system's dynamic font Settings
+@property (nonatomic, assign) CGFloat fontSizeMultiplier;
+
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, copy) NSString *value;
