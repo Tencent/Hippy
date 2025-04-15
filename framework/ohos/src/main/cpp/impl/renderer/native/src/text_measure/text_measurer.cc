@@ -43,7 +43,7 @@ void TextMeasurer::CheckUnusedProp(const char *tag, std::map<std::string, std::s
 }
 #endif
 
-OH_Drawing_FontWeight TextMeasurer::FontWeightToDrawing(std::string &str) {
+OH_Drawing_FontWeight TextMeasurer::FontWeightToDrawing(const std::string &str) {
   if (str.length() == 0 || str == "normal") {
     return FONT_WEIGHT_400;
   } else if (str == "bold") {
@@ -99,7 +99,7 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   
   text_align_ = TEXT_ALIGN_START;
   if (GetPropValue(propMap, HRNodeProps::TEXT_ALIGN, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     if (strValue == "center") {
       text_align_ = TEXT_ALIGN_CENTER;
     } else if (strValue == "right") {
@@ -116,7 +116,7 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   OH_Drawing_SetTypographyTextMaxLines(typographyStyle_, maxLines);
 
   if (GetPropValue(propMap, HRNodeProps::BREAK_STRATEGY, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     OH_Drawing_BreakStrategy bs = BREAK_STRATEGY_GREEDY;
     if (strValue == "high_quality") {
       bs = BREAK_STRATEGY_HIGH_QUALITY;
@@ -129,7 +129,7 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   OH_Drawing_EllipsisModal em = ELLIPSIS_MODAL_TAIL;
   std::string ellipsis = "...";
   if (GetPropValue(propMap, HRNodeProps::ELLIPSIZE_MODE, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     if (strValue == "head") {
       em = ELLIPSIS_MODAL_HEAD;
     } else if (strValue == "middle") {
@@ -254,7 +254,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
   OH_Drawing_SetTextStyleFontSize(txtStyle, fontSize * density);
 
   if (GetPropValue(propMap, HRNodeProps::FONT_WEIGHT, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     int fontWeight = FontWeightToDrawing(strValue);
     OH_Drawing_SetTextStyleFontWeight(txtStyle, fontWeight);
   }
@@ -262,7 +262,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
   OH_Drawing_SetTextStyleBaseLine(txtStyle, TEXT_BASELINE_ALPHABETIC);
 
   if (GetPropValue(propMap, HRNodeProps::TEXT_DECORATION_LINE, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     OH_Drawing_TextDecoration td = TEXT_DECORATION_NONE;
     if (strValue == "underline") {
       td = TEXT_DECORATION_UNDERLINE;
@@ -279,7 +279,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
     OH_Drawing_SetTextStyleDecorationColor(txtStyle, dColor);
   }
   if (GetPropValue(propMap, HRNodeProps::TEXT_DECORATION_STYLE, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     OH_Drawing_TextDecorationStyle ds = TEXT_DECORATION_STYLE_SOLID;
     if (strValue == "dotted") {
       ds = TEXT_DECORATION_STYLE_DOTTED;
@@ -338,7 +338,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
   // OH_Drawing_SetTextStyleFontHeight(txtStyle, 1.25);
 
   if (GetPropValue(propMap, HRNodeProps::FONT_FAMILY, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     const char *fontFamilies[] = { strValue.c_str() };
     OH_Drawing_SetTextStyleFontFamilies(txtStyle, 1, fontFamilies);
   }
@@ -360,7 +360,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
   
   OH_ArkUI_StyledString_PushTextStyle(styled_string_, txtStyle);
   if (GetPropValue(propMap, "text", propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     OH_ArkUI_StyledString_AddText(styled_string_, strValue.c_str());
 
     std::u16string str16 = footstone::StringViewUtils::CovertToUtf16(string_view((const string_view::char8_t_*)strValue.c_str()), string_view::Encoding::Utf8).utf16_value();
@@ -428,7 +428,7 @@ void TextMeasurer::AddImage(HippyValueObjectType &propMap, float density) {
   spanH.alignment = OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_CENTER_OF_ROW_BOX;
 
   if (GetPropValue(propMap, HRNodeProps::VERTICAL_ALIGN, propValue)) {
-    auto strValue = HippyValue2String(propValue);
+    auto& strValue = HippyValue2String(propValue);
     if (strValue == "top") {
       spanH.alignment = OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_TOP_OF_ROW_BOX;
     } else if (strValue == "middle") {
@@ -633,12 +633,8 @@ void TextMeasurer::DoRedraw(float maxWidth) {
   measureWidth_ = maxWidth;
 }
 
-std::string TextMeasurer::HippyValue2String(HippyValue &value) {
-  std::string str;
-  if (value.ToString(str)) {
-    return str;
-  }
-  return "";
+const std::string& TextMeasurer::HippyValue2String(HippyValue &value) {
+  return value.ToStringSafe();
 }
 
 double TextMeasurer::HippyValue2Double(HippyValue &value) {
@@ -646,8 +642,8 @@ double TextMeasurer::HippyValue2Double(HippyValue &value) {
   if (value.ToDouble(d)) {
     return d;
   }
-  std::string str;
-  if (value.ToString(str) && str.size() > 0) {
+  auto& str = value.ToStringSafe();
+  if (str.size() > 0) {
     return std::stod(str);
   }
   return 0;

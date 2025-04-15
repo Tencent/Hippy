@@ -77,7 +77,7 @@ std::string ImageView::GetSrc() {
 
 bool ImageView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == "src") {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (value != src_) {
       src_ = value;
       FetchImage(value);
@@ -85,7 +85,7 @@ bool ImageView::SetPropImpl(const std::string &propKey, const HippyValue &propVa
     return true;
   } else if (propKey == "resizeMode") {
     HRImageResizeMode mode = HRImageResizeMode::Contain;
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (value == "center") {
       mode = HRImageResizeMode::Center;
     } else if (value == "contain") {
@@ -98,7 +98,7 @@ bool ImageView::SetPropImpl(const std::string &propKey, const HippyValue &propVa
     GetLocalRootArkUINode()->SetResizeMode(mode);
     return true;
   } else if (propKey == "defaultSource") {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!value.empty()) {
       FetchAltImage(value);
       return true;

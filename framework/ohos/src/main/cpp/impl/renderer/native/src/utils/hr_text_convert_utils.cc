@@ -27,7 +27,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-ArkUI_FontWeight HRTextConvertUtils::FontWeightToArk(std::string &str) {
+ArkUI_FontWeight HRTextConvertUtils::FontWeightToArk(const std::string &str) {
   if (str == "normal") {
     return ArkUI_FontWeight::ARKUI_FONT_WEIGHT_NORMAL;
   } else if (str == "bold") {
@@ -59,7 +59,7 @@ ArkUI_FontWeight HRTextConvertUtils::FontWeightToArk(std::string &str) {
   }
 }
 
-int32_t HRTextConvertUtils::FontStyleToArk(std::string &str) {
+int32_t HRTextConvertUtils::FontStyleToArk(const std::string &str) {
   if (str == "italic") {
     return 1;
   } else {
@@ -67,7 +67,7 @@ int32_t HRTextConvertUtils::FontStyleToArk(std::string &str) {
   }
 }
 
-ArkUI_TextAlignment HRTextConvertUtils::TextAlignToArk(std::string &str) {
+ArkUI_TextAlignment HRTextConvertUtils::TextAlignToArk(const std::string &str) {
   if (str == "left") {
     return ArkUI_TextAlignment::ARKUI_TEXT_ALIGNMENT_START;
   } else if (str == "right") {
@@ -79,7 +79,7 @@ ArkUI_TextAlignment HRTextConvertUtils::TextAlignToArk(std::string &str) {
   }
 }
 
-ArkUI_TextDecorationType HRTextConvertUtils::TextDecorationTypeToArk(std::string &str) {
+ArkUI_TextDecorationType HRTextConvertUtils::TextDecorationTypeToArk(const std::string &str) {
   ArkUI_TextDecorationType type = ARKUI_TEXT_DECORATION_TYPE_NONE;
   std::stringstream ss(str);
   std::string token;
@@ -93,7 +93,7 @@ ArkUI_TextDecorationType HRTextConvertUtils::TextDecorationTypeToArk(std::string
   return type;
 }
 
-ArkUI_TextDecorationStyle HRTextConvertUtils::TextDecorationStyleToArk(std::string &str) {
+ArkUI_TextDecorationStyle HRTextConvertUtils::TextDecorationStyleToArk(const std::string &str) {
   ArkUI_TextDecorationStyle style = ARKUI_TEXT_DECORATION_STYLE_SOLID;
   if (str == "double") {
     style = ARKUI_TEXT_DECORATION_STYLE_DOUBLE;
@@ -107,7 +107,7 @@ ArkUI_TextDecorationStyle HRTextConvertUtils::TextDecorationStyleToArk(std::stri
   return style;
 }
 
-bool HRTextConvertUtils::EllipsisModeToArk(std::string &str, ArkUI_EllipsisMode &ellipsisMode, ArkUI_TextOverflow &textOverflow) {
+bool HRTextConvertUtils::EllipsisModeToArk(const std::string &str, ArkUI_EllipsisMode &ellipsisMode, ArkUI_TextOverflow &textOverflow) {
   if (str == "clip") {
     textOverflow = ARKUI_TEXT_OVERFLOW_CLIP;
     return true;
@@ -127,7 +127,7 @@ bool HRTextConvertUtils::EllipsisModeToArk(std::string &str, ArkUI_EllipsisMode 
   return false;
 }
 
-ArkUI_WordBreak HRTextConvertUtils::WordBreakToArk(std::string &str) {
+ArkUI_WordBreak HRTextConvertUtils::WordBreakToArk(const std::string &str) {
   if (str == "high_quality") {
     return ARKUI_WORD_BREAK_BREAK_ALL;
   } else if (str == "balanced") {

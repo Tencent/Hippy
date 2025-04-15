@@ -81,7 +81,7 @@ bool ListItemView::ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView)
 bool ListItemView::SetViewProp(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == "type" || propKey == "itemViewType") {
     if (propValue.IsString()) {
-      propValue.ToString(type_);
+      type_ = propValue.ToStringSafe();
     } else if (propValue.IsNumber()) {
       int32_t value = HRValueUtils::GetInt32(propValue);
       type_ = std::to_string(value);

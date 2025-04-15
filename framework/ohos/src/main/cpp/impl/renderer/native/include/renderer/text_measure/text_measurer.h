@@ -116,11 +116,11 @@ private:
 #endif
   
 private:
-  OH_Drawing_FontWeight FontWeightToDrawing(std::string &str);
+  OH_Drawing_FontWeight FontWeightToDrawing(const std::string &str);
   bool GetPropValue(HippyValueObjectType &propMap, const char *prop, HippyValue &propValue);
   double CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret);
   
-  std::string HippyValue2String(HippyValue &value);
+  const std::string& HippyValue2String(HippyValue &value);
   double HippyValue2Double(HippyValue &value);
   int32_t HippyValue2Int(HippyValue &value);
   uint32_t HippyValue2Uint(HippyValue &value);

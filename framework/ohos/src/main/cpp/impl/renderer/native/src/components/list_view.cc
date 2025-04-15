@@ -102,7 +102,7 @@ bool ListView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
   if (propKey == "nestedScrollTopPriority") {
     ArkUI_ScrollNestedMode scrollForward = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
     ArkUI_ScrollNestedMode scrollBackward = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (value == "parent") {
       scrollForward = ARKUI_SCROLL_NESTED_MODE_PARENT_FIRST;
     } else if (value == "self") {

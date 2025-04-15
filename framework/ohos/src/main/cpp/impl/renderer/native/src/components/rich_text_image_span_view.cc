@@ -77,7 +77,7 @@ bool RichTextImageSpanView::SetPropImpl(const std::string &propKey, const HippyV
     GetLocalRootArkUINode()->SetHeight(value);
     return true;
   } else if (propKey == "verticalAlign") {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (value.size() > 0) {
       ArkUI_ImageSpanAlignment align = ARKUI_IMAGE_SPAN_ALIGNMENT_BASELINE;
       if (value == "top") {
@@ -93,14 +93,14 @@ bool RichTextImageSpanView::SetPropImpl(const std::string &propKey, const HippyV
     }
     return true;
   } else if (propKey == "src") {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (value != src_) {
       src_ = value;
       fetchImage(value);
     }
     return true;
   } else if (propKey == "defaultSource") {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!value.empty()) {
       FetchAltImage(value);
       return true;

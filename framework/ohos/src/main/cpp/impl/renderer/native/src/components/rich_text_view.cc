@@ -124,7 +124,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
 #ifdef OHOS_DRAW_TEXT
 #else
   if (propKey == "text") {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!text_.has_value() || value != text_) {
       textNode_->SetTextContent(value);
       text_ = value;
@@ -140,7 +140,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
   } else if (propKey == "enableScale") {
     return true;
   } else if (propKey == HRNodeProps::FONT_FAMILY) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!fontFamily_.has_value() || value != fontFamily_) {
       textNode_->SetFontFamily(value);
       fontFamily_ = value;
@@ -154,7 +154,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     }
     return true;
   } else if (propKey == HRNodeProps::FONT_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     int32_t style = HRTextConvertUtils::FontStyleToArk(value);
     if (!fontStyle_.has_value() || style != fontStyle_) {
       textNode_->SetFontStyle(style);
@@ -162,7 +162,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     }
     return true;
   } else if (propKey == HRNodeProps::FONT_WEIGHT) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     ArkUI_FontWeight weight = HRTextConvertUtils::FontWeightToArk(value);
     if (!fontWeight_.has_value() || weight != fontWeight_) {
       textNode_->SetFontWeight(weight);
@@ -199,7 +199,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     }
     return true;
   } else if (propKey == HRNodeProps::TEXT_ALIGN) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     ArkUI_TextAlignment align = HRTextConvertUtils::TextAlignToArk(value);
     if (!textAlign_.has_value() || align != textAlign_) {
       textNode_->SetTextAlign(align);
@@ -207,7 +207,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     }
     return true;
   } else if (propKey == HRNodeProps::TEXT_DECORATION_LINE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     decorationType_ = HRTextConvertUtils::TextDecorationTypeToArk(value);
     toSetTextDecoration_ = true;
     return true;
@@ -216,7 +216,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     toSetTextDecoration_ = true;
     return true;
   } else if (propKey == HRNodeProps::TEXT_DECORATION_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     decorationStyle_ = HRTextConvertUtils::TextDecorationStyleToArk(value);
     toSetTextDecoration_ = true;
     return true;
@@ -237,7 +237,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     toSetTextShadow = true;
     return true;
   } else if (propKey == HRNodeProps::ELLIPSIZE_MODE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (!ellipsizeModeValue_.has_value() || value != ellipsizeModeValue_) {
       ArkUI_EllipsisMode ellipsisMode = ARKUI_ELLIPSIS_MODE_END;
       ArkUI_TextOverflow textOverflow = ARKUI_TEXT_OVERFLOW_ELLIPSIS;
@@ -248,7 +248,7 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     }
     return true;
   } else if (propKey == HRNodeProps::BREAK_STRATEGY) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     ArkUI_WordBreak wordBreak = HRTextConvertUtils::WordBreakToArk(value);
     textNode_->SetWordBreak(wordBreak);
     return true;
