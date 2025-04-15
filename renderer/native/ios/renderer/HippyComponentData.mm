@@ -54,7 +54,6 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
     NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
     NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
-    BOOL _implementsUIBlockToAmendWithRenderObjectRegistry;
     __weak HippyViewManager *_manager;
 }
 
@@ -82,15 +81,6 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         }
         NSAssert(name.length, @"Invalid moduleName '%@'", name);
         _name = name;
-
-        _implementsUIBlockToAmendWithRenderObjectRegistry = NO;
-        Class cls = _managerClass;
-        while (cls != [HippyViewManager class]) {
-            _implementsUIBlockToAmendWithRenderObjectRegistry
-                = _implementsUIBlockToAmendWithRenderObjectRegistry
-                  || HippyClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithShadowViewRegistry:));
-            cls = [cls superclass];
-        }
     }
     return self;
 }
@@ -421,13 +411,6 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         }
     }
     return [_eventNameMap copy];
-}
-
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
-    if (_implementsUIBlockToAmendWithRenderObjectRegistry) {
-        return [[self manager] uiBlockToAmendWithShadowViewRegistry:registry];
-    }
-    return nil;
 }
 
 @end
