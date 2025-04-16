@@ -53,6 +53,9 @@ import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
 import { HippyJsException } from './common/HippyJsException';
 
 export interface HippyEngine {
+  getGroupId(): number
+  getEngineId(): number
+
   initEngine(listener: EngineListener): void
 
   loadModule(loadParams: ModuleLoadParams): HippyRootView | null

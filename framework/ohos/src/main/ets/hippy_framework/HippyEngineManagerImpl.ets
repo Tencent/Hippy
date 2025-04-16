@@ -65,6 +65,11 @@ import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventLi
 import { Dimensions } from "./modules/javascript/Dimensions";
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
+  private static sEngineIdCounter = 0
+
+  private mGroupId: number = -1;
+  private mEngineId: number = 0;
+
   private libHippy: HippyLibrary
   private resourceManager: resmgr.ResourceManager | null = null
   private providers: Array<HippyAPIProvider> | null = null
@@ -77,7 +82,6 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   public mServerBundleName: string;
   public enableV8Serialization: boolean;
   public mRemoteServerUrl: string;
-  public mGroupId: number;
   public mInitStartTime: number = 0;
   public mMonitor: TimeMonitor;
   public mServerHost: string;
@@ -96,6 +100,8 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   private mModuleListener: ModuleListener | null = null;
 
   constructor(params: EngineInitParams) {
+    HippyEngineManagerImpl.sEngineIdCounter += 1;
+    this.mEngineId = HippyEngineManagerImpl.sEngineIdCounter;
     this.params = params;
     this.libHippy = params.libHippy
     this.providers = params.providers
@@ -109,8 +115,6 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     this.mThirdPartyAdapter = params.thirdPartyAdapter;
     this.v8InitParams = params.v8InitParams;
     this.mMonitor = new TimeMonitor();
-
-
     if (!params.context) {
       return
     }
@@ -261,6 +265,14 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     }
   }
 
+  getGroupId(): number {
+    return this.mGroupId;
+  }
+
+  getEngineId(): number {
+    return this.mEngineId;
+  }
+
   public initEngine(listener: EngineListener): void {
     this.mInitStartTime = systemDateTime.getTime();
     this.mEventListeners.push(listener);
@@ -349,10 +361,6 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       return this.mCoreBundleLoader.getPath()
     }
     return ""
-  }
-
-  getEngineId(): number {
-    return 0;
   }
 
   onFirstPaint() {
