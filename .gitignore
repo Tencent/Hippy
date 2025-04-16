@@ -115,3 +115,4 @@ oh-package-lock.json5
 .clang-tidy
 .clangd
 BuildProfile.ets
+log.txt
