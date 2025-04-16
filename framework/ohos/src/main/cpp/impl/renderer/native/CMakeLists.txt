@@ -89,6 +89,7 @@ set(SOURCE_SET
   src/arkui/list_item_node.cc
   src/arkui/list_node.cc
   src/arkui/native_dialog_api.cc
+  src/arkui/native_gesture_api.cc
   src/arkui/native_node_api.cc
   src/arkui/refresh_node.cc
   src/arkui/row_node.cc

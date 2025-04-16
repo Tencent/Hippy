@@ -23,6 +23,7 @@
 #include "renderer/arkui/arkui_node.h"
 #include <algorithm>
 #include "renderer/arkui/arkui_node_registry.h"
+#include "renderer/arkui/native_gesture_api.h"
 #include "renderer/arkui/native_node_api.h"
 #include "renderer/utils/hr_convert_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
@@ -660,13 +661,7 @@ void ArkUINode::OnNodeEvent(ArkUI_NodeEvent *event) {
   }
 
   auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
-  if (eventType == ArkUI_NodeEventType::NODE_ON_CLICK) {
-    auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
-    ArkUI_NumberValue* data = nodeComponentEvent->data;
-    float x = HRPixelUtils::PxToDp(data[0].f32);
-    float y = HRPixelUtils::PxToDp(data[1].f32);
-    arkUINodeDelegate_->OnClick(HRPosition(x, y));
-  } else if (eventType == ArkUI_NodeEventType::NODE_TOUCH_EVENT) {
+  if (eventType == ArkUI_NodeEventType::NODE_TOUCH_EVENT) {
     ArkUI_UIInputEvent *inputEvent = OH_ArkUI_NodeEvent_GetInputEvent(event);
     auto type = OH_ArkUI_UIInputEvent_GetType(inputEvent);
     if (type == ARKUI_UIINPUTEVENT_TYPE_TOUCH) {
@@ -687,16 +682,72 @@ void ArkUINode::OnNodeEvent(ArkUI_NodeEvent *event) {
 }
 
 void ArkUINode::RegisterClickEvent() {
-  if (!hasClickEvent_) {
-    MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, NODE_ON_CLICK, 0, nullptr));
-    hasClickEvent_ = true;
+  if (!tapGesture_) {
+    tapGesture_ = NativeGestureApi::GetInstance()->createTapGesture(1, 1);
+    if (tapGesture_) {
+      auto onActionCallBack = [](ArkUI_GestureEvent *event, void *extraParam) {
+        ArkUINode *node = static_cast<ArkUINode*>(extraParam);
+        if (!node || !node->arkUINodeDelegate_) {
+          return;
+        }
+        ArkUI_GestureEventActionType actionType = OH_ArkUI_GestureEvent_GetActionType(event);
+        if (actionType == GESTURE_EVENT_ACTION_ACCEPT) {
+          auto inputEvent = OH_ArkUI_GestureEvent_GetRawInputEvent(event);
+          float offsetX = OH_ArkUI_PointerEvent_GetX(inputEvent);
+          float offsetY = OH_ArkUI_PointerEvent_GetY(inputEvent);
+          float x = HRPixelUtils::PxToDp(offsetX);
+          float y = HRPixelUtils::PxToDp(offsetY);
+          node->arkUINodeDelegate_->OnClick(HRPosition(x, y));
+        }
+      };
+      NativeGestureApi::GetInstance()->setGestureEventTarget(tapGesture_, 
+        GESTURE_EVENT_ACTION_ACCEPT | GESTURE_EVENT_ACTION_UPDATE | GESTURE_EVENT_ACTION_END,
+        this, onActionCallBack);
+      NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, tapGesture_, PARALLEL, NORMAL_GESTURE_MASK);
+    }
   }
 }
 
 void ArkUINode::UnregisterClickEvent() {
-  if (hasClickEvent_) {
-    NativeNodeApi::GetInstance()->unregisterNodeEvent(nodeHandle_, NODE_ON_CLICK);
-    hasClickEvent_ = false;
+  if (tapGesture_) {
+    NativeGestureApi::GetInstance()->removeGestureFromNode(nodeHandle_, tapGesture_);
+    NativeGestureApi::GetInstance()->dispose(tapGesture_);
+    tapGesture_ = nullptr;
+  }
+}
+
+void ArkUINode::RegisterLongClickEvent() {
+  if (!longPressGesture_) {
+    longPressGesture_ = NativeGestureApi::GetInstance()->createLongPressGesture(1, false, 1000);
+    if (longPressGesture_) {
+      auto onActionCallBack = [](ArkUI_GestureEvent *event, void *extraParam) {
+        ArkUINode *node = static_cast<ArkUINode*>(extraParam);
+        if (!node || !node->arkUINodeDelegate_) {
+          return;
+        }
+        ArkUI_GestureEventActionType actionType = OH_ArkUI_GestureEvent_GetActionType(event);
+        if (actionType == GESTURE_EVENT_ACTION_ACCEPT) {
+          auto inputEvent = OH_ArkUI_GestureEvent_GetRawInputEvent(event);
+          float offsetX = OH_ArkUI_PointerEvent_GetX(inputEvent);
+          float offsetY = OH_ArkUI_PointerEvent_GetY(inputEvent);
+          float x = HRPixelUtils::PxToDp(offsetX);
+          float y = HRPixelUtils::PxToDp(offsetY);
+          node->arkUINodeDelegate_->OnLongClick(HRPosition(x, y));
+        }
+      };
+      NativeGestureApi::GetInstance()->setGestureEventTarget(longPressGesture_, 
+        GESTURE_EVENT_ACTION_ACCEPT | GESTURE_EVENT_ACTION_UPDATE | GESTURE_EVENT_ACTION_END,
+        this, onActionCallBack);
+      NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, longPressGesture_, PARALLEL, NORMAL_GESTURE_MASK);
+    }
+  }
+}
+
+void ArkUINode::UnregisterLongClickEvent() {
+  if (longPressGesture_) {
+    NativeGestureApi::GetInstance()->removeGestureFromNode(nodeHandle_, longPressGesture_);
+    NativeGestureApi::GetInstance()->dispose(longPressGesture_);
+    longPressGesture_ = nullptr;
   }
 }
 

@@ -627,15 +627,17 @@ void BaseView::SetLongClickable(bool flag) {
     return;
   }
   if (flag) {
+    GetLocalRootArkUINode()->RegisterLongClickEvent();
     auto weak_view = weak_from_this();
-    eventLongPress_ = [weak_view]() {
+    eventLongClick_ = [weak_view]() {
       auto view = weak_view.lock();
       if (view) {
         HRGestureDispatcher::HandleClickEvent(view->ctx_, view->tag_, HRNodeProps::ON_LONG_CLICK);
       }
     };
   } else {
-    eventLongPress_ = nullptr;
+    GetLocalRootArkUINode()->UnregisterLongClickEvent();
+    eventLongClick_ = nullptr;
   }
 }
 
@@ -1026,6 +1028,12 @@ void BaseView::SetPosition(const HRPosition &position) {
 void BaseView::OnClick(const HRPosition &position) {
   if (eventClick_) {
     eventClick_();
+  }
+}
+
+void BaseView::OnLongClick(const HRPosition &position) {
+  if (eventLongClick_) {
+    eventLongClick_();
   }
 }
 
