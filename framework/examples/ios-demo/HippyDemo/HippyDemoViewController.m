@@ -224,6 +224,14 @@
     return bridge.debugURL;
 }
 
+- (CGFloat)fontSizeMultiplierForHippy:(HippyBridge *)bridge {
+    // This is a demo implementation, you can customize it.
+    // The default value is 1.0.
+    // The font size multiplier is used to scale the font size of the text in the Hippy view.
+    // For example, if you set it to 2.0, the font size will be twice as large as the default size.
+    return 1.0;
+}
+
 
 #pragma mark - Optional - HippyMethodInterceptorProtocol
 

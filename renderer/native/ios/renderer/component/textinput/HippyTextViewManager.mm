@@ -47,11 +47,20 @@ HIPPY_EXPORT_MODULE(TextInput)
     } else {
         theView = [[HippyTextView alloc] init];
     }
+    HippyUIManager *uiManager = self.bridge.uiManager;
+    if (uiManager.globalFontSizeMultiplier) {
+        theView.fontSizeMultiplier = uiManager.globalFontSizeMultiplier.doubleValue;
+    }
     return theView;
 }
 
 - (HippyShadowView *)shadowView {
-    return [HippyShadowTextView new];
+    HippyShadowTextView *shadowTextView = [HippyShadowTextView new];
+    HippyUIManager *uiManager = self.bridge.uiManager;
+    if (uiManager.globalFontSizeMultiplier) {
+        shadowTextView.fontSizeMultiplier = uiManager.globalFontSizeMultiplier.doubleValue;
+    }
+    return shadowTextView;
 }
 
 HIPPY_EXPORT_VIEW_PROPERTY(value, NSString)

@@ -87,6 +87,12 @@ HIPPY_EXTERN NSString *const HippyFontChangeTriggerNotification;
 /// default is NO.
 @property (nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
+/// Multiplier for fontSize of Text and TextView component.
+///
+/// The default value is nil, which means the multiplier is 1.0.
+/// Use `HippyFontChangeTriggerNotification` to update and reload all text components.
+@property (nonatomic, strong, nullable, readonly) NSNumber *globalFontSizeMultiplier;
+
 /// Init method
 /// - Parameter bridge: HippyBridge
 - (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
