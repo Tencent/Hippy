@@ -167,10 +167,10 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   } else {
     fontCollection = OH_Drawing_GetFontCollectionGlobalInstance();
   }
-  styled_string_ = OH_ArkUI_StyledString_Create(typographyStyle_, fontCollection);
 #else
   OH_Drawing_FontCollection *fontCollection = fontCache ? fontCache->fontCollection_ : nullptr;
 #endif
+  styled_string_ = OH_ArkUI_StyledString_Create(typographyStyle_, fontCollection);
 
   if (GetPropValue(propMap, HRNodeProps::LINE_HEIGHT, propValue)) {
     auto doubleValue = HippyValue2Double(propValue);
