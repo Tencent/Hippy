@@ -24,6 +24,7 @@ import {
   EngineInitStatus, HippyEngine,
   HippyRootView,
   HippyRootViewWrapper,
+  HippyAssetBundleLoader,
   ModuleLoadParams, ModuleLoadStatus, EngineListener, ModuleListener, HippyJsException } from 'hippy'
 import { DriverSetting } from './DriverSetting'
 import { RendererSetting } from './RendererSetting'
@@ -79,6 +80,10 @@ class DefaultEngineListener implements EngineListener {
       } else if (this.info.driver === DriverMode.JS_VUE_3) {
         jsAssetPath = "vue3/index.ohos.js"
       }
+
+      // 预加载使用举例：
+      // let loader = new HippyAssetBundleLoader(this.hippyEngine.getEngineInitParams().context, jsAssetPath, true, "Demo")
+      // this.hippyEngine.preloadModule(loader)
 
       let loadParams = new ModuleLoadParams(
         jsAssetPath,

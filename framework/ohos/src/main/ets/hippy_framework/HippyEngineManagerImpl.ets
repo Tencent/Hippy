@@ -273,6 +273,10 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     return this.mEngineId;
   }
 
+  getEngineInitParams(): EngineInitParams {
+    return this.params;
+  }
+
   public initEngine(listener: EngineListener): void {
     this.mInitStartTime = systemDateTime.getTime();
     this.mEventListeners.push(listener);
@@ -338,6 +342,12 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   destroyEngine(): void {
     if (this.mEngineContext != null) {
       this.mEngineContext.destroyBridge(false);
+    }
+  }
+
+  preloadModule(loader: HippyBundleLoader): void {
+    if (this.mEngineContext != null && this.mEngineContext.getBridgeManager() != null) {
+      this.mEngineContext.getBridgeManager()?.runBundle(-1, loader);
     }
   }
 
