@@ -703,7 +703,7 @@ void ArkUINode::RegisterClickEvent() {
       NativeGestureApi::GetInstance()->setGestureEventTarget(tapGesture_, 
         GESTURE_EVENT_ACTION_ACCEPT | GESTURE_EVENT_ACTION_UPDATE | GESTURE_EVENT_ACTION_END,
         this, onActionCallBack);
-      NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, tapGesture_, PARALLEL, NORMAL_GESTURE_MASK);
+      NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, tapGesture_, NORMAL, NORMAL_GESTURE_MASK);
     }
   }
 }
@@ -738,7 +738,7 @@ void ArkUINode::RegisterLongClickEvent() {
       NativeGestureApi::GetInstance()->setGestureEventTarget(longPressGesture_, 
         GESTURE_EVENT_ACTION_ACCEPT | GESTURE_EVENT_ACTION_UPDATE | GESTURE_EVENT_ACTION_END,
         this, onActionCallBack);
-      NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, longPressGesture_, PARALLEL, NORMAL_GESTURE_MASK);
+      NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, longPressGesture_, NORMAL, NORMAL_GESTURE_MASK);
     }
   }
 }
