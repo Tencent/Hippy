@@ -55,6 +55,7 @@ import { HippyJsException } from './common/HippyJsException';
 export interface HippyEngine {
   getGroupId(): number
   getEngineId(): number
+  getEngineInitParams(): EngineInitParams
 
   initEngine(listener: EngineListener): void
 
@@ -64,6 +65,8 @@ export interface HippyEngine {
   destroyModule(rootId: number, destroyCallback: HippyModuleDestroyCallback): void
 
   destroyEngine(): void
+
+  preloadModule(loader: HippyBundleLoader): void
 
   getNativeRenderProvider(): NativeRenderProvider | null
 
