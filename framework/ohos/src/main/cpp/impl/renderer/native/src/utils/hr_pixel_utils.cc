@@ -29,6 +29,7 @@ inline namespace native {
 float HRPixelUtils::density_ = 1.f;
 float HRPixelUtils::densityScale_ = 1.f;
 float HRPixelUtils::fontSizeScale_ = 1.f;
+float HRPixelUtils::fontWeightScale_ = 1.f;
 
 } // namespace native
 } // namespace render

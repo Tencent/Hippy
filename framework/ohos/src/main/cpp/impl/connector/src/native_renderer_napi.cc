@@ -100,17 +100,19 @@ static napi_value CreateNativeRenderManager(napi_env env, napi_callback_info inf
     }
   }
   
-  auto bundle_path = arkTs.GetString(args[5]);
-  auto density = arkTs.GetDouble(args[6]);
-  auto density_scale = arkTs.GetDouble(args[7]);
-  auto font_size_scale = arkTs.GetDouble(args[8]);
-  auto is_rawfile = arkTs.GetBoolean(args[9]);
-  auto res_module_name = arkTs.GetString(args[10]);
+  uint32_t arg_index = 5;
+  auto bundle_path = arkTs.GetString(args[arg_index++]);
+  auto density = arkTs.GetDouble(args[arg_index++]);
+  auto density_scale = arkTs.GetDouble(args[arg_index++]);
+  auto font_size_scale = arkTs.GetDouble(args[arg_index++]);
+  auto font_weight_scale = arkTs.GetDouble(args[arg_index++]);
+  auto is_rawfile = arkTs.GetBoolean(args[arg_index++]);
+  auto res_module_name = arkTs.GetString(args[arg_index++]);
   
   auto render_manager = std::make_shared<NativeRenderManager>();
 
   render_manager->SetRenderDelegate(env, enable_ark_c_api, ts_render_provider_ref, custom_views, custom_measure_views, mapping_views, bundle_path, is_rawfile, res_module_name);
-  render_manager->InitDensity(density, density_scale, font_size_scale);
+  render_manager->InitDensity(density, density_scale, font_size_scale, font_weight_scale);
   auto render_id = hippy::global_data_holder_key.fetch_add(1);
   auto flag = hippy::global_data_holder.Insert(render_id,
                                                std::static_pointer_cast<RenderManager>(render_manager));

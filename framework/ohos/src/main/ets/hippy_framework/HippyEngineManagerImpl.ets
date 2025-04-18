@@ -129,6 +129,14 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
         !TextUtils.isEmpty(params.codeCacheTag), params.codeCacheTag);
     }
     this.mCoreBundleLoader = coreBundleLoader;
+
+    // 获取系统设置“字体大小和界面缩放”里的字体粗细值
+    params.uiContext?.runScopedTask(() => {
+      Environment.envProp('fontWeightScale', '1.0');
+    })
+    const weightScale: SubscribedAbstractProperty<string> = AppStorage.prop('fontWeightScale');
+    let weightScaleValue = Number(weightScale.get());
+    PixelUtil.setFontWeightScale(weightScaleValue);
   }
 
   onInitDevError(e: HippyJsException): void {
