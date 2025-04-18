@@ -209,9 +209,9 @@ void NativeRenderManager::SetBundlePath(const std::string &bundle_path) {
   }
 }
 
-void NativeRenderManager::InitDensity(double density, double density_scale, double font_size_scale) {
+void NativeRenderManager::InitDensity(double density, double density_scale, double font_size_scale, double font_weight_scale) {
   density_ = static_cast<float>(density);
-  HRPixelUtils::InitDensity(density, density_scale, font_size_scale);
+  HRPixelUtils::InitDensity(density, density_scale, font_size_scale, font_weight_scale);
 }
 
 void NativeRenderManager::AddCustomFontPath(const std::string &fontFamilyName, const std::string &fontPath) {

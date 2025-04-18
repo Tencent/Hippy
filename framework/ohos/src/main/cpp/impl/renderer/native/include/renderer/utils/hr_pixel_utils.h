@@ -28,10 +28,11 @@ inline namespace native {
 
 class HRPixelUtils {
 public:
-  inline static void InitDensity(double density, double density_scale, double font_size_scale) {
+  inline static void InitDensity(double density, double density_scale, double font_size_scale, double font_weight_scale) {
     density_ = static_cast<float>(density);
     densityScale_ = static_cast<float>(density_scale);
     fontSizeScale_ = static_cast<float>(font_size_scale);
+    fontWeightScale_ = static_cast<float>(font_weight_scale);
   }
 
   inline static void SetDensity(float density) {
@@ -43,11 +44,13 @@ public:
     densityScale_ = densityScale;
   }
   inline static void SetFontSizeScale(float fontSizeScale) { fontSizeScale_ = fontSizeScale; }
+  inline static void SetFontWeightScale(float fontWeightScale) { fontWeightScale_ = fontWeightScale; }
 
   inline static float GetDensity() { return density_; }
 
   inline static float GetDensityScale() { return densityScale_;  }
   inline static float GetFontSizeScale() { return fontSizeScale_; }
+  inline static float GetFontWeightScale() { return fontWeightScale_; }
 
   inline static float DpToPx(float dp) { return dp * density_; }
   inline static float PxToDp(float px) { return px / density_; }
@@ -61,6 +64,7 @@ private:
   static float density_;
   static float densityScale_;
   static float fontSizeScale_;
+  static float fontWeightScale_;
 };
 
 } // namespace native

@@ -43,7 +43,7 @@ export class NativeRenderer {
                             isRawfile: boolean, resModuleName: string): number {
     return this.libHippy?.NativeRenderer_CreateNativeRenderManager(enableArkCApi, renderProvider,
       customRenderViews, customMeasureRenderViews, mappingRenderViews, bundlePath,
-      PixelUtil.getDensity(), PixelUtil.getDensityScale(), PixelUtil.getFontSizeScale(),
+      PixelUtil.getDensity(), PixelUtil.getDensityScale(), PixelUtil.getFontSizeScale(), PixelUtil.getFontWeightScale(),
       isRawfile, resModuleName)
   }
 

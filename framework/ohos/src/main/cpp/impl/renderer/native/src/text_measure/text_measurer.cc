@@ -25,6 +25,7 @@
 #include "footstone/string_view_utils.h"
 #include "oh_napi/ark_ts.h"
 #include "renderer/dom_node/hr_node_props.h"
+#include "renderer/utils/hr_pixel_utils.h"
 #include <native_drawing/drawing_brush.h>
 
 namespace hippy {
@@ -43,35 +44,62 @@ void TextMeasurer::CheckUnusedProp(const char *tag, std::map<std::string, std::s
 }
 #endif
 
-OH_Drawing_FontWeight TextMeasurer::FontWeightToDrawing(const std::string &str) {
-  if (str.length() == 0 || str == "normal") {
-    return FONT_WEIGHT_400;
-  } else if (str == "bold") {
-    return FONT_WEIGHT_700;
-  } else {
-    auto w = std::atoi(str.c_str());
-    if (std::isnan(w) || w == 0) {
-      return FONT_WEIGHT_400;
-    }
-    if (w < 200) {
-      return FONT_WEIGHT_100;
-    } else if (w < 300) {
-      return FONT_WEIGHT_200;
-    } else if (w < 400) {
-      return FONT_WEIGHT_300;
-    } else if (w < 500) {
-      return FONT_WEIGHT_400;
-    } else if (w < 600) {
-      return FONT_WEIGHT_500;
-    } else if (w < 700) {
-      return FONT_WEIGHT_600;
-    } else if (w < 800) {
-      return FONT_WEIGHT_700;
-    } else if (w < 900) {
-      return FONT_WEIGHT_800;
+bool TextMeasurer::NeedFontWeightScale(float weightScale) {
+  return weightScale > 1.f ? true : false;
+}
+
+OH_Drawing_FontWeight TextMeasurer::FontWeightToDrawing(const std::string &str, float weightScale) {
+  bool needScale = NeedFontWeightScale(weightScale);
+  if (needScale) {
+    int weightValue = 0;
+    if (str.length() == 0 || str == "normal") {
+      weightValue = 400;
+    } else if (str == "bold") {
+      weightValue = 700;
     } else {
-      return FONT_WEIGHT_900;
+      auto w = std::atoi(str.c_str());
+      if (std::isnan(w) || w == 0) {
+        weightValue = 400;
+      } else {
+        weightValue = w;
+      }
     }
+    weightValue = (int)((float)weightValue * weightScale);
+    return FontWeightValueToDrawing(weightValue);
+  } else {
+    if (str.length() == 0 || str == "normal") {
+      return FONT_WEIGHT_400;
+    } else if (str == "bold") {
+      return FONT_WEIGHT_700;
+    } else {
+      auto w = std::atoi(str.c_str());
+      if (std::isnan(w) || w == 0) {
+        return FONT_WEIGHT_400;
+      }
+      return FontWeightValueToDrawing(w);
+    }
+  }
+}
+
+OH_Drawing_FontWeight TextMeasurer::FontWeightValueToDrawing(int w) {
+  if (w < 200) {
+    return FONT_WEIGHT_100;
+  } else if (w < 300) {
+    return FONT_WEIGHT_200;
+  } else if (w < 400) {
+    return FONT_WEIGHT_300;
+  } else if (w < 500) {
+    return FONT_WEIGHT_400;
+  } else if (w < 600) {
+    return FONT_WEIGHT_500;
+  } else if (w < 700) {
+    return FONT_WEIGHT_600;
+  } else if (w < 800) {
+    return FONT_WEIGHT_700;
+  } else if (w < 900) {
+    return FONT_WEIGHT_800;
+  } else {
+    return FONT_WEIGHT_900;
   }
 }
 
@@ -255,7 +283,10 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
 
   if (GetPropValue(propMap, HRNodeProps::FONT_WEIGHT, propValue)) {
     auto& strValue = HippyValue2String(propValue);
-    int fontWeight = FontWeightToDrawing(strValue);
+    int fontWeight = FontWeightToDrawing(strValue, HRPixelUtils::GetFontWeightScale());
+    OH_Drawing_SetTextStyleFontWeight(txtStyle, fontWeight);
+  } else if (NeedFontWeightScale(HRPixelUtils::GetFontWeightScale())) {
+    int fontWeight = FontWeightToDrawing("", HRPixelUtils::GetFontWeightScale());
     OH_Drawing_SetTextStyleFontWeight(txtStyle, fontWeight);
   }
 
@@ -556,9 +587,8 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
 
   OH_Drawing_TypographyLayout(typography_, maxWidth);
     
-  // MATE 60, beta5, "新品" "商店" text cannot be fully displayed. So add 0.5. 
-  // Video App: "VIP" text cannot be fully displayed. So add 1.0.
-  ret.width = ceil(OH_Drawing_TypographyGetLongestLine(typography_) + 1.0 * density);
+  // MATE 60, beta5, "新品" "商店" text cannot be fully displayed. So add 0.5.
+  ret.width = ceil(OH_Drawing_TypographyGetLongestLine(typography_) + 0.5 * density);
   ret.height = OH_Drawing_TypographyGetHeight(typography_);
   ret.isEllipsized = OH_Drawing_TypographyDidExceedMaxLines(typography_);
   lineCount = OH_Drawing_TypographyGetLineCount(typography_);
