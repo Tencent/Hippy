@@ -69,8 +69,4 @@
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
-
-
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
-
 @end

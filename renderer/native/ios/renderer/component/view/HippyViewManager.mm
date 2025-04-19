@@ -58,10 +58,6 @@ HIPPY_EXPORT_MODULE(View);
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
-    return nil;
-}
-
 static NSString * const HippyViewManagerGetBoundingRelToContainerKey = @"relToContainer";
 static NSString * const HippyViewManagerGetBoundingErrMsgrKey = @"errMsg";
 static NSString * const HippyXOnScreenKey = @"xOnScreen";

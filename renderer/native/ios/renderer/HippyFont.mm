@@ -28,8 +28,8 @@
 
 static NSCache *fontCache;
 
-typedef CGFloat NativeRenderFontWeight;
-static NativeRenderFontWeight weightOfFont(UIFont *font) {
+typedef CGFloat HippyFontWeight;
+static HippyFontWeight weightOfFont(UIFont *font) {
     static const struct SuffixWeight{
         NSString *suffix;
         UIFontWeight weight;
@@ -59,7 +59,7 @@ static NativeRenderFontWeight weightOfFont(UIFont *font) {
     }
 
     NSDictionary *traits = (__bridge_transfer NSDictionary *)CTFontCopyTraits((CTFontRef)font);
-    return (NativeRenderFontWeight)[traits[UIFontWeightTrait] doubleValue];
+    return (HippyFontWeight)[traits[UIFontWeightTrait] doubleValue];
 }
 
 static BOOL isItalicFont(UIFont *font) {
@@ -70,10 +70,10 @@ static BOOL isCondensedFont(UIFont *font) {
     return font != nil && (CTFontGetSymbolicTraits((CTFontRef)font) & kCTFontTraitCondensed) != 0;
 }
 
-static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
+static UIFont *cachedSystemFont(CGFloat size, HippyFontWeight weight) {
     struct __attribute__((__packed__)) CacheKey {
         CGFloat size;
-        NativeRenderFontWeight weight;
+        HippyFontWeight weight;
     };
     CacheKey key{size, weight};
     NSValue *cacheKey = [[NSValue alloc] initWithBytes:&key objCType:@encode(CacheKey)];
@@ -111,7 +111,7 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
     return names;
 }
 
-@implementation HippyConvert (NativeRenderFont)
+@implementation HippyConvert (HippyFont)
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
@@ -124,7 +124,7 @@ static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
                  scaleMultiplier:1];
 }
 
-HIPPY_ENUM_CONVERTER(NativeRenderFontWeight, (@{
+HIPPY_ENUM_CONVERTER(HippyFontWeight, (@{
     @"normal": @(UIFontWeightRegular),
     @"bold": @(UIFontWeightBold),
     @"100": @(UIFontWeightUltraLight),
@@ -139,16 +139,16 @@ HIPPY_ENUM_CONVERTER(NativeRenderFontWeight, (@{
 }),
     UIFontWeightRegular, doubleValue)
 
-typedef BOOL NativeRenderFontStyle;
-HIPPY_ENUM_CONVERTER(NativeRenderFontStyle, (@{
+typedef BOOL HippyFontStyle;
+HIPPY_ENUM_CONVERTER(HippyFontStyle, (@{
     @"normal": @NO,
     @"italic": @YES,
     @"oblique": @YES,
 }),
     NO, boolValue)
 
-typedef NSDictionary NativeRenderFontVariantDescriptor;
-+ (NativeRenderFontVariantDescriptor *)NativeRenderFontVariantDescriptor:(id)json {
+typedef NSDictionary HippyFontVariantDescriptor;
++ (HippyFontVariantDescriptor *)HippyFontVariantDescriptor:(id)json {
     static NSDictionary *mapping;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -175,15 +175,15 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
             },
         };
     });
-    NativeRenderFontVariantDescriptor *value = mapping[json];
+    HippyFontVariantDescriptor *value = mapping[json];
     if (HIPPY_DEBUG && !value && [json description].length > 0) {
-        HippyLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
+        HippyLogError(@"Invalid HippyFontVariantDescriptor '%@'. should be one of: %@", json,
                       [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
     return value;
 }
 
-HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
+HIPPY_ARRAY_CONVERTER(HippyFontVariantDescriptor)
 @end
 
 
@@ -200,7 +200,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
                   size:(NSNumber *)size
                 weight:(NSString *)weight
                  style:(NSString *)style
-               variant:(NSArray<NativeRenderFontVariantDescriptor *> *)variant
+               variant:(NSArray<HippyFontVariantDescriptor *> *)variant
        scaleMultiplier:(CGFloat)scaleMultiplier {
     // Defaults
     static NSString *defaultFontFamily;
@@ -208,12 +208,12 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     dispatch_once(&onceToken, ^{
         defaultFontFamily = [UIFont systemFontOfSize:14].familyName;
     });
-    const NativeRenderFontWeight defaultFontWeight = UIFontWeightRegular;
+    const HippyFontWeight defaultFontWeight = UIFontWeightRegular;
     const CGFloat defaultFontSize = 14;
 
     // Initialize properties to defaults
     CGFloat fontSize = defaultFontSize;
-    NativeRenderFontWeight fontWeight = defaultFontWeight;
+    HippyFontWeight fontWeight = defaultFontWeight;
     NSString *familyName = defaultFontFamily;
     BOOL isItalic = NO;
     BOOL isCondensed = NO;
@@ -232,8 +232,8 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
         fontSize = round(fontSize * scaleMultiplier);
     }
     familyName = [HippyConvert NSString:family] ?: familyName;
-    isItalic = style ? [HippyConvert NativeRenderFontStyle:style] : isItalic;
-    fontWeight = weight ? [HippyConvert NativeRenderFontWeight:weight] : fontWeight;
+    isItalic = style ? [HippyConvert HippyFontStyle:style] : isItalic;
+    fontWeight = weight ? [HippyConvert HippyFontWeight:weight] : fontWeight;
 
     BOOL didFindFont = NO;
 
@@ -314,7 +314,7 @@ HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     
     // Apply font variants to font object
     if (variant) {
-        NSArray *fontFeatures = [HippyConvert NativeRenderFontVariantDescriptorArray:variant];
+        NSArray *fontFeatures = [HippyConvert HippyFontVariantDescriptorArray:variant];
         UIFontDescriptor *fontDescriptor =
             [font.fontDescriptor fontDescriptorByAddingAttributes:
              @{UIFontDescriptorFeatureSettingsAttribute: fontFeatures}];

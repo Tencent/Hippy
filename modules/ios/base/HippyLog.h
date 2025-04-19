@@ -64,13 +64,21 @@ typedef NS_ENUM(NSInteger, HippyLogSource) { HippyLogSourceNative = 1, HippyLogS
  * will want to pass these arguments to the HippyFormatLog function in order to
  * generate a string.
  */
-typedef void (^HippyLogFunction)(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message);
+typedef void (^HippyLogFunction)(HippyLogLevel level,
+                                 HippyLogSource source,
+                                 NSString *fileName,
+                                 NSNumber *lineNumber,
+                                 NSString *message);
 
 /**
  * A method to generate a string from a collection of log data. To omit any
  * particular data from the log, just pass nil or zero for the argument.
  */
-HIPPY_EXTERN NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message);
+HIPPY_EXTERN NSString *HippyFormatLog(NSDate *timestamp,
+                                      HippyLogLevel level,
+                                      NSString *fileName,
+                                      NSNumber *lineNumber,
+                                      NSString *message);
 
 /**
  * The default logging function used by HippyLogXX.

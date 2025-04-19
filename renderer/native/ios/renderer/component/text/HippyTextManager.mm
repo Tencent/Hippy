@@ -28,15 +28,6 @@
 #import "UIView+Hippy.h"
 #import "HippyUIManager.h"
 
-static void collectDirtyNonTextDescendants(HippyShadowText *renderObject, NSMutableArray *nonTextDescendants) {
-    for (HippyShadowView *child in renderObject.hippySubviews) {
-        if ([child isKindOfClass:[HippyShadowText class]]) {
-            collectDirtyNonTextDescendants((HippyShadowText *)child, nonTextDescendants);
-        } else if ([child isTextDirty]) {
-            [nonTextDescendants addObject:child];
-        }
-    }
-}
 
 @implementation HippyTextManager
 
@@ -84,45 +75,6 @@ HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)renderObjectRegistry {
-    for (HippyShadowView *rootView in renderObjectRegistry.allValues) {
-        if (![rootView isHippyRootView]) {
-            // This isn't a root view
-            continue;
-        }
-
-        if (![rootView isTextDirty]) {
-            // No text processing to be done
-            continue;
-        }
-
-        NSMutableArray<HippyShadowView *> *queue = [NSMutableArray arrayWithObject:rootView];
-        for (NSInteger i = 0; i < queue.count; i++) {
-            HippyShadowView *shadowView = queue[i];
-            if (!shadowView) {
-                HippyLogWarn(@"shadowView is nil");
-                continue;
-            }
-            HippyAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
-
-            if ([shadowView isKindOfClass:[HippyShadowText class]]) {
-                ((HippyShadowText *)shadowView).fontSizeMultiplier = 1.0;
-                [(HippyShadowText *)shadowView recomputeText];
-                collectDirtyNonTextDescendants((HippyShadowText *)shadowView, queue);
-            } else {
-                for (HippyShadowView *child in [shadowView hippySubviews]) {
-                    if ([child isTextDirty]) {
-                        [queue addObject:child];
-                    }
-                }
-            }
-
-            [shadowView setTextComputed];
-        }
-    }
-
-    return nil;
-}
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowText *)shadowView {
     NSNumber *componentTag = shadowView.hippyTag;

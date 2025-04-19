@@ -48,7 +48,7 @@
 
 @end
 
-@interface HippyConvert (NativeRenderFont)
+@interface HippyConvert (HippyFont)
 
 + (UIFont *)UIFont:(id)json;
 
