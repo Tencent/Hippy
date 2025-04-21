@@ -62,26 +62,6 @@
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
 
 /**
- * Get code cache, not working for Javascriptcore engine
- *
- * @param bridge HippyBridge requires code cache
- * @param script js script for code cache
- * @param sourceURL source url for code cache
- * @return code cache data
- */
-- (NSData *)cachedCodeForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
-
-/**
- * Invoke when code cache created, not working for Javascriptcore engine
- *
- * @param cachedCode code cache
- * @param bridge HippyBridge requires code cache
- * @param script js script for code cache
- * @param sourceURL source url for code cache
- */
-- (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
-
-/**
  * Tell delegate to remove root node
  *
  * @param rootTag root tag for root node
