@@ -39,6 +39,10 @@ export * from "./adapter/storage/HippyStorageAdapter"
 export * from "./adapter/thirdparty/HippyThirdPartyAdapter"
 
 export * from "./bridge/HippyAPIProvider"
+export * from "./bridge/bundleloader/HippyAssetBundleLoader"
+export * from "./bridge/bundleloader/HippyBundleLoader"
+export * from "./bridge/bundleloader/HippyFileBundleLoader"
+export * from "./bridge/bundleloader/HippyRemoteBundleLoader"
 
 export * from "./common/HippyJsException"
 

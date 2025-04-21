@@ -264,7 +264,7 @@ void BaseView::OnSetPropsEnd() {
 
 bool BaseView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == HRNodeProps::VISIBILITY) {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     GetLocalRootArkUINode()->SetVisibility(value != HRNodeProps::HIDDEN ? true : false);
     return true;
   } else if (propKey == HRNodeProps::BACKGROUND_COLOR) {
@@ -276,15 +276,15 @@ bool BaseView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
     GetLocalRootArkUINode()->SetOpacity(value);
     return true;
   } else if (propKey == HRNodeProps::TRANSFORM) {
-    HippyValueArrayType valueArray;
-    if (propValue.IsArray() && propValue.ToArray(valueArray)) {
+    if (propValue.IsArray()) {
+      auto& valueArray = propValue.ToArrayChecked();
       HRTransform transform;
       HRConvertUtils::TransformToArk(valueArray, transform);
       GetLocalRootArkUINode()->SetTransform(transform, 1.0f / HRPixelUtils::GetDensityScale());
     }
     return true;
   } else if (propKey == HRNodeProps::OVERFLOW) {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     if (value == HRNodeProps::VISIBLE) {
       GetLocalRootArkUINode()->SetClip(false);
     } else if (value == HRNodeProps::HIDDEN) {
@@ -296,7 +296,7 @@ bool BaseView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
     GetLocalRootArkUINode()->SetZIndex(value);
     return true;
   } else if (propKey == HRNodeProps::PROP_ACCESSIBILITY_LABEL) {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     GetLocalRootArkUINode()->SetAccessibilityText(value);
     return true;
   } else if (propKey == HRNodeProps::FOCUSABLE) {
@@ -328,19 +328,15 @@ bool BaseView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
 }
 
 bool BaseView::SetLinearGradientProp(const std::string &propKey, const HippyValue &propValue) {
-  HippyValueObjectType m;
-  if (!propValue.ToObject(m)) {
+  if (!propValue.IsObject()) {
     return false;
   }
-
+  auto& m = propValue.ToObjectChecked();
   auto angleIt = m.find("angle");
   if (angleIt == m.end()) {
     return false;
   }
-  std::string angle;
-  if (!angleIt->second.ToString(angle)) {
-    return false;
-  }
+  auto& angle = angleIt->second.ToStringSafe();
   if (angle.length() == 0) {
     return false;
   }
@@ -349,10 +345,10 @@ bool BaseView::SetLinearGradientProp(const std::string &propKey, const HippyValu
   if (colorStopListIt == m.end()) {
     return false;
   }
-  HippyValueArrayType colorStopList;
-  if (!colorStopListIt->second.IsArray() || !colorStopListIt->second.ToArray(colorStopList)) {
+  if (!colorStopListIt->second.IsArray()) {
     return false;
   }
+  auto& colorStopList = colorStopListIt->second.ToArrayChecked();
   if (colorStopList.size() == 0) {
     return false;
   }
@@ -361,14 +357,16 @@ bool BaseView::SetLinearGradientProp(const std::string &propKey, const HippyValu
 
   auto size = colorStopList.size();
   for (uint32_t i = 0; i < size; i++) {
-    HippyValueObjectType colorStop;
-    if (!colorStopList[i].ToObject(colorStop)) {
+    if (!colorStopList[i].IsObject()) {
       continue;
     }
-    auto color = HRValueUtils::GetUint32(colorStop["color"]);
+    auto& colorStop = colorStopList[i].ToObjectChecked();
+    auto colorId = colorStop.find("color");
+    auto color = colorId != colorStop.end() ? HRValueUtils::GetUint32(colorId->second) : 0;
     float ratio = 0.f;
-    if (colorStop.find("ratio") != colorStop.end()) {
-      ratio = HRValueUtils::GetFloat(colorStop["ratio"]);
+    auto ratioId = colorStop.find("ratio");
+    if (ratioId != colorStop.end()) {
+      ratio = HRValueUtils::GetFloat(ratioId->second);
     } else if (i == size - 1) {
       ratio = 1.f;
     }
@@ -396,8 +394,8 @@ bool BaseView::SetLinearGradientProp(const std::string &propKey, const HippyValu
 
 bool BaseView::SetBackgroundImageProp(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == HRNodeProps::BACKGROUND_IMAGE) {
-    std::string value;
-    if (propValue.ToString(value)) {
+    auto& value = propValue.ToStringSafe();
+    if (value.length() > 0) {
       auto bundlePath = ctx_->GetNativeRender().lock()->GetBundlePath();
       auto url = HRUrlUtils::ConvertImageUrl(bundlePath, ctx_->IsRawFile(), ctx_->GetResModuleName(), value);
       GetLocalRootArkUINode()->SetBackgroundImage(url);
@@ -412,7 +410,7 @@ bool BaseView::SetBackgroundImageProp(const std::string &propKey, const HippyVal
     toSetBackgroundImagePosition_ = true;
     return true;
   } else if (propKey == HRNodeProps::BACKGROUND_SIZE) {
-    auto value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     auto imageSize = HRConvertUtils::BackgroundImageSizeToArk(value);
     GetLocalRootArkUINode()->SetBackgroundImageSize(imageSize);
     return true;
@@ -478,7 +476,7 @@ bool BaseView::SetBorderProp(const std::string &propKey, const HippyValue &propV
     toSetBorderWidth_ = true;
     return true;
   } else if (propKey == HRNodeProps::BORDER_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     borderTopStyle_ = value;
     borderRightStyle_ = value;
     borderBottomStyle_ = value;
@@ -486,22 +484,22 @@ bool BaseView::SetBorderProp(const std::string &propKey, const HippyValue &propV
     toSetBorderStyle_ = true;
     return true;
   } else if (propKey == HRNodeProps::BORDER_TOP_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     borderTopStyle_ = value;
     toSetBorderStyle_ = true;
     return true;
   } else if (propKey == HRNodeProps::BORDER_RIGHT_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     borderRightStyle_ = value;
     toSetBorderStyle_ = true;
     return true;
   } else if (propKey == HRNodeProps::BORDER_BOTTOM_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     borderBottomStyle_ = value;
     toSetBorderStyle_ = true;
     return true;
   } else if (propKey == HRNodeProps::BORDER_LEFT_STYLE) {
-    std::string value = HRValueUtils::GetString(propValue);
+    auto& value = HRValueUtils::GetString(propValue);
     borderLeftStyle_ = value;
     toSetBorderStyle_ = true;
     return true;
@@ -539,10 +537,12 @@ bool BaseView::SetBorderProp(const std::string &propKey, const HippyValue &propV
 
 bool BaseView::SetShadowProp(const std::string &propKey, const HippyValue &propValue) {
   if (propKey == HRNodeProps::SHADOW_OFFSET) {
-    HippyValueObjectType m;
-    if (propValue.ToObject(m)) {
-      auto x = HRPixelUtils::DpToPx(HRValueUtils::GetFloat(m["x"]));
-      auto y = HRPixelUtils::DpToPx(HRValueUtils::GetFloat(m["y"]));
+    if (propValue.IsObject()) {
+      auto& m = propValue.ToObjectChecked();
+      auto xIt = m.find("x");
+      auto yIt = m.find("y");
+      auto x = xIt != m.end() ? HRPixelUtils::DpToPx(HRValueUtils::GetFloat(xIt->second)) : 0;
+      auto y = yIt != m.end() ? HRPixelUtils::DpToPx(HRValueUtils::GetFloat(yIt->second)) : 0;
       shadow_.shadowOffset.width = x;
       shadow_.shadowOffset.height = y;
     }
@@ -627,15 +627,17 @@ void BaseView::SetLongClickable(bool flag) {
     return;
   }
   if (flag) {
+    GetLocalRootArkUINode()->RegisterLongClickEvent();
     auto weak_view = weak_from_this();
-    eventLongPress_ = [weak_view]() {
+    eventLongClick_ = [weak_view]() {
       auto view = weak_view.lock();
       if (view) {
         HRGestureDispatcher::HandleClickEvent(view->ctx_, view->tag_, HRNodeProps::ON_LONG_CLICK);
       }
     };
   } else {
-    eventLongPress_ = nullptr;
+    GetLocalRootArkUINode()->UnregisterLongClickEvent();
+    eventLongClick_ = nullptr;
   }
 }
 
@@ -864,9 +866,10 @@ void BaseView::CallImpl(const std::string &method, const std::vector<HippyValue>
 
     bool relToContainer = false;
     if (!params.empty()) {
-      HippyValueObjectType param;
-      if (params[0].IsObject() && params[0].ToObject(param)) {
-        relToContainer = HRValueUtils::GetBool(param["relToContainer"], false);
+      if (params[0].IsObject()) {
+        auto& param = params[0].ToObjectChecked();
+        auto it = param.find("relToContainer");
+        relToContainer = it != param.end() ? HRValueUtils::GetBool(it->second, false) : false;
       }
     }
     float x = 0;
@@ -1025,6 +1028,12 @@ void BaseView::SetPosition(const HRPosition &position) {
 void BaseView::OnClick(const HRPosition &position) {
   if (eventClick_) {
     eventClick_();
+  }
+}
+
+void BaseView::OnLongClick(const HRPosition &position) {
+  if (eventLongClick_) {
+    eventLongClick_();
   }
 }
 

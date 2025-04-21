@@ -165,8 +165,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _ellipsizeMode = NSLineBreakByTruncatingTail;
         _cachedTextStorageWidth = -1;
         _cachedTextStorageWidthMode = hippy::LayoutMeasureMode::Undefined;
+        _allowFontScaling = YES;
         _fontSizeMultiplier = 1.0;
-        _lineHeightMultiple = 1.0f;
+        _lineHeightMultiple = 1.0;
         _textAlign = NSTextAlignmentLeft;
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
@@ -793,7 +794,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     BOOL fits = [self attemptScale:1.0f inStorage:textStorage forFrame:frame];
     CGSize requiredSize;
     if (!fits) {
-        requiredSize = [self calculateOptimumScaleInFrame:frame forStorage:textStorage minScale:self.minimumFontScale maxScale:1.0 prevMid:INT_MAX];
+        requiredSize = [self calculateOptimumScaleInFrame:frame
+                                               forStorage:textStorage
+                                                 minScale:self.minimumFontScale
+                                                 maxScale:1.0
+                                                  prevMid:INT_MAX];
     } else {
         requiredSize = [self calculateSize:textStorage];
     }

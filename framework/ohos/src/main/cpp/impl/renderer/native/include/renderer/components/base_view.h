@@ -93,6 +93,7 @@ public:
   void SetPosition(const HRPosition &position);
 
   virtual void OnClick(const HRPosition &position) override;
+  virtual void OnLongClick(const HRPosition &position) override;
   virtual void OnTouch(int32_t actionType, const HRPosition &screenPosition) override;
   virtual void OnAppear() override;
   virtual void OnDisappear() override;
@@ -181,7 +182,7 @@ protected:
   bool toSetShadow = false;
 
   std::function<void()> eventClick_;
-  std::function<void()> eventLongPress_;
+  std::function<void()> eventLongClick_;
   std::function<void()> eventPressIn_;
   std::function<void()> eventPressOut_;
   std::function<void(const HRPosition &screenPosition)> eventTouchDown_;

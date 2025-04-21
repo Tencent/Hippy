@@ -62,26 +62,6 @@
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
 
 /**
- * Get code cache, not working for Javascriptcore engine
- *
- * @param bridge HippyBridge requires code cache
- * @param script js script for code cache
- * @param sourceURL source url for code cache
- * @return code cache data
- */
-- (NSData *)cachedCodeForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
-
-/**
- * Invoke when code cache created, not working for Javascriptcore engine
- *
- * @param cachedCode code cache
- * @param bridge HippyBridge requires code cache
- * @param script js script for code cache
- * @param sourceURL source url for code cache
- */
-- (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
-
-/**
  * Tell delegate to remove root node
  *
  * @param rootTag root tag for root node
@@ -117,5 +97,13 @@
 /// return values less than 0 will be treated as 0.
 - (CGFloat)defaultStatusBarHeightNoMatterHiddenOrNot;
 
+/// Font size multiplier for hippy
+/// 
+/// This value is used to calculate the font size of the text in the hippy page.
+/// The default value is 1.0.
+/// If you want to change the font size of the text in the hippy page,
+/// you can implement this method and return a different value.
+/// The value is multiplied by the default font size to get the actual font size.
+- (CGFloat)fontSizeMultiplierForHippy:(HippyBridge *)bridge;
 
 @end

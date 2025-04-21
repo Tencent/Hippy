@@ -204,6 +204,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 @implementation HippyUIManager
 
 @synthesize domManager = _domManager;
+@synthesize globalFontSizeMultiplier = _globalFontSizeMultiplier;
 
 #pragma mark Life cycle
 
@@ -228,6 +229,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     _componentDataLock = OS_UNFAIR_LOCK_INIT;
     HippyScreenScale();
     HippyScreenSize();
+    [self updateGlobalFontSizeMultiplier];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onFontChangedFromNative:)
                                                  name:HippyFontChangeTriggerNotification
@@ -1528,12 +1530,36 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
 
 #pragma mark - Font Refresh
 
+- (NSNumber *)globalFontSizeMultiplier {
+    @synchronized (self) {
+        return _globalFontSizeMultiplier;
+    }
+}
+
+- (void)updateGlobalFontSizeMultiplier {
+    if ([self.bridge.delegate respondsToSelector:@selector(fontSizeMultiplierForHippy:)]) {
+        CGFloat scale = [self.bridge.delegate fontSizeMultiplierForHippy:self.bridge];
+        if (scale >= 0.0) {
+            @synchronized (self) {
+                if (_globalFontSizeMultiplier || (!_globalFontSizeMultiplier && scale != 1.0)) {
+                    _globalFontSizeMultiplier = @(scale);
+                }
+            }
+        } else {
+            HippyLogError(@"Illegal Global FontSizeMultiplier:%f, current:%@", scale, self.globalFontSizeMultiplier);
+        }
+    }
+}
+
 - (void)onFontChangedFromNative:(NSNotification *)notification {
     NSNumber *targetRootTag = notification.object;
     if ((targetRootTag != nil) && ![self.viewRegistry containRootComponentWithTag:targetRootTag]) {
         // do compare if notification has target RootView.
         return;
     }
+    
+    // update fontSize multiplier
+    [self updateGlobalFontSizeMultiplier];
     
     __weak __typeof(self)weakSelf = self;
     [self.bridge.javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
@@ -1550,6 +1576,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
             allRootTags = strongSelf->_shadowViewRegistry.allRootTags;
         }
         
+        CGFloat fontSizeMultiplier = [strongSelf.globalFontSizeMultiplier doubleValue];
         for (NSNumber *rootTag in allRootTags) {
             NSArray<HippyShadowView *> *shadowViews = [strongSelf->_shadowViewRegistry componentsForRootTag:rootTag].allValues;
             Class shadowTextClass = [HippyShadowText class];
@@ -1557,6 +1584,9 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
             for (HippyShadowView *shadowView in shadowViews) {
                 if ([shadowView isKindOfClass:shadowTextClass] ||
                     [shadowView isKindOfClass:shadowTextViewClass]) {
+                    if (fontSizeMultiplier > 0.0) {
+                        ((HippyShadowText *)shadowView).fontSizeMultiplier = fontSizeMultiplier;
+                    }
                     [shadowView dirtyText:NO];
                     [shadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
                 }

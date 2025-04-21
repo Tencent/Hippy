@@ -22,24 +22,19 @@
 
 #pragma once
 
-#include <string>
-#include <arkui/native_type.h>
-#include <sys/stat.h>
-#include "renderer/utils/hr_types.h"
+#include <arkui/native_gesture.h>
+#include <arkui/native_interface.h>
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class HRTextConvertUtils {
+class NativeGestureApi {
 public:
-  static ArkUI_FontWeight FontWeightToArk(const std::string &str);
-  static int32_t FontStyleToArk(const std::string &str);
-  static ArkUI_TextAlignment TextAlignToArk(const std::string &str);
-  static ArkUI_TextDecorationType TextDecorationTypeToArk(const std::string &str);
-  static ArkUI_TextDecorationStyle TextDecorationStyleToArk(const std::string &str);
-  static bool EllipsisModeToArk(const std::string &str, ArkUI_EllipsisMode &ellipsisMode, ArkUI_TextOverflow &textOverflow);
-  static ArkUI_WordBreak WordBreakToArk(const std::string &str);
+  static ArkUI_NativeGestureAPI_1 *GetInstance();
+
+private:
+  NativeGestureApi() {}
 };
 
 } // namespace native

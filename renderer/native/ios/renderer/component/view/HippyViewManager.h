@@ -66,14 +66,6 @@ typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager,
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView;
 
 /**
- * Called after view hierarchy manipulation has finished, and all shadow props
- * have been set, but before layout has been performed. Useful for performing
- * custom layout logic or tasks that involve walking the view hierarchy.
- * To be deprecated, hopefully.
- */
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry;
-
-/**
  * This handles the simple case, where JS and native property names match.
  */
 #define HIPPY_EXPORT_VIEW_PROPERTY(name, type)  \

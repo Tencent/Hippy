@@ -22,24 +22,28 @@
 
 #pragma once
 
-#include <string>
-#include <arkui/native_type.h>
-#include <sys/stat.h>
-#include "renderer/utils/hr_types.h"
+#include "renderer/arkui/arkui_node.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class HRTextConvertUtils {
+class CustomNodeDelegate {
 public:
-  static ArkUI_FontWeight FontWeightToArk(const std::string &str);
-  static int32_t FontStyleToArk(const std::string &str);
-  static ArkUI_TextAlignment TextAlignToArk(const std::string &str);
-  static ArkUI_TextDecorationType TextDecorationTypeToArk(const std::string &str);
-  static ArkUI_TextDecorationStyle TextDecorationStyleToArk(const std::string &str);
-  static bool EllipsisModeToArk(const std::string &str, ArkUI_EllipsisMode &ellipsisMode, ArkUI_TextOverflow &textOverflow);
-  static ArkUI_WordBreak WordBreakToArk(const std::string &str);
+  virtual ~CustomNodeDelegate() = default;
+  virtual void OnForegroundDraw(ArkUI_NodeCustomEvent *event) {}
+};
+
+class CustomNode : public ArkUINode {
+public:
+  CustomNode();
+  virtual ~CustomNode();
+    
+  void SetCustomNodeDelegate(CustomNodeDelegate *customNodeDelegate);
+  virtual void OnNodeCustomEvent(ArkUI_NodeCustomEvent *event);
+
+protected:
+  CustomNodeDelegate *customNodeDelegate_ = nullptr;
 };
 
 } // namespace native

@@ -31,6 +31,7 @@ inline namespace render {
 inline namespace native {
 
 class ArkUINode;
+class CustomNode;
 
 class ArkUINodeRegistry {
 public:
@@ -39,12 +40,19 @@ public:
   void RegisterNode(ArkUINode *node);
   void UnregisterNode(ArkUINode *node);
 
+  void RegisterCustomNode(CustomNode *node);
+  void UnregisterCustomNode(CustomNode *node);
+
 private:
   ArkUINodeRegistry();
 
   void ReceiveEvent(ArkUI_NodeEvent *event);
 
+  void ReceiveCustomEvent(ArkUI_NodeCustomEvent *event);
+
   std::unordered_map<ArkUI_NodeHandle, ArkUINode *> nodesByHandle_;
+
+  std::unordered_map<ArkUI_NodeHandle, CustomNode *> customNodesByHandle_;
 };
 
 } // namespace native

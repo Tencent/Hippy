@@ -74,8 +74,7 @@ bool PagerView::SetPropImpl(const std::string &propKey, const HippyValue &propVa
     GetLocalRootArkUINode()->SetSwiperDisableSwipe(disableSwipe_);
     return true;
   } else if (propKey == "direction") {
-    std::string directionVal;
-    propValue.ToString(directionVal);
+    auto& directionVal = propValue.ToStringSafe();
     if (directionVal == "vertical") {
       vertical_ = true;
       GetLocalRootArkUINode()->SetSwiperVertical(1);

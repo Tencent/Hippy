@@ -92,6 +92,10 @@ public:
   ArkUI_StyledString *GetStyledString() {
     return styled_string_;
   }
+    
+  OH_Drawing_Typography *GetTypography() {
+    return typography_;
+  }
   
   bool IsRedraw(float maxWidth) {
     return text_align_ != TEXT_ALIGN_START && fabs(measureWidth_ - maxWidth) >= HRPixelUtils::DpToPx(1.0);
@@ -112,11 +116,16 @@ private:
 #endif
   
 private:
-  OH_Drawing_FontWeight FontWeightToDrawing(std::string &str);
+  // 测量Text和组件显示Text是鸿蒙的两套系统，测量的时候需要感知和对应系统设置“字体大小和界面缩放”里的字体粗细值。
+  // 但是，App不重启这个值总是不变，所以为了最大情况下字体能显示完全，每次App启动scale值大于1会放大测量。
+  // 该方法用来判断是否放大测量。
+  bool NeedFontWeightScale(float weightScale);
+  OH_Drawing_FontWeight FontWeightToDrawing(const std::string &str, float weightScale = 1.f);
+  OH_Drawing_FontWeight FontWeightValueToDrawing(int w);
   bool GetPropValue(HippyValueObjectType &propMap, const char *prop, HippyValue &propValue);
   double CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret);
   
-  std::string HippyValue2String(HippyValue &value);
+  const std::string& HippyValue2String(HippyValue &value);
   double HippyValue2Double(HippyValue &value);
   int32_t HippyValue2Int(HippyValue &value);
   uint32_t HippyValue2Uint(HippyValue &value);

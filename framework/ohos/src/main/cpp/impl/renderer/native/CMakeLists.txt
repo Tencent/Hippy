@@ -33,9 +33,14 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-#target_compile_definitions(${PROJECT_NAME} PUBLIC "OHOS_DRAW_TEXT") # 默认关闭，因为OH_Drawing时主题字体还没有API支持。
 #target_compile_definitions(${PROJECT_NAME} INTERFACE "OHOS_NATIVE_RENDER")
 # endregion
+
+# 鸿蒙上文本组件绘制方案：
+# OHOS_DRAW_TEXT - 使用绘制好的文本赋给Text组件，默认关闭
+# OHOS_DRAW_CUSTOM_TEXT - 使用绘制好的文本赋给Custom组件，不使用Text组件，AI选词、长按、手势、无障碍等不能利用OH底座，默认关闭
+#target_compile_definitions(${PROJECT_NAME} PUBLIC "OHOS_DRAW_TEXT")
+#target_compile_definitions(${PROJECT_NAME} PUBLIC "OHOS_DRAW_CUSTOM_TEXT")
 
 # region dom
 GlobalPackages_Add_dom()
@@ -77,12 +82,14 @@ set(SOURCE_SET
   src/arkui/arkui_node.cc
   src/arkui/arkui_node_registry.cc
   src/arkui/column_node.cc
+  src/arkui/custom_node.cc
   src/arkui/custom_ts_node.cc
   src/arkui/image_node.cc
   src/arkui/image_span_node.cc
   src/arkui/list_item_node.cc
   src/arkui/list_node.cc
   src/arkui/native_dialog_api.cc
+  src/arkui/native_gesture_api.cc
   src/arkui/native_node_api.cc
   src/arkui/refresh_node.cc
   src/arkui/row_node.cc

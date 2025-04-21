@@ -20,27 +20,20 @@
  *
  */
 
-#pragma once
-
-#include <string>
-#include <arkui/native_type.h>
-#include <sys/stat.h>
-#include "renderer/utils/hr_types.h"
+#include "renderer/arkui/native_gesture_api.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class HRTextConvertUtils {
-public:
-  static ArkUI_FontWeight FontWeightToArk(const std::string &str);
-  static int32_t FontStyleToArk(const std::string &str);
-  static ArkUI_TextAlignment TextAlignToArk(const std::string &str);
-  static ArkUI_TextDecorationType TextDecorationTypeToArk(const std::string &str);
-  static ArkUI_TextDecorationStyle TextDecorationStyleToArk(const std::string &str);
-  static bool EllipsisModeToArk(const std::string &str, ArkUI_EllipsisMode &ellipsisMode, ArkUI_TextOverflow &textOverflow);
-  static ArkUI_WordBreak WordBreakToArk(const std::string &str);
-};
+ArkUI_NativeGestureAPI_1 *NativeGestureApi::GetInstance() {
+  static ArkUI_NativeGestureAPI_1 *api_ = nullptr;
+  if (api_ == nullptr) {
+    api_ = reinterpret_cast<ArkUI_NativeGestureAPI_1 *>(
+      OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_GESTURE, "ArkUI_NativeGestureAPI_1"));
+  }
+  return api_;
+}
 
 } // namespace native
 } // namespace render

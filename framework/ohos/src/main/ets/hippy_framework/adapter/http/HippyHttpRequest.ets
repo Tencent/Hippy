@@ -192,7 +192,7 @@ export class HippyHttpRequest {
   }
 
   private initUserAgent(): void {
-    if (HippyHttpRequest.USER_AGENT == null) {
+    if (!HippyHttpRequest.USER_AGENT) {
       try {
         let language = I18n.System.getSystemLanguage();
         let country = I18n.System.getSystemRegion(); // 获取系统当前地区设置
@@ -209,7 +209,7 @@ export class HippyHttpRequest {
         buffer += language.toLowerCase()
         buffer += "-"
         buffer += country.toLowerCase()
-        let base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
+        let base = "Mozilla/5.0 (Linux; U; Ohos %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
         HippyHttpRequest.USER_AGENT = util.format(base, buffer);
       } catch (error) {
         LogUtils.e(HIPPY_HTTP_REQUEST_TAG, `call System.isSuggested failed, error code: ${error.code}, message: ${error.message}.`);

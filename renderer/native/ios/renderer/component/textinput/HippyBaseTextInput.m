@@ -134,7 +134,7 @@ static NSString *const kKeyboardHeightKey = @"keyboardHeight";
 
 - (void)rebuildAndUpdateFont {
     // Convert fontName to fontFamily if needed
-    CGFloat scaleMultiplier = 1.0; // scale not supported
+    CGFloat scaleMultiplier = self.fontSizeMultiplier;
     NSString *familyName = [HippyFont familyNameWithCSSNameMatching:self.fontFamily];
     UIFont *font = [HippyFont updateFont:self.font
                               withFamily:familyName
