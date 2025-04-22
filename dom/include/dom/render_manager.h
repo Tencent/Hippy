@@ -80,6 +80,9 @@ class RenderManager {
 
 protected:
   float density_;
+#ifdef __OHOS__
+  float font_weight_scale_;
+#endif
   std::string name_;
 };
 

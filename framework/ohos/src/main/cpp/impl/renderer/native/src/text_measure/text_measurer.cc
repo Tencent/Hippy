@@ -82,21 +82,21 @@ OH_Drawing_FontWeight TextMeasurer::FontWeightToDrawing(const std::string &str, 
 }
 
 OH_Drawing_FontWeight TextMeasurer::FontWeightValueToDrawing(int w) {
-  if (w < 200) {
+  if (w <= 100) {
     return FONT_WEIGHT_100;
-  } else if (w < 300) {
+  } else if (w <= 200) {
     return FONT_WEIGHT_200;
-  } else if (w < 400) {
+  } else if (w <= 300) {
     return FONT_WEIGHT_300;
-  } else if (w < 500) {
+  } else if (w <= 400) {
     return FONT_WEIGHT_400;
-  } else if (w < 600) {
+  } else if (w <= 500) {
     return FONT_WEIGHT_500;
-  } else if (w < 700) {
+  } else if (w <= 600) {
     return FONT_WEIGHT_600;
-  } else if (w < 800) {
+  } else if (w <= 700) {
     return FONT_WEIGHT_700;
-  } else if (w < 900) {
+  } else if (w <= 800) {
     return FONT_WEIGHT_800;
   } else {
     return FONT_WEIGHT_900;

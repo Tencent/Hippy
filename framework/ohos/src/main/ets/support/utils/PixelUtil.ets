@@ -38,10 +38,10 @@ export class PixelUtil {
     libHippy?.Setting_SetFontSizeScale(scale)
   }
 
-  public static setFontWeightScale(scale: number): void {
+  public static setFontWeightScale(scale: number, libHippy: HippyLibrary): void {
     LogUtils.i('PixelUtil', 'set font weight scale: ' + scale)
     PixelUtil.fontWeightScale = scale
-    // 因为App进程启动后，多次获取到的fontWeightScale值并不会改变，所以这里不需要通知c层。
+    libHippy?.Setting_SetFontWeightScale(scale)
   }
 
   public static getDensityScale(): number {

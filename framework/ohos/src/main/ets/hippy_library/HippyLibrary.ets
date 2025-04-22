@@ -132,4 +132,5 @@ export interface HippyLibrary {
   Setting_SetDensity(density: number): void;
   Setting_SetDensityScale(densityScale: number): void;
   Setting_SetFontSizeScale(fontSizeScale: number): void;
+  Setting_SetFontWeightScale(fontWeightScale: number): void;
 }

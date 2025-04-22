@@ -211,6 +211,7 @@ void NativeRenderManager::SetBundlePath(const std::string &bundle_path) {
 
 void NativeRenderManager::InitDensity(double density, double density_scale, double font_size_scale, double font_weight_scale) {
   density_ = static_cast<float>(density);
+  font_weight_scale_ = static_cast<float>(font_weight_scale);
   HRPixelUtils::InitDensity(density, density_scale, font_size_scale, font_weight_scale);
 }
 
@@ -917,6 +918,21 @@ bool NativeRenderManager::GetTextNodeSizeProp(const std::shared_ptr<DomNode> &no
 }
 
 void NativeRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
+  if (HRPixelUtils::GetFontWeightScale() != font_weight_scale_) {
+    auto root = root_node.lock();
+    if (root) {
+      auto textNodes = root->GetAllTextNodes();
+      for (auto it = textNodes.begin(); it != textNodes.end(); it++) {
+        auto node = it->lock();
+        if (node) {
+          if (node->GetViewName() == "Text") {
+            node->GetLayoutNode()->MarkDirty();
+          }
+        }
+      }
+    }
+    font_weight_scale_ = HRPixelUtils::GetFontWeightScale();
+  }
 #ifdef OHOS_DRAW_TEXT
   if (HRPixelUtils::GetDensity() != density_) {
     auto root = root_node.lock();
