@@ -63,6 +63,8 @@ import { PixelUtil } from "../support/utils/PixelUtil";
 import systemDateTime from '@ohos.systemDateTime';
 import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventListener";
 import { Dimensions } from "./modules/javascript/Dimensions";
+import { EnvironmentCallback } from "@kit.AbilityKit";
+import { BusinessError } from '@kit.BasicServicesKit';
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private static sEngineIdCounter = 0
@@ -98,6 +100,8 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
 
   private mEventListeners = new Array<EngineListener>();
   private mModuleListener: ModuleListener | null = null;
+
+  private mEnvCallbackId: number = -1
 
   constructor(params: EngineInitParams) {
     HippyEngineManagerImpl.sEngineIdCounter += 1;
@@ -136,7 +140,27 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     })
     const weightScale: SubscribedAbstractProperty<string> = AppStorage.prop('fontWeightScale');
     let weightScaleValue = Number(weightScale.get());
-    PixelUtil.setFontWeightScale(weightScaleValue);
+    PixelUtil.setFontWeightScale(weightScaleValue, params.libHippy);
+    // 关闭监听系统参数变化，这个监听最好App层面做。
+    /*
+    let environmentCallback: EnvironmentCallback = {
+      onConfigurationUpdated(newConfig) {
+        if (newConfig.fontWeightScale && newConfig.fontWeightScale != PixelUtil.getFontWeightScale()) {
+          PixelUtil.setFontWeightScale(newConfig.fontWeightScale, params.libHippy);
+        }
+      },
+      onMemoryLevel(level) {
+        LogUtils.e('hippy', `onMemoryLevel level: ${level}`)
+      }
+    }
+    try {
+      this.mEnvCallbackId = params.context.getApplicationContext().on('environment', environmentCallback);
+    } catch (err) {
+      let code = (err as BusinessError).code;
+      let message = (err as BusinessError).message;
+      LogUtils.e('hippy', `failed to register applicationContext. Code is ${code}, message is ${message}`);
+    }
+    //*/
   }
 
   onInitDevError(e: HippyJsException): void {
@@ -351,6 +375,10 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     if (this.mEngineContext != null) {
       this.mEngineContext.destroyBridge(false);
     }
+    /*
+    let applicationContext = this.params.context.getApplicationContext();
+    applicationContext.off('environment', this.mEnvCallbackId);
+    */
   }
 
   preloadModule(loader: HippyBundleLoader): void {

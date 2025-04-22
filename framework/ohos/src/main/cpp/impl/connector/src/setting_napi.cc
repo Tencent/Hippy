@@ -73,10 +73,21 @@ static napi_value SetFontSizeScale(napi_env env, napi_callback_info info) {
   return arkTs.GetUndefined();
 }
 
+static napi_value SetFontWeightScale(napi_env env, napi_callback_info info) {
+  ArkTS arkTs(env);
+  auto args = arkTs.GetCallbackArgs(info);
+  float fontSizeScale = (float)arkTs.GetDouble(args[0]);
+  
+  HRPixelUtils::SetFontWeightScale(fontSizeScale);
+  
+  return arkTs.GetUndefined();
+}
+
 REGISTER_OH_NAPI("Setting", "Setting_SetFlags", SetFlags)
 REGISTER_OH_NAPI("Setting", "Setting_SetDensity", SetDensity)
 REGISTER_OH_NAPI("Setting", "Setting_SetDensityScale", SetDensityScale)
 REGISTER_OH_NAPI("Setting", "Setting_SetFontSizeScale", SetFontSizeScale)
+REGISTER_OH_NAPI("Setting", "Setting_SetFontWeightScale", SetFontWeightScale)
 
 }
 }
