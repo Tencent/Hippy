@@ -330,7 +330,7 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
 
     let bundleUniKey = loader.getBundleUniKey();
     if (this.mLoadedBundleInfo != null && bundleUniKey.length > 0 && this.mLoadedBundleInfo.has(bundleUniKey)) {
-      this.mContext.onLoadModuleCompleted(ModuleLoadStatus.STATUS_REPEAT_LOAD, "repeat load module. loader.getBundleUniKey=" + bundleUniKey);
+      LogUtils.w('hippy', 'repeat load module. if preload is invoked, this is normal. loader.getBundleUniKey=' + bundleUniKey);
       return;
     }
 
