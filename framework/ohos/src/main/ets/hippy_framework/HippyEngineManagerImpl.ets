@@ -134,19 +134,34 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     }
     this.mCoreBundleLoader = coreBundleLoader;
 
+    this.checkFontWeightScale();
+  }
+
+  setUIContext(uiContext: UIContext | null): void {
+    this.params.setUIContext(uiContext)
+    this.checkFontWeightScale();
+  }
+
+  checkFontWeightScale(): void {
+    if (!this.params.uiContext) {
+      return;
+    }
     // 获取系统设置“字体大小和界面缩放”里的字体粗细值
-    params.uiContext?.runScopedTask(() => {
+    this.params.uiContext?.runScopedTask(() => {
       Environment.envProp('fontWeightScale', '1.0');
     })
     const weightScale: SubscribedAbstractProperty<string> = AppStorage.prop('fontWeightScale');
+    if (!weightScale) {
+      return;
+    }
     let weightScaleValue = Number(weightScale.get());
-    PixelUtil.setFontWeightScale(weightScaleValue, params.libHippy);
+    PixelUtil.setFontWeightScale(weightScaleValue, this.params.libHippy);
     // 关闭监听系统参数变化，这个监听最好App层面做。
     /*
     let environmentCallback: EnvironmentCallback = {
       onConfigurationUpdated(newConfig) {
         if (newConfig.fontWeightScale && newConfig.fontWeightScale != PixelUtil.getFontWeightScale()) {
-          PixelUtil.setFontWeightScale(newConfig.fontWeightScale, params.libHippy);
+          PixelUtil.setFontWeightScale(newConfig.fontWeightScale, this.params.libHippy);
         }
       },
       onMemoryLevel(level) {
@@ -154,7 +169,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       }
     }
     try {
-      this.mEnvCallbackId = params.context.getApplicationContext().on('environment', environmentCallback);
+      this.mEnvCallbackId = this.params.context.getApplicationContext().on('environment', environmentCallback);
     } catch (err) {
       let code = (err as BusinessError).code;
       let message = (err as BusinessError).message;
