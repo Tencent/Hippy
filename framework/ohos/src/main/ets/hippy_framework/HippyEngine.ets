@@ -188,7 +188,13 @@ export class EngineInitParams {
     uiContext: UIContext | null
   ) {
     this.libHippy = libHippy
+    if (!libHippy) {
+      LogUtils.e('hippy', 'engine init param error, need libHippy')
+    }
     this.context = context
+    if (!context) {
+      LogUtils.e('hippy', 'engine init param error, need context')
+    }
     this.uiContext = uiContext
     if (uiContext) {
       AppStorage.setOrCreate<UIContext>('UIContextForHippy', uiContext)
