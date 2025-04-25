@@ -65,21 +65,17 @@ constexpr char kJsonStringify[] = "function(obj) { return JSON.stringify(obj); }
 
 // Ensure that the returned data ends with a null character
 static uint8_t* EnsureNullTerminated(const uint8_t* data, size_t len) {
-  if (!data || len == 0) {
-    return nullptr;
-  }
-  unsigned char last_byte = data[len - 1];
-  uint8_t* p = nullptr;
-  if (last_byte == '\0') {
-    p = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * len));
-    memset(p, 0, len);
+  if (!data || len == 0) return nullptr;
+  if (data[len - 1] == '\0') {
+    uint8_t* p = (uint8_t*)malloc(len);
     memcpy(p, data, len);
+    return p;
   } else {
-    p = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * (len + 1)));
-    memset(p, 0, len + 1);
+    uint8_t* p = (uint8_t*)malloc(len + 1);
     memcpy(p, data, len);
+    p[len] = '\0';
+    return p;
   }
-  return p;
 }
 
 HippyJsiBuffer::HippyJsiBuffer(const uint8_t* data, size_t len) {
@@ -87,7 +83,7 @@ HippyJsiBuffer::HippyJsiBuffer(const uint8_t* data, size_t len) {
   len_ = len;
 }
 
-HippyJsiBuffer::~HippyJsiBuffer() { delete data_; }
+HippyJsiBuffer::~HippyJsiBuffer() { if (data_) free(data_); }
 
 static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<HermesExceptionCtxValue> exception) {
   VM::HandleException(scope->GetContext(), "uncaughtException", exception);
