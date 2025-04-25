@@ -682,6 +682,10 @@ void ArkUINode::OnNodeEvent(ArkUI_NodeEvent *event) {
 }
 
 void ArkUINode::RegisterClickEvent() {
+  // SpanNode调用addGestureToNode API会crash
+  if (isSpanNode_) {
+    return;
+  }
   if (!tapGesture_) {
     tapGesture_ = NativeGestureApi::GetInstance()->createTapGesture(1, 1);
     if (tapGesture_) {
@@ -717,6 +721,9 @@ void ArkUINode::UnregisterClickEvent() {
 }
 
 void ArkUINode::RegisterLongClickEvent() {
+  if (isSpanNode_) {
+    return;
+  }
   if (!longPressGesture_) {
     longPressGesture_ = NativeGestureApi::GetInstance()->createLongPressGesture(1, false, 1000);
     if (longPressGesture_) {
