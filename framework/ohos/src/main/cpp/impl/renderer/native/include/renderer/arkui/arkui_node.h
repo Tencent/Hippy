@@ -225,6 +225,8 @@ protected:
   ArkUI_NodeHandle nodeHandle_;
   bool isReleaseHandle_ = true;
   
+  bool isSpanNode_ = false;
+  
   ArkUINodeDelegate *arkUINodeDelegate_ = nullptr;
 
   ArkUI_GestureRecognizer *tapGesture_ = nullptr;

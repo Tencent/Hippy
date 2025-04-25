@@ -30,6 +30,7 @@ inline namespace native {
 
 SpanNode::SpanNode()
     : ArkUINode(NativeNodeApi::GetInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_SPAN)) {
+  isSpanNode_ = true;
 }
 
 SpanNode::~SpanNode() {}
