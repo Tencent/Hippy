@@ -611,6 +611,10 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                                                        inView:(UIView *)targetView
                                                       atPoint:(CGPoint)point {
     NSDictionary *result = [self nextResponseViewForAction:actions inView:targetView atPoint:point];
+    
+    // In some special scenarios, it is necessary to further determine the internal tags,
+    // such as nested text, or view/image nested in a text,
+    // otherwise, the inner object will not be touchable/clickable.
     NSNumber *innerTag = [targetView hippyTagAtPoint:point];
     if (innerTag && ![targetView.hippyTag isEqual:innerTag]) {
         UIView *innerView = [_bridge.uiManager viewForHippyTag:innerTag onRootTag:targetView.rootTag];
@@ -665,7 +669,9 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
                 [findActions removeObject:@"onPressOut"];
             }
 
-            if (isPointInsideView(view, point)) {
+            // If view.window is nil, it indicates that the view might be a nested text.
+            // In this case, there is no need to determine the click position.
+            if (isPointInsideView(view, point) || !view.window) {
                 if ([findActions containsObject:@"onClick"] && view.onClick) {
                     [result setValue:@{ @"view": view, @"index": @(index) } forKey:@"onClick"];
                     [findActions removeObject:@"onClick"];
