@@ -46,5 +46,5 @@ export * from "./bridge/bundleloader/HippyRemoteBundleLoader"
 
 export * from "./common/HippyJsException"
 
-export * from "./modules/native"
+export * from "./modules/native/index"
 export * from "./modules/HippyModuleManagerImpl"
