@@ -62,6 +62,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 
 - (void)notifyForBoundsChange:(CGRect)newBounds {
     if (_isPresented) {
+        [[_bridge uiManager] setFrame:newBounds forView:self];
         [[_bridge uiManager] setFrame:newBounds forView:_hippySubview];
         [self notifyForOrientationChange];
     }
@@ -89,7 +90,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
     HippyAssert(_hippySubview == nil, @"Modal view can only have one subview");
     [super insertHippySubview:subview atIndex:atIndex];
     [subview addGestureRecognizer:_touchHandler];
-    subview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
     [_modalViewController.view insertSubview:subview atIndex:0];
     [subview sendAttachedToWindowEvent];

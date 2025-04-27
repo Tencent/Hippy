@@ -425,7 +425,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }
 }
 
-- (void)setFrame:(CGRect)frame forView:(UIView *)view{
+- (void)setFrame:(CGRect)frame forView:(UIView *)view {
     NSNumber* hippyTag = view.hippyTag;
     NSNumber* rootTag = view.rootTag;
     
@@ -433,19 +433,20 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     if (!domManager) {
         return;
     }
-    __weak id weakSelf = self;
+    
+    __weak __typeof(self)weakSelf = self;
     std::vector<std::function<void()>> ops_ = {[hippyTag, rootTag, weakSelf, frame]() {
-        HippyUIManager *strongSelf = weakSelf;
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
-        HippyShadowView *renderObject = [strongSelf->_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
-        if (renderObject == nil) {
+        HippyShadowView *shadowView = [strongSelf->_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
+        if (!shadowView) {
             return;
         }
         
-        if (!HippyCGRectRoundInPixelNearlyEqual(frame, renderObject.frame)) {
-            [renderObject setLayoutFrame:frame];
+        if (!HippyCGRectRoundInPixelNearlyEqual(frame, shadowView.frame)) {
+            [shadowView setLayoutFrame:frame];
             std::weak_ptr<RootNode> rootNode = [strongSelf->_shadowViewRegistry rootNodeForTag:rootTag];
             [strongSelf batchOnRootNode:rootNode];
         }
@@ -1073,11 +1074,11 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         NSNumber *componentTag = @(tag);
         hippy::LayoutResult layoutResult = std::get<1>(layoutInfoTuple);
         CGRect frame = CGRectMakeFromLayoutResult(layoutResult);
-        HippyShadowView *renderObject = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
-        if (renderObject) {
-            [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-            renderObject.frame = frame;
-            renderObject.nodeLayoutResult = layoutResult;
+        HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
+        if (shadowView) {
+            [shadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+            shadowView.frame = frame;
+            shadowView.nodeLayoutResult = layoutResult;
             [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *view = viewRegistry[componentTag];
                 /* do not use frame directly, because shadow view's frame possibly changed manually in
@@ -1085,7 +1086,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
                  * This is a Wrong example:
                  * [view hippySetFrame:frame]
                  */
-                [view hippySetFrame:renderObject.frame];
+                [view hippySetFrame:shadowView.frame];
             }];
         }
     }
