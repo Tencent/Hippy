@@ -299,6 +299,9 @@ static napi_value UnloadInstance(napi_env env, napi_callback_info info) {
     buffer.assign(static_cast<char *>(buffer_data), byte_length);
   }
   auto scope = GetScope(scope_id);
+  if (scope == nullptr) {
+    return arkTs.GetUndefined();
+  }
   JsDriverUtils::UnloadInstance(scope, std::move(buffer));
   return arkTs.GetUndefined();
 }
