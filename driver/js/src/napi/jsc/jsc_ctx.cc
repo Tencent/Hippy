@@ -71,16 +71,19 @@ JSCCtx::JSCCtx(JSContextGroupRef group, std::weak_ptr<VM> vm): vm_(vm) {
 }
 
 JSCCtx::~JSCCtx() {
+  JSGarbageCollect(context_);
+  JSGlobalContextRelease(context_);
+  if (global_context_valid_mgr) {
+    global_context_valid_mgr->ClearContextPtr(context_);
+  }
+}
+
+void JSCCtx::InvalidFinalizeCallback() {
   for (auto& [key, item] : constructor_data_holder_) {
     item->prototype = nullptr;
     if (global_constructor_data_mgr) {
       global_constructor_data_mgr->ClearConstructorDataPtr(item.get());
     }
-  }
-  JSGarbageCollect(context_);
-  JSGlobalContextRelease(context_);
-  if (global_context_valid_mgr) {
-    global_context_valid_mgr->ClearContextPtr(context_);
   }
 }
 
