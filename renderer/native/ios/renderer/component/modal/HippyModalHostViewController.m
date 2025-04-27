@@ -80,7 +80,6 @@
     return hidden;
 }
 
-#if HIPPY_DEBUG
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     UIWindow *keyWindow = HippyKeyWindow();
     UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:keyWindow];
@@ -90,6 +89,5 @@
 
     return _supportedInterfaceOrientations;
 }
-#endif  // HIPPY_DEBUG
 
 @end
