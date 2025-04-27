@@ -26,31 +26,10 @@
 #import "HippyModalTransitioningDelegate.h"
 #import "HippyShadowView.h"
 #import "HippyShadowView+Internal.h"
-#import "HippyRenderUtils.h"
 
 
 NSString * const HippyModalHostViewDismissNotification = @"HippyModalHostViewDismissNotification";
 
-
-@interface HippyModalHostShadowView : HippyShadowView
-
-@end
-
-@implementation HippyModalHostShadowView
-
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSUInteger)atIndex{
-    [super insertHippySubview:subview atIndex:atIndex];
-    CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
-    [subview setLayoutFrame:frame];
-}
-
-- (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
-    [super setDomManager:domManager];
-    CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
-    [self setLayoutFrame:frame];
-}
-
-@end
 
 @implementation HippyModalHostViewManager
 
@@ -81,10 +60,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
         _transitioningDelegate = [HippyModalTransitioningDelegate new];
     }
     return _transitioningDelegate;
-}
-
-- (HippyShadowView *)shadowView {
-    return [HippyModalHostShadowView new];
 }
 
 - (void)invalidate {
