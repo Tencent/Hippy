@@ -36,29 +36,7 @@ import { BizComponent } from './BizView';
 import HippyRenderBaseView
   from 'hippy/src/main/ets/renderer_native/components/base/HippyRenderBaseView';
 import demoNapi from 'libdemo.so';
-
-export class ExampleAPIProvider implements HippyAPIProvider {
-  getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
-    return null
-  }
-
-  getCustomJavaScriptModuleCreatorMap(): Map<string, HippyJSModuleCreator> | null {
-    return null
-  }
-
-  getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
-    return null
-  }
-
-  getCustomMeasureRenderViews(): Array<string> | null {
-    return null
-  }
-
-  getCustomMappingRenderViewMap(): Map<string, string> | null {
-    return null
-  }
-
-}
+import { buildCustomRenderView, ExampleAPIProvider } from '../hippy_extend/ExampleAPIProvider';
 
 class DefaultEngineListener implements EngineListener {
   private hippyEngine: HippyEngine
@@ -116,10 +94,6 @@ class DefaultModuleListener implements ModuleListener {
   onFirstContentfulPaint(): void {
 
   }
-}
-
-@Builder
-function buildCustomRenderView($$: HippyRenderBaseView) {
 }
 
 @Entry
