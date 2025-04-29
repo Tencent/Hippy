@@ -729,15 +729,6 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
     }];
 }
 
-static NSLock *jslock() {
-    static dispatch_once_t onceToken;
-    static NSLock *lock = nil;
-    dispatch_once(&onceToken, ^{
-        lock = [[NSLock alloc] init];
-    });
-    return lock;
-}
-
 static NSError *executeApplicationScript(NSData *script, 
                                          NSURL *sourceURL,
                                          SharedCtxPtr context,
@@ -746,8 +737,6 @@ static NSError *executeApplicationScript(NSData *script,
     string_view view = string_view::new_from_utf8(scriptBytes, [script length]);
     string_view fileName = NSStringToU16StringView([sourceURL absoluteString]);
     string_view errorMsg;
-    NSLock *lock = jslock();
-    BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
     
     auto tryCatch = hippy::TryCatch::CreateTryCatchScope(true, context);
     SharedCtxValuePtr result = context->RunScript(view, fileName);
@@ -755,9 +744,6 @@ static NSError *executeApplicationScript(NSData *script,
         errorMsg = std::move(tryCatch->GetExceptionMessage());
     }
     
-    if (lockSuccess) {
-        [lock unlock];
-    }
     *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
         NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}] : nil;
     id objcResult = ObjectFromCtxValue(context, result);
