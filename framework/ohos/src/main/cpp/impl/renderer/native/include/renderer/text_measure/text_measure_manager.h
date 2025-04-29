@@ -103,7 +103,7 @@ private:
 
 class DrawTextNodeCache {
 public:
-  std::map<uint32_t, std::weak_ptr<DomNode>> draw_text_nodes_;
+  std::map<uint32_t, std::pair<float, std::weak_ptr<DomNode>>> draw_text_nodes_;
 };
 
 class DrawTextNodeManager {
