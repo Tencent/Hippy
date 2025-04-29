@@ -358,7 +358,7 @@ void NativeRenderManager::CreateRenderNode_C(std::weak_ptr<RootNode> root_node, 
     if (n->GetViewName() == "Text") {
       auto textNode = GetAncestorTextNode(node);
       auto cache = draw_text_node_manager_->GetCache(root->GetId());
-      cache->draw_text_nodes_[textNode->GetId()] = textNode;
+      cache->draw_text_nodes_[textNode->GetId()] = std::make_pair(0, textNode);
     }
   }
 #endif
@@ -386,13 +386,6 @@ void NativeRenderManager::CreateRenderNode_C(std::weak_ptr<RootNode> root_node, 
         if (!self) {
           return LayoutSize{0, 0};
         }
-#ifdef OHOS_DRAW_TEXT
-        auto node = weak_node.lock();
-        if (node) {
-          auto cache = self->draw_text_node_manager_->GetCache(root_node.lock()->GetId());
-          cache->draw_text_nodes_.erase(node->GetId());
-        }
-#endif
         int64_t result;
         self->DoMeasureText(root_node, weak_node, self->DpToPx(width), static_cast<int32_t>(width_measure_mode),
                             self->DpToPx(height), static_cast<int32_t>(height_measure_mode), result);
@@ -786,7 +779,7 @@ void NativeRenderManager::UpdateLayout_C(std::weak_ptr<RootNode> root_node, cons
       auto cache = draw_text_node_manager_->GetCache(root->GetId());
       auto it = cache->draw_text_nodes_.find(node->GetId());
       if (it != cache->draw_text_nodes_.end()) {
-        if (result.width > 0) {
+        if (result.width > 0 && result.width != it->second.first) {
           int64_t ret = 0;
           DoMeasureText(root_node, node, DpToPx(result.width), static_cast<int32_t>(LayoutMeasureMode::AtMost),
                         DpToPx(result.height), static_cast<int32_t>(LayoutMeasureMode::AtMost), ret);
@@ -1227,6 +1220,8 @@ void NativeRenderManager::DoMeasureText(const std::weak_ptr<RootNode> root_node,
 
 #ifdef OHOS_DRAW_TEXT
   if (enable_ark_c_api_) {
+    auto cache = draw_text_node_manager_->GetCache(root->GetId());
+    cache->draw_text_nodes_[node->GetId()] = std::make_pair(width, node);
     c_render_provider_->UpdateTextMeasurer(root->GetId(), node->GetId(), measureInst);
   }
 #endif
@@ -1398,7 +1393,7 @@ void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, 
           || diff_style->find(kNumberOfLines) != diff_style->end()) {
           auto textNode = GetAncestorTextNode(node);
           auto cache = draw_text_node_manager_->GetCache(root_node->GetId());
-          cache->draw_text_nodes_[textNode->GetId()] = textNode;
+          cache->draw_text_nodes_[textNode->GetId()] = std::make_pair(0, textNode);
         }
 #endif
       }

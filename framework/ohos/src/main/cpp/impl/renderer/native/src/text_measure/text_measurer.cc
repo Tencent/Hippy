@@ -496,7 +496,6 @@ void TextMeasurer::AddImage(HippyValueObjectType &propMap, float density) {
 }
 
 double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret) {
-  double baseLine = 0;
   size_t lineCount = 0;
   std::vector<double> lineHeights;    // 真实每行高度
   std::vector<double> measureHeights; // 测得每行高度
@@ -520,53 +519,12 @@ double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasur
   double bottom = lineHeights[0];
   for (uint32_t i = 0; i < textBoxCount; i++) { // i 对应到 imageSpans_ 下标
     float boxTop = OH_Drawing_GetTopFromTextBox(tb, (int)i);
-    float boxBottom = OH_Drawing_GetBottomFromTextBox(tb, (int)i);
     float boxLeft = OH_Drawing_GetLeftFromTextBox(tb, (int)i);
-    // float boxRight = OH_Drawing_GetRightFromTextBox(tb, (int)i);
-    double top = 0;
-    double measureTop = 0;
+
     OhImageSpanPos pos;
     pos.x = boxLeft;
     pos.y = boxTop;
-    for (uint32_t j = 0; j < lineCount; j++) {
-      bottom = top + lineHeights[j];
-      double measureBottom = measureTop + measureHeights[j];
-      if (measureTop <= boxTop && boxBottom <= measureBottom) { // 根据测得的top和bottom定位到span所在行
-        baseLine = lineHeights[j] * 0.6;                      // todo 猜的比例
-        switch (imageSpans_[i].alignment) {
-        case OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_TOP_OF_ROW_BOX:
-          pos.y = top + imageSpans_[i].marginTop;
-          break;
-        case OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_CENTER_OF_ROW_BOX:
-          pos.y = top + lineHeights[j] / 2 - imageSpans_[i].height / 2;
-          break;
-        case OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_BOTTOM_OF_ROW_BOX:
-          pos.y = bottom - imageSpans_[i].height - imageSpans_[i].marginBottom;
-          break;
-        case OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_OFFSET_AT_BASELINE:
-          // todo         这里和安卓不同，安卓没有 / 2
-          pos.y = top + baseLine - imageSpans_[i].height / 2 - imageSpans_[i].marginBottom;
-          break;
-        case OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_ABOVE_BASELINE:
-          // todo 有verticalAlignment属性时，不知如何处理
-          pos.y = top + lineHeights[j] * 0.7 - imageSpans_[i].height;
-          break;
-        case OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_BELOW_BASELINE:
-          pos.y = top + baseLine;
-          break;
-        }
-        pos.y += imageSpans_[i].top;
-        if (pos.y < top) {
-          pos.y = top;
-        }
-        if (pos.y + imageSpans_[i].height > bottom) {
-          pos.y = bottom - imageSpans_[i].height;
-        }
-        break;
-      }
-      top = bottom;
-      measureTop = measureBottom;
-    }
+
     ret.spanPos.push_back(pos);
   }
   return bottom;
