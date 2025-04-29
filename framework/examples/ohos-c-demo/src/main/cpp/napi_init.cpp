@@ -67,6 +67,12 @@ napi_value OnHippyRootViewReady(napi_env env, napi_callback_info info) {
   return nullptr;
 }
 
+napi_value TestDestroy(napi_env env, napi_callback_info info) {
+  BizViewManager::GetInstance()->TestDestroy();
+  return nullptr;
+}
+
 REGISTER_OH_NAPI("Demo", "Demo_BindNativeBizView", BindNativeBizView)
 REGISTER_OH_NAPI("Demo", "Demo_UnbindNativeBizView", UnbindNativeBizView)
 REGISTER_OH_NAPI("Demo", "Demo_OnHippyRootViewReady", OnHippyRootViewReady)
+REGISTER_OH_NAPI("Demo", "Demo_TestDestroy", TestDestroy)

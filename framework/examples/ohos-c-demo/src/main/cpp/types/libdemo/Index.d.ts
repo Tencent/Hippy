@@ -22,3 +22,4 @@
 export function Demo_BindNativeBizView(bizSlot: object, bizRootId: number): void;
 export function Demo_UnbindNativeBizView(bizRootId: number): void;
 export function Demo_OnHippyRootViewReady(): void;
+export function Demo_TestDestroy(): void;

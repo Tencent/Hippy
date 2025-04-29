@@ -114,6 +114,9 @@ struct Index {
     this.hippyEngine = createHippyEngine(params)
     let engineListener = new DefaultEngineListener(this.hippyEngine, this.rootViewWrapper)
     this.hippyEngine.initEngine(engineListener)
+
+    this.hippyEngine.setUIContext(this.getUIContext())
+    this.hippyEngine.setCustomWrappedRenderViewBuilderForCInterface(wrapBuilder(buildCustomRenderView))
   }
 
   build() {
@@ -124,6 +127,12 @@ struct Index {
         .width(300)
         .height(400)
         .border({width: 1, color: Color.Black})
+      Button('测试销毁')
+        .width(120)
+        .height(30)
+        .onClick((event) => {
+          demoNapi.Demo_TestDestroy();
+        })
     }
     .width('100%')
   }

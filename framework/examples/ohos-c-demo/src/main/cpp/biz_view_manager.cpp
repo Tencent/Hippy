@@ -94,19 +94,26 @@ void BizViewManager::UnbindBizNativeView(uint32_t view_id) {
 void BizViewManager::OnHippyRootViewReady() {
 }
 
+void BizViewManager::TestDestroy() {
+  if (rootId_ > 0) {
+    HippyViewProvider_DestroyRoot(DEMO_RENDER_MANAGER_ID, rootId_);
+    rootId_ = 0;
+  }
+}
+
 void BizViewManager::BuildBizViews() {
   ArkUI_NodeHandle viewHandle = GetNativeNodeAPI()->createNode(ArkUI_NodeType::ARKUI_NODE_STACK);
   viewHandleMap_[DEMO_VIEW_A_ID] = viewHandle;
   
   // 参数说明：
   // first_dom_manager_id - 实际由业务从ts层传到c层，ts层获取：hippyEngine.getHippyEngineContext()?.getDomManagerId()
-  uint32_t rootId = HippyViewProvider_CreateRoot(DEMO_FIRST_DOM_MANAGER_ID, HippyLayoutEngineYoga);
+  rootId_ = HippyViewProvider_CreateRoot(DEMO_FIRST_DOM_MANAGER_ID, HippyLayoutEngineYoga);
 
   // 参数说明：
   // parent_node_handle - Hippy根节点的父节点
   // render_manager_id - 实际由业务从ts层传到c层，ts层获取：hippyEngine.getNativeRenderProvider().getInstanceId()
   // root_id - 根节点id
-  HippyViewProvider_BindNativeRoot(viewHandle, DEMO_RENDER_MANAGER_ID, rootId);
+  HippyViewProvider_BindNativeRoot(viewHandle, DEMO_RENDER_MANAGER_ID, rootId_);
   
   // 方法说明：
   // 该方法一定在HippyViewProvider_CreateRoot后调用。
@@ -115,5 +122,6 @@ void BizViewManager::BuildBizViews() {
   // root_id - 根节点id
   // width -宽度
   // height - 高度
-  HippyViewProvider_UpdateRootSize(DEMO_RENDER_MANAGER_ID, rootId, 300, 400);
+  HippyViewProvider_UpdateRootSize(DEMO_RENDER_MANAGER_ID, rootId_, 300, 400);
+  
 }
