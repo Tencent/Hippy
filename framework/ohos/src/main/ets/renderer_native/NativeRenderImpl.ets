@@ -74,6 +74,7 @@ import { HippyRootViewManager } from './HippyRootViewManager'
 import { WrappedHippyBizViewBuilder } from './HippyBizViewBuilder'
 import { PixelUtil } from "../support/utils/PixelUtil"
 import { HippyLayoutEngineType } from "../hippy_framework"
+import { HippyRenderView } from "./HippyRenderView"
 
 export class TextMeasurerConfig {
   textContent: string | null = null
@@ -101,6 +102,7 @@ export class NativeRenderImpl implements NativeRender {
 
   private customRenderViewCreatorMap: Map<string, HRRenderViewCreator> | null
   private customMeasureRenderViews: Array<string> | null
+  private customWrappedRenderViewBuilderForCApi: WrappedHippyCustomRenderViewBuilder | null = null
 
   private frameworkProxy: FrameworkProxy | null = null
   private imageLoader: ImageLoaderAdapter | null = null
@@ -127,6 +129,10 @@ export class NativeRenderImpl implements NativeRender {
 
   setFrameworkProxy(proxy: FrameworkProxy) {
     this.frameworkProxy = proxy
+  }
+
+  setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void {
+    this.customWrappedRenderViewBuilderForCApi = customWrappedRenderViewBuilder
   }
 
   createRootView(pageName: string, pageData: HippyRecord, wrappedCustomRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null, layoutEngineType: HippyLayoutEngineType): HippyRootView {
@@ -636,9 +642,24 @@ key1               value1
     return (BigInt(result.width) << BigInt(32)) | BigInt(result.height)
   }
 
+  // 对于使用C接口接入Hippy容器的场景，TS层不会createRootView，就不会准备TS环境的ViewManager，所以需要按需创建。
+  checkAndGetViewManager(rootId: number): HRViewManager | null {
+    let viewManager = this.renderManager.getViewManager(rootId)
+    if (viewManager) {
+      return viewManager
+    }
+
+    let ctx = new NativeRenderContext(this.instanceId, rootId, this.customRenderViewCreatorMap, this, this.customWrappedRenderViewBuilderForCApi)
+    let renderView = new HippyRenderView(ctx, '', {}, new HRSize(0, 0))
+    this.renderManager.initViewManager(renderView)
+
+    viewManager = this.renderManager.getViewManager(rootId)
+    return viewManager ? viewManager : null
+  }
+
   // for c-api
   createRenderViewForCApi(params: CreateRenderViewParamsForCApi): CreateRenderViewResultForCApi | null {
-    let viewManager = this.renderManager.getViewManager(params.rootTag)
+    let viewManager = this.checkAndGetViewManager(params.rootTag)
     if (!viewManager) {
       return null
     }

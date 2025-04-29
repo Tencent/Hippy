@@ -20,6 +20,7 @@
 
 export * from "./HippyBizViewBuilder"
 export * from "./HippyRootView"
+export * from "./HippyRenderViewBuilder"
 export * from "./HippyViewEvent"
 export * from "./NativeRender"
 export * from "./NativeRenderContext"

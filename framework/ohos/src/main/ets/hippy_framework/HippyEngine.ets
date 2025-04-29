@@ -57,8 +57,9 @@ export interface HippyEngine {
   getEngineId(): number
   getEngineInitParams(): EngineInitParams
 
-  // 对于使用了预加载preloadModule的情况：
-  // 如果createHippyEngine时EngineInitParams无法获取到uiContext，需要在loadModule前调用setUIContext补设。
+  // 使用场景：
+  // 场景一：对于使用了预加载preloadModule的情况，如果createHippyEngine时EngineInitParams无法获取到uiContext，需要在loadModule前调用setUIContext补设。
+  // 场景二：对于使用C接口接入Hippy容器的情况，如果createHippyEngine时没有，又不会loadModule，也需要在C层创建UI前补设。
   setUIContext(uiContext: UIContext | null): void;
 
   initEngine(listener: EngineListener): void
@@ -83,6 +84,9 @@ export interface HippyEngine {
   onEngineResume(): void;
 
   onEnginePause(): void;
+
+  // 使用场景：使用C接口接入Hippy容器时，需要在C层创建UI前设置。
+  setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void;
 }
 
 export function createHippyEngine(params: EngineInitParams): HippyEngine {

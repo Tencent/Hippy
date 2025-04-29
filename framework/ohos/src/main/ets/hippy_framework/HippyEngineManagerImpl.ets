@@ -53,7 +53,7 @@ import { HippyAny, HippyMap, HippyValue } from '../support/common/HippyTypes';
 import { DeviceEventModule } from './modules/native';
 import { HippyRemoteBundleLoader } from './bridge/bundleloader/HippyRemoteBundleLoader';
 import { EventDispatcher } from './modules/javascript/EventDispatcher';
-import { HippyRootView } from '../renderer_native';
+import { HippyRootView, WrappedHippyCustomRenderViewBuilder } from '../renderer_native';
 import { DevtoolsManager } from './devsupport/DevtoolsManager';
 import { DevSupportManager } from './devsupport/DevSupportManager';
 import { DevServerCallBack } from './devsupport/DevServerCallBack';
@@ -541,4 +541,9 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     });
     this.mEngineContext?.onInstancePause();
   }
+
+  setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void {
+    this.nativeRenderProvider?.getNativeRenderImpl().setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder)
+  }
+
 }
