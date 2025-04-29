@@ -37,6 +37,7 @@ public:
   void BindBizNativeView(ArkUI_NodeContentHandle contentHandle, uint32_t view_id);
   void UnbindBizNativeView(uint32_t view_id);
   void OnHippyRootViewReady();
+  void TestDestroy();
 
 private:
   
@@ -44,4 +45,6 @@ private:
   
   std::unordered_map<uint32_t, ArkUI_NodeContentHandle> nodeContentMap_;
   std::map<uint32_t, ArkUI_NodeHandle> viewHandleMap_;
+  
+  uint32_t rootId_ = 0;
 };

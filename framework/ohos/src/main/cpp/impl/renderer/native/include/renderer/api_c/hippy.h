@@ -34,6 +34,10 @@ typedef enum HippyLayoutEngineType {
   HippyLayoutEngineYoga         // 当编译SDK时配置Taitank和Yoga并存，该选项用来选择Yoga
 } HippyLayoutEngineType;
 
+// 注意 - 使用C接口时，如果用到自定义TS组件，需要在C层创建UI前，TS层调用下面2个方法：
+// hippyEngine.setUIContext(this.getUIContext())
+// hippyEngine.setCustomWrappedRenderViewBuilderForCInterface(wrapBuilder(buildCustomRenderView))
+
 HIPPY_EXTERN uint32_t HippyViewProvider_CreateRoot(uint32_t first_dom_manager_id, HippyLayoutEngineType layout_engine_type = HippyLayoutEngineDefault);
 HIPPY_EXTERN void HippyViewProvider_DestroyRoot(uint32_t render_manager_id, uint32_t root_id);
 HIPPY_EXTERN void HippyViewProvider_BindNativeRoot(void *parent_node_handle, uint32_t render_manager_id, uint32_t root_id);

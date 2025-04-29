@@ -43,9 +43,6 @@ export class HippyRenderView extends HippyRenderBaseView {
     this.pagerName = pageName
     this.pagerData = pageData
     this.renderViewSize = initViewSize
-
-    let renderManger = ctx.getNativeRender().getRenderManager()
-    renderManger.initViewManager(this)
   }
 
   onDestroy(): void {

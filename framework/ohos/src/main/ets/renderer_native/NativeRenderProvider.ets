@@ -351,4 +351,8 @@ export class NativeRenderProvider {
     this.renderImpl.onChildRemovedForCApi(params)
   }
 
+  // for c-interface
+  destroyRootForCInterface(rootId: number): void {
+    this.renderImpl.destroyRootForCInterface(rootId)
+  }
 }

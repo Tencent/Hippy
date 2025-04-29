@@ -64,6 +64,8 @@ export class HippyRootView {
 
   private initRenderView() {
     this.renderView = new HippyRenderView(this.ctx, this.pagerName, this.pagerData, this.renderViewSize)
+    let renderManger = this.ctx.getNativeRender().getRenderManager()
+    renderManger.initViewManager(this.renderView)
     this.performAllRenderViewTasks()
   }
 
