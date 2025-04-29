@@ -51,7 +51,7 @@ public:
 
   void RegisterCustomTsRenderViews(napi_env ts_env, napi_ref ts_render_provider_ref, std::set<std::string> &custom_views, std::map<std::string, std::string> &mapping_views);
 
-  void DestroyRoot(uint32_t root_id);
+  void DestroyRoot(uint32_t root_id, bool is_c_inteface);
 
   void DoCallbackForCallCustomTsView(uint32_t root_id, uint32_t node_id, uint32_t callback_id, const HippyValue &result);
 

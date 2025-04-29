@@ -1450,9 +1450,9 @@ void NativeRenderManager::UnbindNativeRootFromParent(uint32_t root_id, uint32_t 
   }
 }
 
-void NativeRenderManager::DestroyRoot(uint32_t root_id) {
+void NativeRenderManager::DestroyRoot(uint32_t root_id, bool is_c_inteface) {
   if (enable_ark_c_api_) {
-    c_render_provider_->DestroyRoot(root_id);
+    c_render_provider_->DestroyRoot(root_id, is_c_inteface);
   }
   font_collection_manager_->RemoveCache(root_id);
 }

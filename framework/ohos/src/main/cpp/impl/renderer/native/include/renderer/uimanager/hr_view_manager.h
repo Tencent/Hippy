@@ -113,6 +113,8 @@ public:
   void RemoveBizViewInRoot(uint32_t biz_view_id);
   std::shared_ptr<BaseView> GetViewFromRegistry(uint32_t node_id);
 
+  void CheckAndDestroyTsRootForCInterface();
+
 private:
   bool IsCustomTsRenderView(std::string &view_name);
   std::shared_ptr<BaseView> CreateCustomTsRenderView(uint32_t tag, std::string &view_name, bool is_parent_text);
@@ -127,7 +129,7 @@ private:
   void prepareReportFirstContentViewAdd(std::shared_ptr<HRMutation> &m);
 
   std::shared_ptr<BaseView> CreateCustomRenderView(uint32_t tag, std::string &view_name, bool is_parent_text);
-
+  
   std::shared_ptr<NativeRenderContext> ctx_;
   uint32_t root_id_;
   std::unordered_map<uint32_t, ArkUI_NodeContentHandle> nodeContentMap_;
@@ -153,6 +155,8 @@ private:
 
   bool isFirstViewAdd = false;
   FCPType isFirstContentViewAdd = FCPType::NONE;
+  
+  bool hasCustomTsView_ = false;
 };
 
 } // namespace native

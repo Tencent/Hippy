@@ -96,7 +96,7 @@ void HippyViewProvider_DestroyRoot(uint32_t render_manager_id, uint32_t root_id)
     return;
   }
 
-  render_manager->DestroyRoot(root_id);
+  render_manager->DestroyRoot(root_id, true);
 }
 
 void HippyViewProvider_BindNativeRoot(void *parent_node_handle, uint32_t render_manager_id, uint32_t root_id) {

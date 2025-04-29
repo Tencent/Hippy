@@ -159,6 +159,10 @@ export class NativeRenderImpl implements NativeRender {
     this.libHippy.NativeRenderProvider_DestroyRoot(this.instanceId, rootId)
   }
 
+  destroyRootForCInterface(rootId: number): void {
+    this.renderManager.destroyViewManager(rootId)
+  }
+
   isEnableArkCApi(): boolean {
     return this.enableArkCApi
   }

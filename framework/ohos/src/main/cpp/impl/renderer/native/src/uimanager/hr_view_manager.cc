@@ -594,6 +594,7 @@ std::shared_ptr<BaseView> HRViewManager::CreateCustomTsRenderView(uint32_t tag, 
   
   auto delegateObject = arkTs.GetObject(ts_render_provider_ref_);
   napi_value nodeResult = delegateObject.Call("createRenderViewForCApi", args);
+  hasCustomTsView_ = true;
   
   napi_valuetype type = arkTs.GetType(nodeResult);
   if (type != napi_object) {
@@ -780,6 +781,17 @@ std::shared_ptr<BaseView> HRViewManager::GetViewFromRegistry(uint32_t node_id) {
     return viewIt->second;
   }
   return nullptr;
+}
+
+void HRViewManager::CheckAndDestroyTsRootForCInterface() {
+  if (hasCustomTsView_) {
+    ArkTS arkTs(ts_env_);
+    std::vector<napi_value> args = {
+      arkTs.CreateUint32(root_id_)
+    };
+    auto delegateObject = arkTs.GetObject(ts_render_provider_ref_);
+    delegateObject.Call("destroyRootForCInterface", args);
+  }
 }
 
 } // namespace native
