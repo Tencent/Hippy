@@ -542,8 +542,8 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     this.mEngineContext?.onInstancePause();
   }
 
-  setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void {
-    this.nativeRenderProvider?.getNativeRenderImpl().setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder)
+  setCustomWrappedRenderViewBuilderForCInterface(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void {
+    this.nativeRenderProvider?.getNativeRenderImpl().setCustomWrappedRenderViewBuilderForCInterface(customWrappedRenderViewBuilder)
   }
 
 }

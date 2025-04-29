@@ -86,7 +86,7 @@ export interface HippyEngine {
   onEnginePause(): void;
 
   // 使用场景：使用C接口接入Hippy容器时，需要在C层创建UI前设置。
-  setCustomWrappedRenderViewBuilderForCApi(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void;
+  setCustomWrappedRenderViewBuilderForCInterface(customWrappedRenderViewBuilder: WrappedHippyCustomRenderViewBuilder | null): void;
 }
 
 export function createHippyEngine(params: EngineInitParams): HippyEngine {
