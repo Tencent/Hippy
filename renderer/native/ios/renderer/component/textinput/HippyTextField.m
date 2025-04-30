@@ -21,11 +21,11 @@
  */
 
 #import "HippyTextField.h"
-
 #import "HippyConvert.h"
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
+
 
 @implementation HippyUITextField
 
@@ -134,7 +134,6 @@
         [_textView addObserver:self forKeyPath:@"selectedTextRange" options:0 context:nil];
         [_textView addTarget:self action:@selector(textFieldDidChange) forControlEvents:UIControlEventEditingChanged];
         [_textView addTarget:self action:@selector(textFieldBeginEditing) forControlEvents:UIControlEventEditingDidBegin];
-        [_textView addTarget:self action:@selector(textFieldSubmitEditing) forControlEvents:UIControlEventEditingDidEndOnExit];
         [self addSubview:_textView];
     }
     return self;
@@ -217,22 +216,6 @@
     [self sendSelectionEvent];
 }
 
-- (void)textFieldSubmitEditing {
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    if (_onEndEditing) {
-        _onEndEditing(@{
-            @"text": textField.text,
-        });
-    }
-    if (_onKeyPress) {
-        _onKeyPress(@{
-            @"key": @"enter",
-        });
-    }
-    return YES;
-}
 
 #pragma mark - Notification Method
 
@@ -332,11 +315,6 @@
 }
 
 - (void)setText:(NSString *)text {
-    double version = UIDevice.currentDevice.systemVersion.doubleValue;
-    if (version >= 10.0 && version < 12.0) {
-        text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
-    }
-
     _textView.text = text;
     _text = text;
 }
@@ -386,6 +364,23 @@
     [_textView setText:@""];
 }
 
+
+#pragma mark - UITextFieldDelegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    if (_onEndEditing) {
+        _onEndEditing(@{
+            @"text": textField.text,
+        });
+    }
+    if (_onKeyPress) {
+        _onKeyPress(@{
+            @"key": @"enter",
+        });
+    }
+    return YES;
+}
+
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     if (_onKeyPress) {
         NSString *resultKey = string;
@@ -394,20 +389,21 @@
         } else if ([string isEqualToString:@""]) {
             resultKey = @"backspace";
         } else if ([string isEqualToString:@"\n"]) {
-            resultKey = @"enter";  //理论上这里没有enter，不过加一个总没错
+            resultKey = @"enter";
         }
         _onKeyPress(@{ @"key": resultKey });
     }
-    //https://stackoverflow.com/questions/55379602/ios-out-of-range-crash-when-using-shake-to-undo-a-paste-into-uitextview-with-ove?answertab=trending#tab-top
-    //Follows the above steps, [NSString stringByReplacingCharactersInRange:withString:] crashes
     NSString *text = textField.text;
     BOOL rangeSafeForText = (range.location != NSNotFound && range.location + range.length <= text.length);
     if (!rangeSafeForText) {
         return NO;
     }
-    NSString *toBeString = [text stringByReplacingCharactersInRange:range withString:string];
     if (textField.isSecureTextEntry) {
-        textField.text = toBeString;
+        // These codes alter the system's default behavior when entering passwords,
+        // allowing users to supplement their input;
+        // I feel it could be deleted, but due to its long history and unclear reason, I'll keep it for now.
+        textField.text = [text stringByReplacingCharactersInRange:range withString:string];
+        [textField sendActionsForControlEvents:UIControlEventEditingChanged];
         return NO;
     }
     return YES;
