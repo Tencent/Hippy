@@ -442,11 +442,6 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 }
 
 - (void)setText:(NSString *)text {
-    double version = UIDevice.currentDevice.systemVersion.doubleValue;
-    if (version >= 10.0 && version < 12.0) {
-        text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
-    }
-
     NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
     if (eventLag == 0 && ![text isEqualToString:_textView.text]) {
         UITextRange *selection = _textView.selectedTextRange;

@@ -983,10 +983,6 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 }
 
 - (void)setText:(NSString *)text {
-    double version = UIDevice.currentDevice.systemVersion.doubleValue;
-    if (version >= 10.0 && version < 12.0) {
-        text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
-    }
     if (_text != text && ![_text isEqualToString:text]) {
         _text = [text copy];
         _needDirtyText = YES;
