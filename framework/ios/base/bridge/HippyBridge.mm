@@ -419,7 +419,7 @@ static inline void registerLogDelegateToHippyCore() {
     // Get global enviroment info
     HippyExecuteOnMainThread(^{
         self->_isOSNightMode = [HippyDeviceBaseInfo isUIScreenInOSDarkMode];
-        self.cachedDimensionsInfo = hippyExportedDimensions(self);
+        self.cachedDimensionsInfo = hippyExportedDimensions(self, nil);
     }, YES);
     
     // Setup module manager and js executor.

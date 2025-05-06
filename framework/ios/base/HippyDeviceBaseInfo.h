@@ -25,7 +25,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSDictionary *hippyExportedDimensions(HippyBridge *);
+HIPPY_EXTERN NSDictionary *hippyExportedDimensions(HippyBridge * _Nonnull bridge,
+                                                   NSValue * _Nullable rootSizeValue);
 HIPPY_EXTERN NSString *const HippyDimensionsShouldUpdateNotification;
 
 /// A Helper class that collects `Dimensions` info

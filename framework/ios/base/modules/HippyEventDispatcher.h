@@ -40,6 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - params: event params
 - (void)dispatchNativeEvent:(NSString *)eventName withParams:(nullable NSDictionary *)params;
 
+/// Update Dimensions info by dispatching events
+/// - Parameter dimensions: dimensions dictionary
+- (void)dispatchDimensionsUpdateEvent:(NSDictionary *)dimensions;
+
 @end
 
 @interface HippyBridge (HippyEventDispatcher)
