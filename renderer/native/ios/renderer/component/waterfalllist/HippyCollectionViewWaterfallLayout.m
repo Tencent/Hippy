@@ -21,6 +21,7 @@
  */
 
 #import "HippyCollectionViewWaterfallLayout.h"
+#import "HippyRenderUtils.h"
 #import "tgmath.h"
 
 NSString *const HippyCollectionElementKindSectionHeader = @"HippyCollectionElementKindSectionHeader";
@@ -48,10 +49,6 @@ NSString *const HippyCollectionElementKindSectionFooter = @"HippyCollectionEleme
 /// How many items to be union into a single rectangle
 static const NSInteger unionSize = 20;
 
-static CGFloat HippyFloorCGFloat(CGFloat value) {
-    CGFloat scale = [UIScreen mainScreen].scale;
-    return floor(value * scale) / scale;
-}
 
 #pragma mark - Public Accessors
 - (void)setColumnCount:(NSInteger)columnCount {
@@ -140,7 +137,7 @@ static CGFloat HippyFloorCGFloat(CGFloat value) {
         columnSpacing = [self.delegate collectionView:self.collectionView layout:self minimumColumnSpacingForSectionAtIndex:section];
     }
 
-    return HippyFloorCGFloat((width - (columnCount - 1) * columnSpacing) / columnCount);
+    return HippyFloorPixelValue((width - (columnCount - 1) * columnSpacing) / columnCount);
 }
 
 #pragma mark - Private Accessors
@@ -371,7 +368,7 @@ static CGFloat HippyFloorCGFloat(CGFloat value) {
 
     CGFloat width = self.collectionView.bounds.size.width - sectionInset.left - sectionInset.right;
     NSInteger columnCount = [self columnCountForSection:section];
-    CGFloat itemWidth = HippyFloorCGFloat((width - (columnCount - 1) * columnSpacing) / columnCount);
+    CGFloat itemWidth = HippyFloorPixelValue((width - (columnCount - 1) * columnSpacing) / columnCount);
 
     NSInteger itemCount = [self.collectionView numberOfItemsInSection:section];
     NSMutableArray *itemAttributes = [NSMutableArray arrayWithCapacity:itemCount];
@@ -383,7 +380,7 @@ static CGFloat HippyFloorCGFloat(CGFloat value) {
         CGSize itemSize = [self.delegate collectionView:self.collectionView layout:self sizeForItemAtIndexPath:indexPath];
         CGFloat itemHeight = 0;
         if (itemSize.height > 0 && itemSize.width > 0) {
-            itemHeight = HippyFloorCGFloat(itemSize.height * itemWidth / itemSize.width);
+            itemHeight = HippyFloorPixelValue(itemSize.height * itemWidth / itemSize.width);
         }
 
         UICollectionViewLayoutAttributes *attributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
