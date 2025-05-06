@@ -38,6 +38,9 @@ static NSString *const kHippyEventNameKey = @"eventName";
 static NSString *const kHippyEventParamsKey = @"extra";
 static NSString *const kHippyEventIdKey = @"id";
 
+static NSString *const kHippyDimensionsEventName = @"Dimensions";
+static NSString *const kHippyDimensionsUpdateMethodName = @"set";
+
 
 @implementation HippyEventDispatcher
 
@@ -100,6 +103,10 @@ HIPPY_EXPORT_MODULE()
 
 - (dispatch_queue_t)methodQueue {
     return HippyJSThread;
+}
+
+- (void)dispatchDimensionsUpdateEvent:(NSDictionary *)dimensions {
+    [self dispatchEvent:kHippyDimensionsEventName methodName:kHippyDimensionsUpdateMethodName args:dimensions];
 }
 
 @end

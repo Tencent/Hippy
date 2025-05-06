@@ -52,6 +52,8 @@
 #import "HippyJSExecutor.h"
 #import "HippyShadowText.h"
 #import "HippyShadowTextView.h"
+#import "HippyDeviceBaseInfo.h"
+#import "HippyEventDispatcher.h"
 #import "dom/root_node.h"
 #import <objc/runtime.h>
 #import <os/lock.h>
@@ -372,6 +374,9 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     [self->_shadowViewRegistry addRootComponent:shadowView rootNode:rootNode forTag:hippyTag];
     
     
+    NSDictionary *dimensions = hippyExportedDimensions(self.bridge, @(frame.size));
+    [self.bridge.eventDispatcher dispatchDimensionsUpdateEvent:dimensions];
+    
     NSDictionary *userInfo = @{ HippyUIManagerRootViewKey: rootView, HippyUIManagerRootViewTagKey: hippyTag };
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification
                                                         object:self
@@ -428,7 +433,9 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
                 domManager->PostTask(hippy::Scene({func}));
                 
                 HippyBridge *bridge = self.bridge;
-                [bridge sendEvent:@(hippyOnSizeChangedKey) params:params];
+                NSDictionary *dimensions = hippyExportedDimensions(self.bridge, @(curFrame.size));
+                [bridge.eventDispatcher dispatchDimensionsUpdateEvent:dimensions];
+                [bridge.eventDispatcher dispatchNativeEvent:@(hippyOnSizeChangedKey) withParams:params];
             }
         }
     }
