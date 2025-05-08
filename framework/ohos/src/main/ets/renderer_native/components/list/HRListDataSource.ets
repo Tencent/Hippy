@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyObservedArray } from '../..';
+import { HippyObservedArray } from '../base/HippyRenderBaseView';
 import { LogUtils } from '../../../support/utils/LogUtils';
 import HippyRenderBaseView from '../base/HippyRenderBaseView';
 

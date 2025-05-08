@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import window from '@ohos.window';
-import { HippyEngine, HippyLayoutEngineType } from '../hippy_framework';
+import { HippyEngine, HippyLayoutEngineType } from '../hippy_framework/HippyEngine';
 import { HippyException } from '../support/common/HippyException';
 import { HippyRecord } from '../support/common/HippyTypes';
 import { LogUtils } from '../support/utils/LogUtils';

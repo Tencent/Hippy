@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyEngineContext } from '..';
+import { HippyEngineContext } from '../HippyEngineContext';
 import { NativeCallback } from '../connector/NativeCallback';
 
 export const URI_SCHEME_ASSETS = "asset:";

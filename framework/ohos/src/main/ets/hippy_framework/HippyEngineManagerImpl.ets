@@ -29,7 +29,7 @@ import {
   ModuleLoadParams,
   ModuleLoadStatus,
   V8InitParams
-} from '.';
+} from './HippyEngine';
 import { DomManager } from './connector/DomManager';
 import { FrameworkProxy } from '../renderer_native/FrameworkProxy';
 import { NativeRenderer } from './connector/NativeRenderer';
@@ -50,10 +50,11 @@ import { HippyEngineContext } from './HippyEngineContext'
 import { HippyEngineContextImpl } from './HippyEngineContextImpl';
 import { LogUtils } from '../support/utils/LogUtils';
 import { HippyAny, HippyMap, HippyValue } from '../support/common/HippyTypes';
-import { DeviceEventModule } from './modules/native';
+import { DeviceEventModule } from './modules/native/deviceevent/DeviceEventModule';
 import { HippyRemoteBundleLoader } from './bridge/bundleloader/HippyRemoteBundleLoader';
 import { EventDispatcher } from './modules/javascript/EventDispatcher';
-import { HippyRootView, WrappedHippyCustomRenderViewBuilder } from '../renderer_native';
+import { HippyRootView } from '../renderer_native/HippyRootView';
+import { WrappedHippyCustomRenderViewBuilder } from '../renderer_native/HippyRenderViewBuilder';
 import { DevtoolsManager } from './devsupport/DevtoolsManager';
 import { DevSupportManager } from './devsupport/DevSupportManager';
 import { DevServerCallBack } from './devsupport/DevServerCallBack';
@@ -63,8 +64,6 @@ import { PixelUtil } from "../support/utils/PixelUtil";
 import systemDateTime from '@ohos.systemDateTime';
 import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventListener";
 import { Dimensions } from "./modules/javascript/Dimensions";
-import { EnvironmentCallback } from "@kit.AbilityKit";
-import { BusinessError } from '@kit.BasicServicesKit';
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private static sEngineIdCounter = 0

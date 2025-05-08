@@ -21,7 +21,7 @@ import { HippyAPIProvider } from 'hippy'
 import {
   HippyJSModuleCreator,
   HippyNativeModuleCreator } from 'hippy/src/main/ets/hippy_framework/modules/HippyModuleManagerImpl'
-import { HippyNativeModuleBase } from 'hippy/src/main/ets/hippy_framework/modules/native'
+import { HippyNativeModuleBase } from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase'
 import HippyRenderBaseView
   from 'hippy/src/main/ets/renderer_native/components/base/HippyRenderBaseView'
 import {

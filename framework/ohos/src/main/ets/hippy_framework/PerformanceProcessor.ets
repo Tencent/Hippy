@@ -22,7 +22,7 @@ import { RequestFrom, ResourceDataHolder } from '../vfs/ResourceDataHolder'
 import { ProcessorCallback } from '../vfs/ProcessorCallback';
 import { UrlUtils } from '../support/utils/UrlUtils';
 import systemDateTime from '@ohos.systemDateTime';
-import { HippyEngineContext } from '.';
+import { HippyEngineContext } from './HippyEngineContext';
 
 export class PerformanceProcessor extends Processor {
   private engineContextRef: WeakRef<HippyEngineContext>

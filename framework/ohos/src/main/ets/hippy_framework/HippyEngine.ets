@@ -47,7 +47,7 @@ import { HippyEngineContext } from './HippyEngineContext'
 import { HippyFileAdapter } from './adapter/file/HippyFileAdapter';
 import { FileRequestAdapter } from './adapter/file/FileRequestAdapter';
 import { LogUtils } from '../support/utils/LogUtils';
-import { HippyRootView } from '../renderer_native';
+import { HippyRootView } from '../renderer_native/HippyRootView';
 import { WrappedHippyCustomRenderViewBuilder } from '../renderer_native/HippyRenderViewBuilder';
 import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
 import { HippyJsException } from './common/HippyJsException';

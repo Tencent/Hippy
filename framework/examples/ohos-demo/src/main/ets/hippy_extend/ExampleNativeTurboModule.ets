@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { HippyEngineContext } from 'hippy';
-import { HippyNativeModuleBase } from 'hippy/src/main/ets/hippy_framework/modules/native';
+import { HippyNativeModuleBase } from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
 import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
 import { HippyAny, HippyArray, HippyMap } from 'hippy/src/main/ets/support/common/HippyTypes';
 import { TurboConfig } from './turbo/TurboConfig';

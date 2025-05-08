@@ -19,21 +19,18 @@
  */
 import { HippyException } from '../../support/common/HippyException'
 import { HippyEngineContext } from '../HippyEngineContext'
-import {
-  HippyNativeModuleBase,
-  AudioPlayerModule,
-  ConsoleModule,
-  StorageModule,
-  DevMenuModule,
-  DeviceEventModule,
-  ExceptionModule,
-  ImageLoaderModule,
-  NetInfoModule,
-  NetworkModule,
-  WebSocketModule,
-  UtilsModule
-} from "./native"
-import util from '@ohos.util'
+import { HippyNativeModuleBase } from "./native/HippyNativeModuleBase"
+import { AudioPlayerModule } from "./native/audio/AudioPlayerModule"
+import { ConsoleModule } from "./native/console/ConsoleModule"
+import { StorageModule } from "./native/storage/StorageModule"
+import { DevMenuModule } from "./native/debug/DevMenuModule"
+import { DeviceEventModule } from "./native/deviceevent/DeviceEventModule"
+import { ExceptionModule } from "./native/exception/ExceptionModule"
+import { ImageLoaderModule } from "./native/image/ImageLoaderModule"
+import { NetInfoModule } from "./native/netinfo/NetInfoModule"
+import { NetworkModule } from "./native/network/NetworkModule"
+import { WebSocketModule } from "./native/network/WebSocketModule"
+import { UtilsModule } from "./native/utils/UtilsModule"
 import { HippyModuleManager } from './HippyModuleManager'
 import { HippyCallNativeParams } from '../bridge/HippyCallNativeParams'
 import { LogUtils } from '../../support/utils/LogUtils'

@@ -17,8 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NativeRenderContext } from "."
-import { HippyAny } from "../support"
+import { NativeRenderContext } from "./NativeRenderContext"
+import { HippyAny } from "../support/common/HippyTypes"
 import { HREventUtils } from "./utils/HREventUtils"
 
 export class HippyViewEvent {

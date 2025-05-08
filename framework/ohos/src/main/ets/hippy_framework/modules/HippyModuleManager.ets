@@ -19,7 +19,7 @@
  */
 import { HippyCallNativeParams } from '../bridge/HippyCallNativeParams';
 import { HippyAPIProvider } from '../bridge/HippyAPIProvider';
-import { HippyNativeModuleBase } from './native';
+import { HippyNativeModuleBase } from './native/HippyNativeModuleBase';
 import { HippyJavaScriptModuleBase } from './javascript/HippyJavaScriptModuleBase';
 import { HippyNativeModuleCreator } from './HippyModuleManagerImpl';
 

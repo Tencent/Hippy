@@ -31,7 +31,7 @@ import { DevtoolsManager } from './devsupport/DevtoolsManager';
 import { NativeRender } from '../renderer_native/NativeRender';
 import { HippyRootView } from '../renderer_native/HippyRootView';
 import { NativeRenderProvider } from '../renderer_native/NativeRenderProvider';
-import { HippyEngineLifecycleEventListener } from '.';
+import { HippyEngineLifecycleEventListener } from './HippyEngineLifecycleEventListener';
 
 export interface HippyEngineContext {
 
