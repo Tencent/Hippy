@@ -19,7 +19,7 @@
  */
 import { HippyEngineMonitorAdapter } from './HippyEngineMonitorAdapter';
 import { MonitorGroup, MonitorPoint } from '../../../support/utils/TimeMonitor';
-import { EngineInitStatus, ModuleLoadStatus } from '../..';
+import { EngineInitStatus, ModuleLoadStatus } from '../../HippyEngine';
 import { HippyCallNativeParams } from '../../bridge/HippyCallNativeParams';
 import { LogUtils } from '../../../support/utils/LogUtils';
 

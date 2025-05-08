@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EngineInitStatus, ModuleLoadStatus } from '../..'
+import { EngineInitStatus, ModuleLoadStatus } from '../../HippyEngine'
 import { MonitorGroup } from '../../../support/utils/TimeMonitor'
 import { HippyCallNativeParams } from '../../bridge/HippyCallNativeParams'
 

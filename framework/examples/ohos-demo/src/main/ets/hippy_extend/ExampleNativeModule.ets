@@ -22,7 +22,7 @@ import { HippyModulePromise } from 'hippy/src/main/ets/hippy_framework/modules/H
 import {
   EventDispatcher
 } from 'hippy/src/main/ets/hippy_framework/modules/javascript/EventDispatcher';
-import { HippyNativeModuleBase } from 'hippy/src/main/ets/hippy_framework/modules/native';
+import { HippyNativeModuleBase } from 'hippy/src/main/ets/hippy_framework/modules/native/HippyNativeModuleBase';
 import { HRPosition, HRRect } from 'hippy/src/main/ets/renderer_native/utils/HRTypes';
 import { HippyNativeModule } from 'hippy/src/main/ets/support/annotation/HippyNativeModule';
 import { HippyAny, HippyArray, HippyMap } from 'hippy/src/main/ets/support/common/HippyTypes';

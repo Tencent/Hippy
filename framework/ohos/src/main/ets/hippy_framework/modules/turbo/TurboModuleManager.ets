@@ -17,7 +17,7 @@ import { HippyLibrary } from '../../../hippy_library/HippyLibrary';
 import { LogUtils } from '../../../support/utils/LogUtils';
 import { HippyEngineContext } from '../../HippyEngineContext';
 import { HippyModuleManager } from '../HippyModuleManager';
-import { HippyNativeModuleBase } from '../native';
+import { HippyNativeModuleBase } from '../native/HippyNativeModuleBase';
 
 
 export class TurboModuleManager {

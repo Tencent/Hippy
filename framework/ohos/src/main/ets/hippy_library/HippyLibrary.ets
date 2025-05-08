@@ -29,7 +29,7 @@ import { FrameNode } from '@kit.ArkUI';
 import { TurboModuleManager } from '../hippy_framework/modules/turbo/TurboModuleManager';
 import { NodeContent } from '@ohos.arkui.node';
 import { HRPosition, HRRect } from '../renderer_native/utils/HRTypes';
-import { HippyLayoutEngineType } from "../hippy_framework";
+import { HippyLayoutEngineType } from "../hippy_framework/HippyEngine";
 
 export interface HippyRenderViewInfo {
   tag: number

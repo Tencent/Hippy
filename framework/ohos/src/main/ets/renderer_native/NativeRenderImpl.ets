@@ -67,13 +67,13 @@ import { HRPosition, HRRect, HRSize } from './utils/HRTypes'
 import { HRValueUtils } from './utils/HRValueUtils'
 import { BuilderNode, FrameNode, NodeContent } from '@kit.ArkUI'
 import HippyRenderBaseView from './components/base/HippyRenderBaseView'
-import { HippyRootView } from '.'
+import { HippyRootView } from './HippyRootView'
 import {
   WrappedHippyCustomRenderViewBuilder } from './HippyRenderViewBuilder'
 import { HippyRootViewManager } from './HippyRootViewManager'
 import { WrappedHippyBizViewBuilder } from './HippyBizViewBuilder'
 import { PixelUtil } from "../support/utils/PixelUtil"
-import { HippyLayoutEngineType } from "../hippy_framework"
+import { HippyLayoutEngineType } from "../hippy_framework/HippyEngine"
 import { HippyRenderView } from "./HippyRenderView"
 
 export class TextMeasurerConfig {

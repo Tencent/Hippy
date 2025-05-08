@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyLayoutEngineType } from '..';
+import { HippyLayoutEngineType } from '../HippyEngine';
 import { HippyLibrary } from '../../hippy_library/HippyLibrary';
 
 export class DomManager {

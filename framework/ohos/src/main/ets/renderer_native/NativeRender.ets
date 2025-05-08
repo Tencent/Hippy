@@ -17,8 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyRootView } from '.';
-import { HippyLayoutEngineType } from '../hippy_framework';
+import { HippyRootView } from './HippyRootView';
+import { HippyLayoutEngineType } from '../hippy_framework/HippyEngine';
 import { CallResultCallback,
   EventListenerCallback,
   HippyRenderViewInfo } from '../hippy_library/HippyLibrary';
