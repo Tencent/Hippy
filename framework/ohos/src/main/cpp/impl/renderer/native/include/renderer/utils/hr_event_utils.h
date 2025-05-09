@@ -127,19 +127,19 @@ public:
   // On scroll view momentum end.
   constexpr static const char * EVENT_SCROLLER_MOMENTUM_END = "momentumScrollEnd";
   
-  static bool CheckRegisteredEvent(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name);
+  static bool CheckRegisteredEvent(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name);
   
-  inline static void SendComponentEvent(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
+  inline static void SendComponentEvent(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
     const std::shared_ptr<HippyValue> &params) {
     HREventUtils::Send(ctx, node_id, event_name, params, false, false, HREventType::COMPONENT);
   }
 
-  inline static void SendGestureEvent(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
+  inline static void SendGestureEvent(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
     const std::shared_ptr<HippyValue> &params) {
     HREventUtils::Send(ctx, node_id, event_name, params, true, true, HREventType::GESTURE);
   }
   
-  inline static void SendCustomEvent(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
+  inline static void SendCustomEvent(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
     const std::shared_ptr<HippyValue> &params,
     bool use_capture, bool use_bubble) {
     HREventUtils::Send(ctx, node_id, event_name, params, use_capture, use_bubble, HREventType::CUSTOM);
@@ -148,7 +148,7 @@ public:
   static void SendRootEvent(uint32_t renderer_id, uint32_t root_id, const std::string &event_name, const std::shared_ptr<HippyValue> &params);
   
 private:
-  static void Send(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
+  static void Send(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
     const std::shared_ptr<HippyValue> &params,
     bool use_capture, bool use_bubble, HREventType event_type);
 

@@ -70,6 +70,7 @@ set(SOURCE_SET
   src/uimanager/hr_manager.cc
   src/uimanager/hr_view_manager.cc
   src/uimanager/hr_gesture_dispatcher.cc
+  src/uimanager/hr_keyboard_manager.cc
   src/utils/hr_event_utils.cc
   src/utils/hr_convert_utils.cc
   src/utils/hr_pixel_utils.cc

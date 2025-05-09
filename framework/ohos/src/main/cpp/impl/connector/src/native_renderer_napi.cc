@@ -25,6 +25,7 @@
 #include "oh_napi/oh_napi_register.h"
 #include "oh_napi/ark_ts.h"
 #include "renderer/native_render_manager.h"
+#include "renderer/uimanager/hr_keyboard_manager.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
 #include "dom/scene.h"
@@ -35,6 +36,7 @@ using DomEvent = hippy::dom::DomEvent;
 using DomManager = hippy::dom::DomManager;
 using HippyValue = footstone::value::HippyValue;
 using NativeRenderManager = hippy::NativeRenderManager;
+using HRKeyboardManager = hippy::HRKeyboardManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
 using Scene = hippy::dom::Scene;
@@ -192,11 +194,20 @@ static napi_value RegisterCustomFontWithPaths(napi_env env, napi_callback_info i
   return arkTs.GetUndefined();
 }
 
+static napi_value KeyboardHeightChange(napi_env env, napi_callback_info info) {
+  ArkTS arkTs(env);
+  auto args = arkTs.GetCallbackArgs(info);
+  auto keyboardHeight = (float)arkTs.GetDouble(args[0]);
+  HRKeyboardManager::GetInstance().NotifyKeyboardHeightChanged(keyboardHeight);
+  return arkTs.GetUndefined();
+}
+
 REGISTER_OH_NAPI("NativeRenderer", "NativeRenderer_CreateNativeRenderManager", CreateNativeRenderManager)
 REGISTER_OH_NAPI("NativeRenderer", "NativeRenderer_DestroyNativeRenderManager", DestroyNativeRenderManager)
 REGISTER_OH_NAPI("NativeRenderer", "NativeRenderer_SetBundlePath", SetBundlePath)
 REGISTER_OH_NAPI("NativeRenderer", "NativeRenderer_InitRendererParams", InitRendererParams)
 REGISTER_OH_NAPI("NativeRenderer", "NativeRenderer_RegisterFontPaths", RegisterCustomFontWithPaths)
+REGISTER_OH_NAPI("NativeRenderer", "NativeRenderer_KeyboardHeightChange", KeyboardHeightChange)
 
 }
 }

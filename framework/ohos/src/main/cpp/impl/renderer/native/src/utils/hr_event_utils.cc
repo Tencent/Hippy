@@ -27,7 +27,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-bool HREventUtils::CheckRegisteredEvent(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name) {
+bool HREventUtils::CheckRegisteredEvent(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name) {
   auto instance_id = ctx->GetInstanceId();
   auto root_id = ctx->GetRootId();
   auto provider = NativeRenderProviderManager::GetRenderProvider(instance_id);
@@ -47,7 +47,7 @@ void HREventUtils::SendRootEvent(uint32_t renderer_id, uint32_t root_id, const s
   }
 }
 
-void HREventUtils::Send(std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
+void HREventUtils::Send(const std::shared_ptr<NativeRenderContext> &ctx, uint32_t node_id, const std::string &event_name,
           const std::shared_ptr<HippyValue> &params, bool use_capture, bool use_bubble, HREventType event_type) {
   auto instance_id = ctx->GetInstanceId();
   auto root_id = ctx->GetRootId();

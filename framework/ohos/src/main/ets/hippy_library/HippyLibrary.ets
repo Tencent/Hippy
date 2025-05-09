@@ -100,6 +100,7 @@ export interface HippyLibrary {
   NativeRenderer_SetBundlePath(instanceId: number, bundlePath: string): void;
   NativeRenderer_InitRendererParams(statusBarHeight: number): void;
   NativeRenderer_RegisterFontPaths(instanceId: number, fontFamilyAndPaths: Array<string>): void;
+  NativeRenderer_KeyboardHeightChange(height: number): void;
 
   NativeRenderProvider_UpdateRootSize(instanceId: number, rootId: number, width: number, height: number): void;
   NativeRenderProvider_UpdateNodeSize(instanceId: number, rootId: number, nodeId: number, width: number, height: number, isSync: boolean): void;
