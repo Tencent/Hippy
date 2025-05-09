@@ -64,6 +64,8 @@ import { PixelUtil } from "../support/utils/PixelUtil";
 import systemDateTime from '@ohos.systemDateTime';
 import { HippyEngineLifecycleEventListener } from "./HippyEngineLifecycleEventListener";
 import { Dimensions } from "./modules/javascript/Dimensions";
+import { window } from "@kit.ArkUI";
+import { HippyWindowInfo } from "./HippyWindowInfo";
 
 export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevServerCallBack {
   private static sEngineIdCounter = 0
@@ -102,6 +104,8 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
 
   private mEnvCallbackId: number = -1
 
+  private mWindowInfo: HippyWindowInfo | null = null;
+
   constructor(params: EngineInitParams) {
     HippyEngineManagerImpl.sEngineIdCounter += 1;
     this.mEngineId = HippyEngineManagerImpl.sEngineIdCounter;
@@ -134,6 +138,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     this.mCoreBundleLoader = coreBundleLoader;
 
     this.checkFontWeightScale();
+    this.checkWindowInfo();
   }
 
   setUIContext(uiContext: UIContext | null): void {
@@ -175,6 +180,18 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       LogUtils.e('hippy', `failed to register applicationContext. Code is ${code}, message is ${message}`);
     }
     //*/
+  }
+
+  checkWindowInfo(): void {
+    window.getLastWindow(getContext(this)).then((data) => {
+      try {
+        if (!this.mWindowInfo) {
+          this.mWindowInfo = new HippyWindowInfo(data, this.libHippy);
+        }
+      } catch (e) {
+        LogUtils.e('hippy', `getLastWindow error:${e}`)
+      }
+    });
   }
 
   onInitDevError(e: HippyJsException): void {
@@ -389,6 +406,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     if (this.mEngineContext != null) {
       this.mEngineContext.destroyBridge(false);
     }
+    this.mWindowInfo?.onDestroy();
     /*
     let applicationContext = this.params.context.getApplicationContext();
     applicationContext.off('environment', this.mEnvCallbackId);

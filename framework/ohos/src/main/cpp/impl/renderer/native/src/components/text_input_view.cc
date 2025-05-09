@@ -21,6 +21,7 @@
  */
 
 #include "renderer/components/text_input_view.h"
+#include "renderer/uimanager/hr_keyboard_manager.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include "renderer/utils/hr_value_utils.h"
@@ -35,7 +36,9 @@ inline namespace native {
 
 TextInputView::TextInputView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx) {}
 
-TextInputView::~TextInputView() {}
+TextInputView::~TextInputView() {
+  RemoveKeyboardListener();
+}
 
 StackNode *TextInputView::GetLocalRootArkUINode() { return stackNode_.get(); }
 
@@ -209,9 +212,11 @@ bool TextInputView::SetPropImpl(const std::string &propKey, const HippyValue &pr
     return true;
   } else if (propKey == "keyboardwillshow") {
     isListenKeyboardWillShow_ = HRValueUtils::GetBool(propValue, false);
+    CheckAndAddKeyboardListener();
     return true;
   } else if (propKey == "keyboardwillhide") {
     isListenKeyboardWillHide_ = HRValueUtils::GetBool(propValue, false);
+    CheckAndAddKeyboardListener();
     return true;
   } else if (propKey == "contentSizeChange") {
     isListenContentSizeChange_ = HRValueUtils::GetBool(propValue, false);
@@ -595,6 +600,29 @@ void TextInputView::ClearProps() {
   returnKeyType_.reset();
   textAlign_.reset();
   textAlignVertical_.reset();
+}
+
+void TextInputView::CheckAndAddKeyboardListener() {
+  if (keyboardListenerKey_.length() == 0) {
+    keyboardListenerKey_ = std::to_string(ctx_->GetRootId()) + "_" + std::to_string(tag_);
+    HRKeyboardManager::GetInstance().AddKeyboardListener(keyboardListenerKey_, [ctx = ctx_, tag = tag_](float height) {
+      if (height > 0) {
+        HippyValueObjectType params;
+        params["keyboardHeight"] = HippyValue(HRPixelUtils::VpToDp(height));
+        const std::shared_ptr<HippyValue> obj = std::make_shared<HippyValue>(params);
+        HREventUtils::SendComponentEvent(ctx, tag, "keyboardWillShow", obj);
+      } else {
+        HREventUtils::SendComponentEvent(ctx, tag, "keyboardWillHide", nullptr);
+      }
+    });
+  }
+}
+
+void TextInputView::RemoveKeyboardListener() {
+  if (keyboardListenerKey_.length() > 0) {
+    HRKeyboardManager::GetInstance().RemoveKeyboardListener(keyboardListenerKey_);
+    keyboardListenerKey_.clear();
+  }
 }
 
 } // namespace native
