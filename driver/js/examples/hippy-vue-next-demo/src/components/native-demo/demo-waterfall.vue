@@ -23,14 +23,7 @@
           {{ headerRefreshText }}
         </p>
       </pull-header>
-      <div
-        v-if="!isAndroid && !isiOS"
-        class="banner-view"
-      >
-        <span>BannerView</span>
-      </div>
       <waterfall-item
-        v-else
         :full-span="true"
         :isHeader="true"
         class="banner-view"
