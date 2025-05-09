@@ -319,9 +319,9 @@ export default {
 
 瀑布流组件 Cell 容器，瀑布流子元素
 
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
-| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS、Voltron`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |
-| isHeader | 指定该Item是否为Header（即bannerView，显示在内容区顶部） | `boolean` | `iOS`（3.3.2版本起支持） |
-| isFooter | 指定该Item是否为Footer（显示在内容区底部） | `boolean` | `iOS`（3.3.2版本起支持） |
+| 参数                  | 描述                                                         | 类型                                                        | 支持平台                   |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |------------------------|
+| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS、Voltron`  |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官网](//vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`  |
+| isHeader | 指定该Item是否为Header（即bannerView，显示在内容区顶部） | `boolean` | `iOS`（3.3.2版本起支持）、Ohos |
+| isFooter | 指定该Item是否为Footer（显示在内容区底部） | `boolean` | `iOS`（3.3.2版本起支持）、Ohos |
