@@ -25,6 +25,19 @@ Demo的Native工程代码位于framework/examples目录，前端工程代码位�
 brew install git git-lfs node@16 cmake
 ```
 
+### Windows开发环境
+
+可以Windows上开发Android和Ohos应用，请安装以下依赖。
+
+1. Git for Windows
+
+    通过(https://gitforwindows.org)下载安装Git for Windows
+
+2. Node和NPM
+
+    通过指引安装[nodejs和npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)，建议使用Node v16，NPM v7版本
+
+
 #### 编译iOS Demo环境准备
 
 1. Xcode
@@ -42,36 +55,13 @@ brew install git git-lfs node@16 cmake
 
     通过android开发者平台下载安装[Android Studio](https://developer.android.com/studio)
     
-2. Android NDK
-
-    通过android开发者平台下载安装[NDK](https://developer.android.com/ndk?hl=en)
+2. Android Studio环境配置参考[3.0集成指引章节](development/android-3.0-integration-guidelines)
 
 #### 编译Ohos Demo环境准备
 
 1. DevEco Studio
    通过Ohos开发者平台下载安装[DevEco Studio](https://developer.huawei.com/consumer/cn/download/)
 
-### Windows开发环境
-
-可以Windows上开发Android应用，请安装以下依赖。
-
-1. Android Studio
-
-    通过android开发者平台下载安装[Android Studio](https://developer.android.com/studio)
-    
-2. Android NDK
-
-    通过android开发者平台下载安装[NDK](https://developer.android.com/ndk?hl=en)
-
-3. Git for Windows
-
-    通过(https://gitforwindows.org)下载安装Git for Windows
-
-4. Node和NPM
-
-    通过指引安装[nodejs和npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)，建议使用Node v16，NPM v7版本
-
-也可以Windows上开发Ohos应用，请安装DevEco Studio、Git、Node和NPM。
 
 ## 代码拉取
 
@@ -240,4 +230,3 @@ cp -R driver/js/examples/hippy-react-demo/dist/android/*  framework/examples/and
 
 <img src="../assets/img/3.0-demo-helloworld.png" alt= "Demo效果" width="200" height="433" />
 
-恭喜你完成了Hippy的初步体验，下一步参考[Native工程集成章节](development/native-integration)将Hippy接入到你现有的工程吧。

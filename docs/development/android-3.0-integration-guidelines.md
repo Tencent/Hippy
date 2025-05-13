@@ -6,11 +6,22 @@
 
 ---
 
-## 前期准备
+## Android Studio环境配置
 
-- 已经安装了 JDK version>=1.7 并配置了环境变量
-- 已经安装 Android Studio 最新版本
-- 运行 Demo 工程前需要完成 NDK，CMAKE，gradle 与相关插件的安装
+1. NDK、 CMake、 Gradle及AGP版本已经在工程配置文件中指定，其中NDK会在第一次Sync project的时候自动安装，CMake需要开发者在Settings > Android SDK中手动下载并设置
+
+   - NDK_VERSION = 25.0.8775105
+   - CMAKE_VERSION = 3.22.1
+   - GRADLE_VERSION = 7.4
+   - AGP_VERSION = 7.2.2
+
+   !> 由于暂未对8.x AGP及Gradle版本作适配，请忽略Android Studio中弹出的AGP升级提示。
+
+2. Settings > Build, Execution, Deployment > Build Tools > Gradle中下载并设置Version 17的JDK版本
+
+   <img src="../assets/img/android-studio-jdk.png" alt= "JDK" width="40%" />
+
+3. 执行Sync project完成gradle构建
 
 ## Demo 体验
 

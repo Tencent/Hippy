@@ -68,7 +68,7 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 
 > If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install` to install demo dependencies first.
 >
-> More details for [iOS SDK integration](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90).
+> More details for [iOS SDK integration](https://doc.openhippy.com/#/development/ios-3.0-integration-guidelines).
 
 ### Build the Android app with js demo
 
@@ -97,7 +97,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 >
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 >
-> More details for [Android SDK integration](https://hippyjs.org/#/android/integration?id=android-%e9%9b%86%e6%88%90).
+> More details for [Android SDK integration](https://doc.openhippy.com/#/development/android-3.0-integration-guidelines).
 
 ### Debug the js demo
 
@@ -110,7 +110,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 >
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue, @hippy/vue-next are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` again.
 >
-> More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
+> More details for debugging can be read in [Hippy Debug Document](https://doc.openhippy.com/#/development/debug).
 
 ### Build the js production demo
 
@@ -123,7 +123,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 ## 📁 Documentation
 
-To check out [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) and visit [hippyjs.org](https://hippyjs.org).
+To check out [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) and visit [openhippy.com](https://openhippy.com/).
 
 ## 📅 Changelog
 
