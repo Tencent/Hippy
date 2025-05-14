@@ -561,7 +561,9 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
             @try {
                 [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
             } @catch (NSException *exception) {
-                HippyLogError(@"Exception while setting props for view (%@ of %@), %@", view.class, view.hippyTag, props);
+                HippyAssert(NO, @"%@", exception.description);
+                HippyLogError(@"Exception (%@) while setting props for view (%@ of %@), %@",
+                              exception.description, view.class, view.hippyTag, props);
             }
             
         }
