@@ -397,9 +397,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 #pragma mark - Advanced Usages
 
-
 /// Whether is using Hermes as JS Engine
 @property (nonatomic, assign, readonly) BOOL usingHermesEngine;
+
 /// Interceptor for methods
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 
