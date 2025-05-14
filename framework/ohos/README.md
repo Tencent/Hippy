@@ -52,6 +52,14 @@ Install latest DevEco Studio.
   })
   ```
 
+#### 3. Release code
+
+ ```TypeScript
+  hippyEngine?.destroyModule(rootId, () => {
+    hippyEngine?.destroyEngine();
+  });
+  ```
+
   > More details for [ohos SDK integration](https://github.com/Tencent/Hippy/blob/main/docs/development/native-integration.md).
 
 ## 📁 Documentation
