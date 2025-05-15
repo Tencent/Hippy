@@ -105,9 +105,11 @@ void HippyDomTreeAdapter::GetDomainData(int32_t node_id,
     }
     auto dom_manager = hippy_dom->dom_manager.lock();
     auto node = dom_manager->GetNode(root_node, is_root ? root_node->GetId() : static_cast<uint32_t>(node_id));
-    assert(node != nullptr);
-    hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(root_node, node, depth, dom_manager);
-    callback(metas);
+    // assert(node != nullptr);
+    if (node) {
+      hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(root_node, node, depth, dom_manager);
+      callback(metas);
+    }
   };
   DevToolsUtil::PostDomTask(hippy_dom_->dom_manager, func);
 }
