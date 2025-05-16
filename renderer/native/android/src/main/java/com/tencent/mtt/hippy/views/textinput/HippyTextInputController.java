@@ -151,7 +151,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     /**
      * 设置输入光标颜色
      **/
-    @HippyControllerProps(name = "caret-color", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    @HippyControllerProps(name = NodeProps.CARET_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
     public void setCaretColor(HippyTextInput hippyTextInput, int cursorColor) {
         hippyTextInput.setCursorColor(cursorColor);
     }
