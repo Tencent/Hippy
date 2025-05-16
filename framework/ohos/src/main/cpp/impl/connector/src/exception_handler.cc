@@ -38,7 +38,13 @@ using StringViewUtils = footstone::stringview::StringViewUtils;
 
 static napi_env s_env = 0;
 
-void ExceptionHandler::Init(napi_env env) { s_env = env; }
+void ExceptionHandler::Init(napi_env env) {
+  // 此处记录的是主线程的env，只需要首次记录，避免被后续worker线程的env覆盖。
+  if (s_env) {
+    return;
+  }
+  s_env = env;
+}
 
 void ExceptionHandler::ReportJsException(const std::any& bridge,
                                          const string_view& description,

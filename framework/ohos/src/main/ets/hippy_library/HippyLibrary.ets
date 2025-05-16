@@ -134,4 +134,18 @@ export interface HippyLibrary {
   Setting_SetDensityScale(densityScale: number): void;
   Setting_SetFontSizeScale(fontSizeScale: number): void;
   Setting_SetFontWeightScale(fontWeightScale: number): void;
+
+  // main线程使用
+  WorkerManager_InitWModuleManager(notifyMainThreadFunction: (
+    workerName: string) => void): void;
+
+  // worker线程使用
+  Worker_RegisterWModules(workerName: string, callNativesFunction: (
+    moduleName: string,
+    moduleFunc: string,
+    callId: string,
+    buffer: ArrayBuffer) => void, moduleNames: HippyArray): void;
+  Worker_UnregisterWModules(moduleNames: HippyArray): void;
+  Worker_CallJsFunction(instanceId: number, action: string, buffer: ArrayBuffer): void;
+
 }

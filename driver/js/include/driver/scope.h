@@ -157,6 +157,14 @@ class Scope : public std::enable_shared_from_this<Scope> {
   Scope(std::weak_ptr<Engine> engine,
         std::string name);
   ~Scope();
+  
+  inline void SetScopeId(uint32_t scope_id) {
+    scope_id_ = scope_id;
+  }
+  
+  inline uint32_t GetScopeId() {
+    return scope_id_;
+  }
 
   inline void setValid(bool valid) {
     is_valid_.store(valid, std::memory_order_relaxed);
@@ -505,6 +513,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   void SetCallbackForUriLoader();
 
  private:
+  uint32_t scope_id_ = 0;
   std::atomic<bool> is_valid_;
   std::weak_ptr<Engine> engine_;
   std::shared_ptr<Ctx> context_;

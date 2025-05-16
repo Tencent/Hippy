@@ -3,7 +3,8 @@
   "buildOption": {
     "sourceOption": {
       "workers": [
-        "./src/main/ets/support/workers/worker.ets"
+        "./src/main/ets/support/workers/worker.ets",
+        "./src/main/ets/hippy_framework/worker_modules/worker/HippyBaseModuleWorker.ets"
       ]
     }
   },
