@@ -128,8 +128,12 @@ export class HippyRootView {
 export class HippyRootViewWrapper {
   private rootView: HippyRootView | null = null
   private rootViewDidCreateCallback: ((rootView: HippyRootView) => void) | null = null
+  private rootViewWillDestroyCallback: ((rootView: HippyRootView) => void) | null = null
 
   setRootView(rootView: HippyRootView): void {
+    if (this.rootView) {
+      return;
+    }
     this.rootView = rootView
     if (this.rootViewDidCreateCallback) {
       this.rootViewDidCreateCallback(this.rootView)
@@ -140,12 +144,23 @@ export class HippyRootViewWrapper {
     return this.rootView
   }
 
+  resetRootView(): void {
+    if (this.rootView && this.rootViewWillDestroyCallback) {
+      this.rootViewWillDestroyCallback(this.rootView)
+    }
+    this.rootView = null
+  }
+
   setRootViewDidCreateCallback(callback: (rootView: HippyRootView) => void) {
     if (this.rootView) {
       callback(this.rootView)
     } else {
       this.rootViewDidCreateCallback = callback
     }
+  }
+
+  setRootViewWillDestroyCallback(callback: (rootView: HippyRootView) => void) {
+    this.rootViewWillDestroyCallback = callback
   }
 }
 
