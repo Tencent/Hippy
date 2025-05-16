@@ -16,18 +16,15 @@
 
 package com.tencent.mtt.hippy.views.textinput;
 
-import static com.tencent.mtt.hippy.views.textinput.HippyTextInputController.UNSET;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.BlendMode;
-import android.graphics.BlendModeColorFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -682,11 +679,10 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Drawable cursorDrawable = getTextCursorDrawable();
-            if (cursorDrawable != null) {
-                cursorDrawable.setColorFilter(new BlendModeColorFilter(color, BlendMode.SRC_IN));
-                setTextCursorDrawable(cursorDrawable);
-            }
+            ShapeDrawable cursorDrawable = new ShapeDrawable();
+            cursorDrawable.getPaint().setColor(color);
+            cursorDrawable.setIntrinsicWidth(Math.round(PixelUtil.dp2px(1.5f)));
+            setTextCursorDrawable(cursorDrawable);
         } else {
             try {
                 Field field = TextView.class.getDeclaredField("mCursorDrawableRes");

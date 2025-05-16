@@ -65,7 +65,8 @@ public class ControllerUpdateManger<T> {
             NodeProps.VISIBILITY,
             NodeProps.TRANSFORM,
             NodeProps.OPACITY,
-            NodeProps.OVERFLOW
+            NodeProps.OVERFLOW,
+            NodeProps.CARET_COLOR,
     };
     @Nullable
     private final WeakReference<Renderer> mRendererWeakRef;

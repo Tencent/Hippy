@@ -171,4 +171,5 @@ public class NodeProps {
     public static final String COLUMN_SPACING = "columnSpacing";
     public static final String ITEM_SPACING = "interItemSpacing";
     public static final String FULL_SPAN = "fullSpan";
+    public static final String CARET_COLOR = "caret-color";
 }
