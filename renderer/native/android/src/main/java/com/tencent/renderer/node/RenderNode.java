@@ -739,7 +739,11 @@ public class RenderNode {
 
     public void requireUpdateDrawingOrder(@NonNull RenderNode child) {
         setNodeFlag(FLAG_UPDATE_DRAWING_ORDER);
-        addChildToPendingList(child);
+        if (!mControllerManager.checkFlatten(child.mClassName)
+                || !mClassName.equals(HippyViewGroupController.CLASS_NAME)
+                || child.getChildCount() > 0 || child.checkGestureEnable()) {
+            addChildToPendingList(child);
+        }
     }
 
     public void onZIndexChanged() {
