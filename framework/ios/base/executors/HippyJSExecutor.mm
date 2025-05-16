@@ -278,20 +278,18 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                                        scope:(const std::shared_ptr<hippy::Scope> &)scope {
     __weak __typeof(self)weakSelf = self;
     auto requireModuleConfigFunWrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
-        @autoreleasepool {
-            HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
-            HippyBridge *bridge = strongSelf.bridge;
-            if (!strongSelf.valid || !bridge || !strongSelf.pScope) {
-                return;
-            }
-            
-            const auto &context = strongSelf.pScope->GetContext();
-            if (context->IsString(info[0])) {
-                NSString *moduleName = ObjectFromCtxValue(context, info[0]);
-                if (moduleName) {
-                    NSArray *result = [bridge configForModuleName:moduleName];
-                    info.GetReturnValue()->Set([HippyNullIfNil(result) convertToCtxValue:context]);
-                }
+        HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+        HippyBridge *bridge = strongSelf.bridge;
+        if (!strongSelf.valid || !bridge || !strongSelf.pScope) {
+            return;
+        }
+        
+        const auto &context = strongSelf.pScope->GetContext();
+        if (context->IsString(info[0])) {
+            NSString *moduleName = ObjectFromCtxValue(context, info[0]);
+            if (moduleName) {
+                NSArray *result = [bridge configForModuleName:moduleName];
+                info.GetReturnValue()->Set([HippyNullIfNil(result) convertToCtxValue:context]);
             }
         }
     }, (__bridge void*)weakSelf);
@@ -305,18 +303,16 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                                       scope:(const std::shared_ptr<hippy::Scope> &)scope {
     __weak __typeof(self)weakSelf = self;
     auto nativeFlushQueueFunWrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
-        @autoreleasepool {
-            HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
-            HippyBridge *bridge = strongSelf.bridge;
-            if (!strongSelf.valid || !bridge || !strongSelf.pScope) {
-                return;
-            }
-            
-            const auto &context = strongSelf.pScope->GetContext();
-            if (context->IsArray(info[0])) {
-                NSArray *calls = ObjectFromCtxValue(context, info[0]);
-                [bridge handleBuffer:calls batchEnded:NO];
-            }
+        HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+        HippyBridge *bridge = strongSelf.bridge;
+        if (!strongSelf.valid || !bridge || !strongSelf.pScope) {
+            return;
+        }
+        
+        const auto &context = strongSelf.pScope->GetContext();
+        if (context->IsArray(info[0])) {
+            NSArray *calls = ObjectFromCtxValue(context, info[0]);
+            [bridge handleBuffer:calls batchEnded:NO];
         }
     }, (__bridge void*)weakSelf);
     auto nativeFlushQueueFunction = context->CreateFunction(nativeFlushQueueFunWrapper);
@@ -329,17 +325,15 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
                                  scope:(const std::shared_ptr<hippy::Scope> &)scope {
     __weak __typeof(self)weakSelf = self;
     auto turbo_wrapper = std::make_unique<hippy::FunctionWrapper>([](hippy::CallbackInfo& info, void* data) {
-        @autoreleasepool {
-            HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
-            if (!strongSelf || !strongSelf.pScope) {
-                return;
-            }
-            const auto &context = strongSelf.pScope->GetContext();
-            if (context->IsString(info[0])) {
-                NSString *name = ObjectFromCtxValue(context, info[0]);
-                auto value = [strongSelf JSTurboObjectWithName:name];
-                info.GetReturnValue()->Set(value);
-            }
+        HippyJSExecutor *strongSelf = (__bridge HippyJSExecutor*)data;
+        if (!strongSelf || !strongSelf.pScope) {
+            return;
+        }
+        const auto &context = strongSelf.pScope->GetContext();
+        if (context->IsString(info[0])) {
+            NSString *name = ObjectFromCtxValue(context, info[0]);
+            auto value = [strongSelf JSTurboObjectWithName:name];
+            info.GetReturnValue()->Set(value);
         }
     }, (__bridge void*)weakSelf);
     auto turbo_function = context->CreateFunction(turbo_wrapper);
