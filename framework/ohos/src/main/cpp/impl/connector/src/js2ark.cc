@@ -24,6 +24,7 @@
 #include <memory>
 #include <js_native_api.h>
 #include <js_native_api_types.h>
+#include "connector/worker_module_manager.h"
 #include "oh_napi/ark_ts.h"
 #include "oh_napi/data_holder.h"
 #include "oh_napi/oh_napi_object.h"
@@ -48,6 +49,10 @@ using byte_string = std::string;
 static napi_env s_env = 0;
 
 void InitBridge(napi_env env) {
+  // 此处记录的是主线程的env，只需要首次记录，避免被后续worker线程的env覆盖。
+  if (s_env) {
+    return;
+  }
   s_env = env;
 }
 
@@ -73,7 +78,27 @@ void CallHost(CallbackInfo& info) {
     }
     memcpy(new_buffer, buffer.data(), buffer.size());
     auto buffer_pair = std::make_pair(reinterpret_cast<uint8_t*>(new_buffer), buffer.size());
-
+    
+    // 检查是否Worker线程的模块调用
+    if (WorkerModuleManager::GetInstance()->GetWModuleTotalNumber() > 0) {
+      std::string u8_module = (char*)StringViewUtils::ConvertEncoding(module, string_view::Encoding::Utf8).utf8_value().c_str();
+      WorkerModuleOwner *module_owner = WorkerModuleManager::GetInstance()->GetWModule(u8_module);
+      if (module_owner) {
+        WorkerFnContextData *context = CreateWorkerFnContext();
+        context->scope_id_ = scope->GetScopeId();
+        context->module_str_ = module_str;
+        context->func_str_ = func_str;
+        context->cb_id_str_ = cb_id_str;
+        context->buffer_pair_ =  buffer_pair;
+        auto status = napi_call_threadsafe_function(module_owner->ts_func_, context, napi_tsfn_nonblocking);
+        if (status != napi_ok) {
+          FOOTSTONE_LOG(ERROR) << "ArkTS: Failed to call thread safe func, status: " << status
+            << ", module: " << module_str.c_str() << ", func: " << func_str.c_str();
+        }
+        return;
+      }
+    }
+    
     OhNapiTaskRunner *taskRunner = OhNapiTaskRunner::Instance(env);
     taskRunner->RunAsyncTask([env, object_ref, module_str, func_str, cb_id_str, buffer_pair]() {
       ArkTS arkTs(env);

@@ -316,7 +316,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       return;
     }
 
-    this.notifyEngineInitialized(EngineInitStatus.STATUS_OK, "")
+    this.notifyEngineInitialized(EngineInitStatus.STATUS_OK, "");
   }
 
   public sendEvent(event: string, params: HippyAny): void {

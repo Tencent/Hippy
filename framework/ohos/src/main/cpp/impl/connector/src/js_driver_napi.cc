@@ -184,6 +184,7 @@ static napi_value CreateJsDriver(napi_env env, napi_callback_info info) {
   auto scope_initialized_callback = [perf_start_time,
       scope_id, env, callback_ref, bridge, &holder = hippy::global_data_holder](std::shared_ptr<Scope> scope) {
     scope->SetBridge(bridge);
+    scope->SetScopeId(scope_id);
     holder.Insert(scope_id, scope);
 
     // perfromance end time

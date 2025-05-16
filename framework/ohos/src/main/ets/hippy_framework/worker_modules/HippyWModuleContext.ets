@@ -17,28 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HRRenderViewCreator } from '../../renderer_native/components/HippyRenderRegisterMap';
-import { HippyJSModuleCreator, HippyNativeModuleCreator } from '../modules/HippyModuleManagerImpl';
+import { HippyLibrary } from "../../hippy_library/HippyLibrary";
 
-export class HippyAPIProvider {
-  getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
-    return null;
+export class HippyWModuleContext {
+  public libHippy: HippyLibrary;
+
+  constructor(libHippy: HippyLibrary) {
+    this.libHippy = libHippy;
   }
-
-  getCustomJavaScriptModuleCreatorMap(): Map<string, HippyJSModuleCreator> | null {
-    return null;
-  }
-
-  getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
-    return null;
-  }
-
-  getCustomMeasureRenderViews(): Array<string> | null {
-    return null;
-  }
-
-  getCustomMappingRenderViewMap(): Map<string, string> | null {
-    return null;
-  }
-
 }

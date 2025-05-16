@@ -29,7 +29,7 @@ import {
 } from 'hippy/src/main/ets/renderer_native/components/HippyRenderRegisterMap'
 import { ExampleComponentA, ExampleViewA } from './ExampleViewA'
 
-export class ExampleAPIProvider implements HippyAPIProvider {
+export class ExampleAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     return null
   }

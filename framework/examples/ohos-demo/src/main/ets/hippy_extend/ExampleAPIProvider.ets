@@ -36,7 +36,7 @@ import { MyTopComponent, MyTopView } from './scroll_view_extend/MyTopView'
 import { MyTabBarComponent, MyTabBarView } from './scroll_view_extend/MyTabBarView'
 import { MyBottomComponent, MyBottomView } from './scroll_view_extend/MyBottomView'
 
-export class ExampleAPIProvider implements HippyAPIProvider {
+export class ExampleAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     let registerMap: Map<string, HippyNativeModuleCreator> = new Map()
     registerMap.set(ExampleNativeModule.NAME, (ctx): HippyNativeModuleBase => new ExampleNativeModule(ctx))

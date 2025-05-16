@@ -42,6 +42,7 @@ import { HippyBridgeManager } from './HippyBridgeManager';
 import { HippyCallNativeParams } from './HippyCallNativeParams';
 import { util } from '@kit.ArkTS';
 import systemDateTime from '@ohos.systemDateTime';
+import { HippyBridgeUtils } from './HippyBridgeUtils';
 
 export enum BridgeState {
   UNINITIALIZED = 0,
@@ -123,21 +124,21 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
   resumeInstance(id: number): void {
     let map = new Map<string, HippyAny>()
     map.set("id", id)
-    const buffer = this.getSerializerBuffer(map);
+    const buffer = HippyBridgeUtils.getSerializerBuffer(map, this.mEnableV8Serialization);
     this.mHippyBridge.callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_RESUME_INSTANCE, this.callFunctionCallback, buffer);
   }
 
   pauseInstance(id: number): void {
     let map = new Map<string, HippyAny>()
     map.set("id", id)
-    const buffer = this.getSerializerBuffer(map);
+    const buffer = HippyBridgeUtils.getSerializerBuffer(map, this.mEnableV8Serialization);
     this.mHippyBridge.callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_PAUSE_INSTANCE, this.callFunctionCallback, buffer);
   }
 
   destroyInstance(id: number): void {
     let map = new Map<string, HippyAny>()
     map.set("id", id)
-    const buffer = this.getSerializerBufferBinary(map);
+    const buffer = HippyBridgeUtils.getSerializerBufferBinary(map);
     this.mHippyBridge.callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_DESTROY_INSTANCE, this.callFunctionCallback, buffer);
   }
 
@@ -152,7 +153,7 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
     map.set("id", id)
     map.set("params", params)
 
-    const buffer = this.getSerializerBufferBinary(map);
+    const buffer = HippyBridgeUtils.getSerializerBufferBinary(map);
     this.mHippyBridge.callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_LOAD_INSTANCE, this.callFunctionCallBack, buffer)
   }
 
@@ -160,33 +161,9 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
     LogUtils.i('hippy', 'hippy callFunctionCallBack, result: ' + result + ', reason: ' + reason)
   }
 
-  getSerializerBuffer(params: Map<string, HippyAny>): Uint8Array {
-    if (this.mEnableV8Serialization) {
-      return this.getSerializerBufferBinary(params);
-    } else {
-      return this.getSerializerBufferJson(params);
-    }
-  }
-
-  getSerializerBufferJson(params: Map<string, HippyAny>): Uint8Array {
-    let str = JSON.stringify(ArgumentUtils.mapToRecord(params))
-    let encoder = new util.TextEncoder("utf-8")
-    let uint8Array = encoder.encodeInto(str)
-    return uint8Array
-  }
-
-  getSerializerBufferBinary(params: Map<string, HippyAny>): Uint8Array {
-    let binaryWriter = new BinaryWriter()
-    let serializer = new Serializer(binaryWriter)
-    serializer.writeHeader()
-    serializer.writeValue(params)
-    let buffer = binaryWriter.chunked()
-    return buffer;
-  }
-
   execPromiseCallback(params: Map<string, HippyAny>): void {
     if (this.mBridgeState == BridgeState.INITIALIZED) {
-      const buffer = this.getSerializerBuffer(params);
+      const buffer = HippyBridgeUtils.getSerializerBuffer(params, this.mEnableV8Serialization);
       this.mHippyBridge.callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_CALLBACK, this.callFunctionCallback, buffer);
     }
   }
@@ -218,7 +195,7 @@ export class HippyBridgeManagerImpl implements HippyBridgeManager, BridgeCallbac
       map.set("methodName", methodName)
       map.set("params", params)
 
-      const buffer = this.getSerializerBuffer(map);
+      const buffer = HippyBridgeUtils.getSerializerBuffer(map, this.mEnableV8Serialization);
       this.mHippyBridge.callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_CALL_JS_MODULE, this.callJavaScriptModuleCallback, buffer);
     }
   }
