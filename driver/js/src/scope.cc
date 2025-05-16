@@ -48,6 +48,7 @@
 #include "driver/modules/timer_module.h"
 #include "driver/modules/ui_manager_module.h"
 #include "driver/modules/ui_layout_module.h"
+#include "driver/napi/js_try_catch.h"
 #include "driver/vm/native_source_code.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
@@ -553,8 +554,12 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
           }
         }
 #endif
+        auto tryCatch = CreateTryCatchScope(true, context);
         std::shared_ptr<CtxValue> argv[] = {param};
         context->CallFunction(fn, context->GetGlobalObject(), 1, argv);
+        if (tryCatch->HasCaught()) {
+          FOOTSTONE_LOG(ERROR) << tryCatch->GetExceptionMessage();
+        }
       } else {
         context->ThrowException("Application entry not found");
       }

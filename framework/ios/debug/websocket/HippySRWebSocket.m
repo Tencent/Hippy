@@ -1438,7 +1438,7 @@ static const size_t HippySRFrameHeaderOverhead = 32;
             case NSStreamEventHasBytesAvailable: {
                 HippySRLog(@"NSStreamEventHasBytesAvailable %@", aStream);
                 const int bufferSize = 2048;
-                uint8_t buffer[bufferSize];
+                uint8_t buffer[2048];
 
                 while (self->_inputStream.hasBytesAvailable) {
                     NSInteger bytes_read = [self->_inputStream read:buffer maxLength:bufferSize];
