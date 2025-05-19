@@ -215,7 +215,8 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 renderMode,
                 debugMode,
                 snapshotMode,
-                debugServerHost
+                debugServerHost,
+                applicationContext
             )
             hippyEngineWrapper?.let {
                 currentEngineId = it.engineId
@@ -264,7 +265,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         val dialogWindow = dialog?.window
         dialogWindow?.setGravity(Gravity.BOTTOM)
         val lp = dialogWindow?.attributes
-        lp?.width = (getScreenWidth() * 0.95).toInt()
+        lp?.width = (getScreenWidth(applicationContext) * 0.95).toInt()
         dialogWindow?.attributes = lp
         dialog?.show()
     }
@@ -284,7 +285,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         val dialogWindow = dialog?.window
         dialogWindow?.setGravity(Gravity.BOTTOM)
         val lp = dialogWindow?.attributes
-        lp?.width = (getScreenWidth() * 0.95).toInt()
+        lp?.width = (getScreenWidth(applicationContext) * 0.95).toInt()
         dialogWindow?.attributes = lp
         dialog?.show()
     }
