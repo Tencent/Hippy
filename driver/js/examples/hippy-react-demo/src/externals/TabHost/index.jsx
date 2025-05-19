@@ -62,6 +62,7 @@ export default class TabHostExample extends React.Component {
     this.onViewPagerChange = this.onViewPagerChange.bind(this);
     this.pressNavItem = this.pressNavItem.bind(this);
     this.scrollSV = this.scrollSV.bind(this);
+    this.pagerWidth = Utils.getScreenWidth();
   }
 
   static getPage(navItem, idx) {
@@ -94,7 +95,7 @@ export default class TabHostExample extends React.Component {
         navList,
       } = this.state;
       const navNum = navList.length;
-      const navWidth = Utils.getScreenWidth();
+      const navWidth = this.pagerWidth;
       const hNavWidth = navWidth / 2;
       const halfScreenNavNum = hNavWidth / NAV_WIDTH;
       const notOverScreen = (navNum * NAV_WIDTH) < navWidth;
@@ -168,6 +169,7 @@ export default class TabHostExample extends React.Component {
           style={{ flex: 1 }}
           initialPage={0}
           onPageSelected={this.onViewPagerChange}
+          onLayout={(e) => { this.pagerWidth = e.layout.width; }}
         >
           {navList.map((v, idx) => TabHostExample.getPage(v, idx))}
         </ViewPager>
