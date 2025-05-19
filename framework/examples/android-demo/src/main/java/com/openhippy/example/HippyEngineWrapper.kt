@@ -40,7 +40,8 @@ class HippyEngineWrapper//TODO: Coming soon
     rm: PageConfiguration.RenderMode,
     isDebug: Boolean,
     useNodeSnapshot: Boolean,
-    debugServerHost: String
+    debugServerHost: String,
+    context: Context
 ) {
 
     var hippyEngine: HippyEngine
@@ -61,7 +62,7 @@ class HippyEngineWrapper//TODO: Coming soon
 
     init {
         val initParams = EngineInitParams()
-        initParams.context = applicationContext
+        initParams.context = context
         initParams.debugServerHost = debugServerHost
         initParams.debugMode = isDebug
         initParams.enableLog = true

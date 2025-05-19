@@ -102,7 +102,7 @@ class PageManagement : AppCompatActivity() {
         val defaultWidth = resources.getDimension(R.dimen.page_item_default_width)
         val defaultHeight = resources.getDimension(R.dimen.page_item_default_height)
         val ratio: Float = defaultHeight / defaultWidth
-        pageItemWidth = getPageIndexItemWidth()
+        pageItemWidth = getPageIndexItemWidth(applicationContext)
         pageItemHeight = (pageItemWidth * ratio).toInt()
     }
 

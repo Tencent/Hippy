@@ -15,6 +15,8 @@
 
 package com.openhippy.example
 
+import android.content.Context
+
 class HippyEngineHelper {
 
     companion object {
@@ -28,14 +30,16 @@ class HippyEngineHelper {
             rendererType: PageConfiguration.RenderMode,
             isDebugMode: Boolean,
             isSnapshotMode: Boolean,
-            debugServerHost: String
+            debugServerHost: String,
+            context: Context
         ): HippyEngineWrapper {
             val hippyEngineWrapper = HippyEngineWrapper(
                 driverType,
                 rendererType,
                 isDebugMode,
                 isSnapshotMode,
-                debugServerHost
+                debugServerHost,
+                context
             )
             hippyEngineList.add(hippyEngineWrapper)
             return hippyEngineWrapper
