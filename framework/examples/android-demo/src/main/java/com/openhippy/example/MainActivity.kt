@@ -24,16 +24,12 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
 
-var appContext: Context? = null
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainRoot: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appContext = applicationContext
-        setAppContext(this.applicationContext)
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         activityMainRoot = layoutInflater.inflate(R.layout.activity_main, null)
         intPageMain()

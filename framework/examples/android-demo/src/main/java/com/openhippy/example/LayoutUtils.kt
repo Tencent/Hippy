@@ -23,40 +23,35 @@ import java.util.concurrent.atomic.AtomicInteger
 var pageItemIdCounter = AtomicInteger(10000)
 var pageItemWidth = 0
 var pageItemHeight = 0
-var applicationContext: Context? = null
 
-fun setAppContext(context: Context) {
-    applicationContext = context
-}
-
-fun getScreenWidth() : Int {
-    val displayMetrics: DisplayMetrics? = applicationContext?.resources?.displayMetrics
+fun getScreenWidth(context: Context) : Int {
+    val displayMetrics: DisplayMetrics? = context.resources?.displayMetrics
     displayMetrics?.let {
         return it.widthPixels
     }
     return 0
 }
 
-fun getScreenHeight() : Int {
-    val displayMetrics: DisplayMetrics? = applicationContext?.resources?.displayMetrics
+fun getScreenHeight(context: Context) : Int {
+    val displayMetrics: DisplayMetrics? = context.resources?.displayMetrics
     displayMetrics?.let {
         return it.heightPixels
     }
     return 0
 }
 
-fun isPortrait() : Boolean {
-    return getScreenOrientation() == Configuration.ORIENTATION_PORTRAIT
+fun isPortrait(context: Context) : Boolean {
+    return getScreenOrientation(context) == Configuration.ORIENTATION_PORTRAIT
 }
 
-fun getScreenOrientation() : Int {
-    return applicationContext?.resources?.configuration?.orientation ?: Configuration.ORIENTATION_PORTRAIT
+fun getScreenOrientation(context: Context) : Int {
+    return context.resources?.configuration?.orientation ?: Configuration.ORIENTATION_PORTRAIT
 }
 
-fun getPageIndexItemWidth() : Int {
-    val margin = appContext?.resources?.getDimension(R.dimen.page_index_item_margin)
+fun getPageIndexItemWidth(context: Context) : Int {
+    val margin = context.resources?.getDimension(R.dimen.page_index_item_margin)
     margin?.let {
-        val width = (getScreenWidth() - margin*3)/2
+        val width = (getScreenWidth(context) - margin*3)/2
         return width.toInt()
     }
     return 0
