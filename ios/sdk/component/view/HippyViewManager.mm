@@ -110,12 +110,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     if (json) {
-        NSMutableDictionary *object = [NSMutableDictionary dictionaryWithObject:self.bridge.moduleName forKey:@"moduleName"];
         NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
-        if (linearGradientObject) {
-            [object addEntriesFromDictionary:linearGradientObject];
-        }
-        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:object];
+        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:linearGradientObject];
     }
     else {
         view.gradientObject = defaultView.gradientObject;
