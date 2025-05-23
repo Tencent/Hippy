@@ -21,6 +21,8 @@
  */
 
 #include "renderer/components/list_item_view.h"
+#include "renderer/arkui/arkui_node.h"
+#include "renderer/dom_node/hr_node_props.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "renderer/utils/hr_value_utils.h"
 
@@ -56,6 +58,20 @@ void ListItemView::CreateArkUINodeImpl() {
 void ListItemView::DestroyArkUINodeImpl() {
   itemNode_ = nullptr;
   stackNode_ = nullptr;
+}
+
+std::shared_ptr<RecycleView> ListItemView::RecycleArkUINode() {
+  if (isInSticky_) {
+    return nullptr;
+  }
+  return BaseView::RecycleArkUINode();
+}
+
+bool ListItemView::ReuseArkUINode(std::shared_ptr<RecycleView> &recycleView, int32_t index) {
+  if (isInSticky_) {
+    return false;
+  }
+  return BaseView::ReuseArkUINode(recycleView, index);
 }
 
 bool ListItemView::RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) {
@@ -101,6 +117,12 @@ bool ListItemView::SetViewProp(const std::string &propKey, const HippyValue &pro
 }
 
 bool ListItemView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
+  // 设置背景属性到子容器节点上，方便sticky浮起时直接用
+  if (propKey == HRNodeProps::BACKGROUND_COLOR) {
+    uint32_t value = HRValueUtils::GetUint32(propValue);
+    stackNode_->SetBackgroundColor(value);
+    return true;
+  }
   return BaseView::SetPropImpl(propKey, propValue);
 }
 
@@ -115,6 +137,7 @@ void ListItemView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView
 }
 
 void ListItemView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) {
+  itemNode_->SetSize(HRSize(frame.width, frame.height));
   stackNode_->SetPosition(HRPosition(0, 0));
   stackNode_->SetSize(HRSize(frame.width, frame.height));
   width_ = frame.width;
@@ -182,6 +205,34 @@ void ListItemView::MoveToExposureState(uint32_t state) {
       break;
   }
   exposureState_ = state;
+}
+
+void ListItemView::StartSticky() {
+  if (isInSticky_) {
+    return;
+  }
+  isInSticky_ = true;
+  
+  if (!GetLocalRootArkUINode()) {
+    CreateArkUINode(true);
+  }
+  
+  itemNode_->RemoveChild(stackNode_.get());
+}
+
+void ListItemView::EndSticky() {
+  if (!isInSticky_) {
+    return;
+  }
+  isInSticky_ = false;
+  
+  if (itemNode_ && stackNode_) {
+    itemNode_->AddChild(stackNode_.get());
+  }
+}
+
+std::shared_ptr<StackNode> ListItemView::GetStickyRootArkUINode() {
+  return stackNode_;
 }
 
 } // namespace native
