@@ -1,6 +1,6 @@
 # Hippy 简介
 
-版本：3.3.3
+版本：3.3.4
 
 更新时间：2025-2-14
 
@@ -10,7 +10,7 @@ SDK介绍：Hippy 是 TDF 腾讯端框架（Tencent Device-oriented Framework）
 
 服务提供方：深圳市腾讯计算机系统有限公司
 
-[接入指引](development/react-vue-integration-guidelines.md)
+[接入指引](development/react-vue-3.0-integration-guidelines.md)
 
 [Hippy SDK隐私保护指引](development/privacy.md)
 

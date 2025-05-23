@@ -334,6 +334,11 @@ void fatalHandler(const std::string &message) {
 
 constexpr char kHippyHermes[] = "HippyHermesBridge";
 HermesCtx::HermesCtx() {
+  bool shouldEnableSampleProfiling = false;
+#ifdef ENABLE_INSPECTOR
+  shouldEnableSampleProfiling = true;
+#endif
+  
   auto runtimeConfigBuilder = ::hermes::vm::RuntimeConfig::Builder()
     .withGCConfig(::hermes::vm::GCConfig::Builder()
                   // Default to 3GB
@@ -346,8 +351,8 @@ HermesCtx::HermesCtx() {
                   //.withAllocInYoung(false)
                   //.withRevertToYGAtTTI(true)
                   .build())
-    .withEnableSampleProfiling(true)
-    //.withES6Class(true)
+    .withEnableSampleProfiling(shouldEnableSampleProfiling)
+    .withES6Class(true)
     .withES6Proxy(true)
     .withES6Promise(false)
     .withMicrotaskQueue(true);

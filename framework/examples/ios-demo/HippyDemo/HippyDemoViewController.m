@@ -26,7 +26,7 @@
 @import hippy;
 
 
-@interface HippyDemoViewController () <HippyMethodInterceptorProtocol, HippyBridgeDelegate, HippyRootViewDelegate> {
+@interface HippyDemoViewController () <HippyBridgeDelegate, HippyRootViewDelegate> {
     HippyBridge *_hippyBridge;
     HippyRootView *_hippyRootView;
     BOOL _fromCache;
@@ -90,6 +90,7 @@
     [self.contentAreaView addSubview:_hippyRootView];
 }
 
+
 #pragma mark - Hippy Setup
 
 - (void)registerLogFunction {
@@ -100,15 +101,24 @@
         // this is a demo imp, output to console:
         HippyDefaultLogFunction(level, source, fileName, lineNumber, message);
     });
+    
+    HippySetFatalHandler(^(NSError * _Nonnull error) {
+        // do error report or something else...
+        // fatal error will also output by HippySetLogFunction above.
+        NSLog(@"Hippy Fatal Error occurred! msg:%@", error.description);
+    });
 }
 
 - (void)runHippyDemo {
     // Necessary configuration:
+    // `moduleName` corresponds to the Hippy App name on the JS side
     NSString *moduleName = @"Demo";
+    
     // Set launch options for hippy bridge
     HippyLaunchOptions *launchOptions = [HippyLaunchOptions new];
     launchOptions.debugMode = _debugMode;
     launchOptions.useHermesEngine = _useHermesEngine;
+    
     // Prepare initial properties for js side
     NSDictionary *initialProperties = @{ @"isSimulator": @(TARGET_OS_SIMULATOR) };
     
@@ -148,14 +158,36 @@
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.contentAreaView addSubview:rootView];
     _hippyRootView = rootView;
-    
-    
-    // Optional configs:
-    bridge.methodInterceptor = self; // see HippyMethodInterceptorProtocol
 }
 
 
-#pragma mark - Helpers
+#pragma mark - HippyBridgeDelegate
+
+- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
+    return bridge.debugMode;
+}
+
+- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
+    // You can customize to any url.
+    // By default, we resolve the devtools address from the debug url passed to the bridge.
+    return bridge.debugURL;
+}
+
+- (CGFloat)fontSizeMultiplierForHippy:(HippyBridge *)bridge {
+    // This is a demo implementation, you can customize it.
+    // The default value is 1.0.
+    // The font size multiplier is used to scale the font size of the text in the Hippy view.
+    // For example, if you set it to 2.0, the font size will be twice as large as the default size.
+    return 1.0;
+}
+
+
+#pragma mark - HippyRootViewDelegate
+
+// Some imp of HippyRootViewDelegate methods, optional...
+
+
+#pragma mark - Others
 
 - (NSString *)currentJSBundleDir {
     NSString *dir = nil;
@@ -209,49 +241,6 @@
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAllButUpsideDown;
-}
-
-
-#pragma mark - HippyBridgeDelegate
-
-- (BOOL)shouldStartInspector:(HippyBridge *)bridge {
-    return bridge.debugMode;
-}
-
-- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    // You can customize to any url.
-    // By default, we resolve the devtools address from the debug url passed to the bridge.
-    return bridge.debugURL;
-}
-
-- (CGFloat)fontSizeMultiplierForHippy:(HippyBridge *)bridge {
-    // This is a demo implementation, you can customize it.
-    // The default value is 1.0.
-    // The font size multiplier is used to scale the font size of the text in the Hippy view.
-    // For example, if you set it to 2.0, the font size will be twice as large as the default size.
-    return 1.0;
-}
-
-
-#pragma mark - Optional - HippyMethodInterceptorProtocol
-
-- (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName
-                        methodName:(NSString *)methodName
-                         arguments:(NSArray<id<HippyBridgeArgument>> *)arguments
-                   argumentsValues:(NSArray *)argumentsValue
-                   containCallback:(BOOL)containCallback {
-    HippyAssert(moduleName, @"module name must not be null");
-    HippyAssert(methodName, @"method name must not be null");
-    return YES;
-}
-
-- (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName
-                                   methodName:(NSString *)methodName
-                                   callbackId:(NSNumber *)cbId
-                                    arguments:(id)arguments {
-    HippyAssert(moduleName, @"module name must not be null");
-    HippyAssert(methodName, @"method name must not be null");
-    return YES;
 }
 
 @end
