@@ -38,6 +38,8 @@ public:
   ListItemNode *GetLocalRootArkUINode() override;
   void CreateArkUINodeImpl() override;
   void DestroyArkUINodeImpl() override;
+  std::shared_ptr<RecycleView> RecycleArkUINode() override;
+  bool ReuseArkUINode(std::shared_ptr<RecycleView> &recycleView, int32_t index) override;
   bool RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
   bool ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
   bool SetViewProp(const std::string &propKey, const HippyValue &propValue) override;
@@ -53,6 +55,11 @@ public:
   bool IsSticky() { return sticky_; }
 
   void CheckExposureView(float currentRatio);
+  
+  void StartSticky();
+  void EndSticky();
+  std::shared_ptr<StackNode> GetStickyRootArkUINode();
+  
 protected:
   uint32_t CalculateExposureState(float currentRatio);
   void MoveToExposureState(uint32_t state);
@@ -69,6 +76,8 @@ protected:
 
   std::string type_;
   bool sticky_ = false;
+  
+  bool isInSticky_ = false;
 
   uint32_t exposureState_ = ListItemView::EXPOSURE_STATE_INVISIBLE;
 };

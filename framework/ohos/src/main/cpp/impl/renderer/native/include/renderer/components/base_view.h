@@ -65,9 +65,9 @@ public:
   void DestroyArkUINode();
   virtual void DestroyArkUINodeImpl() = 0;
   
-  std::shared_ptr<RecycleView> RecycleArkUINode();
+  virtual std::shared_ptr<RecycleView> RecycleArkUINode();
   virtual bool RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) { return false; }
-  bool ReuseArkUINode(std::shared_ptr<RecycleView> &recycleView, int32_t index);
+  virtual bool ReuseArkUINode(std::shared_ptr<RecycleView> &recycleView, int32_t index);
   virtual bool ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) { return false; }
   
   bool SetProp(const std::string &propKey, const HippyValue &propValue);
