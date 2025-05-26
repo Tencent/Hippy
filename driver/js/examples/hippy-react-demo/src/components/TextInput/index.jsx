@@ -127,6 +127,7 @@ export default class TextInputExpo extends Component {
           }}
           style={styles.input_style}
           caretColor='yellow'
+          caret-size='5'
           underlineColorAndroid='grey'
           placeholderTextColor='#4c9afa'
           placeholder="text"

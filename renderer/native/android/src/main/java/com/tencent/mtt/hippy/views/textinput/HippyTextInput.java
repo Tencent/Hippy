@@ -19,12 +19,12 @@ package com.tencent.mtt.hippy.views.textinput;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -40,8 +40,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
+
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -55,6 +57,7 @@ import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.component.text.TypeFaceUtil;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.utils.EventUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -670,7 +673,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
     }
 
     @SuppressWarnings("JavaReflectionMemberAccess")
-    public void setCursorColor(int color) {
+    private void setCursorDrawable(HippyTextCursorDrawableCallback callback) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
             // Pre-Android 10, there was no supported API to change the cursor color programmatically.
             // In Android 9.0, they changed the underlying implementation,
@@ -679,10 +682,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ShapeDrawable cursorDrawable = new ShapeDrawable();
-            cursorDrawable.getPaint().setColor(color);
-            cursorDrawable.setIntrinsicWidth(Math.round(PixelUtil.dp2px(1.5f)));
-            setTextCursorDrawable(cursorDrawable);
+            setTextCursorDrawable(callback.getCursorDrawable(getTextCursorDrawable()));
         } else {
             try {
                 Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
@@ -701,34 +701,59 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                 if (drawable == null) {
                     return;
                 }
-                drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
+                drawable = callback.getCursorDrawable(drawable);
                 assert editor != null;
                 Class<?> editorClass = editor
-                        .getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
+                    .getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
                 while (editorClass != null) {
                     try {
                         if (version >= 28) {
                             field = editorClass
-                                    .getDeclaredField("mDrawableForCursor");//mCursorDrawable
+                                .getDeclaredField("mDrawableForCursor");//mCursorDrawable
                             field.setAccessible(true);
                             field.set(editor, drawable);
                         } else {
                             Drawable[] drawables = {drawable, drawable};
                             field = editorClass
-                                    .getDeclaredField("mCursorDrawable");//mCursorDrawable
+                                .getDeclaredField("mCursorDrawable");//mCursorDrawable
                             field.setAccessible(true);
                             field.set(editor, drawables);
                         }
                         break;
                     } catch (Throwable e) {
-                        LogUtils.d(TAG, "setCursorColor: " + e.getMessage());
+                        LogUtils.d(TAG, "setCursorDrawable: " + e.getMessage());
                     }
                     editorClass = editorClass.getSuperclass(); //继续往上反射父亲
                 }
             } catch (Throwable e) {
-                LogUtils.d(TAG, "setCursorColor: " + e.getMessage());
+                LogUtils.d(TAG, "setCursorDrawable: " + e.getMessage());
             }
         }
+    }
+
+    public void setCursorSize(int size) {
+        setCursorDrawable(originDrawable -> {
+            if (!(originDrawable instanceof GradientDrawable)) {
+                originDrawable = new GradientDrawable();
+                ((GradientDrawable) originDrawable).setColor(Color.BLUE);
+            }
+
+            ((GradientDrawable) originDrawable).setSize(size, -1);
+            return originDrawable;
+        });
+    }
+
+    public void setCursorColor(int color) {
+        setCursorDrawable(originDrawable -> {
+            if (!(originDrawable instanceof GradientDrawable)) {
+                originDrawable = new GradientDrawable();
+                ((GradientDrawable) originDrawable).setSize(2, -1);
+            }
+
+            ((GradientDrawable) originDrawable).setColor(color);
+            return originDrawable;
+        });
     }
 
     public void refreshSoftInput() {
@@ -777,4 +802,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         setTypeface(mTextPaint.getTypeface(), mTextPaint.isFakeBoldText() ? Typeface.BOLD : Typeface.NORMAL);
     }
 
+
+    private interface HippyTextCursorDrawableCallback {
+        Drawable getCursorDrawable(Drawable originDrawable);
+    }
 }

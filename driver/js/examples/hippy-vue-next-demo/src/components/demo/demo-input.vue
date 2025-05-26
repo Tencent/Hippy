@@ -9,6 +9,7 @@
       ref="input"
       placeholder="Text"
       caret-color="yellow"
+      caret-size="5"
       underline-color-android="grey"
       placeholder-text-color="#40b883"
       :editable="true"
@@ -48,6 +49,7 @@
     <input
       type="number"
       caret-color="yellow"
+      caret-size="5"
       underline-color-android="grey"
       placeholder-text-color="#40b883"
       placeholder="Number"
@@ -59,6 +61,7 @@
     <input
       type="password"
       caret-color="yellow"
+      caret-size="5"
       underline-color-android="grey"
       placeholder-text-color="#40b883"
       placeholder="Password"
@@ -70,6 +73,7 @@
     <input
       :maxlength="5"
       caret-color="yellow"
+      caret-size="5"
       underline-color-android="grey"
       placeholder-text-color="#40b883"
       placeholder="5 个字符"
