@@ -20,6 +20,13 @@ Vue.config.trimWhitespace = true;
 Vue.use(HippyVueNativeComponents);
 Vue.use(VueRouter);
 
+if (Vue.Native.Platform == 'ohos') {
+  Vue.registerElement('MyScrollView');
+  Vue.registerElement('MyTopView');
+  Vue.registerElement('MyTabBarView');
+  Vue.registerElement('MyBottomView');
+}
+
 const router = new VueRouter(routes);
 
 global.Hippy.on('uncaughtException', (err) => {

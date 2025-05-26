@@ -61,8 +61,12 @@ void CustomTsView::CreateArkUINodeImpl() {
   tsNode_ = std::make_shared<CustomTsNode>(customNodeHandle_);
   tsNode_->MarkReleaseHandle(false);
   contentNode_ = std::make_shared<StackNode>();
-  contentNode_->SetWidthPercent(1.f);
-  contentNode_->SetHeightPercent(1.f);
+  contentNode_->SetId("HippySlotContentIn"+std::to_string(GetTag()));
+  contentNode_->SetPosition(HRPosition{0, 0});
+  // 当Slot节点是Scroll的子孙节点时，该content节点的高度由内容撑开，不能设置定高。
+  // contentNode_->SetWidthPercent(1.f);
+  // contentNode_->SetHeightPercent(1.f);
+  contentNode_->SetAlignment(ARKUI_ALIGNMENT_TOP_START);
   contentNode_->SetHitTestMode(ARKUI_HIT_TEST_MODE_NONE);
   if (contentHandle_) {
     OH_ArkUI_NodeContent_RegisterCallback(contentHandle_, nullptr);
