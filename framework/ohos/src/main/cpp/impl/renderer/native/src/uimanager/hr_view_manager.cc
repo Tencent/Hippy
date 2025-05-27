@@ -676,7 +676,8 @@ void HRViewManager::UpdateCustomTsProps(std::shared_ptr<BaseView> &view, const H
     if (props.size() > 0) {
       for (auto prop_it = props.begin(); prop_it != props.end(); prop_it++) {
         auto &key = prop_it->first;
-        if (key == HRNodeProps::VISIBILITY || key == HRNodeProps::TRANSFORM || key == HRNodeProps::OVERFLOW) {
+        if (key == HRNodeProps::VISIBILITY || key == HRNodeProps::TRANSFORM || key == HRNodeProps::OVERFLOW ||
+            key == "native-scroll-ohos") {
           customTsView->SetProp(key, prop_it->second);
         }
       }
