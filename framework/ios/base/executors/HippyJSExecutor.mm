@@ -524,7 +524,7 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
 - (void)setContextName:(NSString *)contextName {
 #ifdef JS_JSC
 #ifdef JS_HERMES
-    // TODO: setContextName not support Hermes now
+    // SetContextName not support Hermes now
     if (self.bridge.usingHermesEngine) {
         return;
     }
@@ -535,7 +535,7 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
     __weak __typeof(self)weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
         __strong __typeof(weakSelf)strongSelf = weakSelf;
-        if (!strongSelf.pScope) {
+        if (!strongSelf || !strongSelf.pScope || !strongSelf.pScope->isValid()) {
             return;
         }
         SharedCtxPtr context = strongSelf.pScope->GetContext();
@@ -543,11 +543,11 @@ static void setupDebuggerAgent(HippyBridge *bridge, const std::shared_ptr<hippy:
             return;
         }
         auto tryCatch = hippy::TryCatch::CreateTryCatchScope(true, context);
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(context);
+        auto jscContext = std::static_pointer_cast<hippy::napi::JSCCtx>(context);
         NSString *finalName = [NSString stringWithFormat:@"HippyContext: %@", contextName];
-        jsc_context->SetName((__bridge CFStringRef)finalName);
+        jscContext->SetName((__bridge CFStringRef)finalName);
         if (tryCatch->HasCaught()) {
-            HippyLogWarn(@"set context throw exception");
+            HippyLogError(@"Exception while setting Context Name!");
         }
     }];
 #endif //JS_JSC
