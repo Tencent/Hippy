@@ -38,6 +38,7 @@ public:
   CustomTsNode *GetLocalRootArkUINode() override;
   void CreateArkUINodeImpl() override;
   void DestroyArkUINodeImpl() override;
+  bool SetViewProp(const std::string &propKey, const HippyValue &propValue) override;
   bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
   void UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) override;
 
@@ -51,7 +52,9 @@ private:
   void OnCustomTsViewChildRemoved(uint32_t tag, std::shared_ptr<BaseView> const &childView, int32_t index);
 
   std::shared_ptr<CustomTsNode> tsNode_;
-  std::shared_ptr<StackNode> contentNode_;
+  std::shared_ptr<ArkUINode> contentNode_;
+  
+  bool isContentNativeScroll_ = false;
 
   ArkUI_NodeHandle customNodeHandle_ = nullptr;
   ArkUI_NodeContentHandle contentHandle_ = nullptr;

@@ -87,7 +87,8 @@ export struct MyBottomComponent {
 function applyRenderViewBaseAttr($$: HippyRenderBaseView) {
   .key(HIPPY_COMPONENT_KEY_PREFIX + $$.tag)
   .backgroundColor($$.cssBackgroundColor)
-  .position({x: $$.cssPositionX, y: $$.cssPositionY})
+  // 当前端给父自定义组件指定native-scroll-ohos="column"时，子自定义组件的位置由内部column布局组件生成
+  //.position({x: $$.cssPositionX, y: $$.cssPositionY})
   .size({width:$$.cssWidth, height: $$.cssHeight})
   .opacity($$.cssOpacity)
   .clip($$.cssOverflow)
