@@ -776,9 +776,7 @@ public class RenderNode {
     public void batchComplete() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchComplete(mRootId, mId, mClassName);
-            if (mHostViewRef == null || mHostViewRef.get() == null) {
-                invalidate();
-            }
+            invalidate();
         }
     }
 
