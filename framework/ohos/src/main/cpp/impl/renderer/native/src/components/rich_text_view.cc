@@ -92,9 +92,14 @@ void RichTextView::DestroyArkUINodeImpl() {
 bool RichTextView::RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) {
 #ifdef OHOS_DRAW_TEXT
   textNode_->ResetAllAttributes();
-  textNode_->RemoveSelfFromParent();
-  textNode_ = nullptr;
-  containerNode_ = nullptr;
+  if (containerNode_) {
+    containerNode_->RemoveSelfFromParent();
+    textNode_ = nullptr;
+    containerNode_ = nullptr;
+  } else {
+    textNode_->RemoveSelfFromParent();
+    textNode_ = nullptr;
+  }
   ClearProps();
   return false;
 #else
