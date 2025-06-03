@@ -123,7 +123,8 @@ bool ArkUINode::HasParent() {
 }
 
 void ArkUINode::SetDefaultAttributes() {
-  SetHitTestMode(ARKUI_HIT_TEST_MODE_TRANSPARENT);
+  // HitTest需要保持默认行为，不要默认穿透兄弟节点，否则会带来不必要的click响应等。
+  SetHitTestMode(ARKUI_HIT_TEST_MODE_DEFAULT);
   baseAttributesFlagValue_ = 0;
 }
 
