@@ -315,6 +315,8 @@ void RichTextView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPaddin
     textNode_->SetPadding(padding.paddingTop, padding.paddingRight, padding.paddingBottom, padding.paddingLeft);
   }
   drawTextWidth_ = frame.width - padding.paddingLeft - padding.paddingRight;
+  drawTextPaddingLeft_ = padding.paddingLeft;
+  drawTextPaddingTop_ = padding.paddingTop;
 # ifndef OHOS_DRAW_CUSTOM_TEXT
   UpdateDrawTextContent();
 # endif
@@ -520,7 +522,9 @@ void RichTextView::OnForegroundDraw(ArkUI_NodeCustomEvent *event) {
   if (drawingHandle == nullptr) {
     return;
   }
-  OH_Drawing_TypographyPaint(textTypo, drawingHandle, 0, 0);
+  float pxLeft = HRPixelUtils::VpToPx(drawTextPaddingLeft_);
+  float pxTop = HRPixelUtils::VpToPx(drawTextPaddingTop_);
+  OH_Drawing_TypographyPaint(textTypo, drawingHandle, pxLeft, pxTop);
 }
 #endif
 
