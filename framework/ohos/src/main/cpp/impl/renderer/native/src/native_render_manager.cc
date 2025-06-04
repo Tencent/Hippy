@@ -287,7 +287,7 @@ void NativeRenderManager::CreateRenderNode_TS(std::weak_ptr<RootNode> root_node,
         }
         int64_t result;
         self->DoMeasureText(root_node, weak_node, self->DpToPx(width), static_cast<int32_t>(width_measure_mode),
-                            self->DpToPx(height), static_cast<int32_t>(height_measure_mode), result);
+                            self->DpToPx(height), static_cast<int32_t>(height_measure_mode), false, result);
         LayoutSize layout_result;
         layout_result.width = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & (result >> 32))));
         layout_result.height = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & result)));
@@ -388,7 +388,7 @@ void NativeRenderManager::CreateRenderNode_C(std::weak_ptr<RootNode> root_node, 
         }
         int64_t result;
         self->DoMeasureText(root_node, weak_node, self->DpToPx(width), static_cast<int32_t>(width_measure_mode),
-                            self->DpToPx(height), static_cast<int32_t>(height_measure_mode), result);
+                            self->DpToPx(height), static_cast<int32_t>(height_measure_mode), false, result);
         LayoutSize layout_result;
         layout_result.width = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & (result >> 32))));
         layout_result.height = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & result)));
@@ -785,7 +785,7 @@ void NativeRenderManager::UpdateLayout_C(std::weak_ptr<RootNode> root_node, cons
         if (result.width > 0 && result.width != it->second.first) {
           int64_t ret = 0;
           DoMeasureText(root_node, node, DpToPx(result.width), static_cast<int32_t>(LayoutMeasureMode::AtMost),
-                        DpToPx(result.height), static_cast<int32_t>(LayoutMeasureMode::AtMost), ret);
+                        DpToPx(result.height), static_cast<int32_t>(LayoutMeasureMode::AtMost), true, ret);
         }
       }
     }
@@ -868,7 +868,7 @@ void NativeRenderManager::EndBatch_C(std::weak_ptr<RootNode> root_node) {
           if (GetTextNodeSizeProp(textNode, width, height)) {
             int64_t result = 0;
             DoMeasureText(root_node, textNode, DpToPx(width), static_cast<int32_t>(LayoutMeasureMode::AtMost),
-                          DpToPx(height), static_cast<int32_t>(LayoutMeasureMode::AtMost), result);
+                          DpToPx(height), static_cast<int32_t>(LayoutMeasureMode::AtMost), true, result);
           }
         }
       }
@@ -1123,7 +1123,7 @@ void CollectAllProps(HippyValueObjectType &propMap, std::shared_ptr<DomNode> nod
 
 void NativeRenderManager::DoMeasureText(const std::weak_ptr<RootNode> root_node, const std::weak_ptr<hippy::dom::DomNode> dom_node,
                    const float width, const int32_t width_mode,
-                   const float height, const int32_t height_mode, int64_t &result) {
+                   const float height, const int32_t height_mode, bool isSizeIncludePadding, int64_t &result) {
   auto root = root_node.lock();
   FOOTSTONE_DCHECK(root != nullptr);
   if (root == nullptr) {
@@ -1219,7 +1219,7 @@ void NativeRenderManager::DoMeasureText(const std::weak_ptr<RootNode> root_node,
     }
   }
   measureResult = measureInst->EndMeasure(static_cast<int>(width), static_cast<int>(width_mode),
-                                         static_cast<int>(height), static_cast<int>(height_mode), density);
+                                         static_cast<int>(height), static_cast<int>(height_mode), isSizeIncludePadding, density);
 
 #ifdef OHOS_DRAW_TEXT
   if (enable_ark_c_api_) {
