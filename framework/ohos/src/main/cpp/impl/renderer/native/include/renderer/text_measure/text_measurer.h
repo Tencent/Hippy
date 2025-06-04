@@ -102,6 +102,10 @@ public:
   }
 
   void DoRedraw(float maxWidth);
+  
+  float GetCorrectPxOffsetY() {
+    return correctPxOffsetY_;
+  }
 
   int SpanIndexAt(float spanX, float spanY, float density);
   
@@ -138,6 +142,7 @@ private:
   ArkUI_StyledString *styled_string_ = nullptr;
   int text_align_ = TEXT_ALIGN_START;
   double measureWidth_ = 0;
+  float correctPxOffsetY_ = 0;
   
   std::vector<OhImageSpanHolder> imageSpans_;
   std::vector<std::tuple<int, int>> spanOffsets_; // begin, end
