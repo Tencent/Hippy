@@ -85,7 +85,7 @@ public:
   void StartMeasure(HippyValueObjectType &propMap, const std::set<std::string> &fontFamilyNames, const std::shared_ptr<FontCollectionCache> fontCache);
   void AddText(HippyValueObjectType &propMap, float density, bool isTextInput = false);
   void AddImage(HippyValueObjectType &propMap, float density);
-  OhMeasureResult EndMeasure(int width, int widthMode, int height, int heightMode, float density);
+  OhMeasureResult EndMeasure(int width, int widthMode, int height, int heightMode, bool isSizeIncludePadding, float density);
   
   void Destroy();
   
@@ -127,6 +127,7 @@ private:
   
   const std::string& HippyValue2String(HippyValue &value);
   double HippyValue2Double(HippyValue &value);
+  float HippyValue2Float(HippyValue &value);
   int32_t HippyValue2Int(HippyValue &value);
   uint32_t HippyValue2Uint(HippyValue &value);
   
@@ -149,6 +150,10 @@ private:
   double paddingBottom_ = 0;
   double paddingLeft_ = 0;
   double paddingRight_ = 0;
+  float borderTopWidth_ = 0;
+  float borderRightWidth_ = 0;
+  float borderBottomWidth_ = 0;
+  float borderLeftWidth_ = 0;
 };
 
 } // namespace native

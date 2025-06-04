@@ -230,6 +230,29 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
     auto doubleValue = HippyValue2Double(propValue);
     paddingBottom_ = doubleValue;
   }
+  if (GetPropValue(propMap, HRNodeProps::BORDER_WIDTH, propValue)) {
+    auto floatValue = HippyValue2Float(propValue);
+    borderTopWidth_ = floatValue;
+    borderRightWidth_ = floatValue;
+    borderBottomWidth_ = floatValue;
+    borderLeftWidth_ = floatValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::BORDER_TOP_WIDTH, propValue)) {
+    auto floatValue = HippyValue2Float(propValue);
+    borderTopWidth_ = floatValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::BORDER_RIGHT_WIDTH, propValue)) {
+    auto floatValue = HippyValue2Float(propValue);
+    borderRightWidth_ = floatValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::BORDER_BOTTOM_WIDTH, propValue)) {
+    auto floatValue = HippyValue2Float(propValue);
+    borderBottomWidth_ = floatValue;
+  }
+  if (GetPropValue(propMap, HRNodeProps::BORDER_LEFT_WIDTH, propValue)) {
+    auto floatValue = HippyValue2Float(propValue);
+    borderLeftWidth_ = floatValue;
+  }
 
 #ifdef MEASURE_TEXT_CHECK_PROP
   const static std::vector<std::string> dropProp = {
@@ -530,7 +553,7 @@ double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasur
   return bottom;
 }
 
-OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, int heightMode, float density) {
+OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, int heightMode, bool isSizeIncludePadding, float density) {
   OhMeasureResult ret;
   size_t lineCount = 0;
   
@@ -540,12 +563,20 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
     // fix text measure width wrong when maxWidth is nan or 0
     maxWidth = std::numeric_limits<double>::max();
   }
+  
+  double paddingWidthReduce = 0;
+  double paddingHeightReduce = 0;
+  if (isSizeIncludePadding) {
+    paddingWidthReduce = (paddingLeft_ + paddingRight_ + borderLeftWidth_ + borderRightWidth_) * density;
+    paddingHeightReduce = (paddingTop_ + paddingBottom_ + borderTopWidth_ + borderBottomWidth_) * density;
+  }
+  maxWidth -= paddingWidthReduce;
 
   OH_Drawing_TypographyLayout(typography_, maxWidth);
-    
+
   // MATE 60, beta5, "新品" "商店" text cannot be fully displayed. So add 0.5.
-  ret.width = ceil(OH_Drawing_TypographyGetLongestLine(typography_) + ((paddingLeft_ + paddingRight_) * density) + 0.5 * density);
-  ret.height = OH_Drawing_TypographyGetHeight(typography_) + ((paddingTop_ + paddingBottom_) * density);
+  ret.width = ceil(OH_Drawing_TypographyGetLongestLine(typography_) + paddingWidthReduce + 0.5 * density);
+  ret.height = OH_Drawing_TypographyGetHeight(typography_);
   ret.isEllipsized = OH_Drawing_TypographyDidExceedMaxLines(typography_);
   lineCount = OH_Drawing_TypographyGetLineCount(typography_);
   
@@ -568,6 +599,8 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
     FOOTSTONE_DLOG(INFO) << "hippy text - lineHeight fix result, result height: " << ret.height;
 #endif
   }
+  
+  ret.height += paddingHeightReduce;
   
   measureWidth_ = maxWidth;
   
@@ -632,6 +665,18 @@ double TextMeasurer::HippyValue2Double(HippyValue &value) {
   auto& str = value.ToStringSafe();
   if (str.size() > 0) {
     return std::stod(str);
+  }
+  return 0;
+}
+
+float TextMeasurer::HippyValue2Float(HippyValue &value) {
+  double f = 0;
+  if (value.ToDouble(f)) {
+    return (float)f;
+  }
+  auto& str = value.ToStringSafe();
+  if (str.size() > 0) {
+    return std::stof(str);
   }
   return 0;
 }
