@@ -523,7 +523,7 @@ void RichTextView::OnForegroundDraw(ArkUI_NodeCustomEvent *event) {
     return;
   }
   float pxLeft = HRPixelUtils::VpToPx(drawTextPaddingLeft_);
-  float pxTop = HRPixelUtils::VpToPx(drawTextPaddingTop_);
+  float pxTop = HRPixelUtils::VpToPx(drawTextPaddingTop_) + textMeasurer->GetCorrectPxOffsetY();
   OH_Drawing_TypographyPaint(textTypo, drawingHandle, pxLeft, pxTop);
 }
 #endif
