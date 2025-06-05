@@ -7,6 +7,7 @@ import demoSwiper from './demo-swiper.vue';
 import demoPullHeaderFooter from './demo-pull-header-footer.vue';
 import demoWaterfall from './demo-waterfall.vue';
 import demoNestedScroll from './demo-nested-scroll.vue';
+import demoNativeScroll from './demo-native-scroll.vue';
 
 const demos = {};
 
@@ -43,6 +44,15 @@ if (Vue.Native) {
     demoSetNativeProps: {
       name: 'setNativeProps',
       component: demoSetNativeProps,
+    },
+  });
+}
+
+if (Vue.Native.Platform == 'ohos') {
+  Object.assign(demos, {
+    demoNativeScroll: {
+      name: 'native scroll 示例',
+      component: demoNativeScroll,
     },
   });
 }

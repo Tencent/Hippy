@@ -743,7 +743,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 }
 
 - (void)applyLayoutDirectionIfNeeded {
-    if ([self isLayoutSubviewsRTL]) {
+    if ([self isLayoutSubviewsRTL] && self.horizontal) {
         _scrollView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
         _recordedScrollIndicatorSwitchValue[0] = _scrollView.showsHorizontalScrollIndicator ? 1 : 0;
         _recordedScrollIndicatorSwitchValue[1] = _scrollView.showsVerticalScrollIndicator ? 1 : 0;
@@ -770,12 +770,11 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 - (void)applyContentViewFrame {
     CGRect frame = _contentView.frame;
-    CGFloat paddingLeft = 0.f;
+    CGFloat paddingLeft = .0;
     if ([self isLayoutSubviewsRTL]) {
         CGFloat contentViewMaxX = CGRectGetMaxX(frame);
         paddingLeft = self.frame.size.width - contentViewMaxX;
-    }
-    else {
+    } else {
         paddingLeft = frame.origin.x;
     }
     frame.origin = CGPointMake(paddingLeft, frame.origin.y);

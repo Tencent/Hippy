@@ -42,6 +42,7 @@ export class HttpTaskCallbackImpl implements HttpTaskCallback {
     this.mDataHolder.addResponseHeaderProperty(HippyHttpResponse.HTTP_RESPONSE_STATUS_CODE, response.getStatusCode().toString());
     if (response.getStatusCode() != 200) {
       this.mDataHolder.errorMessage = "request status code is: " + response.getStatusCode();
+      this.mDataHolder.requestResult = response.result ?? "";
       this.mCallback.onHandleCompleted();
       return;
     }

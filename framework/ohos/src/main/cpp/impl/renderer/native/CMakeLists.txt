@@ -40,7 +40,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # OHOS_DRAW_TEXT - 使用绘制好的文本赋给Text组件，默认关闭
 # OHOS_DRAW_CUSTOM_TEXT - 使用绘制好的文本赋给Custom组件，不使用Text组件，AI选词、长按、手势、无障碍等不能利用OH底座，默认关闭
 target_compile_definitions(${PROJECT_NAME} PUBLIC "OHOS_DRAW_TEXT")
-#target_compile_definitions(${PROJECT_NAME} PUBLIC "OHOS_DRAW_CUSTOM_TEXT")
+target_compile_definitions(${PROJECT_NAME} PUBLIC "OHOS_DRAW_CUSTOM_TEXT")
 
 # region dom
 GlobalPackages_Add_dom()

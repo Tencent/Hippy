@@ -445,7 +445,7 @@ static napi_value DoMeasureText(napi_env env, napi_callback_info info) {
     } else if(measureFlag=="measure_add_image"){
       measureInst.AddImage(propMap, density);
     } else if(measureFlag=="measure_add_end"){
-      result = measureInst.EndMeasure(width, widthMode, height, heightMode, density);
+      result = measureInst.EndMeasure(width, widthMode, height, heightMode, false, density);
       break;
     }
   }

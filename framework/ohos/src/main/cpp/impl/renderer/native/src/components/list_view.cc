@@ -62,8 +62,6 @@ void ListView::Init() {
       listView->HandleOnChildrenUpdated();
       listView->CheckInitOffset();
       listView->CheckInitListReadyNotify();
-
-      // TODO: rowShouldSticky 吸顶逻辑，如果有业务需求，再评估鸿蒙上实现方案。
     }
   });
 }
@@ -274,6 +272,9 @@ void ListView::OnWillScroll(float offset, ArkUI_ScrollState state) {
       footerView_->Show(true);
     }
   }
+  
+  // 检测生效/失效吸顶并更新吸顶item显示位置
+  CheckAndUpdateSticky();
 }
 
 void ListView::OnScroll(float scrollOffsetX, float scrollOffsetY) {
@@ -326,9 +327,6 @@ void ListView::OnItemVisibleAreaChange(int32_t index, bool isVisible, float curr
 #endif
   
   CheckPullOnItemVisibleAreaChange(index, isVisible, currentRatio);
-  if (rowShouldSticky_) {
-    CheckStickyOnItemVisibleAreaChange(index, isVisible, currentRatio);
-  }
   if (exposureEventEnabled_) {
     if (index >= 0 && index < static_cast<int32_t>(children_.size())) {
       auto &view = children_[static_cast<uint32_t>(index)];
@@ -363,16 +361,7 @@ void ListView::HandleOnChildrenUpdated() {
     }
   }
   
-  stickyArray_.clear();
-  for (uint32_t i = 0; i < childrenCount; i++) {
-    auto &view = children_[i];
-    if (view->GetViewType() == LIST_VIEW_ITEM_TYPE) {
-      auto itemView = std::static_pointer_cast<ListItemView>(view);
-      if (itemView->IsSticky()) {
-        stickyArray_.push_back(static_cast<int32_t>(i));
-      }
-    }
-  }
+  CheckStickyOnChildrenUpdated();
 }
 
 void ListView::EmitScrollEvent(const std::string &eventName) {
@@ -551,36 +540,6 @@ void ListView::CheckPullOnScroll() {
   }
 }
 
-void ListView::CheckStickyOnItemVisibleAreaChange(int32_t index, bool isVisible, float currentRatio) {
-  auto moveUp = false;
-  auto offset = listNode_->GetScrollOffset();
-  auto moveOffset = isVertical_ ? offset.y : offset.x;
-  if (lastMoveOffset_ != 0 && moveOffset > lastMoveOffset_) {
-    moveUp = true;
-    lastMoveOffset_ = moveOffset;
-  } else {
-    lastMoveOffset_ = moveOffset;
-  }
-
-  if (!isVisible && moveUp) {
-    if (stickyIndex_ != index && std::find(stickyArray_.begin(), stickyArray_.end(), index) != stickyArray_.end()) {
-      stickyStack_.push_back(index);
-      stickyIndex_ = index;
-    }
-  }
-
-  if (isVisible && currentRatio >= 1.0) {
-    if (stickyStack_.size() > 0 && stickyStack_[stickyStack_.size() - 1] == index) {
-      stickyStack_.pop_back();
-    }
-    if (stickyStack_.size() > 0) {
-      stickyIndex_ = stickyStack_[stickyStack_.size() - 1];
-    } else {
-      stickyIndex_ = INVALID_STICKY_INDEX;
-    }
-  }
-}
-
 void ListView::CheckInitOffset() {
   if (listNode_) {
     if (initialOffset_ > 0) {
@@ -618,6 +577,107 @@ void ListView::CheckInitListReadyNotify() {
   if (!isInitListReadyNotified) {
     HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_RECYCLER_LIST_READY, nullptr);
     isInitListReadyNotified = true;
+  }
+}
+
+void ListView::CheckStickyOnChildrenUpdated() {
+  if (!rowShouldSticky_) {
+    return;
+  }
+  // 找出所有吸顶item
+  stickyArray_.clear();
+  auto childrenCount = children_.size();
+  for (uint32_t i = 0; i < childrenCount; i++) {
+    auto &view = children_[i];
+    if (view->GetViewType() == LIST_VIEW_ITEM_TYPE) {
+      auto itemView = std::static_pointer_cast<ListItemView>(view);
+      if (itemView->IsSticky()) {
+        stickyArray_.push_back(static_cast<int32_t>(i));
+      }
+    }
+  }
+  
+  // 检测生效/失效吸顶并设置吸顶item显示位置，目前只支持1个item吸顶显示
+  if (stickyingIndex_ != INVALID_STICKY_INDEX) {
+    StopSticky();
+  }
+  if (stickyArray_.size() > 0) {
+    stickyIndex_ = stickyArray_[0];
+    
+    stickyItemOffsetXY_ = 0;
+    int beginIndex = 0;
+    for (int i = beginIndex; i < stickyIndex_; i++) {
+      auto iItemView = std::static_pointer_cast<ListItemView>(children_[(size_t)i]);
+      stickyItemOffsetXY_ += (isVertical_ ? iItemView->GetHeight() : iItemView->GetWidth());
+    }
+    
+    CheckAndUpdateSticky();
+  }
+}
+
+bool ListView::ShouldSticky() {
+  if (!rowShouldSticky_) {
+    return false;
+  }
+  if (stickyIndex_ == INVALID_STICKY_INDEX) {
+    return false;
+  }
+  auto totalOffset = listNode_->GetScrollOffset();
+  if (isVertical_) {
+    if (totalOffset.y > stickyItemOffsetXY_) {
+      return true;
+    }
+  } else {
+    if (totalOffset.x > stickyItemOffsetXY_) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool ListView::CalculateStickyItemPosition(HRPosition *resultPosition) {
+  if (!resultPosition) {
+    return false;
+  }
+  auto totalOffset = listNode_->GetScrollOffset();
+  float x = 0;
+  float y = 0;
+  if (isVertical_) {
+    x = 0;
+    y = totalOffset.y > stickyItemOffsetXY_ ? 0 : stickyItemOffsetXY_ - totalOffset.y;
+  } else {
+    x = totalOffset.x > stickyItemOffsetXY_ ? 0 : stickyItemOffsetXY_ - totalOffset.x;
+    y = 0;
+  }
+  resultPosition->x = x;
+  resultPosition->y = y;
+  return true;
+}
+
+void ListView::StopSticky() {
+  stackNode_->RemoveChild(stickyNode_.get());
+  stickyNode_ = nullptr;
+  auto itemView = std::static_pointer_cast<ListItemView>(children_[(size_t)stickyingIndex_]);
+  itemView->EndSticky();
+  stickyingIndex_ = INVALID_STICKY_INDEX;
+}
+
+void ListView::CheckAndUpdateSticky() {
+  bool isSticky = ShouldSticky();
+  if (isSticky && stickyNode_ == nullptr) {
+    auto itemView = std::static_pointer_cast<ListItemView>(children_[(size_t)stickyIndex_]);
+    itemView->StartSticky();
+    stickyNode_ = itemView->GetStickyRootArkUINode();
+    stackNode_->AddChild(stickyNode_.get());
+    stickyingIndex_ = stickyIndex_;
+  }
+  if (!isSticky && stickyNode_) {
+    StopSticky();
+  }
+  if (stickyNode_) {
+    HRPosition pos(0, 0);
+    CalculateStickyItemPosition(&pos);
+    stickyNode_->SetPosition(pos);
   }
 }
 

@@ -312,6 +312,20 @@ bool BaseView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
   } else if (propKey == HRNodeProps::LINEAR_GRADIENT) {
     SetLinearGradientProp(propKey, propValue);
     return true;
+  } else if (propKey == "hit-test-ohos") {
+    ArkUI_HitTestMode mode = ARKUI_HIT_TEST_MODE_TRANSPARENT;
+    auto& value = HRValueUtils::GetString(propValue);
+    if (value == "default") {
+      mode = ARKUI_HIT_TEST_MODE_DEFAULT;
+    } else if (value == "block") {
+      mode = ARKUI_HIT_TEST_MODE_BLOCK;
+    } else if (value == "transparent") {
+      mode = ARKUI_HIT_TEST_MODE_TRANSPARENT;
+    } else if (value == "none") {
+      mode = ARKUI_HIT_TEST_MODE_NONE;
+    }
+    GetLocalRootArkUINode()->SetHitTestMode(mode);
+    return true;
   } else {
     bool handled = SetBackgroundImageProp(propKey, propValue);
     if (!handled) {

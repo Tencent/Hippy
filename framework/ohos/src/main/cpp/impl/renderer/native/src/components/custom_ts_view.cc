@@ -25,6 +25,7 @@
 #include "oh_napi/ark_ts.h"
 #include "oh_napi/oh_napi_object.h"
 #include "oh_napi/oh_napi_object_builder.h"
+#include "renderer/arkui/column_node.h"
 #include "renderer/arkui/native_node_api.h"
 #include "renderer/utils/hr_value_utils.h"
 
@@ -60,9 +61,17 @@ CustomTsNode *CustomTsView::GetLocalRootArkUINode() {
 void CustomTsView::CreateArkUINodeImpl() {
   tsNode_ = std::make_shared<CustomTsNode>(customNodeHandle_);
   tsNode_->MarkReleaseHandle(false);
-  contentNode_ = std::make_shared<StackNode>();
-  contentNode_->SetWidthPercent(1.f);
-  contentNode_->SetHeightPercent(1.f);
+  if (isContentNativeScroll_) {
+    contentNode_ = std::make_shared<ColumnNode>();
+  } else {
+    contentNode_ = std::make_shared<StackNode>();
+  }
+  contentNode_->SetId("HippySlotContentIn"+std::to_string(GetTag()));
+  contentNode_->SetPosition(HRPosition{0, 0});
+  // 当Slot节点是Scroll的子孙节点时，该content节点的高度由内容撑开，不能设置定高。
+  // contentNode_->SetWidthPercent(1.f);
+  // contentNode_->SetHeightPercent(1.f);
+  contentNode_->SetAlignment(ARKUI_ALIGNMENT_TOP_START);
   contentNode_->SetHitTestMode(ARKUI_HIT_TEST_MODE_NONE);
   if (contentHandle_) {
     OH_ArkUI_NodeContent_RegisterCallback(contentHandle_, nullptr);
@@ -76,6 +85,17 @@ void CustomTsView::DestroyArkUINodeImpl() {
   }
   tsNode_ = nullptr;
   contentNode_ = nullptr;
+}
+
+bool CustomTsView::SetViewProp(const std::string &propKey, const HippyValue &propValue) {
+  if (propKey == "native-scroll-ohos") {
+    auto& value = HRValueUtils::GetString(propValue);
+    if (value == "column") {
+      isContentNativeScroll_ = true;
+    }
+    return true;
+  }
+  return false;
 }
 
 bool CustomTsView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {

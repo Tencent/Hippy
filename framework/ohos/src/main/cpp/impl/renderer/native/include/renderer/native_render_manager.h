@@ -144,7 +144,7 @@ private:
 
   void DoMeasureText(const std::weak_ptr<RootNode> root_node, const std::weak_ptr<hippy::dom::DomNode> dom_node,
                      const float width, const int32_t width_mode,
-                     const float height, const int32_t height_mode, int64_t &result);
+                     const float height, const int32_t height_mode, bool isSizeIncludePadding, int64_t &result);
 
   bool IsCustomMeasureNode(const std::string &name);
   bool IsCustomMeasureCNode(const std::string &name);

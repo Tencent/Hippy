@@ -123,6 +123,7 @@ bool ArkUINode::HasParent() {
 }
 
 void ArkUINode::SetDefaultAttributes() {
+  // TODO: HitTest改默认行为有问题，待研究。
   SetHitTestMode(ARKUI_HIT_TEST_MODE_TRANSPARENT);
   baseAttributesFlagValue_ = 0;
 }
