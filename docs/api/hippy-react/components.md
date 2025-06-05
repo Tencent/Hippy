@@ -364,6 +364,7 @@ import icon from './qb_icon_new.png';
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | caretColor          | 输入光标颜色。（也可设置为 Style 属性） `最低支持版本2.11.5` | [`color`](api/style/color.md)    | `Android、hippy-react-web、Voltron` |
+| caret-size              | 输入光标粗细。（也可设置为 Style 属性）                                                                           | `number`                               | `Android(版本3.3.4以上)`                               |
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
