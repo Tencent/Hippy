@@ -432,7 +432,7 @@ void TextInputView::CallImpl(const std::string &method, const std::vector<HippyV
     const HippyValue obj = HippyValue(result);
     callback(obj);
   } else {
-    BaseView::Call(method, params, callback);
+    BaseView::CallImpl(method, params, callback);
   }
 }
 
