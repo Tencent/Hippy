@@ -68,6 +68,7 @@ public:
   void MarkReleaseHandle(bool isRelease) { isReleaseHandle_ = isRelease; }
 
   void MarkDirty();
+  void MarkDirty(ArkUI_NodeDirtyFlag flag);
 
   void AddChild(ArkUINode *child);
   void InsertChild(ArkUINode *child, int32_t index);

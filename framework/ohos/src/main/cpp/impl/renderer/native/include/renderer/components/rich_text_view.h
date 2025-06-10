@@ -89,6 +89,7 @@ private:
   std::set<std::shared_ptr<BaseView>> clickableSpanViews_;
 # ifdef OHOS_DRAW_CUSTOM_TEXT
   std::shared_ptr<CustomNode> textNode_ = nullptr;
+  bool toMarkDirty_ = false;
 # else
   std::shared_ptr<TextNode> textNode_ = nullptr;
 # endif

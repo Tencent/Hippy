@@ -77,6 +77,10 @@ void ArkUINode::MarkDirty() {
   NativeNodeApi::GetInstance()->markDirty(GetArkUINodeHandle(), ArkUI_NodeDirtyFlag::NODE_NEED_MEASURE);
 }
 
+void ArkUINode::MarkDirty(ArkUI_NodeDirtyFlag flag) {
+  NativeNodeApi::GetInstance()->markDirty(GetArkUINodeHandle(), flag);
+}
+
 void ArkUINode::AddChild(ArkUINode *child) {
   if (!child) {
     return;
