@@ -160,6 +160,8 @@ StyleFilter::StyleFilter() {
     "overflow",
     "direction",
     "blur",
+    "caret-color", // react兼容：react的InputView会把该属性放到style里
+    "placeholderTextColor", // react兼容：react的InputView会把该属性放到style里
   };
 }
 
