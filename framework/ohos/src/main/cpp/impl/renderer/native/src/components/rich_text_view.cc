@@ -127,6 +127,9 @@ bool RichTextView::ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView)
 
 bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
 #ifdef OHOS_DRAW_TEXT
+# ifdef OHOS_DRAW_CUSTOM_TEXT
+  toMarkDirty_ = true;
+# endif
 #else
   if (propKey == "text") {
     auto& value = HRValueUtils::GetString(propValue);
@@ -273,7 +276,12 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
 
 void RichTextView::OnSetPropsEndImpl() {
 #ifdef OHOS_DRAW_TEXT
-# ifndef OHOS_DRAW_CUSTOM_TEXT
+# ifdef OHOS_DRAW_CUSTOM_TEXT
+  if (toMarkDirty_) {
+    textNode_->MarkDirty(NODE_NEED_RENDER);
+    toMarkDirty_ = false;
+  }
+# else
   UpdateDrawTextContent();
 # endif
 #else
