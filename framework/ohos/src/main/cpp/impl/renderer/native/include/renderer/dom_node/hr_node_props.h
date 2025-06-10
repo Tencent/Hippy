@@ -175,6 +175,12 @@ public:
   constexpr static const char * BACKGROUND_RIPPLE = "nativeBackgroundAndroid";
   constexpr static const char * OVER_PULL = "bounces";
   constexpr static const char * HAS_STABLE_IDS = "hasStableIds";
+
+  constexpr static const char * PROP_PRIORITY = "nestedScrollPriority";
+  constexpr static const char * PROP_LEFT_PRIORITY = "nestedScrollLeftPriority";
+  constexpr static const char * PROP_TOP_PRIORITY = "nestedScrollTopPriority";
+  constexpr static const char * PROP_RIGHT_PRIORITY = "nestedScrollRightPriority";
+  constexpr static const char * PROP_BOTTOM_PRIORITY = "nestedScrollBottomPriority";
 };
 
 } // namespace native

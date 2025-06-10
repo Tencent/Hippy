@@ -22,6 +22,8 @@
 
 #include "renderer/components/waterfall_view.h"
 #include "renderer/components/rich_text_view.h"
+#include "renderer/dom_node/hr_node_props.h"
+#include "renderer/utils/hr_convert_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include "renderer/utils/hr_value_utils.h"
 #include "renderer/native_render_provider.h"
@@ -65,7 +67,7 @@ void WaterfallView::CreateArkUINodeImpl() {
   flowNode_->SetSizePercent(HRSize(1.f, 1.f));
   flowNode_->SetScrollBarDisplayMode(ARKUI_SCROLL_BAR_DISPLAY_MODE_OFF);
   flowNode_->SetCachedCount(4);
-  flowNode_->SetNestedScroll(ARKUI_SCROLL_NESTED_MODE_SELF_FIRST, ARKUI_SCROLL_NESTED_MODE_SELF_FIRST);
+  flowNode_->SetScrollNestedScroll(ARKUI_SCROLL_NESTED_MODE_SELF_FIRST, ARKUI_SCROLL_NESTED_MODE_SELF_FIRST);
   flowNode_->SetScrollEdgeEffect(ARKUI_EDGE_EFFECT_NONE);
 
   refreshNode_ = std::make_shared<RefreshNode>();
@@ -90,7 +92,29 @@ void WaterfallView::DestroyArkUINodeImpl() {
 }
 
 bool WaterfallView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
-  if (propKey == "bounces") {
+  if (propKey == HRNodeProps::PROP_PRIORITY) {
+    auto mode = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    scrollForward_ = mode;
+    scrollBackward_ = mode;
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_LEFT_PRIORITY) {
+    scrollForward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_TOP_PRIORITY) {
+    scrollForward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_RIGHT_PRIORITY) {
+    scrollBackward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_BOTTOM_PRIORITY) {
+    scrollBackward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == "bounces") {
     auto flag = HRValueUtils::GetBool(propValue, false);
     if (flag) {
       flowNode_->SetScrollEdgeEffect(ARKUI_EDGE_EFFECT_SPRING);
@@ -150,6 +174,10 @@ void WaterfallView::OnSetPropsEndImpl() {
   if (toUpdateSection_) {
     toUpdateSection_ = false;
     UpdateSectionOption();
+  }
+  if (toSetScrollNestedMode_) {
+    toSetScrollNestedMode_ = false;
+    flowNode_->SetScrollNestedScroll(scrollForward_, scrollBackward_);
   }
   return BaseView::OnSetPropsEndImpl();
 }

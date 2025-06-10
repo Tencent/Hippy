@@ -177,7 +177,7 @@ void WaterFlowNode::SetEnableScrollInteraction(bool bEnable) {
   SetSubAttributeFlag((uint32_t)AttributeFlag::SCROLL_ENABLE_SCROLL_INTERACTION);
 }
 
-void WaterFlowNode::SetNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward){
+void WaterFlowNode::SetScrollNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward){
   ArkUI_NumberValue value[] = {{.i32 = forward}, {.i32 = backward}}; 
   ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
   MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_SCROLL_NESTED_SCROLL, &item));

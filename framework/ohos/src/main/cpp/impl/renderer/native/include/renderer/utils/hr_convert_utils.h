@@ -42,6 +42,7 @@ public:
   static float ToDegrees(const HippyValue &value);
   static bool TransformToArk(const HippyValueArrayType &valueArray, HRTransform &transform);
   static ArkUI_ScrollAlignment ScrollAlignmentToArk(const HippyValue &value);
+  static ArkUI_ScrollNestedMode ScrollNestedModeToArk(const HippyValue &value);
 };
 
 } // namespace native

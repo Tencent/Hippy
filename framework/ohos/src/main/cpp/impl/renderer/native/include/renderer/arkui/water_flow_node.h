@@ -79,7 +79,7 @@ public:
   void ScrollToIndex(int32_t index, bool animated, ArkUI_ScrollAlignment align);
 
   void SetEnableScrollInteraction(bool bEnable);
-  void SetNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward);
+  void SetScrollNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward);
   void SetScrollBarDisplayMode(ArkUI_ScrollBarDisplayMode mode);
   void SetFooter(ArkUI_NodeHandle footer);
   void SetSectionOption(ArkUI_WaterFlowSectionOption *option);

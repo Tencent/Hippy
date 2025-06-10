@@ -238,6 +238,19 @@ ArkUI_ScrollAlignment HRConvertUtils::ScrollAlignmentToArk(const HippyValue &val
   return ARKUI_SCROLL_ALIGNMENT_START;
 }
 
+ArkUI_ScrollNestedMode HRConvertUtils::ScrollNestedModeToArk(const HippyValue &value) {
+  ArkUI_ScrollNestedMode mode = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  auto& str = HRValueUtils::GetString(value);
+  if (str == "parent") {
+    mode = ARKUI_SCROLL_NESTED_MODE_PARENT_FIRST;
+  } else if (str == "self") {
+    mode = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  } else if (str == "none") {
+    mode = ARKUI_SCROLL_NESTED_MODE_SELF_ONLY;
+  }
+  return mode;
+}
+
 } // namespace native
 } // namespace render
 } // namespace hippy

@@ -134,7 +134,7 @@ ScrollNode &ScrollNode::SetScrollMinOffset(float scrollMinOffset) {
   return *this;
 }
 
-ScrollNode &ScrollNode::SetNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward){
+ScrollNode &ScrollNode::SetScrollNestedScroll(ArkUI_ScrollNestedMode forward, ArkUI_ScrollNestedMode backward){
   ArkUI_NumberValue value[] = {{.i32 = forward},{.i32 = backward}}; 
   ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
   MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_SCROLL_NESTED_SCROLL, &item));

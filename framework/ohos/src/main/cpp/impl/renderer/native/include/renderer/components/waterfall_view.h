@@ -112,6 +112,10 @@ private:
   std::shared_ptr<WaterfallItemAdapter> adapter_;
   
   ArkUI_WaterFlowSectionOption *sectionOption_ = nullptr;
+  
+  ArkUI_ScrollNestedMode scrollForward_ = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  ArkUI_ScrollNestedMode scrollBackward_ = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  bool toSetScrollNestedMode_ = false;
 
   float_t scrollEventThrottle_ = 30.0;
   int32_t preloadItemNumber_ = 0;
