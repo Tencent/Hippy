@@ -21,8 +21,8 @@
  */
 
 #import "HippyOCToHippyValue.h"
-
 #include "footstone/hippy_value.h"
+
 
 using HippyValue = footstone::HippyValue;
 
@@ -37,13 +37,20 @@ using HippyValue = footstone::HippyValue;
 @implementation NSDictionary (ToHippyValue)
 
 - (HippyValue)toHippyValue {
-    __block HippyValue::HippyValueObjectType domObj([self count]);
+    __block HippyValue::HippyValueObjectType domObj;
+    domObj.reserve([self count]);
     [self enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        std::string objKey = [key UTF8String];
+        const char *cKey = [key UTF8String];
+        if (!cKey) {
+            // Handle invalid UTF-8
+            NSString *fallbackKey = [NSString stringWithFormat:@"INVALID_UTF8_KEY_%p", key];
+            cKey = [fallbackKey UTF8String];
+        }
+        std::string objKey(cKey);
         HippyValue value = [obj toHippyValue];
-        domObj[objKey] = value;
+        domObj.emplace(std::move(objKey), std::move(value));
     }];
-    return HippyValue(domObj);
+    return HippyValue(std::move(domObj));
 }
 
 @end
@@ -52,10 +59,11 @@ using HippyValue = footstone::HippyValue;
 
 - (HippyValue)toHippyValue {
     HippyValue::HippyValueArrayType array;
+    array.reserve([self count]);
     for (NSObject *obj in self) {
         array.push_back([obj toHippyValue]);
     }
-    return HippyValue(array);
+    return HippyValue(std::move(array));
 }
 
 @end
@@ -64,15 +72,15 @@ using HippyValue = footstone::HippyValue;
 
 - (HippyValue)toHippyValue {
     const char *objcType = [self objCType];
-    if (0 == strcmp(objcType, @encode(float)) ||
-        0 == strcmp(objcType, @encode(double))) {
-        return HippyValue([self doubleValue]);
-    }
-    else if (0 == strcmp(objcType, @encode(BOOL)) || 0 == strcmp(objcType, @encode(signed char))) {
+    if (strcmp(objcType, @encode(BOOL)) == 0 ||
+        strcmp(objcType, @encode(signed char)) == 0) {
         return HippyValue([self boolValue]);
-    }
-    else {
+    } else if (strcmp(objcType, @encode(int)) == 0 ||
+               strcmp(objcType, @encode(short)) == 0) {
         return HippyValue([self intValue]);
+    } else {
+        // use double as default
+        return HippyValue([self doubleValue]);
     }
 }
 
@@ -81,7 +89,13 @@ using HippyValue = footstone::HippyValue;
 @implementation NSString (ToHippyValue)
 
 - (HippyValue)toHippyValue {
-    return HippyValue([self UTF8String]);
+    const char *cStr = [self UTF8String];
+    if (!cStr) {
+        // Handle invalid UTF-8
+        NSString *fallback = [NSString stringWithFormat:@"INVALID_UTF8_STRING_%p", self];
+        cStr = [fallback UTF8String];
+    }
+    return HippyValue(cStr);
 }
 
 @end
