@@ -39,6 +39,7 @@ public:
   void CreateArkUINodeImpl() override;
   void DestroyArkUINodeImpl() override;
   bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
+  void OnSetPropsEndImpl() override;
   void CallImpl(const std::string &method, const std::vector<HippyValue> params,
             std::function<void(const HippyValue &result)> callback) override;
 
@@ -57,6 +58,11 @@ private:
 
   std::shared_ptr<ScrollNode> scrollNode_;
   std::shared_ptr<StackNode> stackNode_;
+  
+  ArkUI_ScrollNestedMode scrollForward_ = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  ArkUI_ScrollNestedMode scrollBackward_ = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  bool toSetScrollNestedMode_ = false;
+  
   bool isDragging_ = false;
   bool isScrollStarted_ = false;
   float lastScrollOffset_ = 0;

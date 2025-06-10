@@ -23,6 +23,7 @@
 #include "renderer/components/list_view.h"
 #include "renderer/components/list_item_view.h"
 #include "renderer/components/refresh_wrapper_view.h"
+#include "renderer/dom_node/hr_node_props.h"
 #include "renderer/utils/hr_convert_utils.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
@@ -97,16 +98,27 @@ void ListView::DestroyArkUINodeImpl() {
 }
 
 bool ListView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
-  if (propKey == "nestedScrollTopPriority") {
-    ArkUI_ScrollNestedMode scrollForward = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
-    ArkUI_ScrollNestedMode scrollBackward = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
-    auto& value = HRValueUtils::GetString(propValue);
-    if (value == "parent") {
-      scrollForward = ARKUI_SCROLL_NESTED_MODE_PARENT_FIRST;
-    } else if (value == "self") {
-      scrollForward = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
-    }
-    listNode_->SetScrollNestedScroll(scrollForward, scrollBackward);
+  if (propKey == HRNodeProps::PROP_PRIORITY) {
+    auto mode = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    scrollForward_ = mode;
+    scrollBackward_ = mode;
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_LEFT_PRIORITY) {
+    scrollForward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_TOP_PRIORITY) {
+    scrollForward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_RIGHT_PRIORITY) {
+    scrollBackward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_BOTTOM_PRIORITY) {
+    scrollBackward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
     return true;
   } else if (propKey == "horizontal") {
     auto value = HRValueUtils::GetBool(propValue, false);
@@ -157,6 +169,14 @@ bool ListView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
     return true;
   }
   return BaseView::SetPropImpl(propKey, propValue);
+}
+
+void ListView::OnSetPropsEndImpl() {
+  if (toSetScrollNestedMode_) {
+    toSetScrollNestedMode_ = false;
+    listNode_->SetScrollNestedScroll(scrollForward_, scrollBackward_);
+  }
+  BaseView::OnSetPropsEndImpl();
 }
 
 void ListView::CallImpl(const std::string &method, const std::vector<HippyValue> params,
@@ -245,10 +265,6 @@ void ListView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &p
 
 void ListView::ScrollToIndex(int32_t index, bool animated) {
   listNode_->ScrollToIndex(index, animated, ARKUI_SCROLL_ALIGNMENT_START);
-}
-
-void ListView::SetScrollNestedMode(ArkUI_ScrollNestedMode scrollForward, ArkUI_ScrollNestedMode scrollBackward) {
-  listNode_->SetScrollNestedScroll(scrollForward, scrollBackward);
 }
 
 void ListView::OnAppear() {

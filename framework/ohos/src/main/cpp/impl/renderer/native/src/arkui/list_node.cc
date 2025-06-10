@@ -117,7 +117,7 @@ void ListNode::SetScrollEdgeEffect(bool hasEffect) {
 }
 
 void ListNode::SetScrollNestedScroll(ArkUI_ScrollNestedMode scrollForward, ArkUI_ScrollNestedMode scrollBackward) {
-  ArkUI_NumberValue value[] = {{.i32 = scrollBackward}, {.i32 = scrollForward}};
+  ArkUI_NumberValue value[] = {{.i32 = scrollForward}, {.i32 = scrollBackward}};
   ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
   MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_SCROLL_NESTED_SCROLL, &item));
   SetSubAttributeFlag((uint32_t)AttributeFlag::SCROLL_NESTED_SCROLL);

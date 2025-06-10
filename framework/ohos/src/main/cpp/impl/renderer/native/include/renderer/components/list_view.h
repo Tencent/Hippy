@@ -55,6 +55,7 @@ public:
   void CreateArkUINodeImpl() override;
   void DestroyArkUINodeImpl() override;
   bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
+  void OnSetPropsEndImpl() override;
   void CallImpl(const std::string &method, const std::vector<HippyValue> params,
                     std::function<void(const HippyValue &result)> callback) override;
 
@@ -66,7 +67,6 @@ public:
   void UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) override;
 
   void ScrollToIndex(int32_t index, bool animated);
-  void SetScrollNestedMode(ArkUI_ScrollNestedMode scrollForward, ArkUI_ScrollNestedMode scrollBackward);
 
   void OnAppear() override;
   void OnDisappear() override;
@@ -112,6 +112,10 @@ private:
   std::shared_ptr<ListNode> listNode_;
 
   std::shared_ptr<ListItemAdapter> adapter_;
+  
+  ArkUI_ScrollNestedMode scrollForward_ = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  ArkUI_ScrollNestedMode scrollBackward_ = ARKUI_SCROLL_NESTED_MODE_SELF_FIRST;
+  bool toSetScrollNestedMode_ = false;
 
   float width_ = 0;
   float height_ = 0;

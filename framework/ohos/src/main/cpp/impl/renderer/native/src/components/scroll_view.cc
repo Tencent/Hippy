@@ -21,6 +21,8 @@
  */
 
 #include "renderer/components/scroll_view.h"
+#include "renderer/dom_node/hr_node_props.h"
+#include "renderer/utils/hr_convert_utils.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include "renderer/utils/hr_value_utils.h"
@@ -70,7 +72,29 @@ void ScrollView::DestroyArkUINodeImpl() {
 }
 
 bool ScrollView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
-  if (propKey == "showScrollIndicator") {
+  if (propKey == HRNodeProps::PROP_PRIORITY) {
+    auto mode = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    scrollForward_ = mode;
+    scrollBackward_ = mode;
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_LEFT_PRIORITY) {
+    scrollForward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_TOP_PRIORITY) {
+    scrollForward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_RIGHT_PRIORITY) {
+    scrollBackward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == HRNodeProps::PROP_BOTTOM_PRIORITY) {
+    scrollBackward_ = HRConvertUtils::ScrollNestedModeToArk(propValue);
+    toSetScrollNestedMode_ = true;
+    return true;
+  } else if (propKey == "showScrollIndicator") {
     auto value = HRValueUtils::GetBool(propValue, false);
     GetLocalRootArkUINode()->SetShowScrollIndicator(value);
     return true;
@@ -115,6 +139,14 @@ bool ScrollView::SetPropImpl(const std::string &propKey, const HippyValue &propV
     return true;
   }
   return BaseView::SetPropImpl(propKey, propValue);
+}
+
+void ScrollView::OnSetPropsEndImpl() {
+  if (toSetScrollNestedMode_) {
+    toSetScrollNestedMode_ = false;
+    scrollNode_->SetScrollNestedScroll(scrollForward_, scrollBackward_);
+  }
+  BaseView::OnSetPropsEndImpl();
 }
 
 void ScrollView::OnChildInsertedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
