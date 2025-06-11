@@ -326,19 +326,23 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     CGRect frame = rootView.frame;
 
     // Register shadow view
+    UIColor *rootBgColor = rootView.backgroundColor;
+    NSString *rootViewName = NSStringFromClass([rootView class]);
+    __weak __typeof(self)weakSelf = self;
     dispatch_async(HippyGetUIManagerQueue(), ^{
-        if (!self->_viewRegistry) {
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf->_shadowViewRegistry) {
             return;
         }
 
         HippyRootShadowView *shadowView = [HippyRootShadowView new];
         shadowView.hippyTag = hippyTag;
         shadowView.frame = frame;
-        shadowView.backgroundColor = rootView.backgroundColor;
-        shadowView.viewName = NSStringFromClass([rootView class]);
+        shadowView.backgroundColor = rootBgColor;
+        shadowView.viewName = rootViewName;
         shadowView.sizeFlexibility = sizeFlexibility;
-        self->_shadowViewRegistry[shadowView.hippyTag] = shadowView;
-        [self->_rootViewTags addObject:hippyTag];
+        strongSelf->_shadowViewRegistry[hippyTag] = shadowView;
+        [strongSelf->_rootViewTags addObject:hippyTag];
     });
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
