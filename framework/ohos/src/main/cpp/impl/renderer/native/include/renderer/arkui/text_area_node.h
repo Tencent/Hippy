@@ -36,6 +36,8 @@ public:
   virtual void OnFocus(){}
   virtual void OnPaste(){}
   virtual void OnTextSelectionChange(int32_t location, int32_t length){}
+  virtual void OnWillInsert(int32_t location, char *string){}
+  virtual void OnWillDelete(int32_t location, char *string){}
 };
 
 class TextAreaNode : public TextInputBaseNode {

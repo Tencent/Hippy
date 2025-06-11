@@ -80,6 +80,8 @@ public:
   void OnSubmit() override;
   void OnPaste() override;
   void OnTextSelectionChange(int32_t location, int32_t length) override;
+  void OnWillInsert(int32_t location, char *string) override;
+  void OnWillDelete(int32_t location, char *string) override;
 
 public:
   void InitNode();
@@ -94,6 +96,7 @@ public:
   void BlurTextInput(const HippyValueArrayType &param);
   void HideInputMethod(const HippyValueArrayType &param);
   void OnEventEndEditing(ArkUI_EnterKeyType enterKeyType);
+  void OnKeyPress(const std::string &keyString);
 
 private:
   void SetPropFlag(TextInputPropFlag flag) { propFlags_ |= flag; }
@@ -135,6 +138,7 @@ private:
   bool isListenKeyboardWillShow_ = false;
   bool isListenKeyboardWillHide_ = false;
   bool isListenContentSizeChange_ = false;
+  bool isListenKeyPress_ = false;
 
   bool focus_ = false;
   float_t previousContentWidth_ = 0;

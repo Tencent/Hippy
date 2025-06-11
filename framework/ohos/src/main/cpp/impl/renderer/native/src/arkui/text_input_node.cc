@@ -27,13 +27,16 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-static constexpr std::array<ArkUI_NodeEventType, 6> TEXT_INPUT_NODE_EVENT_TYPES = {
+static constexpr ArkUI_NodeEventType TEXT_INPUT_NODE_EVENT_TYPES[] = {
   NODE_TEXT_INPUT_ON_PASTE,
   NODE_TEXT_INPUT_ON_CHANGE,
   NODE_TEXT_INPUT_ON_SUBMIT,
   NODE_ON_FOCUS,
   NODE_ON_BLUR,
-  NODE_TEXT_INPUT_ON_TEXT_SELECTION_CHANGE};
+  NODE_TEXT_INPUT_ON_TEXT_SELECTION_CHANGE,
+  NODE_TEXT_INPUT_ON_WILL_INSERT,
+  NODE_TEXT_INPUT_ON_WILL_DELETE,
+};
 
 TextInputNode::TextInputNode()
     : TextInputBaseNode(ArkUI_NodeType::ARKUI_NODE_TEXT_INPUT), textInputNodeDelegate_(nullptr) {
@@ -76,6 +79,42 @@ void TextInputNode::OnNodeEvent(ArkUI_NodeEvent *event) {
     int32_t selectionLocation = nodeComponentEvent->data[0].i32;
     int32_t selectionLength = nodeComponentEvent->data[1].i32 - nodeComponentEvent->data[0].i32;
     textInputNodeDelegate_->OnTextSelectionChange(selectionLocation, selectionLength);
+  } else if (eventType == ArkUI_NodeEventType::NODE_TEXT_INPUT_ON_WILL_INSERT) {
+    ArkUI_NumberValue value[1] = {{.f32 = 0}};
+    int32_t ret = OH_ArkUI_NodeEvent_GetNumberValue(event, 0, value);
+    if (ret != ARKUI_ERROR_CODE_NO_ERROR) {
+      FOOTSTONE_LOG(ERROR) << "input node, will insert, get number error, ret: " << ret;
+    }
+    const int32_t BUF_SIZE= 64;
+    char insert[BUF_SIZE] = {0};
+    char* insertValue[1] = { insert };
+    int32_t bufSize[1] = { BUF_SIZE };
+    ret = OH_ArkUI_NodeEvent_GetStringValue(event, 0, insertValue, bufSize);
+    if (ret != ARKUI_ERROR_CODE_NO_ERROR) {
+      FOOTSTONE_LOG(ERROR) << "input node, will insert, get string error, ret: " << ret;
+    }
+    // FOOTSTONE_LOG(INFO) << "input node, will insert, pos: " << value[0].f32 << ", string: " << insertValue[0];
+    ArkUI_NumberValue returnValue[] = {{ .i32 = true }};
+    OH_ArkUI_NodeEvent_SetReturnNumberValue(event, returnValue, 1);
+    textInputNodeDelegate_->OnWillInsert((int32_t)value[0].f32, insertValue[0]);
+  } else if (eventType == ArkUI_NodeEventType::NODE_TEXT_INPUT_ON_WILL_DELETE) {
+    ArkUI_NumberValue value[1] = {{.f32 = 0}};
+    int32_t ret = OH_ArkUI_NodeEvent_GetNumberValue(event, 0, value);
+    if (ret != ARKUI_ERROR_CODE_NO_ERROR) {
+      FOOTSTONE_LOG(ERROR) << "input node, will delete, get number error, ret: " << ret;
+    }
+    const int32_t BUF_SIZE= 64;
+    char insert[BUF_SIZE] = {0};
+    char* deleteValue[1] = { insert };
+    int32_t bufSize[1] = { BUF_SIZE };
+    ret = OH_ArkUI_NodeEvent_GetStringValue(event, 0, deleteValue, bufSize);
+    if (ret != ARKUI_ERROR_CODE_NO_ERROR) {
+      FOOTSTONE_LOG(ERROR) << "input node, will delete, get string error, ret: " << ret;
+    }
+    // FOOTSTONE_LOG(INFO) << "input node, will delete, pos: " << value[0].f32 << ", string: " << deleteValue[0];
+    ArkUI_NumberValue returnValue[] = {{ .i32 = true }};
+    OH_ArkUI_NodeEvent_SetReturnNumberValue(event, returnValue, 1);
+    textInputNodeDelegate_->OnWillDelete((int32_t)value[0].f32, deleteValue[0]);
   }
 }
 

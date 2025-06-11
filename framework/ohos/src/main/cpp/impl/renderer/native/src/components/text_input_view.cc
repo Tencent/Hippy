@@ -221,6 +221,9 @@ bool TextInputView::SetPropImpl(const std::string &propKey, const HippyValue &pr
   } else if (propKey == "contentSizeChange") {
     isListenContentSizeChange_ = HRValueUtils::GetBool(propValue, false);
     return true;
+  } else if (propKey == "keypress") {
+    isListenKeyPress_ = HRValueUtils::GetBool(propValue, false);
+    return true;
   }
   return BaseView::SetPropImpl(propKey, propValue);
 }
@@ -546,6 +549,14 @@ void TextInputView::OnTextSelectionChange(int32_t location, int32_t length) {
   HREventUtils::SendComponentEvent(ctx_, tag_, "selectionchange", obj);
 }
 
+void TextInputView::OnWillInsert(int32_t location, char *string) {
+  OnKeyPress(string);
+}
+
+void TextInputView::OnWillDelete(int32_t location, char *string) {
+  OnKeyPress("backspace");
+}
+
 void TextInputView::OnEventEndEditing(ArkUI_EnterKeyType enterKeyType) {
   if(!isListenEndEditing_) {
     return;
@@ -582,6 +593,24 @@ void TextInputView::OnEventEndEditing(ArkUI_EnterKeyType enterKeyType) {
   }
   const std::shared_ptr<HippyValue> objAction = std::make_shared<HippyValue>(params);
   HREventUtils::SendComponentEvent(ctx_, tag_, "onEditorAction", objAction);
+}
+
+void TextInputView::OnKeyPress(const std::string &keyString) {
+  if(!isListenKeyPress_) {
+    return;
+  }
+  
+  std::string resultKeyString = keyString;
+  if (keyString == " ") {
+    resultKeyString = "space";
+  } else if (keyString == "\n") {
+    resultKeyString = "enter";
+  }
+  
+  HippyValueObjectType params;
+  params["key"] = resultKeyString;
+  const std::shared_ptr<HippyValue> obj = std::make_shared<HippyValue>(params);
+  HREventUtils::SendComponentEvent(ctx_, tag_, "keypress", obj);
 }
 
 void TextInputView::ClearProps() {
