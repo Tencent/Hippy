@@ -647,6 +647,11 @@ void Scope::SetCallbackForUriLoader() {
         const TimePoint& start, const TimePoint& end,
         const int32_t ret_code, const string_view& error_msg) {
       DEFINE_AND_CHECK_SELF(Scope)
+      // 该函数可能在非主线程非dom线程产生scope的持有，当hippy engine销毁时，有可能scope在，engine已经被释放，
+      // 所以，这里判断到scope在engine不在时,没有必要再走下去。
+      if (!self->engine_.lock()) {
+        return;
+      }
       auto runner = self->GetTaskRunner();
       if (runner) {
         auto task = [weak_this, uri, start, end, ret_code, error_msg]() {
