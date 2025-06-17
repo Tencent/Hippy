@@ -141,6 +141,7 @@ export interface HippyLibrary {
 
   // worker线程使用
   Worker_RegisterWModules(workerName: string, callNativesFunction: (
+    scopeId: number,
     moduleName: string,
     moduleFunc: string,
     callId: string,
