@@ -43,6 +43,7 @@ ListItemView::~ListItemView() {
     children_.clear();
   }
   if (itemNode_) {
+    itemNode_->SetArkUINodeDelegate(nullptr);
     itemNode_->RemoveChild(stackNode_.get());
   }
 }

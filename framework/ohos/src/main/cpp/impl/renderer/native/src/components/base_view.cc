@@ -131,7 +131,8 @@ void BaseView::DestroyArkUINode() {
     return;
   }
   
-  GetLocalRootArkUINode()->RemoveSelfFromParent();
+  node->SetArkUINodeDelegate(nullptr);
+  node->RemoveSelfFromParent();
   DestroyArkUINodeImpl();
   isLazyCreate_ = true;
   for (int32_t i = 0; i < (int32_t)children_.size(); i++) {
