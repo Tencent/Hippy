@@ -76,7 +76,7 @@ Pod::Spec.new do |s|
     'modules/ios/image/*.h',
     ]
     framework.libraries = 'c++'
-    framework.frameworks = 'CoreServices'
+    framework.frameworks = 'MobileCoreServices'
     framework.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_ENABLE_CPP_EXCEPTIONS' => true,
