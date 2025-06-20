@@ -156,7 +156,7 @@ void ScrollNode::OnNodeEvent(ArkUI_NodeEvent *event) {
     return;
   }
   auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
-  auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
+  // auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
   if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
     ScrollToContentOffset(initialContentOffset_);
   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL_STOP) {
@@ -164,9 +164,8 @@ void ScrollNode::OnNodeEvent(ArkUI_NodeEvent *event) {
   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL_START) {
     scrollNodeDelegate_->OnScrollStart();
   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL) {
-    float x = nodeComponentEvent->data[0].f32;
-    float y = nodeComponentEvent->data[1].f32;
-    scrollNodeDelegate_->OnScroll(x, y);
+    HRPoint contentOffset = GetScrollContentOffset();
+    scrollNodeDelegate_->OnScroll(contentOffset.x, contentOffset.y);
   }
 }
 
