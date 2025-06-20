@@ -17,7 +17,9 @@
 ## 整合字体文件
 
 Ohos 只需要在静态资源 `resfile` 目录中建立 `fonts` 目录，然后把字体文件拷贝进去即可。
-当前其它目录也可以，也可以下载字体文件到某个目录。
+当然其它目录也可以，也可以下载字体文件到某个目录。
+
+> 对于 `rawfile` 目录里的字体文件，因为鸿蒙提供的rawfile操作是一套非路径Api，无法获取文件路径，所以为了使用路径需要拷贝字体文件到一个临时目录，示例代码参考[EntryAbility.ets](https://github.com/Tencent/Hippy/blob/main/framework/examples/ohos-demo/src/main/ets/entryability/EntryAbility.ets)里。
 
 需要注意的是，字体文件名需要和 FontFamily 一致，因为虽然也可以做字体文件名映射，但是字体和文件名一致无疑是最简单的办法。
 
@@ -26,7 +28,7 @@ Ohos 只需要在静态资源 `resfile` 目录中建立 `fonts` 目录，然后�
 ## 注册字体
 
 ```typescript
-let fontPath = this.context.resourceDir + '/fonts/TTTGB.otf'
+let fontPath = `${getContext().resourceDir}/fonts/TTTGB.otf`;
 font.registerFont({
   familyName: 'TTTGB',
   familySrc: `file://${fontPath}`
@@ -44,8 +46,8 @@ export class ExampleFontAdapter implements HippyFontAdapter {
   // 注册字体路径至hippy测量函数
   getCustomFontPathMap(): Map<string, string> | null {
     let map = new Map<string, string>();
-    // 暂时hardcode路径在此，生产环境应通过Context属性获取字体文件路径
-    map.set("TTTGB", "/data/storage/el1/bundle/entry/resources/resfile/fonts/TTTGB.otf");
+    const fontFile = `${getContext().resourceDir}/fonts/TTTGB.otf`;
+    map.set("TTTGB", fontFile);
     return map;
   }
 }

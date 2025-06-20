@@ -24,8 +24,15 @@ export class ExampleFontAdapter implements HippyFontAdapter {
   // 注册字体路径至hippy测量函数
   getCustomFontPathMap(): Map<string, string> | null {
     let map = new Map<string, string>();
-    // 暂时hardcode路径在此，生产环境应通过Context属性获取字体文件路径
-    map.set("TTTGB", "/data/storage/el1/bundle/entry/resources/resfile/fonts/TTTGB.otf");
+
+    // 情况一：注册非rawfile目录自定义字体
+    const fontFile = `${getContext().resourceDir}/fonts/TTTGB.otf`;
+    map.set("TTTGB", fontFile);
+
+    // 情况二：注册rawfile目录自定义字体
+    // const fontFile = `${getContext().tempDir}/fonts/TTTGB.otf`;
+    // map.set("TTTGB", fontFile);
+
     return map;
   }
 
