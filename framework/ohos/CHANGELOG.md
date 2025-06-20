@@ -1,17 +1,37 @@
-# Change Log
+# 版本记录
 
-## Version 1.0.0
-### Features
-- Cross-platform development that supports the ohos platform.
+## 3.3.1
 
-## Version 1.1.0
-### Features
-- Improve the list component, improve the details of JSVM usage, optimize memory, and so on.
+Commit: e2952a805
 
-## Version 1.2.0
-### Fix
-- Some bugs.
+- List组件完善，Input组件完善，Waterfall组件重构；
+- 文本测量性能优化；
+- 预加载支持，等等。
 
-## Version 1.3.0
-### Fix
-- Some bugs.
+## 3.3.0
+
+- 修复bug。
+
+## 1.3.0
+
+- 修复bug。
+
+## 1.2.0
+
+- 修复bug。
+
+## 1.1.0
+
+- List组件优化，JSVM使用优化，内存优化，等等。
+
+## 1.0.0
+
+- Hippy跨平台开发框架开始支持鸿蒙平台。
+
+
+
+
+
+
+
+
