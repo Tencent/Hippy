@@ -80,6 +80,13 @@ Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harm
 
 另外，鸿蒙调试目前只支持网络调试（手机和JS Server在一个网络内，通过网络下载JS Bundle调试），数据线调试还在开发中。
 
+> 网络调试时，有些公司网络会有限制，个人热点一般无限制。公司网络限制可能端口限制需要改端口，可能手机和电脑不同网，具体咨询IT部门。
+
+修改端口需要改2个地方：
+
+- 前端包scripts/hippy-webpack.dev.js里 devServer - remote - port 端口修改；（影响电脑端Http server的服务端口） 
+- 客户端连接端口修改；（影响手机端连接）
+
 # 前端环境准备
 
 1. 安装新一代调试工具： `npm i -D @hippy/debug-server-next@latest`
