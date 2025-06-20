@@ -42,7 +42,7 @@ import { HippyValue } from 'hippy/src/main/ets/support/common/HippyTypes';
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { CustomHippyRoot } from './CustomHippyRoot';
 
-export class ExampleAPIProvider implements HippyAPIProvider {
+export class ExampleAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
     return null
   }
