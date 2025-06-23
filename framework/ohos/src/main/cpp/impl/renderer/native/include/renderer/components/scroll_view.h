@@ -49,6 +49,8 @@ public:
   void OnScroll(float xOffset, float yOffset) override;
   void OnScrollStart() override;
   void OnScrollStop() override;
+  void OnReachStart() override;
+  void OnReachEnd() override;
   void OnTouch(int32_t actionType, const HRPosition &screenPosition) override;
 
 private:

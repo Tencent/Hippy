@@ -32,6 +32,8 @@ static constexpr ArkUI_NodeEventType SCROLL_NODE_EVENT_TYPES[] = {
   NODE_SCROLL_EVENT_ON_SCROLL,
   NODE_SCROLL_EVENT_ON_SCROLL_START,
   NODE_SCROLL_EVENT_ON_SCROLL_STOP,
+  NODE_SCROLL_EVENT_ON_REACH_START,
+  NODE_SCROLL_EVENT_ON_REACH_END
 };
 
 ScrollNode::ScrollNode()
@@ -166,6 +168,10 @@ void ScrollNode::OnNodeEvent(ArkUI_NodeEvent *event) {
   } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_SCROLL) {
     HRPoint contentOffset = GetScrollContentOffset();
     scrollNodeDelegate_->OnScroll(contentOffset.x, contentOffset.y);
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_START) {
+    scrollNodeDelegate_->OnReachStart();
+  } else if (eventType == ArkUI_NodeEventType::NODE_SCROLL_EVENT_ON_REACH_END) {
+    scrollNodeDelegate_->OnReachEnd();
   }
 }
 
