@@ -54,7 +54,7 @@ public:
 private:
   void CheckFireBeginDragEvent();
   void CheckFireEndDragEvent();
-  void EmitScrollEvent(std::string &eventName);
+  void EmitScrollEvent(const std::string &eventName);
 
   std::shared_ptr<ScrollNode> scrollNode_;
   std::shared_ptr<StackNode> stackNode_;

@@ -173,23 +173,25 @@ void ScrollView::CheckFireBeginDragEvent() {
   if (!isDragging_) {
     isDragging_ = true;
     std::string eventName = HREventUtils::EVENT_SCROLLER_BEGIN_DRAG;
-    this->EmitScrollEvent(eventName);
+    EmitScrollEvent(eventName);
+    EmitScrollEvent(HREventUtils::EVENT_SCROLLER_ON_SCROLL);
   }
 }
 
 void ScrollView::CheckFireEndDragEvent() {
   if (isDragging_) {
     isDragging_ = false;
+    EmitScrollEvent(HREventUtils::EVENT_SCROLLER_ON_SCROLL);
     std::string endDragEventName = HREventUtils::EVENT_SCROLLER_END_DRAG;
-    this->EmitScrollEvent(endDragEventName);
+    EmitScrollEvent(endDragEventName);
     if (isScrollStarted_) {
       std::string momentumBeginEventName = HREventUtils::EVENT_SCROLLER_MOMENTUM_BEGIN;
-      this->EmitScrollEvent(momentumBeginEventName);
+      EmitScrollEvent(momentumBeginEventName);
     }
   }
 }
 
-void ScrollView::EmitScrollEvent(std::string &eventName) {
+void ScrollView::EmitScrollEvent(const std::string &eventName) {
   if (!CheckRegisteredEvent(eventName)) {
     return;
   }
@@ -256,8 +258,9 @@ void ScrollView::OnScrollStop() {
   isScrollStarted_ = false;
   lastScrollTime_ = 0;
   lastScrollOffset_ = 0;
+  EmitScrollEvent(HREventUtils::EVENT_SCROLLER_ON_SCROLL);
   std::string eventName = std::string(HREventUtils::EVENT_SCROLLER_MOMENTUM_END);
-  this->EmitScrollEvent(eventName);
+  EmitScrollEvent(eventName);
 }
 
 void ScrollView::CallImpl(const std::string &method, const std::vector<HippyValue> params,

@@ -85,7 +85,7 @@ public:
 
   void SetRenderViewFrame(const HRRect &frame, const HRPadding &padding = HRPadding(0, 0, 0, 0));
   void UpdateEventListener(HippyValueObjectType &newEvents);
-  bool CheckRegisteredEvent(std::string &eventName);
+  bool CheckRegisteredEvent(const std::string &eventName);
 
   void SetTsRenderProvider(napi_env ts_env, napi_ref ts_render_provider_ref);
   void SetTsEventCallback(napi_ref ts_event_callback_ref);
