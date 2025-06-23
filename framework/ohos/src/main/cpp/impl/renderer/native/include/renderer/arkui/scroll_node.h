@@ -34,6 +34,8 @@ public:
   virtual void OnScroll(float xOffset, float yOffset) {}
   virtual void OnScrollStart() {}
   virtual void OnScrollStop() {}
+  virtual void OnReachStart() {}
+  virtual void OnReachEnd() {}
 };
 
 class ScrollNode : public ArkUINode {

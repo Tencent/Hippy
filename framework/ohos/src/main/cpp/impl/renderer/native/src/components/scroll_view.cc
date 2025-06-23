@@ -263,6 +263,14 @@ void ScrollView::OnScrollStop() {
   EmitScrollEvent(eventName);
 }
 
+void ScrollView::OnReachStart() {
+  EmitScrollEvent(HREventUtils::EVENT_SCROLLER_ON_SCROLL);
+}
+  
+void ScrollView::OnReachEnd() {
+  EmitScrollEvent(HREventUtils::EVENT_SCROLLER_ON_SCROLL);
+}
+
 void ScrollView::CallImpl(const std::string &method, const std::vector<HippyValue> params,
                       std::function<void(const HippyValue &)> callback) {
   FOOTSTONE_DLOG(INFO) << "ScrollView call: method " << method << ", params: " << params.size();
