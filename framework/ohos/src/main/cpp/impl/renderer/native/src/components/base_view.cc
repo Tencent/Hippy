@@ -1010,7 +1010,7 @@ void BaseView::UpdateEventListener(HippyValueObjectType &newEvents) {
   }
 }
 
-bool BaseView::CheckRegisteredEvent(std::string &eventName) {
+bool BaseView::CheckRegisteredEvent(const std::string &eventName) {
   std::string name = eventName;
   std::transform(name.begin(), name.end(), name.begin(), ::tolower);
   if (events_.size() > 0 && events_.find(name) != events_.end()) {
