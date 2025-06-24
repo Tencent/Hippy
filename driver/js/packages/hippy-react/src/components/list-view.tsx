@@ -95,7 +95,7 @@ interface ListViewProps {
    * Each row have different type, it will be using at render recycle.
    *
    * @param {number} index - Index Of data.
-   * @returns {string}
+   * @returns {number}
    */
   getRowType?: (index: number) => number;
 
