@@ -139,12 +139,12 @@ void NativeRenderProvider::EndBatch(uint32_t root_id) {
   });
 }
 
-void NativeRenderProvider::UpdateTextMeasurer(uint32_t root_id, uint32_t node_id, const std::shared_ptr<TextMeasurer> text_measurer) {
+void NativeRenderProvider::UpdateTextMeasurer(uint32_t root_id, uint32_t node_id, const std::shared_ptr<TextMeasurer> text_measurer, int32_t incCreateCount) {
   OhNapiTaskRunner *taskRunner = OhNapiTaskRunner::Instance(ts_env_);
-  taskRunner->RunAsyncTask([render_impl = render_impl_, root_id, node_id, text_measurer]() {
+  taskRunner->RunAsyncTask([render_impl = render_impl_, root_id, node_id, text_measurer, incCreateCount]() {
     auto view_manager = render_impl->GetHRManager()->GetViewManager(root_id);
     if (view_manager) {
-      view_manager->GetRenderContext()->GetTextMeasureManager()->SaveNewTextMeasurer(node_id, text_measurer);
+      view_manager->GetRenderContext()->GetTextMeasureManager()->SaveNewTextMeasurer(node_id, text_measurer, incCreateCount);
     }
   });
 }

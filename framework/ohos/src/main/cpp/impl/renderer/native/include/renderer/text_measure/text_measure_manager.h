@@ -33,6 +33,8 @@ inline namespace native {
 
 class TextMeasureCache {
 public:
+  // 对于“增-删-增”同一个id的节点，dom线程会连续绘制文本，但主线程后续才触发删，为了保证不删掉第2次创建的文本，加一个引用计数
+  int32_t refCount_ = 0;
   std::shared_ptr<TextMeasurer> used_ = nullptr;
   std::shared_ptr<TextMeasurer> builded_ = nullptr;
 };
@@ -42,14 +44,16 @@ public:
   TextMeasureManager() {}
   ~TextMeasureManager() {}
   
-  void SaveNewTextMeasurer(uint32_t node_id, std::shared_ptr<TextMeasurer> text_measurer) {
+  void SaveNewTextMeasurer(uint32_t node_id, std::shared_ptr<TextMeasurer> text_measurer, int32_t incRefCount) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = text_measurer_map_.find(node_id);
     if (it != text_measurer_map_.end()) {
-      auto cache = it->second;
+      auto &cache = it->second;
+      cache->refCount_ += incRefCount;
       cache->builded_ = text_measurer;
     } else {
       auto cache = std::make_shared<TextMeasureCache>();
+      cache->refCount_ = incRefCount;
       cache->builded_ = text_measurer;
       text_measurer_map_[node_id] = cache;
     }
@@ -93,7 +97,14 @@ public:
 
   void EraseTextMeasurer(uint32_t node_id) {
     std::lock_guard<std::mutex> lock(mutex_);
-    text_measurer_map_.erase(node_id);
+    auto it = text_measurer_map_.find(node_id);
+    if (it != text_measurer_map_.end()) {
+      auto &cache = it->second;
+      cache->refCount_ -= 1;
+      if (cache->refCount_ <= 0) {
+        text_measurer_map_.erase(it);
+      }
+    }
   }
   
 private:
@@ -101,9 +112,16 @@ private:
   std::mutex mutex_;
 };
 
+class DrawTextNodeInfo {
+public:
+  int32_t inc_create_count_ = 0;
+  float draw_width_ = 0;
+  std::weak_ptr<DomNode> draw_node_;
+};
+
 class DrawTextNodeCache {
 public:
-  std::map<uint32_t, std::pair<float, std::weak_ptr<DomNode>>> draw_text_nodes_;
+  std::map<uint32_t, std::shared_ptr<DrawTextNodeInfo>> draw_text_nodes_;
 };
 
 class DrawTextNodeManager {
