@@ -76,6 +76,10 @@ private:
   float nextMargin_ = 0;
   bool disableSwipe_ = false;
   bool vertical_ = false;
+  
+  int32_t lastScrollEventPosition_ = -1;
+  float lastScrollEventOffset_ = 0;
+  int32_t scrollEventCount_ = 0;
 };
 
 } // namespace native
