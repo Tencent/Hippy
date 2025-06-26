@@ -146,7 +146,7 @@ Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harm
    
       <img src="../assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
    
-   - Chrome DevTools：访问第 4 步打印的调试首页地址开始调试。Chrome 调试器支持 Android & iOS 设备，支持 `HMR & Live-Reload, Elements, Log, Sources, Memory` 等能力。
+   - Chrome DevTools：访问第 4 步打印的调试首页地址开始调试。Chrome 调试器支持 Android & iOS & Ohos 设备，支持 `HMR & Live-Reload, Elements, Log, Sources, Memory` 等能力。
       
       <img src="../assets/img/chrome-inspect.png" alt="Chrome 调试器" width="60%"/>
    
