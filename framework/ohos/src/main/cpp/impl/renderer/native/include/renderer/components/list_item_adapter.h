@@ -42,9 +42,21 @@ public:
 
   ~ListItemAdapter() {
     cachedTypeRecycleViews_.clear();
-
     OH_ArkUI_NodeAdapter_UnregisterEventReceiver(handle_);
     OH_ArkUI_NodeAdapter_Dispose(handle_);
+  }
+  
+  void ClearAll() {
+    OH_ArkUI_NodeAdapter_UnregisterEventReceiver(handle_);
+    OH_ArkUI_NodeAdapter_RemoveItem(handle_, 0, static_cast<uint32_t>(itemViews_.size()));
+    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, 0);
+    cachedTypeRecycleViews_.clear();
+    attachedHandleViewMap_.clear();
+  }
+  
+  void RestoreAll() {
+    OH_ArkUI_NodeAdapter_RegisterEventReceiver(handle_, this, OnStaticAdapterEvent);
+    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size()));
   }
 
   ArkUI_NodeAdapterHandle GetHandle() const { return handle_; }
@@ -131,7 +143,7 @@ private:
     
     auto view = it->second;
     attachedHandleViewMap_.erase(it);
-    
+
     // FOOTSTONE_LOG(INFO) << "hippy, list OnItemDetached, view: " << view.get();
     
     auto recycleView = view->RecycleArkUINode();

@@ -573,18 +573,18 @@ void ListView::CheckInitOffset() {
 }
 
 void ListView::CheckValidListSize() {
+  // 注意：这里不宜重建adapter，而是同一个adapter清理又恢复。
+  // 之前重建adapter后，pager嵌套list的场景list adapter有概率不触发ON_ADD_NODE_TO_ADAPTER事件。
   if (width_ == 0 && height_ == 0) {
     isListZeroSize = true;
     for (uint32_t i = 0; i < children_.size(); i++) {
       children_[i]->DestroyArkUINode();
     }
-    listNode_->ResetLazyAdapter();
-    adapter_.reset();
+    adapter_->ClearAll();
   } else {
     if (isListZeroSize) {
       isListZeroSize = false;
-      adapter_ = std::make_shared<ListItemAdapter>(children_);
-      listNode_->SetLazyAdapter(adapter_->GetHandle());
+      adapter_->RestoreAll();
     }
   }
 }
