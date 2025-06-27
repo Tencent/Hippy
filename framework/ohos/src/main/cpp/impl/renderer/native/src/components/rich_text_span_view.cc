@@ -83,6 +83,17 @@ bool RichTextSpanView::ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleV
 
 bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
 #ifdef OHOS_DRAW_TEXT
+  // 绘制文本时，SpanView重载了click的处理
+  if (propKey == "click") {
+    bool value = false;
+    bool isBool = propValue.ToBoolean(value);
+    if (isBool) {
+      SetClickable(value);
+    }
+    return true;
+  }
+  // TODO(etk): touch等处理的重载，业务需要时可加
+  return false;
 #else
   if (propKey == "text") {
     auto& value = HRValueUtils::GetString(propValue);
@@ -179,9 +190,9 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
   }
   // Not to set some attributes for text span.
   // For example: NODE_BACKGROUND_COLOR will return ARKUI_ERROR_CODE_ATTRIBUTE_OR_EVENT_NOT_SUPPORTED (106102)
-#endif
   bool handled = SetEventProp(propKey, propValue);
   return handled;
+#endif
 }
 
 void RichTextSpanView::OnSetPropsEndImpl() {
