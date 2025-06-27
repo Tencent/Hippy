@@ -72,9 +72,8 @@ export class HippyRenderView extends HippyRenderBaseView {
     let nativeRender = this.ctx.getNativeRender()
     nativeRender.updateDimension(width, height).then(() => {
       nativeRender.onSizeChanged(this.tag, width, height, this.renderViewSize.width, this.renderViewSize.height)
+      this.renderViewSize = new HRSize(width, height)
     })
-
-    this.renderViewSize = new HRSize(width, height)
   }
 
   pageDidAppear(): void {
