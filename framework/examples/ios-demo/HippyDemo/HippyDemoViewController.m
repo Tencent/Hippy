@@ -181,6 +181,18 @@
     return 1.0;
 }
 
+- (BOOL)shouldUseRootViewSizeAsWindowSizeInDimensions {
+    // 可选设置，3.4版本后默认值为YES
+    // 用于设置是否将Dimensions中的window尺寸信息绑定为RootView尺寸。
+    return YES;
+}
+
+- (CGSize)defaultWindowSizeInDimensionsBeforeRootViewMount {
+    // 可选设置，仅在shouldUseRootViewSizeAsWindowSizeInDimensions为YES时生效。
+    // 用于设置在RootView挂载前Dimensions中window信息的默认值。
+    // 适用于一些特殊场景，例如在iPad上以分屏模式启动时，js可能会在入口函数执行前获取Dimensions信息。
+    return self.view.bounds.size;
+}
 
 #pragma mark - HippyRootViewDelegate
 

@@ -50,10 +50,21 @@ NSDictionary *hippyExportedDimensions(HippyBridge * _Nonnull bridge,
     }
     BOOL useRootSizeAsWindowSize = [gHippyShouldUseRootSizeAsWindowSize boolValue];
     
-    // RootView size
+    // Update RootView size
     if (rootSizeValue) {
         gHippyDimensionsLastRootSize = rootSizeValue;
     }
+    
+    // Get a default value of the RootView's size from the host app,
+    // instead of directly using the key window size,
+    // since key window size may not be accurate in some cases.
+    if (useRootSizeAsWindowSize && !gHippyDimensionsLastRootSize) {
+        if ([bridge.delegate respondsToSelector:@selector(defaultWindowSizeInDimensionsBeforeRootViewMount)]) {
+            gHippyDimensionsLastRootSize = @(bridge.delegate.defaultWindowSizeInDimensionsBeforeRootViewMount);
+        }
+    }
+    
+    // Get final RootSize
     CGSize rootSize = gHippyDimensionsLastRootSize ? gHippyDimensionsLastRootSize.CGSizeValue : windowSize;
     
     // To be replace by HippyKeyWindow().windowScene.statusBarManager.statusBarFrame;
