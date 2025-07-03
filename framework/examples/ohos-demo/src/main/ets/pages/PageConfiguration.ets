@@ -34,6 +34,8 @@ import { buildCustomRenderView, ExampleAPIProvider } from '../hippy_extend/Examp
 import { HippyLibrary } from 'hippy/src/main/ets/hippy_library/HippyLibrary'
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { ExampleFontAdapter } from '../hippy_extend/ExampleFontAdapter'
+import { ExampleImageLocalLoader,
+  ExampleImageRemoteLoader } from '../hippy_extend/ExampleImageLoaderAdapter'
 
 export enum DriverMode {
   JS_REACT,
@@ -180,6 +182,10 @@ struct PageConfiguration {
     params.enableTurbo = true
 
     params.fontAdapter = new ExampleFontAdapter()
+
+    // 图片加载适配器举例
+    //params.imageLocalLoader = new ExampleImageLocalLoader();
+    //params.imageRemoteLoader = new ExampleImageRemoteLoader();
 
     params.coreJSAssetsPath = "react/vendor.ohos.js"
     if (info.driver === DriverMode.JS_VUE_2) {

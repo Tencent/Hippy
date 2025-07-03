@@ -373,6 +373,19 @@ void NativeRenderImpl::RemoveBizViewInRoot(uint32_t root_id, uint32_t biz_view_i
   view_manager->RemoveBizViewInRoot(biz_view_id);
 }
 
+void NativeRenderImpl::SetImageLoaderAdapter(napi_ref local_loader, napi_ref remote_loader) {
+  ts_local_loader_ref_ = local_loader;
+  ts_remote_loader_ref_ = remote_loader;
+}
+
+void NativeRenderImpl::DoCallbackForFetchLocalPathAsync(uint32_t root_id, uint32_t node_id, bool success, const std::string &path) {
+  auto view_manager = hr_manager_->GetViewManager(root_id);
+  if (!view_manager) {
+    return;
+  }
+  view_manager->DoCallbackForFetchLocalPathAsync(node_id, success, path);
+}
+
 } // namespace native
 } // namespace render
 } // namespace hippy

@@ -511,6 +511,60 @@ static napi_value RemoveBizViewInRoot(napi_env env, napi_callback_info info) {
   return arkTs.GetUndefined();
 }
 
+static napi_value SetImageLoaderAdapter(napi_env env, napi_callback_info info) {
+  ArkTS arkTs(env);
+  
+  auto args = arkTs.GetCallbackArgs(info);
+  uint32_t render_manager_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
+
+  auto local_loader = args[1];
+  napi_ref local_loader_ref = 0;
+  if (arkTs.GetType(local_loader) == napi_object) {
+    local_loader_ref = arkTs.CreateReference(local_loader);
+  }
+  
+  auto remote_loader = args[2];
+  napi_ref remote_loader_ref = 0;
+  if (arkTs.GetType(remote_loader) == napi_object) {
+    remote_loader_ref = arkTs.CreateReference(remote_loader);
+  }
+
+  auto &map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager;
+  bool ret = map.Find(render_manager_id, render_manager);
+  if (!ret) {
+    FOOTSTONE_DLOG(WARNING) << "SetImageLoaderAdapter: render_manager_id invalid";
+    return arkTs.GetUndefined();
+  }
+  
+  render_manager->SetImageLoaderAdapter(local_loader_ref, remote_loader_ref);
+  
+  return arkTs.GetUndefined();
+}
+
+static napi_value DoCallbackForFetchLocalPathAsync(napi_env env, napi_callback_info info) {
+  ArkTS arkTs(env);
+  
+  auto args = arkTs.GetCallbackArgs(info);
+  uint32_t render_manager_id = static_cast<uint32_t>(arkTs.GetInteger(args[0]));
+  uint32_t root_id = static_cast<uint32_t>(arkTs.GetInteger(args[1]));
+  uint32_t node_id = static_cast<uint32_t>(arkTs.GetInteger(args[2]));
+  bool success = arkTs.GetBoolean(args[3]);
+  std::string path = arkTs.GetString(args[4]);
+
+  auto &map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager;
+  bool ret = map.Find(render_manager_id, render_manager);
+  if (!ret) {
+    FOOTSTONE_DLOG(WARNING) << "DoCallbackForFetchLocalPathAsync: render_manager_id invalid";
+    return arkTs.GetUndefined();
+  }
+  
+  render_manager->DoCallbackForFetchLocalPathAsync(root_id, node_id, success, path);
+  
+  return arkTs.GetUndefined();
+}
+
 REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_BindNativeRoot", BindNativeRoot)
 REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_UnbindNativeRoot", UnbindNativeRoot)
 REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_DestroyRoot", DestroyRoot)
@@ -522,6 +576,8 @@ REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_SetViewEventListe
 REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_GetViewFrameInRoot", GetViewFrameInRoot)
 REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_AddBizViewInRoot", AddBizViewInRoot)
 REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_RemoveBizViewInRoot", RemoveBizViewInRoot)
+REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_SetImageLoaderAdapter", SetImageLoaderAdapter)
+REGISTER_OH_NAPI("NativeRenderProvider", "NativeRenderProvider_DoCallbackForFetchLocalPathAsync", DoCallbackForFetchLocalPathAsync)
 
 }
 }

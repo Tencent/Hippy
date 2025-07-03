@@ -95,7 +95,14 @@ public:
   HRRect GetViewFrameInRoot(uint32_t root_id, uint32_t node_id);
   void AddBizViewInRoot(uint32_t root_id, uint32_t biz_view_id, ArkUI_NodeHandle node_handle, const HRPosition &position);
   void RemoveBizViewInRoot(uint32_t root_id, uint32_t biz_view_id);
+  
+  void SetImageLoaderAdapter(napi_ref local_loader, napi_ref remote_loader);
+  void DoCallbackForFetchLocalPathAsync(uint32_t root_id, uint32_t node_id, bool success, const std::string &path);
+  
   std::shared_ptr<HRManager> &GetHRManager() { return hr_manager_; }
+  
+  napi_ref GetTsImageLocalLoaderRef() override { return ts_local_loader_ref_; }
+  napi_ref GetTsImageRemoteLoaderRef() override { return ts_remote_loader_ref_; }
 
 private:
   uint32_t instance_id_;
@@ -103,6 +110,9 @@ private:
   bool is_rawfile_ = false;
   std::string res_module_name_;
   std::shared_ptr<HRManager> hr_manager_;
+  
+  napi_ref ts_local_loader_ref_ = 0;
+  napi_ref ts_remote_loader_ref_ = 0;
 };
 
 } // namespace native

@@ -1537,6 +1537,18 @@ void NativeRenderManager::RemoveBizViewInRoot(uint32_t root_id, uint32_t biz_vie
   }
 }
 
+void NativeRenderManager::SetImageLoaderAdapter(napi_ref local_loader, napi_ref remote_loader) {
+  if (enable_ark_c_api_) {
+    c_render_provider_->GetNativeRenderImpl()->SetImageLoaderAdapter(local_loader, remote_loader);
+  }
+}
+
+void NativeRenderManager::DoCallbackForFetchLocalPathAsync(uint32_t root_id, uint32_t node_id, bool success, const std::string &path) {
+  if (enable_ark_c_api_) {
+    c_render_provider_->GetNativeRenderImpl()->DoCallbackForFetchLocalPathAsync(root_id, node_id, success, path);
+  }
+}
+
 }  // namespace native
 }  // namespace render
 }  // namespace hippy

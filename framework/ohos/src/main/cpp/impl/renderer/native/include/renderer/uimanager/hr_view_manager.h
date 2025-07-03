@@ -111,6 +111,9 @@ public:
   HRRect GetViewFrameInRoot(uint32_t node_id);
   void AddBizViewInRoot(uint32_t biz_view_id, ArkUI_NodeHandle node_handle, const HRPosition &position);
   void RemoveBizViewInRoot(uint32_t biz_view_id);
+  
+  void DoCallbackForFetchLocalPathAsync(uint32_t node_id, bool success, const std::string &path);
+  
   std::shared_ptr<BaseView> GetViewFromRegistry(uint32_t node_id);
 
   void CheckAndDestroyTsRootForCInterface();

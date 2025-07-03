@@ -51,6 +51,8 @@ import { HippyRootView } from '../renderer_native/HippyRootView';
 import { WrappedHippyCustomRenderViewBuilder } from '../renderer_native/HippyRenderViewBuilder';
 import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
 import { HippyJsException } from './common/HippyJsException';
+import { HippyImageLocalLoaderAdapter } from './adapter/image/HippyImageLocalLoaderAdapter';
+import { HippyImageRemoteLoaderAdapter } from './adapter/image/HippyImageRemoteLoaderAdapter';
 
 export interface HippyEngine {
   getGroupId(): number
@@ -174,6 +176,10 @@ export class EngineInitParams {
   public soLoader: HippySoLoaderAdapter | null = null;
   // 可选参数 device adapter
   public deviceAdapter: HippyDeviceAdapter | null = null;
+  // 可选参数
+  public imageLocalLoader: HippyImageLocalLoaderAdapter | null = null;
+  // 可选参数
+  public imageRemoteLoader: HippyImageRemoteLoaderAdapter | null = null;
   // 设置Hippy引擎的组，同一组的HippyEngine，会共享C层的v8 引擎实例。 默认值为-1（无效组，即不属于任何group组）
   public groupId = -1;
   // 可选参数 日志输出

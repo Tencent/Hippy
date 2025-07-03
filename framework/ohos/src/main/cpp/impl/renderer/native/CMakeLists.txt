@@ -110,6 +110,7 @@ set(SOURCE_SET
   src/components/custom_ts_view.cc
   src/components/custom_view.cc
   src/components/div_view.cc
+  src/components/image_base_view.cc
   src/components/image_view.cc
   src/components/list_item_adapter.cc
   src/components/list_item_view.cc
