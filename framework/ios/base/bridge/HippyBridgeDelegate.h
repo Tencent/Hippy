@@ -105,6 +105,12 @@
 /// and returning NO will maintain consistency with the behavior of historical versions.
 - (BOOL)shouldUseRootViewSizeAsWindowSizeInDimensions;
 
+/// Set default window size in Dimensions API before RootView is mounted.
+///
+/// Note: This API is valid only when `shouldUseRootViewSizeAsWindowSizeInDimensions` is YES.
+/// This might be useful in some special scenarios, such as starting in split-screen mode on an iPad.
+- (CGSize)defaultWindowSizeInDimensionsBeforeRootViewMount;
+
 /// Font size multiplier for hippy
 /// 
 /// This value is used to calculate the font size of the text in the hippy page.
