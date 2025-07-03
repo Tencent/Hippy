@@ -23,6 +23,8 @@
 #pragma once
 
 #include "renderer/utils/hr_types.h"
+#include <js_native_api.h>
+#include <js_native_api_types.h>
 
 namespace hippy {
 inline namespace render {
@@ -43,6 +45,8 @@ public:
   virtual uint64_t AddEndBatchCallback(uint32_t root_id, const EndBatchCallback &cb) = 0;
   virtual void RemoveEndBatchCallback(uint32_t root_id, uint64_t cbId) = 0;
   
+  virtual napi_ref GetTsImageLocalLoaderRef() = 0;
+  virtual napi_ref GetTsImageRemoteLoaderRef() = 0;
 };
 
 } // namespace native

@@ -30,6 +30,7 @@ import { NativeRender } from '../renderer_native/NativeRender';
 import { HippyRootViewManager } from '../renderer_native/HippyRootViewManager';
 import { PerformanceProcessor } from './PerformanceProcessor';
 import { HippyEngineLifecycleEventListener } from './HippyEngineLifecycleEventListener';
+import { ImageRemoteLoaderInnerAdapter } from './adapter/image/inner/ImageRemoteLoaderInnerAdapter';
 
 export class HippyEngineContextImpl implements HippyEngineContext {
   public vfsManager: VfsManager
@@ -55,6 +56,8 @@ export class HippyEngineContextImpl implements HippyEngineContext {
   private reloadEngineCallback: Function | null = null;
   private component: string = '';
   private rootView: HippyRootView | null = null;
+
+  private imageRemoteLoaderInner: ImageRemoteLoaderInnerAdapter | null = null;
 
   public constructor(
     params: EngineInitParams,
@@ -147,6 +150,19 @@ export class HippyEngineContextImpl implements HippyEngineContext {
     // ModuleManager注册
     this.mModuleManager = new HippyModuleManagerImpl(this, params.enableV8Serialization);
     this.mModuleManager.addModules(customNativeModules);
+    // C层需要的adapter
+    if (params.imageLocalLoader || params.imageRemoteLoader) {
+      if (params.imageRemoteLoader) {
+        this.imageRemoteLoaderInner = new ImageRemoteLoaderInnerAdapter(
+          this.libHippy,
+          this.nativeRenderProvider.getInstanceId(),
+          params.imageRemoteLoader);
+      }
+      this.libHippy.NativeRenderProvider_SetImageLoaderAdapter(
+        this.nativeRenderProvider.getInstanceId(),
+        params.imageLocalLoader,
+        this.imageRemoteLoaderInner);
+    }
 
     if (params.integrateJSEngine) {
       // JsDriver注册

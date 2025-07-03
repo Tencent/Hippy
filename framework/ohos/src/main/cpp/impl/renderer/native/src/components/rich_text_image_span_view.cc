@@ -30,7 +30,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-RichTextImageSpanView::RichTextImageSpanView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx) {
+RichTextImageSpanView::RichTextImageSpanView(std::shared_ptr<NativeRenderContext> &ctx) : ImageBaseView(ctx) {
 }
 
 RichTextImageSpanView::~RichTextImageSpanView() {}
@@ -96,7 +96,7 @@ bool RichTextImageSpanView::SetPropImpl(const std::string &propKey, const HippyV
     auto& value = HRValueUtils::GetString(propValue);
     if (value != src_) {
       src_ = value;
-      fetchImage(value);
+      FetchImage(value);
     }
     return true;
   } else if (propKey == "defaultSource") {
@@ -134,24 +134,18 @@ bool RichTextImageSpanView::IsValidFrame(const HRRect &frame) {
   return false;
 }
 
-void RichTextImageSpanView::FetchAltImage(const std::string &imageUrl) {
-  if (imageUrl.size() > 0) {
-    auto bundlePath = ctx_->GetNativeRender().lock()->GetBundlePath();
-    auto url = HRUrlUtils::ConvertImageUrl(bundlePath, ctx_->IsRawFile(), ctx_->GetResModuleName(), imageUrl);
-    GetLocalRootArkUINode()->SetAlt(url);
-  }
-}
-
-void RichTextImageSpanView::fetchImage(const std::string &imageUrl) {
-  if (imageUrl.size() > 0) {
-    auto bundlePath = ctx_->GetNativeRender().lock()->GetBundlePath();
-    auto url = HRUrlUtils::ConvertImageUrl(bundlePath, ctx_->IsRawFile(), ctx_->GetResModuleName(), imageUrl);
-    GetLocalRootArkUINode()->SetSources(url);
-	}
-}
-
 void RichTextImageSpanView::ClearProps() {
   src_.clear();
+}
+
+void RichTextImageSpanView::SetSourcesOrAlt(const std::string &imageUrl, bool isSources) {
+  auto bundlePath = ctx_->GetNativeRender().lock()->GetBundlePath();
+  auto url = HRUrlUtils::ConvertImageUrl(bundlePath, ctx_->IsRawFile(), ctx_->GetResModuleName(), imageUrl);
+  if (isSources) {
+    GetLocalRootArkUINode()->SetSources(url);
+  } else {
+    GetLocalRootArkUINode()->SetAlt(url);
+  }
 }
 
 } // namespace native

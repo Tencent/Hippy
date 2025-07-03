@@ -24,12 +24,13 @@
 
 #include "renderer/components/base_view.h"
 #include "renderer/arkui/image_span_node.h"
+#include "renderer/components/image_base_view.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class RichTextImageSpanView : public BaseView {
+class RichTextImageSpanView : public ImageBaseView {
 public:
   RichTextImageSpanView(std::shared_ptr<NativeRenderContext> &ctx);
   ~RichTextImageSpanView();
@@ -44,8 +45,7 @@ public:
   bool IsValidFrame(const HRRect &frame) override;
 
 private:
-  void FetchAltImage(const std::string &imageUrl);
-  void fetchImage(const std::string &imageUrl);
+  void SetSourcesOrAlt(const std::string &imageUrl, bool isSources) override;
   
   void ClearProps();
 

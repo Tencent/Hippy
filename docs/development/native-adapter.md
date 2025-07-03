@@ -188,6 +188,8 @@ Hippy SDK 现在所提供的 Adapter 包括：
 - `HippyStorageAdapter`：数据库（KEY-VALUE）Adapter。
 - `HippyExecutorSupplierAdapter`：线程池 Adapter。
 - `HippyEngineMonitorAdapter`：Hippy 引擎状态监控 Adapter。
+- `HippyImageLocalLoaderAdapter`：Hippy 本地图片加载 Adapter。使用方法可以参考 [Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-demo) 工程中 `ExampleImageLoaderAdapter.ets` 等实现。
+- `HippyImageRemoteLoaderAdapter`：Hippy 远程图片加载 Adapter。使用方法可以参考 [Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-demo) 工程中 `ExampleImageLoaderAdapter.ets` 等实现。
 
 <br/>
 <br/>

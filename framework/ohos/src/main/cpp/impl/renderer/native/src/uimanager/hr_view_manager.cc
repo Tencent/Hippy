@@ -31,7 +31,10 @@
 #include "renderer/components/custom_ts_view.h"
 #include "renderer/components/custom_view.h"
 #include "renderer/components/hippy_render_view_creator.h"
+#include "renderer/components/image_base_view.h"
+#include "renderer/components/image_view.h"
 #include "renderer/components/modal_view.h"
+#include "renderer/components/rich_text_image_span_view.h"
 #include "renderer/components/rich_text_view.h"
 #include "renderer/dom_node/hr_node_props.h"
 #include "renderer/native_render_context.h"
@@ -567,6 +570,19 @@ void HRViewManager::RemoveBizViewInRoot(uint32_t biz_view_id) {
   if (renderView) {
     renderView->RemoveFromParentView();
     biz_view_registry_.erase(biz_view_id);
+  }
+}
+
+void HRViewManager::DoCallbackForFetchLocalPathAsync(uint32_t node_id, bool success, const std::string &path) {
+  auto view = FindRenderView(node_id);
+  if (view == nullptr) {
+    return;
+  }
+  if (view->GetViewType() == "Image") {
+    auto imageBaseView = std::static_pointer_cast<ImageBaseView>(view);
+    if (imageBaseView) {
+      imageBaseView->OnFetchLocalPathAsyncResult(success, path);
+    }
   }
 }
 

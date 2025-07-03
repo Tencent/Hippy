@@ -123,6 +123,10 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
   HRRect GetViewFrameInRoot(uint32_t root_id, uint32_t node_id);
   void AddBizViewInRoot(uint32_t root_id, uint32_t biz_view_id, ArkUI_NodeHandle node_handle, const HRPosition &position);
   void RemoveBizViewInRoot(uint32_t root_id, uint32_t biz_view_id);
+  
+  void SetImageLoaderAdapter(napi_ref local_loader, napi_ref remote_loader);
+  void DoCallbackForFetchLocalPathAsync(uint32_t root_id, uint32_t node_id, bool success, const std::string &path);
+  
   std::shared_ptr<NativeRenderProvider> &GetNativeRenderProvider() { return c_render_provider_; }
 
 private:

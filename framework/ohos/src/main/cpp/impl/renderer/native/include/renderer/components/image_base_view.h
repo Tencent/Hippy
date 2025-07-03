@@ -24,37 +24,26 @@
 
 #include "renderer/components/base_view.h"
 #include "renderer/arkui/image_node.h"
-#include "renderer/components/image_base_view.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class ImageView : public ImageBaseView, public ImageNodeDelegate {
+class ImageBaseView : public BaseView {
 public:
-  ImageView(std::shared_ptr<NativeRenderContext> &ctx);
-  ~ImageView();
+  ImageBaseView(std::shared_ptr<NativeRenderContext> &ctx);
+  ~ImageBaseView();
 
-  ImageNode *GetLocalRootArkUINode() override;
-  void CreateArkUINodeImpl() override;
-  void DestroyArkUINodeImpl() override;
-  bool RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
-  bool ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
-  bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
-  void UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) override;
-
-  void OnComplete(float width, float height) override;
-  void OnError(int32_t errorCode) override;
-  std::string GetSrc();
+  void OnFetchLocalPathAsyncResult(bool success, const std::string &path);
 
 protected:
-  void SetSourcesOrAlt(const std::string &imageUrl, bool isSources) override;
-  
-  void ClearProps();
+  void FetchAltImage(const std::string &imageUrl);
+  void FetchImage(const std::string &imageUrl);
 
-private:
-  std::shared_ptr<ImageNode> imageNode_;
-  std::string src_;
+  std::string GetLocalPathFromAdapter(const std::string &imageUrl);
+  bool GetLocalPathAsyncFromAdapter(const std::string &imageUrl);
+  
+  virtual void SetSourcesOrAlt(const std::string &imageUrl, bool isSources) = 0;
 };
 
 } // namespace native
