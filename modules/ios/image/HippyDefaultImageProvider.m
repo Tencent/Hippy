@@ -24,11 +24,13 @@
 #import "HippyDefaultImageProvider.h"
 #import "NSData+DataType.h"
 #import <CoreServices/CoreServices.h>
+#import <os/lock.h>
 
 @interface HippyDefaultImageProvider () {
     NSData *_data;
     UIImage *_image;
     CGImageSourceRef _imageSourceRef;
+    os_unfair_lock _imageSourceLock;
 }
 
 @end
@@ -51,6 +53,7 @@
     self = [super init];
     if (self) {
         _scale = 1.0;
+        _imageSourceLock = OS_UNFAIR_LOCK_INIT;
     }
     return self;
 }
@@ -185,7 +188,14 @@
 
 - (UIImage *)imageAtFrame:(NSUInteger)index {
     if (_imageSourceRef) {
+        os_unfair_lock_lock(&_imageSourceLock);
+        if (!_imageSourceRef) {
+            os_unfair_lock_unlock(&_imageSourceLock);
+            return nil;
+        }
         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSourceRef, index, NULL);
+        os_unfair_lock_unlock(&_imageSourceLock);
+        if (!imageRef) return nil;
         UIImage *image = [UIImage imageWithCGImage:imageRef];
         CGImageRelease(imageRef);
         return image;
@@ -196,63 +206,84 @@
 }
 
 - (NSUInteger)imageCount {
-    if (_imageSourceRef) {
-        size_t count = CGImageSourceGetCount(_imageSourceRef);
-        return count;
+    os_unfair_lock_lock(&_imageSourceLock);
+    if (!_imageSourceRef) {
+        os_unfair_lock_unlock(&_imageSourceLock);
+        return 0;
     }
-    return 0;
+    size_t count = CGImageSourceGetCount(_imageSourceRef);
+    os_unfair_lock_unlock(&_imageSourceLock);
+    return count;
 }
 
 - (NSUInteger)loopCount {
-    if (_imageSourceRef) {
-        CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSourceRef);
-        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
-        NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
-        if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
-            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
-            loopCountKey = (NSString *)kCGImagePropertyAPNGLoopCount;
-        }
-        NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSourceRef, NULL);
-        id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:loopCountKey];
-        if (loopCountObject) {
-            NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
-            return 0 == loopCount ? NSUIntegerMax : loopCount;
-        } else {
-            return NSUIntegerMax;
-        }
+    os_unfair_lock_lock(&_imageSourceLock);
+    if (!_imageSourceRef) {
+        os_unfair_lock_unlock(&_imageSourceLock);
+        return 0;
     }
-    return 0;
+    
+    CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSourceRef);
+    NSDictionary *imageProperties = CFBridgingRelease(CGImageSourceCopyProperties(_imageSourceRef, NULL));
+    os_unfair_lock_unlock(&_imageSourceLock);
+    
+    NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
+    NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
+    if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
+        imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
+        loopCountKey = (NSString *)kCGImagePropertyAPNGLoopCount;
+    }
+    
+    id loopCountObject = [[imageProperties objectForKey:imagePropertyKey] objectForKey:loopCountKey];
+    if (loopCountObject) {
+        NSUInteger loopCount = [loopCountObject unsignedIntegerValue];
+        return 0 == loopCount ? NSUIntegerMax : loopCount;
+    } else {
+        return NSUIntegerMax;
+    }
 }
 
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame {
     const NSTimeInterval kDelayTimeIntervalDefault = 0.1;
-    if (_imageSourceRef) {
-        NSDictionary *frameProperties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(_imageSourceRef, frame, NULL));
-        NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
-        NSString *delayTimeKey = (NSString *)kCGImagePropertyGIFDelayTime;
-        NSString *unclampedDelayTime = (NSString *)kCGImagePropertyGIFUnclampedDelayTime;
-        if (UTTypeConformsTo(CGImageSourceGetType(_imageSourceRef), kUTTypePNG)) {
-            imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
-            delayTimeKey = (NSString *)kCGImagePropertyAPNGDelayTime;
-            unclampedDelayTime = (NSString *)kCGImagePropertyAPNGUnclampedDelayTime;
-        }
-        NSDictionary *framePropertiesAni = [frameProperties objectForKey:imagePropertyKey];
-        NSNumber *delayTime = [framePropertiesAni objectForKey:unclampedDelayTime];
-        if (!delayTime) {
-            delayTime = [framePropertiesAni objectForKey:delayTimeKey];
-        }
-        if (!delayTime) {
-            delayTime = @(kDelayTimeIntervalDefault);
-        }
-        return [delayTime doubleValue];
+    
+    os_unfair_lock_lock(&_imageSourceLock);
+    if (!_imageSourceRef) {
+        os_unfair_lock_unlock(&_imageSourceLock);
+        return kDelayTimeIntervalDefault;
     }
-    return kDelayTimeIntervalDefault;
+    
+    NSDictionary *frameProperties = CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(_imageSourceRef, frame, NULL));
+    CFStringRef _Nullable utType = CGImageSourceGetType(_imageSourceRef);
+    os_unfair_lock_unlock(&_imageSourceLock);
+    
+    NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
+    NSString *delayTimeKey = (NSString *)kCGImagePropertyGIFDelayTime;
+    NSString *unclampedDelayTime = (NSString *)kCGImagePropertyGIFUnclampedDelayTime;
+    
+    if (UTTypeConformsTo(utType, kUTTypePNG)) {
+        imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
+        delayTimeKey = (NSString *)kCGImagePropertyAPNGDelayTime;
+        unclampedDelayTime = (NSString *)kCGImagePropertyAPNGUnclampedDelayTime;
+    }
+    
+    NSDictionary *framePropertiesAni = [frameProperties objectForKey:imagePropertyKey];
+    NSNumber *delayTime = [framePropertiesAni objectForKey:unclampedDelayTime];
+    if (!delayTime) {
+        delayTime = [framePropertiesAni objectForKey:delayTimeKey];
+    }
+    if (!delayTime) {
+        delayTime = @(kDelayTimeIntervalDefault);
+    }
+    return [delayTime doubleValue];
 }
 
 - (void)dealloc {
+    os_unfair_lock_lock(&_imageSourceLock);
     if (_imageSourceRef) {
         CFRelease(_imageSourceRef);
+        _imageSourceRef = NULL;
     }
+    os_unfair_lock_unlock(&_imageSourceLock);
     _data = nil;
 }
 
