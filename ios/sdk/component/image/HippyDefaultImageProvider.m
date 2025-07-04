@@ -60,9 +60,9 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
 - (instancetype)initWithData:(NSData *)data {
     self = [super init];
     if (self) {
+        _imageSourceLock = OS_UNFAIR_LOCK_INIT; // Initialize the lock unconditionally
         if ([[self class] isAnimatedImage:data]) {
             _imageSourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-            _imageSourceLock = OS_UNFAIR_LOCK_INIT;
         } else {
             _data = data;
         }
