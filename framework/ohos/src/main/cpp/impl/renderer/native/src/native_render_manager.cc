@@ -1059,7 +1059,6 @@ void NativeRenderManager::ReceivedEvent(std::weak_ptr<RootNode> root_node, uint3
   if (root == nullptr) return;
   
   auto dom_manager = root->GetDomManager().lock();
-  FOOTSTONE_DCHECK(dom_manager != nullptr);
   if (dom_manager == nullptr) return;
   
   std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
