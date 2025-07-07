@@ -59,7 +59,7 @@ public:
   
   bool IsLazyCreate() { return isLazyCreate_; }
 
-  virtual ArkUINode *GetLocalRootArkUINode() = 0;
+  virtual ArkUINode *GetLocalRootArkUINode() { return nullptr; }
   void CreateArkUINode(bool isFromLazy, int index = -1);
   virtual void CreateArkUINodeImpl() = 0;
   void DestroyArkUINode();

@@ -42,6 +42,7 @@ ListView::ListView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx) {
 ListView::~ListView() {
   ctx_->GetNativeRender().lock()->RemoveEndBatchCallback(ctx_->GetRootId(), end_batch_callback_id_);
   if (listNode_) {
+    listNode_->SetArkUINodeDelegate(nullptr);
     listNode_->ResetLazyAdapter();
   }
   adapter_.reset();

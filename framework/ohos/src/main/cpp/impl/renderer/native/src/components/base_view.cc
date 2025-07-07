@@ -57,6 +57,11 @@ BaseView::~BaseView() {
   ++sCount;
   FOOTSTONE_DLOG(INFO) << "Hippy ohos mem check, view, del: " << this << ", type: " << view_type_ << ", count: " << sCount;
 #endif
+  
+  auto node = GetLocalRootArkUINode();
+  if (node) {
+    node->SetArkUINodeDelegate(nullptr);
+  }
 }
 
 void BaseView::Init() {
