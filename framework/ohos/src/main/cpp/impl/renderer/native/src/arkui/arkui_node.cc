@@ -39,6 +39,11 @@ ArkUINode::ArkUINode(ArkUI_NodeHandle nodeHandle) : nodeHandle_(nodeHandle) {
   FOOTSTONE_DLOG(INFO) << "Hippy ohos mem check, ArkUINode handle, new: " << nodeHandle_ << ", count: " << sCount;
 #endif
 
+  if (!nodeHandle_) {
+    FOOTSTONE_LOG(ERROR) << "ark ui node construction, handle is null";
+    return;
+  }
+  
   SetDefaultAttributes();
   ArkUINodeRegistry::GetInstance().RegisterNode(this);
 }
@@ -709,6 +714,10 @@ void ArkUINode::RegisterClickEvent() {
   if (isSpanNode_) {
     return;
   }
+  if (!nodeHandle_) {
+    FOOTSTONE_LOG(ERROR) << "ark ui node register click, handle is null";
+    return;
+  }
   if (!tapGesture_) {
     tapGesture_ = NativeGestureApi::GetInstance()->createTapGesture(1, 1);
     if (tapGesture_) {
@@ -745,6 +754,10 @@ void ArkUINode::UnregisterClickEvent() {
 
 void ArkUINode::RegisterLongClickEvent() {
   if (isSpanNode_) {
+    return;
+  }
+  if (!nodeHandle_) {
+    FOOTSTONE_LOG(ERROR) << "ark ui node register long click, handle is null";
     return;
   }
   if (!longPressGesture_) {
