@@ -40,6 +40,7 @@ WaterfallView::WaterfallView(std::shared_ptr<NativeRenderContext> &ctx) : BaseVi
 WaterfallView::~WaterfallView() {
   ctx_->GetNativeRender().lock()->RemoveEndBatchCallback(ctx_->GetRootId(), end_batch_callback_id_);
   if (flowNode_) {
+    flowNode_->SetArkUINodeDelegate(nullptr);
     flowNode_->ResetLazyAdapter();
   }
   if (adapter_) {
