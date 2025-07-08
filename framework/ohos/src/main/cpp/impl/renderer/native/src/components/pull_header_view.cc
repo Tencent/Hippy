@@ -33,11 +33,61 @@ PullHeaderView::PullHeaderView(std::shared_ptr<NativeRenderContext> &ctx) : List
   type_ = "PullHeader";
 }
 
-PullHeaderView::~PullHeaderView() {}
+PullHeaderView::~PullHeaderView() {
+  if (!children_.empty()) {
+    if (headerItemNode_) {
+      for (const auto &child : children_) {
+        headerItemNode_->RemoveChild(child->GetLocalRootArkUINode());
+      }
+    }
+    children_.clear();
+  }
+}
+
+ArkUINode *PullHeaderView::GetLocalRootArkUINode() { return headerItemNode_.get(); }
+
+void PullHeaderView::CreateArkUINodeImpl() {
+  headerItemNode_ = std::make_shared<StackNode>();
+}
+
+void PullHeaderView::DestroyArkUINodeImpl() {
+  headerItemNode_ = nullptr;
+}
+
+bool PullHeaderView::RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) {
+  headerItemNode_->ResetAllAttributes();
+  recycleView->cachedNodes_.resize(1);
+  recycleView->cachedNodes_[0] = headerItemNode_;
+  headerItemNode_ = nullptr;
+  return true;
+}
+
+bool PullHeaderView::ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) {
+  if (recycleView->cachedNodes_.size() < 1) {
+    return false;
+  }
+  headerItemNode_ = std::static_pointer_cast<StackNode>(recycleView->cachedNodes_[0]);
+  return true;
+}
+
+void PullHeaderView::OnChildInsertedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
+  BaseView::OnChildInsertedImpl(childView, index);
+  headerItemNode_->InsertChild(childView->GetLocalRootArkUINode(), index);
+}
+
+void PullHeaderView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
+  BaseView::OnChildRemovedImpl(childView, index);;
+  headerItemNode_->RemoveChild(childView->GetLocalRootArkUINode());
+}
+
+void PullHeaderView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) {
+  headerItemNode_->SetSize(HRSize(frame.width, frame.height));
+  width_ = frame.width;
+  height_ = frame.height;
+}
 
 bool PullHeaderView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
-//  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" propKey = "<<propKey;
-  return ListItemView::SetPropImpl(propKey, propValue);
+  return BaseView::SetPropImpl(propKey, propValue);
 }
 
 void PullHeaderView::OnSetPropsEndImpl() {
@@ -70,27 +120,16 @@ void PullHeaderView::CallImpl(const std::string &method, const std::vector<Hippy
 void PullHeaderView::OnHeadRefreshFinish(int32_t delay) {
   auto parentView = parent_.lock();
   if (parentView) {
-    if (parentView->GetViewType() == "ListView") {
-      auto listView = std::static_pointer_cast<ListView>(parentView);
-      listView->ScrollToIndex(1, true);
-    } else if (parentView->GetViewType() == "WaterfallView") {
-      auto waterView = std::static_pointer_cast<WaterfallView>(parentView);
-      waterView->OnHeadRefreshFinish(delay);
-    }
+    auto listView = std::static_pointer_cast<ListView>(parentView);
+    listView->OnHeadRefreshFinish(delay);
   }
 }
 
 void PullHeaderView::OnHeaderRefresh() {
-    FOOTSTONE_DLOG(INFO)<<__FUNCTION__; 
   auto parentView = parent_.lock();
   if (parentView) {
-    if (parentView->GetViewType() == "ListView") {
-      auto listView = std::static_pointer_cast<ListView>(parentView);
-      listView->ScrollToIndex(0, true);
-    } else if (parentView->GetViewType() == "WaterfallView") {
-      auto waterView = std::static_pointer_cast<WaterfallView>(parentView);
-      waterView->OnHeadRefresh();
-    }
+    auto listView = std::static_pointer_cast<ListView>(parentView);
+    listView->OnHeadRefresh();
   }
 }
 

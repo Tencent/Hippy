@@ -48,7 +48,7 @@ ListItemView::~ListItemView() {
   }
 }
 
-ListItemNode *ListItemView::GetLocalRootArkUINode() { return itemNode_.get(); }
+ArkUINode *ListItemView::GetLocalRootArkUINode() { return itemNode_.get(); }
 
 void ListItemView::CreateArkUINodeImpl() {
   itemNode_ = std::make_shared<ListItemNode>();

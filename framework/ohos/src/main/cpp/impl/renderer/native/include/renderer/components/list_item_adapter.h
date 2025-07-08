@@ -34,9 +34,9 @@ inline namespace native {
 
 class ListItemAdapter {
 public:
-  ListItemAdapter(std::vector<std::shared_ptr<BaseView>> &itemViews)
-      : handle_(OH_ArkUI_NodeAdapter_Create()), itemViews_(itemViews) {
-    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews.size()));
+  ListItemAdapter(std::vector<std::shared_ptr<BaseView>> &itemViews, uint32_t firstItemIndex)
+      : handle_(OH_ArkUI_NodeAdapter_Create()), itemViews_(itemViews), firstItemIndex_(firstItemIndex) {
+    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews.size()-firstItemIndex));
     OH_ArkUI_NodeAdapter_RegisterEventReceiver(handle_, this, OnStaticAdapterEvent);
   }
 
@@ -48,7 +48,7 @@ public:
   
   void ClearAll() {
     OH_ArkUI_NodeAdapter_UnregisterEventReceiver(handle_);
-    OH_ArkUI_NodeAdapter_RemoveItem(handle_, 0, static_cast<uint32_t>(itemViews_.size()));
+    OH_ArkUI_NodeAdapter_RemoveItem(handle_, 0, static_cast<uint32_t>(itemViews_.size())-firstItemIndex_);
     OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, 0);
     cachedTypeRecycleViews_.clear();
     attachedHandleViewMap_.clear();
@@ -56,23 +56,29 @@ public:
   
   void RestoreAll() {
     OH_ArkUI_NodeAdapter_RegisterEventReceiver(handle_, this, OnStaticAdapterEvent);
-    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size()));
+    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size())-firstItemIndex_);
   }
 
   ArkUI_NodeAdapterHandle GetHandle() const { return handle_; }
 
   void RemoveItem(int32_t index) {
+    if (static_cast<uint32_t>(index) < firstItemIndex_) {
+      return;
+    }
     // 如果index会导致可视区域元素发生可见性变化，则会回调NODE_ADAPTER_EVENT_ON_REMOVE_NODE_FROM_ADAPTER事件删除元素，
     // 根据是否有新增元素回调NODE_ADAPTER_EVENT_ON_GET_NODE_ID和NODE_ADAPTER_EVENT_ON_ADD_NODE_TO_ADAPTER事件
-    OH_ArkUI_NodeAdapter_RemoveItem(handle_, static_cast<uint32_t>(index), 1);
-    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size()));
+    OH_ArkUI_NodeAdapter_RemoveItem(handle_, static_cast<uint32_t>(index) - firstItemIndex_, 1);
+    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size()) - firstItemIndex_);
   }
 
   void InsertItem(int32_t index) {
+    if (static_cast<uint32_t>(index) < firstItemIndex_) {
+      return;
+    }
     // 如果index会导致可视区域元素发生可见性变化，则会回调NODE_ADAPTER_EVENT_ON_GET_NODE_ID和NODE_ADAPTER_EVENT_ON_ADD_NODE_TO_ADAPTER事件，
     // 根据是否有删除元素回调NODE_ADAPTER_EVENT_ON_REMOVE_NODE_FROM_ADAPTER事件
-    OH_ArkUI_NodeAdapter_InsertItem(handle_, static_cast<uint32_t>(index), 1);
-    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size()));
+    OH_ArkUI_NodeAdapter_InsertItem(handle_, static_cast<uint32_t>(index) - firstItemIndex_, 1);
+    OH_ArkUI_NodeAdapter_SetTotalNodeCount(handle_, static_cast<uint32_t>(itemViews_.size()) - firstItemIndex_);
   }
 
 private:
@@ -101,7 +107,7 @@ private:
   // 分配ID给需要显示的Item，用于ReloadAllItems场景的元素diff
   void OnNewItemIdCreated(ArkUI_NodeAdapterEvent *event) {
     auto index = OH_ArkUI_NodeAdapterEvent_GetItemIndex(event);
-    auto view = itemViews_[index];
+    auto view = itemViews_[firstItemIndex_+index];
     auto id = static_cast<int32_t>(view->GetTag());
     OH_ArkUI_NodeAdapterEvent_SetNodeId(event, id);
   }
@@ -109,7 +115,7 @@ private:
   // 需要新的Item显示在可见区域
   void OnNewItemAttached(ArkUI_NodeAdapterEvent *event) {
     auto index = OH_ArkUI_NodeAdapterEvent_GetItemIndex(event);
-    auto view = itemViews_[index];
+    auto view = itemViews_[firstItemIndex_+index];
     ArkUI_NodeHandle handle = nullptr;
     
     auto itemView = std::static_pointer_cast<ListItemView>(view);
@@ -117,13 +123,13 @@ private:
     if (cachedIt != cachedTypeRecycleViews_.end() && !cachedIt->second.empty()) {
       // FOOTSTONE_LOG(INFO) << "hippy, list OnNewItemAttached, index: " << index << ", to reuse";
       auto recycleView = cachedIt->second.top();
-      view->ReuseArkUINode(recycleView, (int32_t)index);
+      view->ReuseArkUINode(recycleView, (int32_t)(firstItemIndex_+index));
       handle = view->GetLocalRootArkUINode()->GetArkUINodeHandle();
       cachedIt->second.pop();
     } else {
       // FOOTSTONE_LOG(INFO) << "hippy, list OnNewItemAttached, index: " << index << ", to new";
       // 创建新的元素
-      view->CreateArkUINode(true, (int32_t)index);
+      view->CreateArkUINode(true, (int32_t)(firstItemIndex_+index));
       handle = view->GetLocalRootArkUINode()->GetArkUINodeHandle();
     }
     
@@ -164,6 +170,7 @@ private:
   ArkUI_NodeAdapterHandle handle_ = nullptr;
 
   std::vector<std::shared_ptr<BaseView>> &itemViews_;
+  uint32_t firstItemIndex_ = 0;
 
   std::unordered_map<std::string, std::stack<std::shared_ptr<RecycleView>>> cachedTypeRecycleViews_;
   
