@@ -108,6 +108,10 @@ void ArkUINode::RemoveChild(ArkUINode *child) {
   MaybeThrow(NativeNodeApi::GetInstance()->removeChild(nodeHandle_, child->GetArkUINodeHandle()));
 }
 
+void ArkUINode::RemoveAllChildren() {
+  MaybeThrow(NativeNodeApi::GetInstance()->removeAllChildren(nodeHandle_));
+}
+
 void ArkUINode::RemoveSelfFromParent() {
   auto parentHandle = NativeNodeApi::GetInstance()->getParent(nodeHandle_);
   if (parentHandle) {

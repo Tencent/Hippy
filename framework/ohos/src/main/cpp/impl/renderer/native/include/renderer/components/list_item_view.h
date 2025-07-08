@@ -35,7 +35,7 @@ public:
   ListItemView(std::shared_ptr<NativeRenderContext> &ctx);
   ~ListItemView();
 
-  ListItemNode *GetLocalRootArkUINode() override;
+  ArkUINode *GetLocalRootArkUINode() override;
   void CreateArkUINodeImpl() override;
   void DestroyArkUINodeImpl() override;
   std::shared_ptr<RecycleView> RecycleArkUINode() override;
