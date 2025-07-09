@@ -77,9 +77,15 @@ void WaterfallView::CreateArkUINodeImpl() {
   refreshNode_->SetRefreshRefreshing(false);
   refreshNode_->SetRefreshPullDownRatio(0);
   refreshNode_->AddChild(flowNode_.get());
+  
+  if (children_.size() > 0) {
+    CreateArkUINodeAfterHeaderCheck();
+  }
 }
 
 void WaterfallView::DestroyArkUINodeImpl() {
+  hasCreateAfterHeaderCheck_ = false;
+  
   flowNode_->SetArkUINodeDelegate(nullptr);
   flowNode_->SetNodeDelegate(nullptr);
   flowNode_->ResetLazyAdapter();
@@ -201,16 +207,20 @@ void WaterfallView::HandleOnChildrenUpdated() {
   if (childrenCount > 0) {
     auto firstChild = std::static_pointer_cast<WaterfallItemView>(children_[0]);
     if (firstChild->GetViewType() == PULL_HEADER_VIEW_TYPE) {
-      headerView_ = std::static_pointer_cast<WaterfallPullHeaderView>(firstChild);
-      hasPullHeader_ = true;
-      
-      headerView_->CreateArkUINode(true, 0);
-      auto refreshOffset = headerView_->GetHeight();
-      headerView_->SetPosition({0, - refreshOffset});
-      
-      refreshNode_->SetRefreshPullDownRatio(1);
-      refreshNode_->SetRefreshContent(headerView_->GetLocalRootArkUINode()->GetArkUINodeHandle());
-      refreshNode_->SetRefreshOffset(refreshOffset);
+      auto newHeaderView = std::static_pointer_cast<WaterfallPullHeaderView>(firstChild);
+      if (newHeaderView != headerView_) { // 不宜重复设置headerView的position，否则会闪
+        headerView_ = newHeaderView;
+        hasPullHeader_ = true;
+        
+        headerView_->CreateArkUINode(true, 0);
+        auto refreshOffset = headerView_->GetHeight();
+        headerView_->SetPosition({0, - refreshOffset});
+        
+        if (refreshNode_) {
+          refreshNode_->SetRefreshContent(headerView_->GetLocalRootArkUINode()->GetArkUINodeHandle());
+          refreshNode_->SetRefreshOffset(refreshOffset);
+        }
+      }
       
       if (childrenCount > 1) {
         auto theChild = std::static_pointer_cast<WaterfallItemView>(children_[1]);
@@ -234,10 +244,29 @@ void WaterfallView::HandleOnChildrenUpdated() {
     } else if (lastChild->GetType() == WaterfallItemView::FOOT_BANNER_TYPE) {
       footBannerView_ = lastChild;
     }
+    
+    if (GetLocalRootArkUINode()) {
+      CreateArkUINodeAfterHeaderCheck();
+    }
   }
   
   UpdateSectionOption();
+}
+
+void WaterfallView::CreateArkUINodeAfterHeaderCheck() {
+  if (hasCreateAfterHeaderCheck_) {
+    return;
+  }
+  hasCreateAfterHeaderCheck_ = true;
   
+  if (hasPullHeader_) {
+    refreshNode_->SetRefreshPullDownRatio(1);
+    refreshNode_->SetRefreshContent(headerView_->GetLocalRootArkUINode()->GetArkUINodeHandle());
+    auto refreshOffset = headerView_->GetHeight();
+    refreshNode_->SetRefreshOffset(refreshOffset);
+  } else {
+    refreshNode_->SetRefreshPullDownRatio(0);
+  }
   if (!adapter_) {
     adapter_ = std::make_shared<WaterfallItemAdapter>(children_, hasPullHeader_ ? 1 : 0);
     flowNode_->SetLazyAdapter(adapter_->GetHandle());

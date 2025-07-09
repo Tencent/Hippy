@@ -88,6 +88,7 @@ public:
 private:
 
   void HandleOnChildrenUpdated();
+  void CreateArkUINodeAfterHeaderCheck();
   
   void EmitScrollEvent(const std::string &eventName);
   void CheckSendOnScrollEvent();
@@ -128,6 +129,8 @@ private:
   int64_t lastScrollTime_ = 0;
   
   bool hasPullHeader_ = false;
+  
+  bool hasCreateAfterHeaderCheck_ = false;
 
   uint64_t end_batch_callback_id_;
   std::shared_ptr<WaterfallPullHeaderView> headerView_ = nullptr;
