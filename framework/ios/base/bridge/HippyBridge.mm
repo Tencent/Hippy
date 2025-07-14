@@ -205,6 +205,8 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 @synthesize bundleQueue = _bundleQueue;
 @synthesize loadingCount = _loadingCount;
 @synthesize lastExecuteOperation = _lastExecuteOperation;
+@synthesize lastRootSizeForDimensions = _lastRootSizeForDimensions;
+@synthesize shouldUseRootSizeAsWindowSize = _shouldUseRootSizeAsWindowSize;
 
 // Use kCFNull to identify the use of JS thread,
 // Reserve it for compatibility with hippy2.
