@@ -64,6 +64,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// Record the last execute operation for adding execution dependency.
 @property (nonatomic, strong, nullable) NSOperation *lastExecuteOperation;
 
+/// The last root view size used for dimension calculation.
+/// This property is used to store the most recent root view size for this bridge instance.
+@property (nonatomic, strong, nullable) NSValue *lastRootSizeForDimensions;
+
+/// Whether to use the root view size as the window size in dimension calculation.
+/// This property caches the result of the delegate method
+/// `shouldUseRootViewSizeAsWindowSizeInDimensions` for this bridge instance.
+@property (nonatomic, strong, nullable) NSNumber *shouldUseRootSizeAsWindowSize;
+
 @end
 
 

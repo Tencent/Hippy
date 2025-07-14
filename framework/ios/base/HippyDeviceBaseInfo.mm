@@ -27,10 +27,7 @@
 #import "HippyEventDispatcher.h"
 #import "HippyRenderUtils.h"
 #import "HippyUIManager.h"
-
-
-static NSValue *gHippyDimensionsLastRootSize = nil;
-static NSNumber *gHippyShouldUseRootSizeAsWindowSize = nil;
+#import "HippyBridge+Private.h"
 
 
 NSDictionary *hippyExportedDimensions(HippyBridge * _Nonnull bridge,
@@ -40,32 +37,32 @@ NSDictionary *hippyExportedDimensions(HippyBridge * _Nonnull bridge,
     CGSize windowSize = HippyKeyWindow() ? HippyKeyWindow().bounds.size : screenSize;
     
     // Call bridge delegate method shouldUseRootViewSizeAsWindowSizeInDimensions if needed.
-    if (!gHippyShouldUseRootSizeAsWindowSize) {
+    if (!bridge.shouldUseRootSizeAsWindowSize) {
         if ([bridge.delegate respondsToSelector:@selector(shouldUseRootViewSizeAsWindowSizeInDimensions)]) {
-            gHippyShouldUseRootSizeAsWindowSize = @(bridge.delegate.shouldUseRootViewSizeAsWindowSizeInDimensions);
+            bridge.shouldUseRootSizeAsWindowSize = @(bridge.delegate.shouldUseRootViewSizeAsWindowSizeInDimensions);
         } else {
             // make default value YES.
-            gHippyShouldUseRootSizeAsWindowSize = @(YES);
+            bridge.shouldUseRootSizeAsWindowSize = @(YES);
         }
     }
-    BOOL useRootSizeAsWindowSize = [gHippyShouldUseRootSizeAsWindowSize boolValue];
+    BOOL useRootSizeAsWindowSize = [bridge.shouldUseRootSizeAsWindowSize boolValue];
     
     // Update RootView size
     if (rootSizeValue) {
-        gHippyDimensionsLastRootSize = rootSizeValue;
+        bridge.lastRootSizeForDimensions = rootSizeValue;
     }
     
     // Get a default value of the RootView's size from the host app,
     // instead of directly using the key window size,
     // since key window size may not be accurate in some cases.
-    if (useRootSizeAsWindowSize && !gHippyDimensionsLastRootSize) {
+    if (useRootSizeAsWindowSize && !bridge.lastRootSizeForDimensions) {
         if ([bridge.delegate respondsToSelector:@selector(defaultWindowSizeInDimensionsBeforeRootViewMount)]) {
-            gHippyDimensionsLastRootSize = @(bridge.delegate.defaultWindowSizeInDimensionsBeforeRootViewMount);
+            bridge.lastRootSizeForDimensions = @(bridge.delegate.defaultWindowSizeInDimensionsBeforeRootViewMount);
         }
     }
     
     // Get final RootSize
-    CGSize rootSize = gHippyDimensionsLastRootSize ? gHippyDimensionsLastRootSize.CGSizeValue : windowSize;
+    CGSize rootSize = bridge.lastRootSizeForDimensions ? bridge.lastRootSizeForDimensions.CGSizeValue : windowSize;
     
     // To be replace by HippyKeyWindow().windowScene.statusBarManager.statusBarFrame;
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
