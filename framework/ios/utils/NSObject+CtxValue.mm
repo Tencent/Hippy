@@ -41,7 +41,10 @@
 @implementation NSString (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    auto string_view = footstone::string_view::new_from_utf8([self UTF8String]);
+    NSData *utf8Data = [self dataUsingEncoding:NSUTF8StringEncoding];
+    const char *utf8Str = (const char *)[utf8Data bytes];
+    size_t utf8Len = [utf8Data length];
+    auto string_view = footstone::string_view::new_from_utf8(utf8Str, utf8Len);
     return context->CreateString(string_view);
 }
 

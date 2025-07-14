@@ -66,20 +66,15 @@ JSStringRef JSCVM::CreateJSCString(const string_view& str_view) {
       FOOTSTONE_UNREACHABLE();
       break;
     }
-    case string_view::Encoding::Utf8: {
-      std::string u8_str(reinterpret_cast<const char*>(str_view.utf8_value().c_str()),
-                         str_view.utf8_value().length());
-      ret = JSStringCreateWithUTF8CString(u8_str.c_str());
+    case string_view::Encoding::Utf8:
+    case string_view::Encoding::Latin1:
+    case string_view::Encoding::Utf32: {
+      std::u16string u16_str = StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf16).utf16_value();
+      ret = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;
     }
     case string_view::Encoding::Utf16: {
       std::u16string u16_str = str_view.utf16_value();
-      ret = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
-      break;
-    }
-    case string_view::Encoding::Latin1:
-    case string_view::Encoding::Utf32: {
-      std::u16string u16_str = StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf16).utf16_value();
       ret = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;
     }
