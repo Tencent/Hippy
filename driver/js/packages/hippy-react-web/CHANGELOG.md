@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.5](https://github.com/Tencent/Hippy/compare/3.3.4...3.3.5) (2025-07-17)
+
+**Note:** Version bump only for package @hippy/react-web
+
+
+
+
+
 ## [3.3.4](https://github.com/Tencent/Hippy/compare/3.3.3...3.3.4) (2025-04-03)
 
 **Note:** Version bump only for package @hippy/react-web

@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.5](https://github.com/Tencent/Hippy/compare/3.3.4...3.3.5) (2025-07-17)
+
+
+### Bug Fixes
+
+* **android:** add MonitorGroup for HippyEngineMonitorAdapter ([a0443cb](https://github.com/Tencent/Hippy/commit/a0443cb67a5b3c390cbf125632ccf0888b2e8801))
+* **android:** demo display exception after crash ([9d21cb5](https://github.com/Tencent/Hippy/commit/9d21cb55c4d0ea7501db59542d1edab7cbe32703))
+* **android:** only delete flatten image should invalidate parent ([1742603](https://github.com/Tencent/Hippy/commit/1742603546b28db3d7d4fa5029aca2b2c75892ea))
+* **android:** remove animation run status DCHECK ([4ca29c6](https://github.com/Tencent/Hippy/commit/4ca29c676152680c74f44366e5bd938eb48a0740))
+* **android:** text input cursor not display ([8cd47d8](https://github.com/Tencent/Hippy/commit/8cd47d8396c0b06e1807a9912065434a5fee6ec9))
+* **android:** zIndex setting results add flatten child exception ([05098fd](https://github.com/Tencent/Hippy/commit/05098fde8f6acf59adc2859a89149b29ef51fa02))
+* **ios:** abnormal background color drawing with corner radius ([#4262](https://github.com/Tencent/Hippy/issues/4262)) ([5c350be](https://github.com/Tencent/Hippy/commit/5c350bed6ba156d235b0815fc2e7e7a128d7b15e))
+* **ios:** dynamic size adaptation support of modal component ([#4285](https://github.com/Tencent/Hippy/issues/4285)) ([887b53d](https://github.com/Tencent/Hippy/commit/887b53d4f0ad031fdf37bc18af5b4f7631bc2a84))
+* **ios:** ensure thread-safe to animated image using os_unfair_lock ([#4357](https://github.com/Tencent/Hippy/issues/4357)) ([010b9ec](https://github.com/Tencent/Hippy/commit/010b9ec14aaf8f8209a105875df1b13470b64213))
+* **ios:** memory optimization & fix potential thread race in shadowView ([240c549](https://github.com/Tencent/Hippy/commit/240c549c054bffd42534562e46d35ede63a436ca))
+* **ios:** nested sub text not responds to click event in touch handler ([#4287](https://github.com/Tencent/Hippy/issues/4287)) ([7612c13](https://github.com/Tencent/Hippy/commit/7612c130d5687694bc4facabbb8a50fc810894d0))
+* **ios:** onChange not fired under password mode of input component ([#4294](https://github.com/Tencent/Hippy/issues/4294)) ([1dac26c](https://github.com/Tencent/Hippy/commit/1dac26cf3a171cf6a2bea1c254c9e41991063169))
+* **ios:** refactor and add protection to type conversion to avoid crash ([#4329](https://github.com/Tencent/Hippy/issues/4329)) ([ad06cad](https://github.com/Tencent/Hippy/commit/ad06cadf2b2a3cd622db06133632b4097cba9b15))
+* **ios:** resolve potential thread race in performance api ([433006e](https://github.com/Tencent/Hippy/commit/433006e5c8798760fba4e7bcc90bd6b0e6e4301c))
+* **ios:** rtl layout issue for scroll component ([#4328](https://github.com/Tencent/Hippy/issues/4328)) ([da8d1c2](https://github.com/Tencent/Hippy/commit/da8d1c22518c96ee17c82333c49af35a49c60ac6))
+* **ios:** string with null character support in bridge ([#4362](https://github.com/Tencent/Hippy/issues/4362)) ([da061f3](https://github.com/Tencent/Hippy/commit/da061f3ce17497c1ea56882f564fadad20406177))
+* **react:** tab host demo display exception ([f0b265b](https://github.com/Tencent/Hippy/commit/f0b265bc85f475de03c71e0d2f0caa0277af90b6))
+
+
+### Features
+
+* **android:** support 16k page ([fa426a7](https://github.com/Tencent/Hippy/commit/fa426a701faf0e666e394e0b9c75362a1b32519c))
+
+
+
+
+
 ## [3.3.4](https://github.com/Tencent/Hippy/compare/3.3.3...3.3.4) (2025-04-03)
 
 
