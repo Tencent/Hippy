@@ -115,7 +115,7 @@ bool ImageView::SetPropImpl(const std::string &propKey, const HippyValue &propVa
     return true;
   } else if (propKey == "capInsets") {
     HippyValueObjectType m;
-    if (propValue.ToObject(m)) {
+    if (propValue.IsObject() && propValue.ToObject(m)) {
       auto left = HRValueUtils::GetFloat(m["left"]);
       auto top = HRValueUtils::GetFloat(m["top"]);
       auto right = HRValueUtils::GetFloat(m["right"]);
