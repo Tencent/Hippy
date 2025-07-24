@@ -50,7 +50,7 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig& devtools_co
 DevtoolsBackendService::~DevtoolsBackendService() { FOOTSTONE_DLOG(INFO) << kDevToolsTag << "~DevtoolsBackendService"; }
 
 void DevtoolsBackendService::Create() {
-#if (defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)) || defined(JS_HERMES)
+#if (defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)) || (defined(JS_JSH) && !defined(JSH_WITHOUT_INSPECTOR)) || defined(JS_HERMES)
   data_channel_->GetNotificationCenter()->vm_response_notification =
       std::make_shared<DefaultVmResponseAdapter>([WEAK_THIS](const std::string& data) {
         DEFINE_AND_CHECK_SELF(DevtoolsBackendService)

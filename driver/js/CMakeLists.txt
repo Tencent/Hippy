@@ -213,6 +213,10 @@ if ("${JS_ENGINE}" STREQUAL "JSH")
             src/vm/jsh/memory_module_jsh.cc
             src/vm/jsh/jsh_vm.cc
             src/vm/jsh/native_source_code_jsh.cc)
+  if (ENABLE_INSPECTOR)
+    list(APPEND SOURCE_SET
+            src/vm/jsh/inspector/jsh_inspector_client_impl.cc)
+  endif ()
 endif ()
 
 if("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")

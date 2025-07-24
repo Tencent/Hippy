@@ -145,7 +145,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 }
 
 void DomainDispatch::DispatchToVm(const std::string& data) {
-#if (defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)) || defined(JS_HERMES)
+#if (defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)) || (defined(JS_JSH) && !defined(JSH_WITHOUT_INSPECTOR)) || defined(JS_HERMES)
   FOOTSTONE_DLOG(INFO) << kDevToolsTag << "JSDebugger, params=" << data.c_str();
   auto vm_request = data_channel_->GetProvider()->vm_request_adapter;
   if (vm_request) {
