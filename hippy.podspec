@@ -307,7 +307,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'devtools\' read begin'
     devtools.libraries = 'c++'
     devtools_exclude_files = Array.new;
-    devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8']
+    devtools_exclude_files += ['devtools/devtools-integration/native/include/devtools/v8', 'devtools/devtools-integration/native/src/v8', 'devtools/devtools-backend/include/ohos', 'devtools/devtools-backend/src/ohos']
     devtools.exclude_files = devtools_exclude_files
     devtools.project_header_files = [
       #devtools_integration/native

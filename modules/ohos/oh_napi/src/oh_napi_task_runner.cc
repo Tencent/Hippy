@@ -30,6 +30,9 @@ namespace hippy {
 OhNapiTaskRunner *OhNapiTaskRunner::Instance(napi_env env) {
   static OhNapiTaskRunner *sp = NULL;
   if (!sp) {
+    if (!env) {
+      return nullptr;
+    }
     sp = new OhNapiTaskRunner(env);
   }
   return sp;

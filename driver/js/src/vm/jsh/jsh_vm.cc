@@ -65,10 +65,6 @@ JSHVM::JSHVM(const std::shared_ptr<JSHVMInitParam>& param) : VM(param) {
       auto status = OH_JSVM_Init(&init_options);
       FOOTSTONE_LOG(INFO) << "JSHVM OH_JSVM_Init result: " << status;
       platform_initted = true;
-#ifdef ENABLE_INSPECTOR
-      auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform->GetTracingController());
-      devtools::DevtoolsDataSource::OnGlobalTracingControlGenerate(trace);
-#endif
     }
   }
   
@@ -109,10 +105,6 @@ void JSHVM::AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWr
 JSHVM::~JSHVM() {
   FOOTSTONE_LOG(INFO) << "~JSHVM";
 
-#if defined(ENABLE_INSPECTOR) && !defined(JSH_WITHOUT_INSPECTOR)
-  inspector_client_ = nullptr;
-#endif
-  
   OH_JSVM_CloseVMScope(vm_, vm_scope_);
   vm_scope_ = nullptr;
   OH_JSVM_DestroyVM(vm_);

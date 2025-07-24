@@ -44,6 +44,8 @@ endif ()
 # region vm
 if ("${JS_ENGINE}" STREQUAL "V8")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_V8")
+elseif ("${JS_ENGINE}" STREQUAL "JSH")
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSH")
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
 elseif ("${JS_ENGINE}" STREQUAL "HERMES")
@@ -155,5 +157,10 @@ set(SOURCE_SET
     src/tunnel/tunnel_service.cc
     src/tunnel/ws/web_socket_channel.cc
     src/tunnel/tcp/socket.cc)
+if (OHOS)
+  list(APPEND SOURCE_SET
+          src/ohos/jsh_get_url_connection.cc
+          src/ohos/jsh_debug_connection.cc)
+endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

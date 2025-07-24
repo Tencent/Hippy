@@ -49,9 +49,7 @@ struct JSHVMInitParam : public VM::VMInitParam {
 class JSHVM : public VM {
  public:
   using string_view = footstone::string_view;
-#if defined(ENABLE_INSPECTOR) && defined(JS_JSH) && !defined(JSH_WITHOUT_INSPECTOR)
-  using JSHInspectorClientImpl = hippy::inspector::JSHInspectorClientImpl;
-#endif
+
   struct DeserializerResult {
     bool flag;
     std::shared_ptr<CtxValue> result;
@@ -75,6 +73,7 @@ class JSHVM : public VM {
     return inspector_client_;
   }
 #endif
+
   virtual std::shared_ptr<Ctx> CreateContext() override;
   virtual std::shared_ptr<CtxValue> ParseJson(const std::shared_ptr<Ctx>& ctx, const string_view& json) override;
   void AddUncaughtExceptionMessageListener(const std::unique_ptr<FunctionWrapper>& wrapper) const;

@@ -72,11 +72,23 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```
 
 Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/jsvm-introduction-V5) 和 V8 两个JS引擎，JSVM 性能更好所以默认使用JSVM，不过可以自由切换。
-鸿蒙调试目前只适配好了V8，适配JSVM还在开发中，所以调试时需要切换到V8并打开调试代码。
-调试切换到V8的方法，两步：
+
+- 鸿蒙调试JS引擎使用JSVM和V8都可以
+- 鸿蒙调试请使用Debug包
+
+> Debug包默认打开了ENABLE_INSPECTOR宏，使得调试功能生效。即：Hippy/framework/ohos/build-profile.json5 里配置了："arguments": "-DENABLE_INSPECTOR=true"
+
+默认会使用JSVM进行调试，由于JSVM提供的调试接口限制，特别说明：
+
+- 所有需要主动执行JS调试命令的地方，都需要页面上JS执行来触发，比如：点击某个按钮处理响应事件触发，滚动后处理响应事件触发，等等。这些场景如下：
+
+![image](../assets/img/ohos_jsvm_debug1.png)
+![image](../assets/img/ohos_jsvm_debug2.png)
+![image](../assets/img/ohos_jsvm_debug3.png)
+
+如需切换到V8进行调试，请修改：
 
 - Hippy/driver/js/CMakeLists.txt 里：打开 set(JS_ENGINE "V8") 注释 set(JS_ENGINE "JSH") 
-- Hippy/framework/ohos/build-profile.json5 里 debug 配置下：   "arguments": "-DENABLE_INSPECTOR=false"，改为true。  （这个是为了打开 ENABLE_INSPECTOR 宏，让调试功能生效）
 
 另外，鸿蒙调试目前只支持网络调试（手机和JS Server在一个网络内，通过网络下载JS Bundle调试），数据线调试还在开发中。
 

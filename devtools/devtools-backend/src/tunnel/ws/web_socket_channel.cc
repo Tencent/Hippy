@@ -45,6 +45,10 @@ WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_client_.start_perpetual();
 }
 
+WebSocketChannel::~WebSocketChannel() {
+  ws_thread_->detach();
+}
+
 void WebSocketChannel::Connect(ReceiveDataHandler handler, ReconnectHandler reconnect_handler) {
   if (ws_uri_.empty()) {
     FOOTSTONE_DLOG(ERROR) << kDevToolsTag << "websocket uri is empty, connect error";

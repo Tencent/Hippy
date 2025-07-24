@@ -12,7 +12,7 @@
     {
       "name": "debug",
       "externalNativeOptions": {
-        "arguments": "-DOHOS_STL=c++_static -DENABLE_INSPECTOR=false",
+        "arguments": "-DOHOS_STL=c++_static -DENABLE_INSPECTOR=true",
         "abiFilters": [
           "arm64-v8a",
         ],
