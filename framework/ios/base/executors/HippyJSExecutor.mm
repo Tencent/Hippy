@@ -258,22 +258,14 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
     _valid = NO;
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     
-    HippyBridge *bridge = self.bridge;
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
     if (devtools_data_source) {
-        bool reload = bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+        HippyBridge *bridge = self.bridge; // Note: bridge may be nil
+        bool reload = (bridge && bridge.invalidateReason == HippyInvalidateReasonReload) ? true : false;
         devtools_data_source->Destroy(reload);
     }
 #endif /* ENABLE_INSPECTOR */
-
-#ifdef JS_JSC
-    if (self.pScope && bridge && !bridge.usingHermesEngine) {
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
-        static CFStringRef delName = CFSTR("HippyJSContext(delete)");
-        jsc_context->SetName(delName);
-    }
-#endif /* JS_JSC */
 
     self.pScope->WillExit();
     _pScope = nullptr;
@@ -852,7 +844,9 @@ static NSError *executeApplicationScript(NSData *script,
         devInfo.versionId = bundleURLProvider.versionId;
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
-    return [devInfo assembleFullWSURLWithClientId:[self getClientID] contextName:bridge.contextName isHermesEngine:bridge.usingHermesEngine];
+    return [devInfo assembleFullWSURLWithClientId:[self getClientID]
+                                      contextName:bridge.contextName
+                                   isHermesEngine:bridge.usingHermesEngine];
 }
 
 
