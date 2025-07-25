@@ -376,9 +376,6 @@ static inline void registerLogDelegateToHippyCore() {
             }
         };
         [_javaScriptExecutor setup];
-        if (_contextName) {
-            _javaScriptExecutor.contextName = _contextName;
-        }
         
         // Setup all extra and internal modules
         [_moduleSetup setupModulesWithCompletionBlock:^{
@@ -930,6 +927,10 @@ static NSString *const hippyOnNightModeChangedParam2 = @"RootViewTag";
 
 - (void)setInspectable:(BOOL)isInspectable {
     [self.javaScriptExecutor setInspecable:isInspectable];
+    if (isInspectable && !self.contextName) {
+        // Set context name of JSC when inspectable
+        self.contextName = self.moduleName;
+    }
 }
 
 - (NSURL *)debugURL {

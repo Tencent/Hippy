@@ -151,7 +151,10 @@
     
     // Config whether jsc is inspectable, Highly recommended setting,
     // since inspectable of JSC is disabled by default since iOS 16.4
+#if DEBUG
+    // Note: Open it only in non-release versions.
     [bridge setInspectable:YES];
+#endif
     
     _hippyBridge = bridge;
     rootView.frame = self.contentAreaView.bounds;
