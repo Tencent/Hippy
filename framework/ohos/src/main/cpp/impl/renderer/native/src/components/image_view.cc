@@ -120,7 +120,8 @@ bool ImageView::SetPropImpl(const std::string &propKey, const HippyValue &propVa
       auto top = HRValueUtils::GetFloat(m["top"]);
       auto right = HRValueUtils::GetFloat(m["right"]);
       auto bottom = HRValueUtils::GetFloat(m["bottom"]);
-      GetLocalRootArkUINode()->SetResizeable(left, top, right, bottom);
+      GetLocalRootArkUINode()->SetResizeable(HRPixelUtils::PxToDp(left), HRPixelUtils::PxToDp(top),
+        HRPixelUtils::PxToDp(right), HRPixelUtils::PxToDp(bottom));
     } else {
       return false;
     }
