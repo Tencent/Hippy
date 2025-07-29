@@ -669,7 +669,12 @@ double TextMeasurer::HippyValue2Double(HippyValue &value) {
   }
   auto& str = value.ToStringSafe();
   if (str.size() > 0) {
-    return std::stod(str);
+    // try catch std::invalid_argument exception
+    try {
+      return std::stod(str);
+    } catch (...) {
+      return 0;
+    }
   }
   return 0;
 }
@@ -681,7 +686,11 @@ float TextMeasurer::HippyValue2Float(HippyValue &value) {
   }
   auto& str = value.ToStringSafe();
   if (str.size() > 0) {
-    return std::stof(str);
+    try {
+      return std::stof(str);
+    } catch (...) {
+      return 0;
+    }
   }
   return 0;
 }
