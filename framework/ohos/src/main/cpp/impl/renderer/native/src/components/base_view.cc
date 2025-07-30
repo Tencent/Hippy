@@ -154,6 +154,11 @@ std::shared_ptr<RecycleView> BaseView::RecycleArkUINode() {
     return nullptr;
   }
   
+  auto node = GetLocalRootArkUINode();
+  if (node) {
+    node->SetArkUINodeDelegate(nullptr);
+  }
+  
   auto recycleView = std::make_shared<RecycleView>();
   recycleView->cachedViewType_ = GetViewType();
   bool result = RecycleArkUINodeImpl(recycleView);
