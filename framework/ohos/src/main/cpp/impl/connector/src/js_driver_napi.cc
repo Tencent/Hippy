@@ -237,6 +237,9 @@ static napi_value DestroyJsDriver(napi_env env, napi_callback_info info) {
     scope_cv_map.erase(scope_id);
   }
   auto scope = GetScope(scope_id);
+  if (!scope) {
+    return arkTs.GetUndefined();
+  }
   auto engine = scope->GetEngine().lock();
   FOOTSTONE_CHECK(engine);
   {
