@@ -24,6 +24,7 @@
 #include "oh_napi/ark_ts.h"
 #include <napi/native_api.h>
 #include "footstone/logging.h"
+#include "oh_napi/oh_napi_task_runner.h"
 
 namespace hippy {
 inline namespace framework {
@@ -39,6 +40,7 @@ std::shared_ptr<OhNapiInvocation> OhNapiInvocation::GetInstance() {
 }
 
 napi_value OhNapiInvocation::OhNapi_OnLoad(napi_env env, napi_value exports) {
+  OhNapiTaskRunner::Instance(env); // 需要主线程触发uv_async_init API调用
   for (const auto& func: oh_napi_onloads_) {
     func(env, exports);
   }
