@@ -802,6 +802,7 @@ void BaseView::HandleInterceptPullUp() {
 
 void BaseView::SetAttachedToWindowHandle(bool flag) {
   if (flag) {
+    GetLocalRootArkUINode()->RegisterAttachEvent();
     auto weak_view = weak_from_this();
     eventAttachedToWindow_ = [weak_view]() {
       auto view = weak_view.lock();
@@ -816,6 +817,7 @@ void BaseView::SetAttachedToWindowHandle(bool flag) {
 
 void BaseView::SetDetachedFromWindowHandle(bool flag) {
   if (flag) {
+    GetLocalRootArkUINode()->RegisterDetachEvent();
     auto weak_view = weak_from_this();
     eventDetachedFromWindow_ = [weak_view]() {
       auto view = weak_view.lock();
@@ -1085,19 +1087,27 @@ void BaseView::OnTouch(int32_t actionType, const HRPosition &screenPosition) {
 }
 
 void BaseView::OnAppear() {
+
+}
+
+void BaseView::OnDisappear() {
+
+}
+
+void BaseView::OnAreaChange(ArkUI_NumberValue* data) {
+
+}
+
+void BaseView::OnAttach() {
   if (eventAttachedToWindow_) {
     eventAttachedToWindow_();
   }
 }
 
-void BaseView::OnDisappear() {
+void BaseView::OnDetach() {
   if (eventDetachedFromWindow_) {
     eventDetachedFromWindow_();
   }
-}
-
-void BaseView::OnAreaChange(ArkUI_NumberValue* data) {
-
 }
 
 int64_t BaseView::GetTimeMilliSeconds() {

@@ -98,6 +98,8 @@ public:
   virtual void OnAppear() override;
   virtual void OnDisappear() override;
   virtual void OnAreaChange(ArkUI_NumberValue* data) override;
+  virtual void OnAttach() override;
+  virtual void OnDetach() override;
 
 protected:
   virtual void OnChildInserted(std::shared_ptr<BaseView> const &childView, int index);
