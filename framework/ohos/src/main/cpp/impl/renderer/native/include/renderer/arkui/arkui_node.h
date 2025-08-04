@@ -49,6 +49,8 @@ public:
   virtual void OnAppear() {}
   virtual void OnDisappear() {}
   virtual void OnAreaChange(ArkUI_NumberValue* data) {}
+  virtual void OnAttach() {}
+  virtual void OnDetach() {}
 };
 
 class ArkUINode {
@@ -149,6 +151,10 @@ public:
   void UnregisterDisappearEvent();
   void RegisterAreaChangeEvent();
   void UnregisterAreaChangeEvent();
+  void RegisterAttachEvent();
+  void UnregisterAttachEvent();
+  void RegisterDetachEvent();
+  void UnregisterDetachEvent();
 protected:
 
 #define ARKUI_NODE_CHECK_AND_LOG_ERROR \
@@ -239,6 +245,8 @@ protected:
   bool hasAppearEvent_ = false;
   bool hasDisappearEvent_ = false;
   bool hasAreaChangeEvent_ = false;
+  bool hasAttachEvent_ = false;
+  bool hasDetachEvent_ = false;
   
   uint64_t baseAttributesFlagValue_ = 0;
   uint64_t subAttributesFlagValue_ = 0;

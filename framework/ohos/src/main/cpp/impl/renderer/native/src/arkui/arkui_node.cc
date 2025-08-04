@@ -710,6 +710,10 @@ void ArkUINode::OnNodeEvent(ArkUI_NodeEvent *event) {
     auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
     ArkUI_NumberValue* data = nodeComponentEvent->data;
     arkUINodeDelegate_->OnAreaChange(data);
+  } else if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_ATTACH) {
+    arkUINodeDelegate_->OnAttach();
+  } else if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_DETACH) {
+    arkUINodeDelegate_->OnDetach();
   }
 }
 
@@ -851,6 +855,34 @@ void ArkUINode::UnregisterAreaChangeEvent(){
   if (hasAreaChangeEvent_){
     NativeNodeApi::GetInstance()->unregisterNodeEvent(nodeHandle_, NODE_EVENT_ON_AREA_CHANGE);
     hasAreaChangeEvent_ = false ;
+  }
+}
+
+void ArkUINode::RegisterAttachEvent() {
+  if (!hasAttachEvent_){
+    MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, NODE_EVENT_ON_ATTACH, 0, nullptr));
+    hasAttachEvent_ = true ;
+  }
+}
+
+void ArkUINode::UnregisterAttachEvent() {
+  if (hasAttachEvent_){
+    NativeNodeApi::GetInstance()->unregisterNodeEvent(nodeHandle_, NODE_EVENT_ON_ATTACH);
+    hasAttachEvent_ = false ;
+  }
+}
+
+void ArkUINode::RegisterDetachEvent() {
+  if (!hasDetachEvent_){
+    MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, NODE_EVENT_ON_DETACH, 0, nullptr));
+    hasDetachEvent_ = true ;
+  }
+}
+
+void ArkUINode::UnregisterDetachEvent() {
+  if (hasDetachEvent_){
+    NativeNodeApi::GetInstance()->unregisterNodeEvent(nodeHandle_, NODE_EVENT_ON_DETACH);
+    hasDetachEvent_ = false ;
   }
 }
 
