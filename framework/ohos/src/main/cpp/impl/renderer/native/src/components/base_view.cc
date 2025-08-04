@@ -810,6 +810,10 @@ void BaseView::SetAttachedToWindowHandle(bool flag) {
         HRGestureDispatcher::HandleAttachedToWindow(view->ctx_, view->tag_);
       }
     };
+    // NODE_EVENT_ON_ATTACH 事件是 insertChild 的时候触发的，所以如果已经 insert 过，需要补发事件
+    if (GetLocalRootArkUINode()->HasParent()) {
+      eventAttachedToWindow_();
+    }
   } else {
     eventAttachedToWindow_ = nullptr;
   }
