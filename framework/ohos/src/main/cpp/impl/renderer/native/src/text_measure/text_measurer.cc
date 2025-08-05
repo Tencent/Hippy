@@ -169,16 +169,18 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   OH_Drawing_SetTypographyTextEllipsis(typographyStyle_, ellipsis.c_str());
   OH_Drawing_SetTypographyTextEllipsisModal(typographyStyle_, em);
 
+  bool hasCustomFont = false;
   if (fontCache) {
     for (auto itName = fontFamilyNames.begin(); itName != fontFamilyNames.end(); itName++) {
       auto &fontName = *itName;
-      if (!fontCache->HasFont(fontName)) {
+      if (fontCache->HasFont(fontName)) {
+        hasCustomFont = true;
+      } else {
         auto itFont = fontFamilyList_.find(fontName);
         if (itFont != fontFamilyList_.end()) {
           auto fontPath = itFont->second;
           fontCache->RegisterFont(fontName, fontPath);
-        } else {
-          FOOTSTONE_LOG(ERROR) << "Measure Text OH_Drawing_RegisterFont not found font:" << fontName;
+          hasCustomFont = true;
         }
       }
     }
@@ -189,13 +191,13 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
 #define OHOS_HAS_API14 1
 #if OHOS_HAS_API14
   OH_Drawing_FontCollection *fontCollection = nullptr;
-  bool hasCustomFont = (fontFamilyNames.size() > 0) ? true : false;
   if (hasCustomFont) {
-    fontCollection = fontCache ? fontCache->fontCollection_ : nullptr;
+    fontCollection = fontCache->fontCollection_;
   } else {
     fontCollection = OH_Drawing_GetFontCollectionGlobalInstance();
   }
 #else
+  (void)hasCustomFont;
   OH_Drawing_FontCollection *fontCollection = fontCache ? fontCache->fontCollection_ : nullptr;
 #endif
   styled_string_ = OH_ArkUI_StyledString_Create(typographyStyle_, fontCollection);
@@ -524,6 +526,9 @@ double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasur
   std::vector<double> measureHeights; // 测得每行高度
 
   lineCount = OH_Drawing_TypographyGetLineCount(typography); // 总行数
+  if (lineCount == 0) {
+    return lineHeight_;
+  }
   for (uint32_t i = 0; i < lineCount; i++) {                 // 获取每行行高
     // 当前行没有文本时，或者指定了lineHeight，baseLine获取的就不对
     // baseLine = OH_Drawing_TypographyGetAlphabeticBaseline(typography); //=h*11/16
