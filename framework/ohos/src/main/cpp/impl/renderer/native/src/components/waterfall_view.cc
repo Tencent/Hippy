@@ -261,6 +261,11 @@ void WaterfallView::CreateArkUINodeAfterHeaderCheck() {
   
   if (hasPullHeader_) {
     refreshNode_->SetRefreshPullDownRatio(1);
+    // 当Waterfall嵌套在lazyItem里时，可能更新children时Waterfall还没创建，进而headerView没有创建成功，所以这里需要重建
+    if (!headerView_->GetLocalRootArkUINode()) {
+      headerView_->CreateArkUINode(true, 0);
+      headerView_->SetPosition({0, - headerView_->GetHeight()});
+    }
     refreshNode_->SetRefreshContent(headerView_->GetLocalRootArkUINode()->GetArkUINodeHandle());
     auto refreshOffset = headerView_->GetHeight();
     refreshNode_->SetRefreshOffset(refreshOffset);

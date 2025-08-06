@@ -413,7 +413,11 @@ void ListView::HandleOnChildrenUpdated() {
         pullHeaderWH_ = isVertical_ ? headerView_->GetHeight() : headerView_->GetWidth();
         
         headerView_->CreateArkUINode(true, 0);
-        headerView_->SetPosition({0, - pullHeaderWH_});
+        if (isVertical_) {
+          headerView_->SetPosition({0, - pullHeaderWH_});
+        } else {
+          headerView_->SetPosition({- pullHeaderWH_, 0});
+        }
         
         if (refreshNode_) {
           refreshNode_->SetRefreshContent(headerView_->GetLocalRootArkUINode()->GetArkUINodeHandle());
@@ -458,6 +462,15 @@ void ListView::CreateArkUINodeAfterHeaderCheck() {
     refreshNode_->SetRefreshPullToRefresh(true);
     refreshNode_->SetRefreshRefreshing(false);
     refreshNode_->SetRefreshPullDownRatio(1);
+    // 当List嵌套在lazyItem里时，可能更新children时List还没创建，进而headerView没有创建成功，所以这里需要重建
+    if (!headerView_->GetLocalRootArkUINode()) {
+      headerView_->CreateArkUINode(true, 0);
+      if (isVertical_) {
+        headerView_->SetPosition({0, - pullHeaderWH_});
+      } else {
+        headerView_->SetPosition({- pullHeaderWH_, 0});
+      }
+    }
     refreshNode_->SetRefreshContent(headerView_->GetLocalRootArkUINode()->GetArkUINodeHandle());
     auto refreshOffset = pullHeaderWH_;
     refreshNode_->SetRefreshOffset(refreshOffset);
