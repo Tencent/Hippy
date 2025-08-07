@@ -67,6 +67,7 @@ public class ControllerUpdateManger<T> {
             NodeProps.OPACITY,
             NodeProps.OVERFLOW,
             NodeProps.CARET_COLOR,
+            NodeProps.CARET_SIZE,
     };
     @Nullable
     private final WeakReference<Renderer> mRendererWeakRef;
