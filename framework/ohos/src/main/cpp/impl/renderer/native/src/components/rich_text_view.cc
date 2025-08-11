@@ -270,6 +270,23 @@ bool RichTextView::SetPropImpl(const std::string &propKey, const HippyValue &pro
     }
     return true;
   }
+#ifndef OHOS_DRAW_CUSTOM_TEXT
+  if (propKey == "copy-options-ohos") {
+    ArkUI_CopyOptions options = ARKUI_COPY_OPTIONS_NONE;
+    auto& str = HRValueUtils::GetString(propValue);
+    if (str == "none") {
+      options = ARKUI_COPY_OPTIONS_NONE;
+    } else if (str == "in_app") {
+      options = ARKUI_COPY_OPTIONS_IN_APP;
+    } else if (str == "local_device") {
+      options = ARKUI_COPY_OPTIONS_LOCAL_DEVICE;
+    } else if (str == "cross_device") {
+      options = ARKUI_COPY_OPTIONS_CROSS_DEVICE;
+    }
+    textNode_->SetCopyOptions(options);
+    return true;
+  }
+#endif
 
   return BaseView::SetPropImpl(propKey, propValue);
 }

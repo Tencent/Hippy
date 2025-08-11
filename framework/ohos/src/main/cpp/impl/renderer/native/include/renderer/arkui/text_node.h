@@ -54,6 +54,7 @@ private:
     TEXT_FONT,
     TEXT_HEIGHT_ADAPTIVE_POLICY,
     TEXT_INDENT,
+    TEXT_COPY_OPTION,
   };
 
 public:
@@ -86,6 +87,7 @@ public:
                         int32_t fontStyle = ARKUI_FONT_STYLE_NORMAL, const std::string &fontFamily = std::string());
   TextNode &SetTextHeightAdaptivePolicy(int32_t policyType);
   TextNode &SetTextIndent(float textIndent);
+  TextNode &SetCopyOptions(const ArkUI_CopyOptions options);
   
   void ResetTextContentWithStyledStringAttribute();
   void ResetAllAttributes() override;

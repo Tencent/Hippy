@@ -230,6 +230,14 @@ TextNode &TextNode::SetTextIndent(float textIndent) {
   return *this;
 }
 
+TextNode &TextNode::SetCopyOptions(const ArkUI_CopyOptions options) {
+  ArkUI_NumberValue value[] = {{.i32 = options}};
+  ArkUI_AttributeItem item = {.value = value, .size = 1};
+  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_TEXT_COPY_OPTION, &item));
+  SetSubAttributeFlag((uint32_t)AttributeFlag::TEXT_COPY_OPTION);
+  return *this;
+}
+
 void TextNode::ResetTextContentWithStyledStringAttribute() {
   if (hasStyledString_) {
     MaybeThrow(NativeNodeApi::GetInstance()->resetAttribute(nodeHandle_, NODE_TEXT_CONTENT_WITH_STYLED_STRING));
@@ -264,6 +272,7 @@ void TextNode::ResetAllAttributes() {
   ARK_UI_NODE_RESET_SUB_ATTRIBUTE(AttributeFlag::TEXT_FONT, NODE_TEXT_FONT);
   ARK_UI_NODE_RESET_SUB_ATTRIBUTE(AttributeFlag::TEXT_HEIGHT_ADAPTIVE_POLICY, NODE_TEXT_HEIGHT_ADAPTIVE_POLICY);
   ARK_UI_NODE_RESET_SUB_ATTRIBUTE(AttributeFlag::TEXT_INDENT, NODE_TEXT_INDENT);
+  ARK_UI_NODE_RESET_SUB_ATTRIBUTE(AttributeFlag::TEXT_COPY_OPTION, NODE_TEXT_COPY_OPTION);
   subAttributesFlagValue_ = 0;
   hasStyledString_ = false;
 }
