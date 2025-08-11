@@ -673,6 +673,7 @@ void BaseView::SetPressIn(bool flag) {
     return;
   }
   if (flag) {
+    GetLocalRootArkUINode()->RegisterTouchEvent();
     auto weak_view = weak_from_this();
     eventPressIn_ = [weak_view]() {
       auto view = weak_view.lock();
@@ -690,6 +691,7 @@ void BaseView::SetPressOut(bool flag) {
     return;
   }
   if (flag) {
+    GetLocalRootArkUINode()->RegisterTouchEvent();
     auto weak_view = weak_from_this();
     eventPressOut_ = [weak_view]() {
       auto view = weak_view.lock();
@@ -1075,6 +1077,9 @@ void BaseView::OnTouch(int32_t actionType, const HRPosition &screenPosition) {
     if (eventTouchDown_) {
       eventTouchDown_(screenPosition);
     }
+    if (eventPressIn_) {
+      eventPressIn_();
+    }
   } else if(actionType == UI_TOUCH_EVENT_ACTION_MOVE) {
     if (eventTouchMove_) {
       eventTouchMove_(screenPosition);
@@ -1083,9 +1088,15 @@ void BaseView::OnTouch(int32_t actionType, const HRPosition &screenPosition) {
     if (eventTouchUp_) {
       eventTouchUp_(screenPosition);
     }
+    if (eventPressOut_) {
+      eventPressOut_();
+    }
   } else if (actionType == UI_TOUCH_EVENT_ACTION_CANCEL) {
     if (eventTouchCancel_) {
       eventTouchCancel_(screenPosition);
+    }
+    if (eventPressOut_) {
+      eventPressOut_();
     }
   }
 }
