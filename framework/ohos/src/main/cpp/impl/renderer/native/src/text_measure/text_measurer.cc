@@ -520,7 +520,7 @@ void TextMeasurer::AddImage(HippyValueObjectType &propMap, float density) {
 #endif
 }
 
-double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret) {
+double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret, float density) {
   size_t lineCount = 0;
   std::vector<double> lineHeights;    // 真实每行高度
   std::vector<double> measureHeights; // 测得每行高度
@@ -552,7 +552,10 @@ double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasur
     OhImageSpanPos pos;
     pos.x = boxLeft;
     pos.y = boxTop;
-
+    
+    pos.x += (paddingLeft_ + borderLeftWidth_) * density;
+    pos.y += (paddingTop_ + borderTopWidth_) * density;
+    
     ret.spanPos.push_back(pos);
   }
   return bottom;
@@ -586,7 +589,7 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
   ret.isEllipsized = OH_Drawing_TypographyDidExceedMaxLines(typography_);
   lineCount = OH_Drawing_TypographyGetLineCount(typography_);
   
-  double realHeight = CalcSpanPostion(typography_, ret);
+  double realHeight = CalcSpanPostion(typography_, ret, density);
   ret.height = fmax(ret.height, realHeight);
   
   if (ret.height < minLineHeight_) {

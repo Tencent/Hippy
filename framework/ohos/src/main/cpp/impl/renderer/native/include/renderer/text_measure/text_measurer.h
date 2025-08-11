@@ -127,7 +127,7 @@ private:
   OH_Drawing_FontWeight FontWeightToDrawing(const std::string &str, float weightScale = 1.f);
   OH_Drawing_FontWeight FontWeightValueToDrawing(int w);
   bool GetPropValue(HippyValueObjectType &propMap, const char *prop, HippyValue &propValue);
-  double CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret);
+  double CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasureResult &ret, float density);
   
   const std::string& HippyValue2String(HippyValue &value);
   double HippyValue2Double(HippyValue &value);
