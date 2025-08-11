@@ -355,18 +355,16 @@ void RichTextView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPaddin
 void RichTextView::OnChildInsertedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
   BaseView::OnChildInsertedImpl(childView, index);
   
-  int32_t realIndex = index;
-  
 #ifdef OHOS_DRAW_TEXT
   if (containerNode_ == nullptr) {
     containerNode_ = std::make_shared<StackNode>();
     textNode_->ReplaceSelfFromParent(containerNode_.get());
     containerNode_->AddChild(textNode_.get());
   }
-  realIndex = index + 1;
+  GetLocalRootArkUINode()->AddChild(childView->GetLocalRootArkUINode());
+#else
+  GetLocalRootArkUINode()->InsertChild(childView->GetLocalRootArkUINode(), index);
 #endif
-  
-  GetLocalRootArkUINode()->InsertChild(childView->GetLocalRootArkUINode(), realIndex);
 }
 
 void RichTextView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) {
