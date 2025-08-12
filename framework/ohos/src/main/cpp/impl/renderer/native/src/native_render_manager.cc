@@ -1249,10 +1249,23 @@ void NativeRenderManager::DoMeasureText(const std::weak_ptr<RootNode> root_node,
   }
 #endif
 
-  if(measureResult.spanPos.size() > 0 && measureResult.spanPos.size() == imageSpanNode.size()) {
-    for(uint32_t i = 0; i < imageSpanNode.size(); i++) {
+  // 如果ImageSpan被截掉，肯定是后面的被截掉
+  if(measureResult.spanPos.size() > 0 && measureResult.spanPos.size() <= imageSpanNode.size()) {
+    // 可显示的ImageSpan
+    for(uint32_t i = 0; i < measureResult.spanPos.size(); i++) {
       double x = PxToDp((float)measureResult.spanPos[i].x);
       double y = PxToDp((float)measureResult.spanPos[i].y);
+      // 把 c 测量到的imageSpan的位置，通知给ArkTS组件
+      if (enable_ark_c_api_) {
+        c_render_provider_->SpanPosition(root->GetId(), imageSpanNode[i]->GetId(), float(x), float(y));
+      } else {
+        CallRenderDelegateSpanPositionMethod(ts_env_, ts_render_provider_ref_, "spanPosition", root->GetId(), imageSpanNode[i]->GetId(), float(x), float(y));
+      }
+    }
+    // 被截掉的ImageSpan
+    for(uint32_t i = (uint32_t)measureResult.spanPos.size(); i < imageSpanNode.size(); i++) {
+      double x = -100000;
+      double y = 0;
       // 把 c 测量到的imageSpan的位置，通知给ArkTS组件
       if (enable_ark_c_api_) {
         c_render_provider_->SpanPosition(root->GetId(), imageSpanNode[i]->GetId(), float(x), float(y));
