@@ -190,6 +190,7 @@ jobs:
       continue-on-error: true
       run: |
         git apply ../${{ github.repository }}/.github/workflows/tools/v8_remove_requests_revision.patch
+        git apply ../${{ github.repository }}/.github/workflows/tools/v8_support_16k_pages_for_android.patch
     - name: Sync third_party
       working-directory: ./v8
       run: |

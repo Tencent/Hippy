@@ -1,0 +1,15 @@
+diff --git a/src/base/build_config.h b/src/base/build_config.h
+index 40719073377..6be42c877f0 100644
+--- a/src/base/build_config.h
++++ b/src/base/build_config.h
+@@ -70,7 +70,9 @@ constexpr int kPageSizeBits = 18;
+ // The minimal supported page size by the operation system. Any region aligned
+ // to that size needs to be individually protectable via
+ // {base::OS::SetPermission} and friends.
+-#if defined(V8_OS_MACOS) && defined(V8_HOST_ARCH_ARM64)
++#if (defined(V8_OS_MACOS) && defined(V8_HOST_ARCH_ARM64)) || \
++    (defined(V8_OS_ANDROID) && (defined(V8_HOST_ARCH_ARM64) || defined(V8_HOST_ARCH_X64)))
++// Android 64 bit has experimental support for 16kB pages.
+ // MacOS on arm64 uses 16kB pages.
+ constexpr int kMinimumOSPageSize = 16 * 1024;
+ #elif defined(V8_OS_LINUX) && !defined(V8_OS_ANDROID) && \
