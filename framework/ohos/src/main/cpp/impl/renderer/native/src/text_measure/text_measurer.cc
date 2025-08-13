@@ -616,6 +616,7 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
   ret.height += paddingHeightReduce;
   
   measureWidth_ = maxWidth;
+  resultWidth_ = ret.width;
   
   return ret;
 }
