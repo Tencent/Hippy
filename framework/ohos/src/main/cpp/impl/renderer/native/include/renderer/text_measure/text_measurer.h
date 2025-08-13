@@ -98,7 +98,8 @@ public:
   }
   
   bool IsRedraw(float maxWidth) {
-    return text_align_ != TEXT_ALIGN_START && fabs(measureWidth_ - maxWidth) >= HRPixelUtils::DpToPx(1.0);
+    return (text_align_ != TEXT_ALIGN_START && fabs(measureWidth_ - maxWidth) >= HRPixelUtils::DpToPx(1.0))
+      || (text_align_ == TEXT_ALIGN_START && resultWidth_ > maxWidth);
   }
 
   void DoRedraw(float maxWidth);
@@ -142,6 +143,7 @@ private:
   ArkUI_StyledString *styled_string_ = nullptr;
   int text_align_ = TEXT_ALIGN_START;
   double measureWidth_ = 0;
+  double resultWidth_ = 0;
   float correctPxOffsetY_ = 0;
   
   std::vector<OhImageSpanHolder> imageSpans_;
