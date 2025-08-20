@@ -22,6 +22,7 @@
 
 #include "renderer/components/hippy_render_view_creator.h"
 #include "renderer/components/div_view.h"
+#include "renderer/components/image_nine_view.h"
 #include "renderer/components/image_view.h"
 #include "renderer/components/list_item_view.h"
 #include "renderer/components/list_view.h"
@@ -46,7 +47,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_parent_text, bool is_parent_waterfall, std::shared_ptr<NativeRenderContext> &ctx) {
+std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_parent_text, bool is_parent_waterfall, bool is_nine_img, std::shared_ptr<NativeRenderContext> &ctx) {
 //  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" view_name = "<<view_name;
   if (view_name == "View") {
     auto view = std::make_shared<DivView>(ctx);
@@ -55,6 +56,10 @@ std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_
   } else if (view_name == "Image") {
     if (is_parent_text) {
       auto view = std::make_shared<RichTextImageSpanView>(ctx);
+      view->Init();
+      return view;
+    } else if (is_nine_img) {
+      auto view = std::make_shared<ImageNineView>(ctx);
       view->Init();
       return view;
     } else {

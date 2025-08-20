@@ -71,6 +71,8 @@ public:
 
   void MarkDirty();
   void MarkDirty(ArkUI_NodeDirtyFlag flag);
+  
+  bool IsCustomNode() { return isCustomNode_; }
 
   void AddChild(ArkUINode *child);
   void InsertChild(ArkUINode *child, int32_t index);
@@ -236,6 +238,7 @@ protected:
   bool isReleaseHandle_ = true;
   
   bool isSpanNode_ = false;
+  bool isCustomNode_ = false;
   
   ArkUINodeDelegate *arkUINodeDelegate_ = nullptr;
 

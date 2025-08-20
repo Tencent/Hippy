@@ -34,7 +34,7 @@ public:
   ImageBaseView(std::shared_ptr<NativeRenderContext> &ctx);
   ~ImageBaseView();
 
-  void OnFetchLocalPathAsyncResult(bool success, const std::string &path);
+  virtual void OnFetchLocalPathAsyncResult(bool success, const std::string &path);
 
 protected:
   void FetchAltImage(const std::string &imageUrl);
@@ -43,7 +43,7 @@ protected:
   std::string GetLocalPathFromAdapter(const std::string &imageUrl);
   bool GetLocalPathAsyncFromAdapter(const std::string &imageUrl);
   
-  virtual void SetSourcesOrAlt(const std::string &imageUrl, bool isSources) = 0;
+  virtual void SetSourcesOrAlt(const std::string &imageUrl, bool isSources) {}
 };
 
 } // namespace native

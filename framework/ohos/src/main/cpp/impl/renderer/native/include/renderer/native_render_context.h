@@ -24,6 +24,7 @@
 
 #include <memory>
 #include <string>
+#include "renderer/image_loader/image_loader.h"
 #include "renderer/native_render.h"
 #include "renderer/text_measure/text_measure_manager.h"
 
@@ -31,7 +32,7 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
-class NativeRenderContext {
+class NativeRenderContext : public std::enable_shared_from_this<NativeRenderContext> {
 public:
   NativeRenderContext(uint32_t instance_id, uint32_t root_id, std::shared_ptr<NativeRender> &native_render, bool is_rawfile, const std::string &res_module_name)
     : instance_id_(instance_id), root_id_(root_id), native_render_(native_render), is_rawfile_(is_rawfile), res_module_name_(res_module_name) {
@@ -44,6 +45,12 @@ public:
   bool IsRawFile() { return is_rawfile_; }
   std::string &GetResModuleName() { return res_module_name_; }
   std::shared_ptr<TextMeasureManager> &GetTextMeasureManager() { return text_measure_manager_; }
+  std::shared_ptr<ImageLoader> &GetImageLoader() {
+    if (!image_loader_) {
+      image_loader_ = std::make_shared<ImageLoader>(shared_from_this());
+    }
+    return image_loader_;
+  }
   
 private:
   uint32_t instance_id_;
@@ -52,6 +59,7 @@ private:
   bool is_rawfile_;
   std::string res_module_name_;
   std::shared_ptr<TextMeasureManager> text_measure_manager_;
+  std::shared_ptr<ImageLoader> image_loader_;
 };
 
 } // namespace native

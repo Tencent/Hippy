@@ -31,20 +31,20 @@ export class NativeRenderer {
   constructor(libHippy: HippyLibrary, enableArkCApi: boolean, renderProvider: NativeRenderProvider,
               customRenderViews: Array<string> | null, customMeasureRenderViews: Array<string> | null,
               mappingRenderViews: Array<string> | null,
-              bundlePath: string, isRawfile: boolean, resModuleName: string) {
+              bundlePath: string, isRawfile: boolean, resModuleName: string, vfsId: number) {
     this.libHippy = libHippy
     this.renderProvider = renderProvider
-    this.instanceId = this.createNativeRenderManager(enableArkCApi, renderProvider, customRenderViews, customMeasureRenderViews, mappingRenderViews, bundlePath, isRawfile, resModuleName)
+    this.instanceId = this.createNativeRenderManager(enableArkCApi, renderProvider, customRenderViews, customMeasureRenderViews, mappingRenderViews, bundlePath, isRawfile, resModuleName, vfsId)
   }
 
   createNativeRenderManager(enableArkCApi: boolean, renderProvider: NativeRenderProvider,
                             customRenderViews: Array<string> | null, customMeasureRenderViews: Array<string> | null,
                             mappingRenderViews: Array<string> | null, bundlePath: string,
-                            isRawfile: boolean, resModuleName: string): number {
+                            isRawfile: boolean, resModuleName: string, vfsId: number): number {
     return this.libHippy?.NativeRenderer_CreateNativeRenderManager(enableArkCApi, renderProvider,
       customRenderViews, customMeasureRenderViews, mappingRenderViews, bundlePath,
       PixelUtil.getDensity(), PixelUtil.getDensityScale(), PixelUtil.getFontSizeScale(), PixelUtil.getFontWeightScale(),
-      isRawfile, resModuleName)
+      isRawfile, resModuleName, vfsId)
   }
 
   destroyNativeRenderManager() {
