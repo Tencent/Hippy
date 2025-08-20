@@ -60,6 +60,8 @@ target_link_libraries(hippy_impl PUBLIC
   libjsvm.so
   libnative_display_soloist.so
   libohfileuri.so
+  libimage_source.so
+  libpixelmap.so
   uv
   footstone
   oh_napi

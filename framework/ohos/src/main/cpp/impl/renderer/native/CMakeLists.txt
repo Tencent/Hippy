@@ -58,6 +58,11 @@ GlobalPackages_Add_oh_napi()
 target_link_libraries(${PROJECT_NAME} PRIVATE oh_napi)
 # endregion
 
+# region vfs
+GlobalPackages_Add_vfs()
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+# endregion
+
 # region source set
 set(SOURCE_SET
   src/native_render_manager.cc
@@ -111,6 +116,7 @@ set(SOURCE_SET
   src/components/custom_view.cc
   src/components/div_view.cc
   src/components/image_base_view.cc
+  src/components/image_nine_view.cc
   src/components/image_view.cc
   src/components/list_item_adapter.cc
   src/components/list_item_view.cc
@@ -133,6 +139,7 @@ set(SOURCE_SET
   src/components/waterfall_view.cc
   src/components/waterfall_pull_footer_view.cc
   src/components/waterfall_pull_header_view.cc
+  src/image_loader/image_loader.cc
   src/recycle/recycle_view.cc
   src/text_measure/font_collection_manager.cc
   src/text_measure/text_measurer.cc

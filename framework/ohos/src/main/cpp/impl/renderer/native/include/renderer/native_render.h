@@ -23,6 +23,7 @@
 #pragma once
 
 #include "renderer/utils/hr_types.h"
+#include "vfs/uri_loader.h"
 #include <js_native_api.h>
 #include <js_native_api_types.h>
 
@@ -47,6 +48,8 @@ public:
   
   virtual napi_ref GetTsImageLocalLoaderRef() = 0;
   virtual napi_ref GetTsImageRemoteLoaderRef() = 0;
+  
+  virtual std::weak_ptr<UriLoader> GetUriLoader() = 0;
 };
 
 } // namespace native
