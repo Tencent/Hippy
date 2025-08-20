@@ -156,6 +156,15 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         hippyTextInput.setCursorColor(cursorColor);
     }
 
+    /**
+     * 设置输入光标粗细，默认2px
+     * @param size 光标宽度，单位px
+     **/
+    @HippyControllerProps(name = NodeProps.CARET_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = 2)
+    public void setCaretSize(HippyTextInput hippyTextInput, int size) {
+        hippyTextInput.setCursorSize(size);
+    }
+
     @HippyControllerProps(name = "multiline", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void multiLine(HippyTextInput hippyTextInput, boolean multiline) {
         int inputType = hippyTextInput.getInputType();
