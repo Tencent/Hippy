@@ -101,7 +101,7 @@ export interface HippyLibrary {
   NativeRenderer_CreateNativeRenderManager(enableArkCApi: boolean, renderProvider: NativeRenderProvider,
     customRenderViews: Array<string> | null, customMeasureRenderViews: Array<string> | null, mappingRenderViews: Array<string> | null,
     bundlePath: string, density: number, densityScale: number, fontSizeScale: number, fontWeightScale: number,
-    isRawfile: boolean, resModuleName: string): number;
+    isRawfile: boolean, resModuleName: string, vfsId: number): number;
   NativeRenderer_DestroyNativeRenderManager(instanceId: number): void;
   NativeRenderer_SetBundlePath(instanceId: number, bundlePath: string): void;
   NativeRenderer_InitRendererParams(statusBarHeight: number): void;

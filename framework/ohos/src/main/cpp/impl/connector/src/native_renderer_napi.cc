@@ -110,6 +110,7 @@ static napi_value CreateNativeRenderManager(napi_env env, napi_callback_info inf
   auto font_weight_scale = arkTs.GetDouble(args[arg_index++]);
   auto is_rawfile = arkTs.GetBoolean(args[arg_index++]);
   auto res_module_name = arkTs.GetString(args[arg_index++]);
+  auto vfs_id = static_cast<uint32_t>(arkTs.GetInteger(args[arg_index++]));
   
   auto render_manager = std::make_shared<NativeRenderManager>();
 
@@ -119,6 +120,13 @@ static napi_value CreateNativeRenderManager(napi_env env, napi_callback_info inf
   auto flag = hippy::global_data_holder.Insert(render_id,
                                                std::static_pointer_cast<RenderManager>(render_manager));
   FOOTSTONE_CHECK(flag);
+  
+  std::any vfs_instance;
+  flag = hippy::global_data_holder.Find(vfs_id, vfs_instance);
+  FOOTSTONE_CHECK(flag);
+  auto loader = std::any_cast<std::shared_ptr<UriLoader>>(vfs_instance);
+  render_manager->SetUriLoader(loader);
+  
   return arkTs.CreateInt(static_cast<int>(render_id));
 }
 

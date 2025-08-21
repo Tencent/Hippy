@@ -223,6 +223,12 @@ void NativeRenderManager::AddCustomFontPath(const std::string &fontFamilyName, c
     }
 }
 
+void NativeRenderManager::SetUriLoader(std::weak_ptr<UriLoader> loader) {
+  if (enable_ark_c_api_) {
+    c_render_provider_->GetNativeRenderImpl()->SetUriLoader(loader);
+  }
+}
+
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   if (enable_ark_c_api_) {

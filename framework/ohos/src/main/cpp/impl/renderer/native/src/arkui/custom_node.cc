@@ -31,6 +31,7 @@ inline namespace native {
 static constexpr ArkUI_NodeCustomEventType CUSTOM_NODE_EVENT_TYPES[] = {ARKUI_NODE_CUSTOM_EVENT_ON_FOREGROUND_DRAW};
 
 CustomNode::CustomNode() : ArkUINode(NativeNodeApi::GetInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_CUSTOM)) {
+  isCustomNode_ = true;
   ArkUINodeRegistry::GetInstance().RegisterCustomNode(this);
   for (auto eventType : CUSTOM_NODE_EVENT_TYPES) {
     MaybeThrow(NativeNodeApi::GetInstance()->registerNodeCustomEvent(nodeHandle_, eventType, 0, nullptr));

@@ -42,6 +42,7 @@ public:
   uint32_t GetInstanceId() { return instance_id_; }
   
   void SetBundlePath(const std::string &bundle_path);
+  void SetUriLoader(std::weak_ptr<UriLoader> loader) { loader_ = loader; }
 
   void BindNativeRoot(ArkUI_NodeContentHandle contentHandle, uint32_t root_id, uint32_t node_id);
   void UnbindNativeRoot(uint32_t root_id, uint32_t node_id);
@@ -103,6 +104,8 @@ public:
   
   napi_ref GetTsImageLocalLoaderRef() override { return ts_local_loader_ref_; }
   napi_ref GetTsImageRemoteLoaderRef() override { return ts_remote_loader_ref_; }
+  
+  std::weak_ptr<UriLoader> GetUriLoader() override { return loader_; }
 
 private:
   uint32_t instance_id_;
@@ -113,6 +116,8 @@ private:
   
   napi_ref ts_local_loader_ref_ = 0;
   napi_ref ts_remote_loader_ref_ = 0;
+  
+  std::weak_ptr<UriLoader> loader_;
 };
 
 } // namespace native

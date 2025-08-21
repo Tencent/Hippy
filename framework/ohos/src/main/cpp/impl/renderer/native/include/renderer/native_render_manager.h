@@ -71,6 +71,8 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
   void SetBundlePath(const std::string &bundle_path);
   void InitDensity(double density, double density_scale, double font_size_scale, double font_weight_scale);
   void AddCustomFontPath(const std::string &fontFamilyName, const std::string &fontPath);
+  
+  void SetUriLoader(std::weak_ptr<UriLoader> loader);
 
   void CreateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
