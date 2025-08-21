@@ -4,7 +4,7 @@
 
 更新时间：2025-2-14
 
-SDK介绍：Hippy 是 TDSF 腾讯端框架（Tencent Device-oriented Framework）下的开源跨平台应用开发解决方案。Hippy 可以理解为一个精简版的浏览器，从底层做了大量工作，抹平了 iOS、Android、Ohos 三端差异，提供了接近 Web 的开发体验，目前上层支持了 React 和 Vue 两套界面框架，前端开发人员可以通过它，将前端代码转换为终端的原生指令，进行原生终端 App 的开发。同时，Hippy 从底层进行了大量优化，在启动速度、渲染性能、动画速度、内存占用、包体积等方面都提供了业内顶尖的性能表现。
+SDK介绍：Hippy 是 TDSF 腾讯端框架（Tencent Device-oriented Service Framework）下的开源跨平台应用开发解决方案。Hippy 可以理解为一个精简版的浏览器，从底层做了大量工作，抹平了 iOS、Android、Ohos 三端差异，提供了接近 Web 的开发体验，目前上层支持了 React 和 Vue 两套界面框架，前端开发人员可以通过它，将前端代码转换为终端的原生指令，进行原生终端 App 的开发。同时，Hippy 从底层进行了大量优化，在启动速度、渲染性能、动画速度、内存占用、包体积等方面都提供了业内顶尖的性能表现。
 
 更新日志：[Change log](https://github.com/Tencent/Hippy/releases)
 
