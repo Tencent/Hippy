@@ -2,7 +2,7 @@
 
 ![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy) [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Tencent/Hippy)](https://github.com/Tencent/Hippy/releases)
 
-[Homepage](https://openhippy.com/home)
+[Homepage](https://framework.tds.qq.com)
 
 ## 💡 Introduction
 
@@ -123,7 +123,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 ## 📁 Documentation
 
-To check out [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) and visit [openhippy.com](https://openhippy.com/).
+To check out [hippy examples](https://github.com/Tencent/Hippy/tree/master/examples) and visit [framework.tds.qq.com](https://framework.tds.qq.com/).
 
 ## 📅 Changelog
 
