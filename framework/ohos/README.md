@@ -1,6 +1,6 @@
 # Hippy Cross Platform Framework
 
-[Homepage](https://openhippy.com)
+[Homepage](https://framework.tds.qq.com)
 
 ## 💡 Introduction
 
@@ -64,4 +64,5 @@ Install latest DevEco Studio.
 
 ## 📁 Documentation
 
-To check out [hippy examples](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-har-demo) and visit [openhippy.com](https://openhippy.com).
+To check out [hippy examples](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-har-demo) and visit [framework.tds.qq.com](https://framework.tds.qq.com/).
+

@@ -8501,7 +8501,7 @@
     if (!el) {
       return;
     }
-    el.setAttribute('href', 'https://openhippy.com');
+    el.setAttribute('href', 'https://framework.tds.qq.com/');
     // if (isPrimitive(vm.config.nameLink)) {
     //   el.setAttribute('href', nameLink);
     // } else if (typeof nameLink === 'object') {

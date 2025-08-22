@@ -4,7 +4,7 @@
   "name": "hippy",
   "description": "Hippy is a cross-platform development framework.",
   "repository": "https://github.com/Tencent/Hippy.git",
-  "homepage": "https://openhippy.com/",
+  "homepage": "https://framework.tds.qq.com/",
   "keywords": ["hippy", "cross-platform"],
   "version": "3.3.1",
   "dependencies": {},
