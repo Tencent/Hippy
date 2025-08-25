@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-css-loader",
-  "version": "3.3.5",
+  "version": "3.3.6",
   "description": "hippy-vue style loader module for webpack",
   "main": "dist/css-loader.js",
   "homepage": "https://hippyjs.org",

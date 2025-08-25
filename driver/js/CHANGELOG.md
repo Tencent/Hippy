@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.6](https://github.com/Tencent/Hippy/compare/3.3.5...3.3.6) (2025-08-25)
+
+
+### Features
+
+* **android:** v8 10.6.194.26 version support 16k pages patch ([6853e6a](https://github.com/Tencent/Hippy/commit/6853e6a702cc573b522a3d01a7e44fc03b0d88f0))
+
+
+
+
+
 ## [3.3.5](https://github.com/Tencent/Hippy/compare/3.3.4...3.3.5) (2025-07-17)
 
 
