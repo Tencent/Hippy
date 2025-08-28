@@ -64,11 +64,11 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 3. **Ohos**：
 
    ```typescript
-        // 初始化 hippy 引擎
         let initParams = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
-        // 可选：是否设置为 debug 模式，默认为 false。设置 true 为调试模式，所有 jsbundle 都将从 debug server 上下载
+        // 是否设置为 debug 模式，默认为 false。设置 true 为调试模式，所有 jsbundle 都将从 debug server 上下载
         initParams.debugMode = true;
-        initParams.debugServerHost = "192.168.76.25:38989"; // 这里请设置正确 JS Server 的 IP
+        initParams.debugServerHost = "localhost:38989"; // usb线调试时，这里设置localhost即可
+        // initParams.debugServerHost = "192.168.76.25:38989"; // 网络调试时，这里请设置正确 JS Server 的 IP
    ```
 
 Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/jsvm-introduction-V5) 和 V8 两个JS引擎，JSVM 性能更好所以默认使用JSVM，不过可以自由切换。
@@ -77,6 +77,8 @@ Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harm
 - 鸿蒙调试请使用Debug包
 
 > Debug包默认打开了ENABLE_INSPECTOR宏，使得调试功能生效。即：Hippy/framework/ohos/build-profile.json5 里配置了："arguments": "-DENABLE_INSPECTOR=true"
+
+## 鸿蒙上JSVM调试限制说明
 
 默认会使用JSVM进行调试，由于JSVM提供的调试接口限制，特别说明：
 
@@ -90,9 +92,18 @@ Hippy鸿蒙版本支持 [JSVM](https://developer.huawei.com/consumer/cn/doc/harm
 
 - Hippy/driver/js/CMakeLists.txt 里：打开 set(JS_ENGINE "V8") 注释 set(JS_ENGINE "JSH") 
 
-另外，鸿蒙调试目前只支持网络调试（手机和JS Server在一个网络内，通过网络下载JS Bundle调试），数据线调试还在开发中。
+## 鸿蒙上usb线调试限制说明
 
-> 网络调试时，有些公司网络会有限制，个人热点一般无限制。公司网络限制可能端口限制需要改端口，可能手机和电脑不同网，具体咨询IT部门。
+由于鸿蒙上没有提供hdc实时监听手机拔插的接口，usb调试时需要先插着手机再启动调试server（启动调试server时会做手机端口到PC端口的映射）。
+如果先启动了调试server，再插上手机，可以手动如下命令进行端口映射。
+
+   ```shell
+        hdc rport tcp:端口 tcp:端口
+   ```
+
+## 端口限制说明
+
+> 有些公司网络会有限制，公司网络限制可能端口限制需要改端口，可能手机和电脑不同网，具体咨询IT部门。个人热点一般无限制。
 
 修改端口需要改2个地方：
 
