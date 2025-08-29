@@ -301,7 +301,7 @@ ENV['layout_engine'] = 'Yoga'
 
  ```json
   "dependencies": {
-    "hippy": "3.3.0"
+    "hippy": "3.3.2"
   }
  ```
 
