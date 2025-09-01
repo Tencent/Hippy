@@ -25,64 +25,133 @@
 #import "HippyBaseTextInput.h"
 #import "UIView+Hippy.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-/// Response delegate of HippyUITextView
+#pragma mark - HippyUITextViewResponseDelegate
+
+/// Delegate protocol for HippyUITextView focus state changes
 @protocol HippyUITextViewResponseDelegate <NSObject>
+
 @required
+/// Called when text view becomes first responder
 - (void)textview_becomeFirstResponder;
+
+/// Called when text view resigns first responder
 - (void)textview_resignFirstResponder;
+
 @end
 
+#pragma mark - HippyUITextView
 
-/// UITextView's Hippy Extension
+/// Extended UITextView with Hippy-specific functionality
 @interface HippyUITextView : UITextView
-/// iOS18's UITextInput adds an `editable` property, which conflicts with the one defined in HippyUITextField.
-/// For consistency, we added a canEdit property here too, which has the same meaning as editable
+
+/// Whether the text view can be edited (iOS18 compatibility)
 @property (nonatomic, assign) BOOL canEdit;
-/// Indicate whether text was pasted
+
+/// Indicates whether text was pasted in the current operation
 @property (nonatomic, assign) BOOL textWasPasted;
-/// Response delegate of HippyUITextView
-@property (nonatomic, weak) id<HippyUITextViewResponseDelegate> responderDelegate;
+
+/// Delegate for focus state changes
+@property (nonatomic, weak, nullable) id<HippyUITextViewResponseDelegate> responderDelegate;
+
 @end
 
+#pragma mark - HippyTextView
 
-/// Hippy multi-line TextView component
+/// Multi-line text input component for Hippy framework
 @interface HippyTextView : HippyBaseTextInput <UITextViewDelegate> {
 @protected
     HippyUITextView *_textView;
 }
 
-@property (nonatomic, assign) BOOL autoCorrect;
-@property (nonatomic, assign) BOOL blurOnSubmit;
-@property (nonatomic, assign) BOOL clearTextOnFocus;
-@property (nonatomic, assign) BOOL selectTextOnFocus;
-@property (nonatomic, copy) NSString *text;
-@property (nonatomic, strong) UIColor *placeholderTextColor;
-@property (nonatomic, strong) UIFont *font;
-@property (nonatomic, assign) NSInteger mostRecentEventCount;
-@property (nonatomic, strong) NSNumber *maxLength;
-@property (nonatomic, copy) HippyDirectEventBlock onKeyPress;
-@property (nonatomic, copy) HippyDirectEventBlock onContentSizeChange;
-@property (nonatomic, copy) HippyDirectEventBlock onSelectionChange;
-@property (nonatomic, copy) HippyDirectEventBlock onTextInput;
-@property (nonatomic, copy) HippyDirectEventBlock onEndEditing;
+#pragma mark - Text Content Properties
 
+/// Current text content
+@property (nonatomic, copy, nullable) NSString *text;
+
+/// Alternative text property for compatibility
+@property (nonatomic, copy, nullable) NSString *value;
+
+/// Initial text content
+@property (nonatomic, strong, nullable) NSString *defaultValue;
+
+#pragma mark - Behavior Control Properties
+
+/// Enable/disable auto-correction
+@property (nonatomic, assign) BOOL autoCorrect;
+
+/// Whether to blur when submit/return is pressed
+@property (nonatomic, assign) BOOL blurOnSubmit;
+
+/// Whether to clear text when gaining focus
+@property (nonatomic, assign) BOOL clearTextOnFocus;
+
+/// Whether to select all text when gaining focus
+@property (nonatomic, assign) BOOL selectTextOnFocus;
+
+/// Maximum allowed text length
+@property (nonatomic, strong, nullable) NSNumber *maxLength;
+
+/// Event count for synchronization with JS
+@property (nonatomic, assign) NSInteger mostRecentEventCount;
+
+#pragma mark - Style Properties
+
+/// Text font
+@property (nonatomic, strong, nullable) UIFont *font;
+
+/// Text color
+@property (nonatomic, strong, nullable) UIColor *textColor;
+
+/// Placeholder text color when no content is present
+@property (nonatomic, strong, nullable) UIColor *placeholderTextColor;
+
+#pragma mark - Paragraph Style Properties
+
+/// Fixed line height for all lines
+@property (nonatomic, strong, nullable) NSNumber *lineHeight;
+
+/// Additional spacing between lines
+@property (nonatomic, strong, nullable) NSNumber *lineSpacing;
+
+/// Line height multiplier
+@property (nonatomic, strong, nullable) NSNumber *lineHeightMultiple;
+
+#pragma mark - Event Callbacks
+
+/// Keyboard key press events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onKeyPress;
+
+/// Content size change events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onContentSizeChange;
+
+/// Text selection change events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onSelectionChange;
+
+/// Text input events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onTextInput;
+
+/// Editing end events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onEndEditing;
+
+/// Text content change events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onChangeText;
+
+/// Focus lost events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onBlur;
+
+/// Focus gained events
+@property (nonatomic, copy, nullable) HippyDirectEventBlock onFocus;
+
+#pragma mark - Public Methods
+
+/// Update frame layout for text view and its subviews
+- (void)updateFrames;
+
+/// Perform pending text updates from rich text components
 - (void)performTextUpdate;
 
-@property (nonatomic, copy) NSString *value;
-@property (nonatomic, strong) NSString *defaultValue;
-@property (nonatomic, strong) UIColor *textColor;
-
-/// ParagraphStyles - lineHeight
-@property (nonatomic, strong) NSNumber *lineHeight;
-/// ParagraphStyles - lineSpacing
-@property (nonatomic, strong) NSNumber *lineSpacing;
-/// ParagraphStyles - lineHeightMultiple
-@property (nonatomic, strong) NSNumber *lineHeightMultiple;
-
-@property (nonatomic, copy) HippyDirectEventBlock onChangeText;
-@property (nonatomic, copy) HippyDirectEventBlock onBlur;
-@property (nonatomic, copy) HippyDirectEventBlock onFocus;
-
-- (void)updateFrames;
 @end
+
+NS_ASSUME_NONNULL_END
