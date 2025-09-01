@@ -323,6 +323,16 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 
 - (void)setFont:(UIFont *)font {
     _textView.font = font;
+    
+    // If there's existing attributedText, update its font
+    if (_textView.attributedText && _textView.attributedText.length > 0) {
+        NSMutableAttributedString *mutableAttributedText = [_textView.attributedText mutableCopy];
+        [mutableAttributedText addAttribute:NSFontAttributeName
+                                      value:font ?: [UIFont systemFontOfSize:17]
+                                      range:NSMakeRange(0, mutableAttributedText.length)];
+        _textView.attributedText = mutableAttributedText;
+    }
+    
     [self updatePlaceholder];
 }
 
@@ -379,6 +389,15 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     [self updateFrames];
 }
 
+- (void)setTextViewTextSafely:(UITextView *)textView withString:(NSString *)text {
+    // Set text while preserving style attributes
+    if (textView.attributedText && textView.attributedText.length > 0) {
+        textView.attributedText = [self attributedTextAfterApplyingParagraphStyle:text];
+    } else {
+        textView.text = text;
+    }
+}
+
 - (void)checkMaxLengthAndAlterTextView:(UITextView *)textField {
     //TODO: This old special logic needs to be optimized.
     if (self.isFirstResponder && self.maxLength) {
@@ -394,10 +413,10 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
                 if (toBeString.length > theMaxLength) {
                     NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
                     if (rangeIndex.length == 1) {
-                        textField.text = [toBeString substringToIndex:theMaxLength];
+                        [self setTextViewTextSafely:textField withString:[toBeString substringToIndex:theMaxLength]];
                     } else {
                         NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, theMaxLength)];
-                        textField.text = [toBeString substringWithRange:rangeRange];
+                        [self setTextViewTextSafely:textField withString:[toBeString substringWithRange:rangeRange]];
                     }
                 }
             }
@@ -406,10 +425,10 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
             if (toBeString.length > theMaxLength) {
                 NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
                 if (rangeIndex.length == 1) {
-                    textField.text = [toBeString substringToIndex:theMaxLength];
+                    [self setTextViewTextSafely:textField withString:[toBeString substringToIndex:theMaxLength]];
                 } else {
                     NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, theMaxLength)];
-                    textField.text = [toBeString substringWithRange:rangeRange];
+                    [self setTextViewTextSafely:textField withString:[toBeString substringWithRange:rangeRange]];
                 }
             }
         }
@@ -468,6 +487,15 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 
 - (void)setTextColor:(UIColor *)textColor {
     _textView.textColor = textColor;
+    
+    // If there's existing attributedText, update its color
+    if (_textView.attributedText && _textView.attributedText.length > 0) {
+        NSMutableAttributedString *mutableAttributedText = [_textView.attributedText mutableCopy];
+        [mutableAttributedText addAttribute:NSForegroundColorAttributeName
+                                      value:textColor ?: [UIColor blackColor]
+                                      range:NSMakeRange(0, mutableAttributedText.length)];
+        _textView.attributedText = mutableAttributedText;
+    }
 }
 
 - (UIColor *)textColor {
@@ -503,7 +531,7 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 
 - (void)textViewDidBeginEditing:(__unused UITextView *)textView {
     if (_clearTextOnFocus) {
-        _textView.text = @"";
+        [self setTextViewTextSafely:_textView withString:@""];
         [self updatePlaceholderVisibility];
     }
     // update typingAttributes
@@ -778,12 +806,17 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
 #pragma mark - ParagraphStyle Related
 
 - (void)updateTypingAttributes {
-    if (self.paragraphStyle) {
+    if (self.paragraphStyle || _textView.font || _textView.textColor) {
         // Set typingAttributes if needed
         NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
-        attrs[NSParagraphStyleAttributeName] = self.paragraphStyle;
+        if (self.paragraphStyle) {
+            attrs[NSParagraphStyleAttributeName] = self.paragraphStyle;
+        }
         if (_textView.font) {
             attrs[NSFontAttributeName] = _textView.font;
+        }
+        if (_textView.textColor) {
+            attrs[NSForegroundColorAttributeName] = _textView.textColor;
         }
         _textView.typingAttributes = attrs;
     }
@@ -802,6 +835,12 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
         // add font style to the entire string
         [attributedString addAttribute:NSFontAttributeName
                                  value:_textView.font
+                                 range:NSMakeRange(0, attributedString.length)];
+    }
+    if (_textView.textColor) {
+        // add text color to the entire string
+        [attributedString addAttribute:NSForegroundColorAttributeName
+                                 value:_textView.textColor
                                  range:NSMakeRange(0, attributedString.length)];
     }
     return attributedString;
