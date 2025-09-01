@@ -29,6 +29,8 @@
 #import "UIView+Hippy.h"
 #import "HippyRenderUtils.h"
 
+#pragma mark - HippyUITextView Implementation
+
 @implementation HippyUITextView
 
 - (void)paste:(id)sender {
@@ -78,6 +80,8 @@
 
 @end
 
+#pragma mark - HippyTextView Implementation
+
 @interface HippyTextView () <HippyUITextViewResponseDelegate>
 
 /// ParagraphStyle for TextView and PlaceholderView,
@@ -110,6 +114,8 @@
 @dynamic lineSpacing;
 @dynamic lineHeightMultiple;
 
+#pragma mark - Initialization & Setup
+
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self setContentInset:UIEdgeInsetsZero];
@@ -134,6 +140,8 @@
     }
     return self;
 }
+
+#pragma mark - View Hierarchy Management
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {
     [super insertHippySubview:subview atIndex:index];
@@ -176,6 +184,9 @@
     [self performPendingTextUpdate];
 }
 
+#pragma mark - Text Content Management
+
+/// Update text content from rich text component
 - (void)performTextUpdate {
     if (_richTextView) {
         _pendingAttributedText = _richTextView.textStorage;
@@ -195,6 +206,7 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     }
 }
 
+/// Apply pending attributed text updates with proper synchronization
 - (void)performPendingTextUpdate {
     if (!_pendingAttributedText || _mostRecentEventCount < _nativeEventCount || _nativeUpdatesInFlight) {
         return;
@@ -240,6 +252,8 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
 
     _blockTextShouldChange = NO;
 }
+
+#pragma mark - Layout & UI Updates
 
 - (void)updateFrames {
     // Adjust the insets so that they are as close as possible to single-line
@@ -317,6 +331,8 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     }
 }
 
+#pragma mark - Style Properties
+
 - (UIFont *)font {
     return _textView.font;
 }
@@ -389,6 +405,9 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     [self updateFrames];
 }
 
+#pragma mark - Behavior Control & Text Operations
+
+/// Safely set text while preserving style attributes
 - (void)setTextViewTextSafely:(UITextView *)textView withString:(NSString *)text {
     // Set text while preserving style attributes
     if (textView.attributedText && textView.attributedText.length > 0) {
@@ -398,41 +417,65 @@ static NSAttributedString *removeComponentTagFromString(NSAttributedString *stri
     }
 }
 
-- (void)checkMaxLengthAndAlterTextView:(UITextView *)textField {
-    //TODO: This old special logic needs to be optimized.
-    if (self.isFirstResponder && self.maxLength) {
-        NSInteger theMaxLength = self.maxLength.integerValue;
-        NSString *toBeString = textField.text;
-        NSString *lang = [textField.textInputMode primaryLanguage];
-        if ([lang isEqualToString:@"zh-Hans"])  // 简体中文输入
-        {
-            UITextRange *selectedRange = [textField markedTextRange];
-            UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
-
-            if (!position) {
-                if (toBeString.length > theMaxLength) {
-                    NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
-                    if (rangeIndex.length == 1) {
-                        [self setTextViewTextSafely:textField withString:[toBeString substringToIndex:theMaxLength]];
-                    } else {
-                        NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, theMaxLength)];
-                        [self setTextViewTextSafely:textField withString:[toBeString substringWithRange:rangeRange]];
-                    }
-                }
-            }
-
-        } else {
-            if (toBeString.length > theMaxLength) {
-                NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:theMaxLength];
-                if (rangeIndex.length == 1) {
-                    [self setTextViewTextSafely:textField withString:[toBeString substringToIndex:theMaxLength]];
-                } else {
-                    NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, theMaxLength)];
-                    [self setTextViewTextSafely:textField withString:[toBeString substringWithRange:rangeRange]];
-                }
-            }
-        }
+/// Truncate string to maximum length while respecting composed character sequences
+/// @param string The original string to truncate
+/// @param maxLength Maximum allowed character count
+/// @return Truncated string that respects character boundaries
+- (NSString *)truncateString:(NSString *)string toMaxLength:(NSInteger)maxLength {
+    if (string.length <= maxLength) {
+        return string;
     }
+    
+    NSRange rangeIndex = [string rangeOfComposedCharacterSequenceAtIndex:maxLength];
+    if (rangeIndex.length == 1) {
+        return [string substringToIndex:maxLength];
+    } else {
+        NSRange rangeRange = [string rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, maxLength)];
+        return [string substringWithRange:rangeRange];
+    }
+}
+
+/// Check if Chinese input is in composition mode (marked text exists)
+/// @param textView The text view to check
+/// @return YES if Chinese input is in composition, NO otherwise
+- (BOOL)isChineseInputInComposition:(UITextView *)textView {
+    UITextRange *markedRange = [textView markedTextRange];
+    if (!markedRange) {
+        return NO;
+    }
+    
+    UITextPosition *position = [textView positionFromPosition:markedRange.start offset:0];
+    return position != nil;
+}
+
+/// Enforce maximum text length while preserving styles and handling multi-byte characters properly
+/// This method handles both regular text input and Chinese input composition states
+- (void)checkMaxLengthAndAlterTextView:(UITextView *)textField {
+    // Only enforce max length when text view has focus and max length is set
+    if (!self.isFirstResponder || !self.maxLength) {
+        return;
+    }
+    
+    NSInteger maxLength = self.maxLength.integerValue;
+    NSString *currentText = textField.text;
+    
+    // No need to process if text is within limit
+    if (currentText.length <= maxLength) {
+        return;
+    }
+    
+    // For Chinese input, skip truncation during composition to avoid interrupting input flow
+    NSString *inputLanguage = [textField.textInputMode primaryLanguage];
+    BOOL isChineseInput = [inputLanguage isEqualToString:@"zh-Hans"];
+    
+    if (isChineseInput && [self isChineseInputInComposition:textField]) {
+        // Don't truncate while Chinese input is in composition mode
+        return;
+    }
+    
+    // Truncate text while preserving character boundaries and styles
+    NSString *truncatedText = [self truncateString:currentText toMaxLength:maxLength];
+    [self setTextViewTextSafely:textField withString:truncatedText];
 }
 
 - (void)textFieldEditChanged:(NSNotification *)obj {
@@ -717,8 +760,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     }
 }
 
-
-#pragma mark - Responder Chain
+#pragma mark - Event Handling & Responder Chain
 
 - (BOOL)isFirstResponder {
     return [_textView isFirstResponder];
@@ -738,12 +780,18 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     [self updateFrames];
 }
 
-- (UIFont *)defaultPlaceholderFont {
-    return [UIFont systemFontOfSize:17];
+#pragma mark - Public API Methods
+
+- (void)focus {
+    [self becomeFirstResponder];
 }
 
-- (UIColor *)defaultPlaceholderTextColor {
-    return [UIColor colorWithRed:0.0 / 255.0 green:0.0 / 255.0 blue:0.098 / 255.0 alpha:0.22];
+- (void)blur {
+    [self resignFirstResponder];
+}
+
+- (void)clearText {
+    [self setText:@""];
 }
 
 - (NSString *)value {
@@ -762,16 +810,14 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     }
 }
 
-- (void)focus {
-    [self becomeFirstResponder];
+#pragma mark - Helper Methods
+
+- (UIFont *)defaultPlaceholderFont {
+    return [UIFont systemFontOfSize:17];
 }
 
-- (void)blur {
-    [self resignFirstResponder];
-}
-
-- (void)clearText {
-    [self setText:@""];
+- (UIColor *)defaultPlaceholderTextColor {
+    return [UIColor colorWithRed:0.0 / 255.0 green:0.0 / 255.0 blue:0.098 / 255.0 alpha:0.22];
 }
 
 - (BOOL)becomeFirstResponder {
@@ -803,8 +849,9 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     }
 }
 
-#pragma mark - ParagraphStyle Related
+#pragma mark - Paragraph Style & Attributed Text
 
+/// Update typing attributes to include current styles
 - (void)updateTypingAttributes {
     if (self.paragraphStyle || _textView.font || _textView.textColor) {
         // Set typingAttributes if needed
@@ -822,6 +869,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     }
 }
 
+/// Create attributed string with paragraph style, font, and color applied
 - (NSAttributedString *)attributedTextAfterApplyingParagraphStyle:(NSString *)text {
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:text];
     
@@ -846,6 +894,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     return attributedString;
 }
 
+/// Update existing text view with current paragraph and font styles
 - (void)updateParagraphAndFontStyleForTextView:(UITextView *)textView {
     if (textView.text.length == 0) {
         return;
