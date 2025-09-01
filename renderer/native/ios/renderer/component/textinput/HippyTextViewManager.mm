@@ -161,7 +161,8 @@ HIPPY_REMAP_VIEW_PROPERTY(autoCapitalize, textView.autocapitalizationType, UITex
 HIPPY_EXPORT_VIEW_PROPERTY(autoCorrect, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(blurOnSubmit, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(clearTextOnFocus, BOOL)
-HIPPY_REMAP_VIEW_PROPERTY(color, textView.textColor, UIColor)
+HIPPY_REMAP_VIEW_PROPERTY(color, textColor, UIColor)
+
 HIPPY_REMAP_VIEW_PROPERTY(textAlign, textView.textAlignment, NSTextAlignment)
 HIPPY_REMAP_VIEW_PROPERTY(editable, textView.canEdit, BOOL)
 HIPPY_REMAP_VIEW_PROPERTY(enablesReturnKeyAutomatically, textView.enablesReturnKeyAutomatically, BOOL)

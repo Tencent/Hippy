@@ -86,7 +86,7 @@ export default {
 #demo-textarea .textarea {
   width: 300px;
   height: 150px;
-  color: #242424;
+  color: red;
   text-align: left;
   border-width: 1px;
   border-style: solid;
