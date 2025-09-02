@@ -218,7 +218,7 @@ bool TextInputView::SetPropImpl(const std::string &propKey, const HippyValue &pr
     isListenKeyboardWillHide_ = HRValueUtils::GetBool(propValue, false);
     CheckAndAddKeyboardListener();
     return true;
-  } else if (propKey == "contentSizeChange") {
+  } else if (propKey == "contentsizechange") {
     isListenContentSizeChange_ = HRValueUtils::GetBool(propValue, false);
     return true;
   } else if (propKey == "keypress") {
@@ -447,7 +447,7 @@ void TextInputView::SetText(const HippyValueArrayType &params){
     auto& str = HRValueUtils::GetString(params[0]);
     value_ = str;
     GetTextNode().SetTextContent(value_.value());
-    
+
     // 注释 SetTextSelection 原因：
     // 设置了也没效果，还偶现 OHOS::Ace::NG::UINode::MountToParent 里空指针 crash。
     // int32_t len = (int32_t)str.length();
@@ -599,14 +599,14 @@ void TextInputView::OnKeyPress(const std::string &keyString) {
   if(!isListenKeyPress_) {
     return;
   }
-  
+
   std::string resultKeyString = keyString;
   if (keyString == " ") {
     resultKeyString = "space";
   } else if (keyString == "\n") {
     resultKeyString = "enter";
   }
-  
+
   HippyValueObjectType params;
   params["key"] = resultKeyString;
   const std::shared_ptr<HippyValue> obj = std::make_shared<HippyValue>(params);
