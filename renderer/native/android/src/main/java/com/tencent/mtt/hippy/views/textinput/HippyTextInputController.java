@@ -401,7 +401,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         hippyTextInput.setEventListener(enable, HippyTextInput.EVENT_KEYBOARD_HIDE);
     }
 
-    @HippyControllerProps(name = "contentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "contentsizechange", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnContentSizeChange(HippyTextInput hippyTextInput, boolean contentSizeChange) {
         hippyTextInput.setOnContentSizeChange(contentSizeChange);
     }
