@@ -398,7 +398,7 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
       this.mEngineContext.getBridgeManager()?.destroyInstance(rootId);
     }
     if (this.destroyModuleCallback) {
-      this.destroyModuleCallback();
+      this.destroyModuleCallback(true);
     }
   }
 
