@@ -20,7 +20,7 @@
 import { HippyNativeModule } from '../../../../support/annotation/HippyNativeModule';
 import { HippyEngineContext } from '../../../HippyEngineContext';
 import { HippyNativeModuleBase } from '../HippyNativeModuleBase';
-import vibrator from '@ohos.vibrator';
+// import vibrator from '@ohos.vibrator';
 import { LogUtils } from '../../../../support/utils/LogUtils';
 import {
   HippyAny,
@@ -42,6 +42,7 @@ export class UtilsModule extends HippyNativeModuleBase {
 
   public call(method: string, params: Array<HippyAny>, callback: HippyModulePromise): HippyAny {
     switch (method) {
+      /*
       case 'vibrate': {
         if (params != null && params instanceof Map) {
           let patternHippy: HippyArray = []
@@ -60,12 +61,14 @@ export class UtilsModule extends HippyNativeModuleBase {
         this.cancel()
         break;
       }
+      */
       default:
         super.call(method, params, callback)
     }
     return null;
   }
 
+  /*
   private vibrate(patternHippy: HippyArray, repeat: number) {
     try { //todo 看需求是否区分振动类型time、preset
       vibrator.startVibration({
@@ -101,4 +104,6 @@ export class UtilsModule extends HippyNativeModuleBase {
       LogUtils.e(UTILS_MODULE_TAG, 'errCode: ' + err.code + ' ,msg: ' + err.message);
     }
   }
+  */
+
 }
