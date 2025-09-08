@@ -961,14 +961,14 @@ string_view JSCCtx::GetExceptionMessage(const std::shared_ptr<CtxValue>& excepti
     return string_view("");
   }
 
-  std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(exception, string_view(kMessageStr, ARRAY_SIZE(kMessageStr) - 1));
+  std::shared_ptr<CtxValue> msg_obj = JSCCtx::CopyNamedProperty(exception, string_view(kMessageStr, ARRAY_SIZE(kMessageStr) - 1));
   string_view msg_view;
   GetValueString(msg_obj, &msg_view);
   std::u16string u16_msg;
   if (!StringViewUtils::IsEmpty(msg_view)) {
     u16_msg = msg_view.utf16_value();
   }
-  std::shared_ptr<CtxValue> stack_obj = CopyNamedProperty(exception, string_view(kStackStr, ARRAY_SIZE(kStackStr) - 1));
+  std::shared_ptr<CtxValue> stack_obj = JSCCtx::CopyNamedProperty(exception, string_view(kStackStr, ARRAY_SIZE(kStackStr) - 1));
   string_view stack_view;
   GetValueString(stack_obj, &stack_view);
   std::u16string u16_stack;

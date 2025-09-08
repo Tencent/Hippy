@@ -88,12 +88,14 @@ HippyJsiBuffer::~HippyJsiBuffer() { if (data_) free(data_); }
 static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<HermesExceptionCtxValue> exception) {
   VM::HandleException(scope->GetContext(), "uncaughtException", exception);
   auto engine = scope->GetEngine().lock();
-  FOOTSTONE_CHECK(engine);
-  auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
-  auto context = scope->GetContext();
-  footstone::string_view description("Hermes Engine JS Exception");
-  footstone::string_view stack(exception->GetMessage());
-  callback(scope->GetBridge(), description, stack);
+  FOOTSTONE_DCHECK(engine);
+  if (engine) {
+      auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+      auto context = scope->GetContext();
+      footstone::string_view description("Hermes Engine JS Exception");
+      footstone::string_view stack(exception->GetMessage());
+      callback(scope->GetBridge(), description, stack);
+  }
 }
 
 static Value InvokePropertyCallback(Runtime& runtime,
@@ -1086,21 +1088,21 @@ std::shared_ptr<CtxValue> HermesCtx::CopyArrayElement(const std::shared_ptr<CtxV
 }
 
 bool HermesCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value, const string_view& name) {
-  // TODO: add has named property, currently unused
-  FOOTSTONE_UNIMPLEMENTED();
+  // has named property, currently unused
+  FOOTSTONE_DCHECK(false);
   return false;
 }
 
 std::shared_ptr<CtxValue> HermesCtx::CopyNamedProperty(const std::shared_ptr<CtxValue>& value,
                                                        const string_view& name) {
-  // TODO: add copy named property, currently unused
-  FOOTSTONE_UNIMPLEMENTED();
+  // copy named property, currently unused
+  FOOTSTONE_DCHECK(false);
   return nullptr;
 }
 
 string_view HermesCtx::CopyFunctionName(const std::shared_ptr<CtxValue>& function) {
-  // TODO: add copy function name, currently unused
-  FOOTSTONE_UNIMPLEMENTED();
+  // copy function name, currently unused
+  FOOTSTONE_DCHECK(false);
   return "";
 }
 
