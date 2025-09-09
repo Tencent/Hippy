@@ -258,6 +258,12 @@ HIPPY_EXPORT_METHOD(removeFrameCallback:(nonnull NSNumber *)hippyTag
 
 #pragma mark - View properties
 
+HIPPY_EXPORT_VIEW_PROPERTY(glassEffectEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(glassEffectStyle, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(glassEffectInteractive, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(glassEffectTintColor, UIColor)
+HIPPY_EXPORT_VIEW_PROPERTY(glassEffectContainerSpacing, NSNumber)
+
 HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
 HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)

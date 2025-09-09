@@ -153,6 +153,14 @@ export default [
     },
   },
   {
+    path: '/LiquidGlassiOS',
+    name: '<iOS LiquidGlass> 效果',
+    component: PAGE_LIST.LiquidGlassiOS,
+    meta: {
+      type: Type.COMPONENT,
+    },
+  },
+  {
     path: '/Moduels',
     name: 'Modules',
     meta: {
