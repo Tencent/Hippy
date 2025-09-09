@@ -32,15 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) IBOutlet UIImageView *tipsImageView;
 
-@property (nonatomic, strong) IBOutlet UIButton *pageButton;
-
-@property (nonatomic, strong) IBOutlet UIButton *settingButton;
-
-@property (nonatomic, strong) IBOutlet UIView *buttonView;
-
-- (IBAction)toNewPage;
-- (IBAction)toSetting;
-
 @end
 
 NS_ASSUME_NONNULL_END
