@@ -94,6 +94,9 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
         _backgroundColor = super.backgroundColor;
         self.layer.shadowOffset = CGSizeZero;
         self.layer.shadowRadius = 0.f;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+        _glassEffectInteractive = YES;
+#endif
     }
     return self;
 }
@@ -602,6 +605,7 @@ setBorderStyle()
     
     if (@available(iOS 26.0, *)) {
         if (_glassEffectEnabled && _effectView) {
+            _effectView.effect = nil;
             UIGlassEffectStyle style = [self glassEffectStyleFromString:_glassEffectStyle];
             UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
             glassEffect.tintColor = _glassEffectTintColor;
