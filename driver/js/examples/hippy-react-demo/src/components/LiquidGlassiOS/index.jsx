@@ -12,7 +12,7 @@ import defaultSource from '../Image/defaultSource.jpg';
 
 const LiquidGlassDemo = () => {
   const [glassEffectEnabled, setGlassEffectEnabled] = useState(true);
-  const [glassEffectColor, setGlassEffectColor] = useState('#feca57');
+  const [glassEffectTintColor, setGlassEffectTintColor] = useState('#feca57');
   const [glassEffectInteractive, setGlassEffectInteractive] = useState(true);
   const [glassEffectContainerSpacing, setGlassEffectContainerSpacing] = useState(10);
   const [glassEffectStyle, setGlassEffectStyle] = useState('regular'); // 'regular' or 'clear'
@@ -29,7 +29,7 @@ const LiquidGlassDemo = () => {
       '#fd79a8', '#fdcb6e', '#e17055', '#81ecec', '#74b9ff',
     ];
     const randomIndex = Math.floor(Math.random() * colors.length);
-    setGlassEffectColor(colors[randomIndex]);
+    setGlassEffectTintColor(colors[randomIndex]);
   };
 
   const toggleInteractive = () => {
@@ -162,7 +162,7 @@ const LiquidGlassDemo = () => {
                 {glassEffectEnabled ? '关闭' : '开启'}
               </Text>
             </View>
-            <View style={[liquidGlassStyles.glassButton, { glassEffectColor }]}
+            <View style={[liquidGlassStyles.glassButton, { glassEffectTintColor }]}
                   onClick={generateRandomColor}>
               <Text style={liquidGlassStyles.buttonText}>随机颜色</Text>
             </View>
@@ -198,10 +198,10 @@ const LiquidGlassDemo = () => {
               <Text style={liquidGlassStyles.propertyValue}>{glassEffectEnabled ? 'true' : 'false'}</Text>
             </View>
             <View style={liquidGlassStyles.propertyItem}>
-              <Text style={liquidGlassStyles.propertyLabel}>glassEffectColor:</Text>
+              <Text style={liquidGlassStyles.propertyLabel}>glassEffectTintColor:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={[liquidGlassStyles.colorPreview, { backgroundColor: glassEffectColor }]} />
-                <Text style={[liquidGlassStyles.propertyValue, { marginLeft: 8 }]}>{glassEffectColor}</Text>
+                <View style={[liquidGlassStyles.colorPreview, { backgroundColor: glassEffectTintColor }]} />
+                <Text style={[liquidGlassStyles.propertyValue, { marginLeft: 8 }]}>{glassEffectTintColor}</Text>
               </View>
             </View>
             <View style={liquidGlassStyles.propertyItem}>

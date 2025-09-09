@@ -43,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL isUseNewShadow;
 @property (nonatomic, strong) HippyViewInnerLayer *innerShadowLayer;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
 /// iOS 26+ Liquid Glass Effect
 @property (nonatomic, assign) BOOL glassEffectEnabled;
 /// iOS 26+ Liquid Glass Effect Interactive
@@ -53,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSNumber *glassEffectContainerSpacing;
 /// iOS 26+ Liquid Glass Effect Style (Regular/Clear)
 @property (nonatomic, strong) NSString *glassEffectStyle;
+#endif
 
 /**
  * get content for layer

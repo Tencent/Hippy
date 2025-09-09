@@ -71,8 +71,10 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
 @implementation HippyView {
     UIColor *_backgroundColor;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
     // iOS 26+ Liquid Glass EffectView
     UIVisualEffectView *_effectView;
+#endif
 }
 
 @synthesize hippyZIndex = _hippyZIndex;
@@ -189,19 +191,23 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     [super setFrame:frame];
     
     // Update effect view frame if it exists
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
     if (_effectView) {
         _effectView.frame = self.bounds;
     }
+#endif
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     
     // Update effect view frame and corner radius
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
     if (_effectView) {
         _effectView.frame = self.bounds;
         _effectView.layer.cornerRadius = self.layer.cornerRadius;
     }
+#endif
 }
 
 - (HippyBorderColors)borderColors {
@@ -331,9 +337,11 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
         layer.needsDisplayOnBoundsChange = NO;
         layer.mask = nil;
         
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
         if (_effectView) {
             _effectView.layer.cornerRadius = cornerRadii.topLeft;
         }
+#endif
         
         return;
     }
@@ -552,6 +560,8 @@ setBorderStyle()
 
 #pragma mark - Liquid Glass Effect
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+
 - (void)setGlassEffectEnabled:(BOOL)glassEffectEnabled {
     if (_glassEffectEnabled == glassEffectEnabled) {
         return;
@@ -629,9 +639,13 @@ setBorderStyle()
     }
 }
 
+#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+
 #pragma mark - Private Liquid Glass Methods
 
-- (UIGlassEffectStyle)glassEffectStyleFromString:(NSString *)styleString {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+
+- (UIGlassEffectStyle)glassEffectStyleFromString:(NSString *)styleString API_AVAILABLE(ios(26.0)) {
     if (@available(iOS 26.0, *)) {
         if ([styleString isEqualToString:@"clear"]) {
             return UIGlassEffectStyleClear;
@@ -710,5 +724,7 @@ setBorderStyle()
         }
     }
 }
+
+#endif // __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
 
 @end
