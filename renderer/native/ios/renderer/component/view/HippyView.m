@@ -71,6 +71,8 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
 @implementation HippyView {
     UIColor *_backgroundColor;
+    // iOS 26+ Liquid Glass EffectView
+    UIVisualEffectView *_effectView;
 }
 
 @synthesize hippyZIndex = _hippyZIndex;
@@ -106,6 +108,13 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
     NSString *replacement = [NSString stringWithFormat:@"; hippyTag: %@;", self.hippyTag];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
+}
+
+#pragma mark - Hippy Lifecycle override
+
+- (void)didUpdateHippySubviews {
+    [super didUpdateHippySubviews];
+    [self moveSubviewsToEffectView];
 }
 
 #pragma mark - Borders
@@ -178,6 +187,21 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
+    
+    // Update effect view frame if it exists
+    if (_effectView) {
+        _effectView.frame = self.bounds;
+    }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    // Update effect view frame and corner radius
+    if (_effectView) {
+        _effectView.frame = self.bounds;
+        _effectView.layer.cornerRadius = self.layer.cornerRadius;
+    }
 }
 
 - (HippyBorderColors)borderColors {
@@ -306,6 +330,11 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
         layer.contents = nil;
         layer.needsDisplayOnBoundsChange = NO;
         layer.mask = nil;
+        
+        if (_effectView) {
+            _effectView.layer.cornerRadius = cornerRadii.topLeft;
+        }
+        
         return;
     }
 
@@ -519,5 +548,167 @@ setBorderRadius(BottomRight)
     }
 
 setBorderStyle()
+
+
+#pragma mark - Liquid Glass Effect
+
+- (void)setGlassEffectEnabled:(BOOL)glassEffectEnabled {
+    if (_glassEffectEnabled == glassEffectEnabled) {
+        return;
+    }
+    _glassEffectEnabled = glassEffectEnabled;
+    
+    if (@available(iOS 26.0, *)) {
+        if (glassEffectEnabled) {
+            [self setupGlassEffect];
+        } else {
+            [self removeGlassEffect];
+        }
+    }
+}
+
+- (void)setGlassEffectTintColor:(UIColor *)glassEffectTintColor {
+    if ([_glassEffectTintColor isEqual:glassEffectTintColor]) {
+        return;
+    }
+    _glassEffectTintColor = glassEffectTintColor;
+    
+    if (@available(iOS 26.0, *)) {
+        if (_glassEffectEnabled && _effectView) {
+            UIGlassEffectStyle style = [self glassEffectStyleFromString:_glassEffectStyle];
+            UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
+            glassEffect.tintColor = glassEffectTintColor;
+            glassEffect.interactive = _glassEffectInteractive;
+            _effectView.effect = glassEffect;
+        }
+    }
+}
+
+- (void)setGlassEffectInteractive:(BOOL)glassEffectInteractive {
+    if (_glassEffectInteractive == glassEffectInteractive) {
+        return;
+    }
+    _glassEffectInteractive = glassEffectInteractive;
+    
+    if (@available(iOS 26.0, *)) {
+        if (_glassEffectEnabled && _effectView) {
+            UIGlassEffectStyle style = [self glassEffectStyleFromString:_glassEffectStyle];
+            UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
+            glassEffect.tintColor = _glassEffectTintColor;
+            glassEffect.interactive = glassEffectInteractive;
+            _effectView.effect = glassEffect;
+        }
+    }
+}
+
+- (void)setGlassEffectContainerSpacing:(NSNumber *)glassEffectContainerSpacing {
+    if ([_glassEffectContainerSpacing isEqual:glassEffectContainerSpacing]) {
+        return;
+    }
+    _glassEffectContainerSpacing = glassEffectContainerSpacing;
+    
+    if (@available(iOS 26.0, *)) {
+        if (glassEffectContainerSpacing && glassEffectContainerSpacing.doubleValue > 0) {
+            [self setupGlassContainerEffect];
+        } else {
+            [self removeGlassEffect];
+        }
+    }
+}
+
+- (void)setGlassEffectStyle:(NSString *)glassEffectStyle {
+    if ([_glassEffectStyle isEqualToString:glassEffectStyle]) {
+        return;
+    }
+    _glassEffectStyle = glassEffectStyle;
+    
+    if (@available(iOS 26.0, *)) {
+        if (_glassEffectEnabled && _effectView) {
+            [self setupGlassEffect];
+        }
+    }
+}
+
+#pragma mark - Private Liquid Glass Methods
+
+- (UIGlassEffectStyle)glassEffectStyleFromString:(NSString *)styleString {
+    if (@available(iOS 26.0, *)) {
+        if ([styleString isEqualToString:@"clear"]) {
+            return UIGlassEffectStyleClear;
+        }
+    }
+    return UIGlassEffectStyleRegular; // Default to Regular
+}
+
+- (void)setupGlassEffect {
+    if (@available(iOS 26.0, *)) {
+        [self removeGlassEffect];
+        
+        // Create glass effect with specified style
+        UIGlassEffectStyle style = [self glassEffectStyleFromString:_glassEffectStyle];
+        UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
+        glassEffect.tintColor = _glassEffectTintColor;
+        glassEffect.interactive = _glassEffectInteractive;
+        
+        _effectView = [[UIVisualEffectView alloc] initWithEffect:glassEffect];
+        _effectView.frame = self.bounds;
+        _effectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _effectView.layer.cornerRadius = self.layer.cornerRadius;
+        
+        [self addSubview:_effectView];
+        [self sendSubviewToBack:_effectView];
+    }
+}
+
+- (void)setupGlassContainerEffect {
+    if (@available(iOS 26.0, *)) {
+        [self removeGlassEffect];
+        
+        UIGlassContainerEffect *glassContainerEffect = [[UIGlassContainerEffect alloc] init];
+        glassContainerEffect.spacing = _glassEffectContainerSpacing.doubleValue;
+        
+        _effectView = [[UIVisualEffectView alloc] initWithEffect:glassContainerEffect];
+        _effectView.frame = self.bounds;
+        _effectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _effectView.layer.cornerRadius = self.layer.cornerRadius;
+        
+        [self addSubview:_effectView];
+        [self sendSubviewToBack:_effectView];
+        
+        // Move existing subviews to the effect view's content view
+        [self moveSubviewsToEffectView];
+    }
+}
+
+- (void)removeGlassEffect {
+    if (_effectView) {
+        // Move subviews back to self before removing effect view
+        [self moveSubviewsFromEffectView];
+        [_effectView removeFromSuperview];
+        _effectView = nil;
+    }
+}
+
+- (void)moveSubviewsToEffectView {
+    if (_effectView && _effectView.contentView) {
+        NSArray *subviews = [self.subviews copy];
+        for (UIView *subview in subviews) {
+            if (subview != _effectView && subview.superview != _effectView.contentView) {
+                [subview removeFromSuperview];
+                [_effectView.contentView addSubview:subview];
+            }
+        }
+    }
+}
+
+- (void)moveSubviewsFromEffectView {
+    if (_effectView && _effectView.contentView) {
+        NSArray *subviews = [_effectView.contentView.subviews copy];
+        for (UIView *subview in subviews) {
+            [subview removeFromSuperview];
+            [self addSubview:subview];
+        }
+    }
+}
 
 @end
