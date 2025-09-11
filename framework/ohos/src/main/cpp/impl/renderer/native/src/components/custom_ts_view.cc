@@ -47,6 +47,9 @@ CustomTsView::~CustomTsView() {
     }
     children_.clear();
   }
+  if (packageNode_) {
+    packageNode_->RemoveChild(tsNode_.get());
+  }
   if (customNodeHandle_) {
     NativeNodeApi::GetInstance()->disposeNode(customNodeHandle_);
     customNodeHandle_ = nullptr;
@@ -54,13 +57,15 @@ CustomTsView::~CustomTsView() {
   contentHandle_ = nullptr;
 }
 
-CustomTsNode *CustomTsView::GetLocalRootArkUINode() {
-  return tsNode_.get();
+StackNode *CustomTsView::GetLocalRootArkUINode() {
+  return packageNode_.get();
 }
 
 void CustomTsView::CreateArkUINodeImpl() {
+  packageNode_ = std::make_shared<StackNode>();
   tsNode_ = std::make_shared<CustomTsNode>(customNodeHandle_);
   tsNode_->MarkReleaseHandle(false);
+  packageNode_->AddChild(tsNode_.get());
   if (isContentNativeScroll_) {
     contentNode_ = std::make_shared<ColumnNode>();
   } else {
@@ -83,6 +88,7 @@ void CustomTsView::DestroyArkUINodeImpl() {
   if (contentHandle_) {
     OH_ArkUI_NodeContent_RemoveNode(contentHandle_, contentNode_->GetArkUINodeHandle());
   }
+  packageNode_ = nullptr;
   tsNode_ = nullptr;
   contentNode_ = nullptr;
 }
