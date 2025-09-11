@@ -732,8 +732,8 @@ void HRViewManager::SetCustomTsRenderViewFrame(uint32_t tag, const HRRect &frame
   auto params_builder = arkTs.CreateObjectBuilder();
   params_builder.AddProperty("rootTag", ctx_->GetRootId());
   params_builder.AddProperty("tag", tag);
-  params_builder.AddProperty("left", frame.x);
-  params_builder.AddProperty("top", frame.y);
+  params_builder.AddProperty("left", 0); // Ts节点外层有包装节点，坐标设给了包装节点，这里设0
+  params_builder.AddProperty("top", 0);
   params_builder.AddProperty("width", frame.width);
   params_builder.AddProperty("height", frame.height);
   
