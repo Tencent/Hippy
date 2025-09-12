@@ -1,0 +1,59 @@
+name: 反馈 Bug
+description: 通过 github 模板进行 Bug 反馈。
+title: "描述问题的标题"
+labels: [🐞 bug,🧐 unconfirmed]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🐞 Bug Report
+        在发布一个 Issue 前，请确保：
+        - 在 [官方文档](https://hippy.tds.qq.com/#/architecture/introduction) 和 [Issue列表](https://github.com/Tencent/Hippy/issues?q=is%3Aissue) 中搜索过你的问题。（你的问题可能已有人提出，也可能已在最新版本中被修正）
+        - 如果你发现一个已经关闭的旧 Issue 在最新版本中仍然存在，不要在旧 Issue 下面留言，请建一个新的 issue。
+
+  - type: textarea
+    id: expect
+    attributes:
+      label: 期望结果
+      placeholder: 请填写
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      placeholder: 请填写
+
+  - type: input
+    id: reproduce
+    attributes:
+      label: 重现链接
+      description: 请提供尽可能精简的复现Demo GitHub 仓库的链接，比如Fork仓库的可复现Demo分支。请不要填无关链接，否则你的 Issue 将被关闭。
+      placeholder: https://github.com/<myuser>/<myreproducer>
+
+  - type: textarea
+    id: reproduceSteps
+    attributes:
+      label: 重现步骤
+      description: 请清晰的描述重现该 Issue 的步骤，这能帮助我们快速定位问题。没有清晰重现步骤将不会被修复，标有 'need reproduction' 的 Issue 在 7 天内不提供相关步骤，将被关闭。
+      placeholder: |
+        1. 安装 '...'
+        2. 点击 '...'
+        3. 查看 '...' 错误
+
+  - type: textarea
+    id: reproduceEnvironment
+    attributes:
+      label: 重现环境
+      description: 请清晰的描述重现该 Issue 的现场环境，如机型、系统及版本、Hippy SDK版本等信息，这能帮助我们快速定位问题。
+      placeholder: |
+        - Device: [e.g. iPhone12]
+        - OS and Version: [e.g. iOS 13.3.1]
+        - Hippy SDK version: [e.g. 3.3.2]
+        - Other
+
+  - type: textarea
+    id: remarks
+    attributes:
+      label: 补充说明
+      description: 可以是遇到这个 bug 的业务场景、崩溃或错误的堆栈或日志等信息。
+      placeholder: 请填写

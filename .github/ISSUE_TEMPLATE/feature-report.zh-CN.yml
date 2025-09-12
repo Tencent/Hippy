@@ -1,0 +1,36 @@
+name: 反馈新功能
+description: 通过 github 模板进行新功能反馈。
+title: "描述问题的标题"
+labels: [💪🏻 enhancement,🧐 unconfirmed]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🚀 Feature Request
+        在发布一个 Issue 前，请确保：
+        - 在 [官方文档](https://hippy.tds.qq.com/#/architecture/introduction) 和 [Issue列表](https://github.com/Tencent/Hippy/issues?q=is%3Aissue) 中搜索过你的问题。（你的问题可能已有人提出，也可能已在最新版本中被修正）
+        - 如果你发现一个已经关闭的旧 Issue 在最新版本中仍然存在，不要在旧 Issue 下面留言，请建一个新的 issue。
+
+  - type: textarea
+    id: functionContent
+    attributes:
+      label: 这个功能解决了什么问题
+      description: 请详尽说明这个需求的用例和场景。最重要的是：解释清楚是怎样的用户体验需求催生了这个功能上的需求。我们将考虑添加在现有 API 上无法轻松实现的功能。新功能的用例也应当足够常见。
+      placeholder: 请填写
+    validations:
+      required: true
+
+  - type: textarea
+    id: functionalExpectations
+    attributes:
+      label: 你建议的方案是什么
+      placeholder: 请填写
+    validations:
+      required: true
+
+  - type: textarea
+    id: functionalOthers
+    attributes:
+      label: 其他补充信息
+      description:
+      placeholder: 请填写
