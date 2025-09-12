@@ -162,7 +162,7 @@ public class TextNode extends StyleNode {
   }
 
   @SuppressWarnings("unused")
-  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+  @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
   public void color(Integer color) {
     mColor = color;
     markUpdated();

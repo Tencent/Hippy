@@ -449,9 +449,6 @@ class ElementNode extends ViewNode {
       {
         match: () => ['style'].indexOf(key) >= 0,
         action: () => {
-          if (typeof value !== 'object' || value === undefined || value === null) {
-            return true;
-          }
           this.setStyleAttribute(value);
           return false;
         },
