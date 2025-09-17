@@ -75,6 +75,7 @@ void AnimationFrameModule::RequestAnimationFrame(hippy::napi::CallbackInfo &info
   }
   has_event_listener_ = true;
 
+  root_node->SetVSyncEventNeedSource(VSyncEventNeedByFrame);
   listener_id_ = hippy::dom::FetchListenerId();
   auto weak_this = weak_from_this();
   std::weak_ptr<Scope> weak_scope = scope;
@@ -116,6 +117,7 @@ void AnimationFrameModule::CancelAnimationFrame(hippy::napi::CallbackInfo &info,
     return;
   }
 
+  root_node->UnsetVSyncEventNeedSource(VSyncEventNeedByFrame);
   dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
   dom_manager->EndBatch(root_node);
 
