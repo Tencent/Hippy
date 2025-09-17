@@ -53,6 +53,11 @@ class DomNodeStyleDiffer {
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::shared_ptr<HippyValue>>> node_ext_style_map_;
 };
 
+enum VSyncEventNeedSource {
+  VSyncEventNeedByAnimation = 1,
+  VSyncEventNeedByFrame     = 1<<1
+};
+
 class RootNode : public DomNode {
  public:
   using TaskRunner = footstone::runner::TaskRunner;
@@ -99,6 +104,10 @@ class RootNode : public DomNode {
     return persistent_map_;
   }
 
+  void SetVSyncEventNeedSource(VSyncEventNeedSource source) { vSyncEventNeedSourceBits_ |= source; }
+  void UnsetVSyncEventNeedSource(VSyncEventNeedSource source) { vSyncEventNeedSourceBits_ &= (~source); }
+  bool HasVSyncEventNeedSource() { return vSyncEventNeedSourceBits_ != 0; }
+
  private:
   static void MarkLayoutNodeDirty(const std::vector<std::shared_ptr<DomNode>>& nodes);
 
@@ -127,6 +136,8 @@ class RootNode : public DomNode {
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
   std::unique_ptr<DomNodeStyleDiffer> style_differ_;
+
+  int32_t vSyncEventNeedSourceBits_ = 0;
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> persistent_map_;
 };

@@ -27,6 +27,8 @@
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
 
+constexpr char kVSyncKey[] = "frameupdate";
+
 namespace hippy {
 inline namespace dom {
 
@@ -118,7 +120,13 @@ void RootNode::AddEventListener(const std::string& name, uint64_t listener_id, b
 
 void RootNode::RemoveEventListener(const std::string& name, uint64_t listener_id) {
   DomNode::RemoveEventListener(name, listener_id);
-  RemoveEvent(GetId(), name);
+  if (name == kVSyncKey) {
+    if (!HasVSyncEventNeedSource()) {
+      RemoveEvent(GetId(), name);
+    }
+  } else {
+    RemoveEvent(GetId(), name);
+  }
 }
 
 void RootNode::ReleaseResources() {}
