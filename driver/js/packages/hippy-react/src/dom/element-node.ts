@@ -485,6 +485,14 @@ class ElementNode extends ViewNode {
       {
         match: () => ['style'].indexOf(key) >= 0,
         action: () => {
+          const isArray = Array.isArray(value);
+          const isObject = typeof value === 'object' && value !== null;
+          const isUndefined = typeof value === 'undefined';
+
+          if (!(isArray || isObject || isUndefined)) {
+            return true;
+          }
+
           this.setStyleAttribute(value);
           const inheritProperties = ['color', 'fontSize', 'fontWeight', 'fontFamily', 'fontStyle', 'textAlign', 'lineHeight'];
           const needInherit = inheritProperties.some(prop => Object.prototype.hasOwnProperty.call(value, prop));
