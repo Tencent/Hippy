@@ -468,6 +468,8 @@ import icon from './qb_icon_new.png';
 
 最基础的容器组件，它是一个支持Flexbox布局、样式、一些触摸处理、和一些无障碍功能的容器，并且它可以放到其它的视图里，也可以有任意多个任意类型的子视图。不论在什么平台上，`View` 都会直接对应一个平台的原生视图。
 
+> **新特性**：现已支持 iOS 26+ Liquid Glass（液态玻璃）效果，详见`glassEffect` 相关API说明。
+
 !> Android 具有节点优化的特性，请注意 `collapsable` 属性的使用
 
 ## 属性
@@ -488,6 +490,11 @@ import icon from './qb_icon_new.png';
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | pointerEvents | 用于控制视图是否可以成为触摸事件的目标。 | `enum('box-none', 'none', 'box-only', 'auto')` | `iOS` |
+| glassEffectEnabled | 启用或禁用 iOS 26 Liquid Glass（液态玻璃）效果。当设置为 `true` 时，视图将应用液态玻璃视觉效果。 | `boolean` | `iOS 26+` |
+| glassEffectStyle | 设置液态玻璃效果的样式。可选值为 `'clear'` 和 `'regular'`，默认为 `'regular'`。 | `string` | `iOS 26+` |
+| glassEffectInteractive | 控制液态玻璃效果是否响应用户交互。当设置为 `true` 时，玻璃效果会根据用户触摸产生动态变化。 | `boolean` | `iOS 26+` |
+| glassEffectTintColor | 设置液态玻璃效果的着色颜色。可以使用任何有效的颜色值来调整玻璃效果的色调。 | `Color` | `iOS 26+` |
+| glassEffectContainerSpacing | 设置液态玻璃容器效果的间距值。当设置此属性后，视图将成为一个液态玻璃组合容器，其内嵌的液态玻璃组件之间将产生融合效果。 | `number` | `iOS 26+` |
 
 * pointerEvents 的参数含义：
   * `auto`（默认值） - 视图可以是触摸事件的目标；

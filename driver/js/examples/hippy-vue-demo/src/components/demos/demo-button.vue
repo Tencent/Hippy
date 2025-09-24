@@ -83,6 +83,8 @@ export default {
     border-width: 2px;
     border-radius: 10px;
     align-items: center;
+    glass-effect-enabled: true;
+    glass-effect-tint-color: #40b883;
   }
 
   .button-demo-1 .button-text {
