@@ -119,7 +119,11 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
 - (void)didUpdateHippySubviews {
     [super didUpdateHippySubviews];
-    [self moveSubviewsToEffectView];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+    if (@available(iOS 26.0, *)) {
+        [self moveSubviewsToEffectView];
+    }
+#endif
 }
 
 #pragma mark - Borders
@@ -693,7 +697,7 @@ setBorderStyle()
     }
 }
 
-- (void)removeGlassEffect {
+- (void)removeGlassEffect API_AVAILABLE(ios(26.0)) {
     if (_effectView) {
         // Move subviews back to self before removing effect view
         [self moveSubviewsFromEffectView];
@@ -702,7 +706,7 @@ setBorderStyle()
     }
 }
 
-- (void)moveSubviewsToEffectView {
+- (void)moveSubviewsToEffectView API_AVAILABLE(ios(26.0)) {
     if (_effectView && _effectView.contentView) {
         NSArray *subviews = [self.subviews copy];
         for (UIView *subview in subviews) {
@@ -714,7 +718,7 @@ setBorderStyle()
     }
 }
 
-- (void)moveSubviewsFromEffectView {
+- (void)moveSubviewsFromEffectView API_AVAILABLE(ios(26.0)) {
     if (_effectView && _effectView.contentView) {
         NSArray *subviews = [_effectView.contentView.subviews copy];
         for (UIView *subview in subviews) {

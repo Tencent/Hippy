@@ -58,8 +58,7 @@
     self.verLabel.text = [NSString stringWithFormat:@"Ver:%@", _HippySDKVersion];
     
     self.tabbar.delegate = self;
-    
-    self.tipsImageView.image = [UIImage imageFromIconName:@"tips"];
+    [self.tabbar setSelectedItem:self.pageItem];    
 }
 
 - (void)viewDidLayoutSubviews {
