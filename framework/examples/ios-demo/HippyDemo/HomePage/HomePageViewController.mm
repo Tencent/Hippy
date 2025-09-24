@@ -27,7 +27,17 @@
 #import "PageManagerViewController.h"
 #import "UIViewController+Title.h"
 
-@interface HomePageViewController ()
+@interface HomePageViewController () <UITabBarDelegate>
+
+@property (weak, nonatomic) IBOutlet UITabBar *tabbar;
+/// the New Page tabbar item
+@property (weak, nonatomic) IBOutlet UITabBarItem *pageItem;
+/// the setting tabbar item
+@property (weak, nonatomic) IBOutlet UITabBarItem *settingItem;
+
+- (IBAction)toNewPage;
+- (IBAction)toSetting;
+
 @end
 
 @implementation HomePageViewController
@@ -47,18 +57,8 @@
     
     self.verLabel.text = [NSString stringWithFormat:@"Ver:%@", _HippySDKVersion];
     
-    self.buttonView.layer.shadowColor = [UIColor grayColor].CGColor;
-    self.buttonView.layer.shadowOffset = CGSizeMake(0, -1);
-    self.buttonView.layer.shadowRadius = 4;
-    self.buttonView.layer.shadowOpacity = .3f;
-    
-    [self.pageButton setImage:[UIImage imageFromIconName:@"newpage"] forState:UIControlStateNormal];
-    [self.pageButton setImage:[UIImage imageFromIconName:@"newpage_highlight"] forState:UIControlStateHighlighted];
-        
-    [self.settingButton setImage:[UIImage imageFromIconName:@"setting"] forState:UIControlStateNormal];
-    [self.settingButton setImage:[UIImage imageFromIconName:@"setting_highlight"] forState:UIControlStateHighlighted];
-    
-    self.tipsImageView.image = [UIImage imageFromIconName:@"tips"];
+    self.tabbar.delegate = self;
+    [self.tabbar setSelectedItem:self.pageItem];    
 }
 
 - (void)viewDidLayoutSubviews {
@@ -80,6 +80,16 @@
 - (IBAction)toSetting {
     [self dismissTipsView];
     [self.navigationController pushViewController:[[SettingsViewController alloc] init] animated:YES];
+}
+
+#pragma - UITabBarDelegate
+
+- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
+    if (item == self.pageItem) {
+        [self toNewPage];
+    } else if (item == self.settingItem) {
+        [self toSetting];
+    }
 }
 
 @end

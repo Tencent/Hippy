@@ -618,11 +618,13 @@ static bool isPointInsideView(UIView *view, CGPoint point) {
     NSNumber *innerTag = [targetView hippyTagAtPoint:point];
     if (innerTag && ![targetView.hippyTag isEqual:innerTag]) {
         UIView *innerView = [_bridge.uiManager viewForHippyTag:innerTag onRootTag:targetView.rootTag];
-        point = [targetView convertPoint:point toView:innerView];
-        NSDictionary *innerResult = [self nextResponseViewForAction:actions inView:innerView atPoint:point];
-        NSMutableDictionary *mergedResult = [result mutableCopy];
-        [mergedResult addEntriesFromDictionary:innerResult];
-        return mergedResult;
+        if (innerView) {
+            point = [targetView convertPoint:point toView:innerView];
+            NSDictionary *innerResult = [self nextResponseViewForAction:actions inView:innerView atPoint:point];
+            NSMutableDictionary *mergedResult = [result mutableCopy];
+            [mergedResult addEntriesFromDictionary:innerResult];
+            return mergedResult;
+        }
     }
     return result;
 }
