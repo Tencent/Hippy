@@ -87,8 +87,8 @@ const LiquidGlassDemo = () => {
       flex: 1,
       height: 60,
       borderRadius: 30,
-      glassEffectEnabled: true,
-      glassEffectInteractive: true,
+      glassEffectEnabled,
+      glassEffectInteractive,
       glassEffectStyle,
     },
     buttonText: {
@@ -166,7 +166,7 @@ const LiquidGlassDemo = () => {
                   onClick={generateRandomColor}>
               <Text style={liquidGlassStyles.buttonText}>随机颜色</Text>
             </View>
-            <View style={[liquidGlassStyles.glassButton, { glassEffectInteractive }]}
+            <View style={[liquidGlassStyles.glassButton]}
                   onClick={toggleInteractive}>
               <Text style={liquidGlassStyles.buttonText}>
                 {glassEffectInteractive ? '关闭交互' : '开启交互'}

@@ -605,12 +605,7 @@ setBorderStyle()
     
     if (@available(iOS 26.0, *)) {
         if (_glassEffectEnabled && _effectView) {
-            _effectView.effect = nil;
-            UIGlassEffectStyle style = [self glassEffectStyleFromString:_glassEffectStyle];
-            UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
-            glassEffect.tintColor = _glassEffectTintColor;
-            glassEffect.interactive = glassEffectInteractive;
-            _effectView.effect = glassEffect;
+            [self setupGlassEffect];
         }
     }
 }
