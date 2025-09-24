@@ -1,0 +1,28 @@
+name: 问题咨询
+description: 通过 github 模板进行问题咨询。
+title: "描述问题的标题"
+labels: [❓ question,🧐 unconfirmed]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # ❓ Question or Support Request
+        在发布一个 Issue 前，请确保：
+        - 在 [官方文档](https://hippy.tds.qq.com/#/architecture/introduction) 和 [Issue列表](https://github.com/Tencent/Hippy/issues?q=is%3Aissue) 中搜索过你的问题。（你的问题可能已有人提出，也可能已在最新版本中被修正）
+        - 如果你发现一个已经关闭的旧 Issue 在最新版本中仍然存在，不要在旧 Issue 下面留言，请建一个新的 issue。
+
+  - type: textarea
+    id: supportContent
+    attributes:
+      label: 描述你的问题或希望得到什么支持
+      description: 清晰简明地描述你的疑问
+      placeholder: 请填写
+    validations:
+      required: true
+
+  - type: textarea
+    id: supportOthers
+    attributes:
+      label: 其他补充信息
+      description: 编译构建等技术使用类问题，请提供更多复现条件，比如可复现问题的仓库、错误堆栈或日志、构建IDE环境、构建命令等。标有 'need reproduction' 的 Issue 在 7 天内不提供相关步骤，将被关闭。
+      placeholder: 请填写

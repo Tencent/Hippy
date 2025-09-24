@@ -121,6 +121,9 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
     const char *pName = [self.enginekey UTF8String] ?: "";
     auto scope = engine->GetEngine()->CreateScope(pName);
     
+    // Assign pScope first, then register the callback
+    _pScope = scope;
+    
     __weak __typeof(self)weakSelf = self;
     if (!bridge.usingHermesEngine) {
         hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
@@ -200,7 +203,6 @@ constexpr char kHippyGetTurboModule[] = "getTurboModule";
             [strongSelf executeBlockOnJavaScriptQueue:obj];
         }];
     });
-    _pScope = scope;
     dispatch_semaphore_signal(scopeSemaphore);
     
 #ifdef ENABLE_INSPECTOR
@@ -857,8 +859,12 @@ static void handleJsExcepiton(std::shared_ptr<hippy::Scope> scope) {
         return;
     }
 #ifdef JS_JSC
-    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
-    std::shared_ptr<hippy::napi::JSCCtxValue> exception = std::static_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
+    auto context = std::dynamic_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+    if (!context) {
+        HippyLogError(@"[Hippy_OC_Log][HippyJSExecutor], handleJsExcepiton: scope context is not JSCCtx type!");
+        return;
+    }
+    auto exception = std::dynamic_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
     if (exception) {
         // if native does not handled, rethrow to js
         if (!context->IsExceptionHandled()) {
