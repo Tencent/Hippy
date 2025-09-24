@@ -23,8 +23,6 @@ export default class Localization extends React.Component {
     return (
       <View style={styleObj.LocalizationDemo}>
         <View style={{
-          height: 40,
-          textAlign: 'center',
           backgroundColor: '#4c9afa',
           borderRadius: 5,
         }} onTouchDown={this.onAsyncComponentLoad}
@@ -32,9 +30,7 @@ export default class Localization extends React.Component {
           <Text style={{
             color: 'white',
             marginHorizontal: 30,
-            height: 40,
-            lineHeight: 40,
-            textAlign: 'center',
+            marginVertical: 10,
           }} >
             {`国际化相关信息：国家 ${country} | 语言 ${language} | 方向 ${direction === 1 ? 'RTL' : 'LTR'}`}
           </Text>
