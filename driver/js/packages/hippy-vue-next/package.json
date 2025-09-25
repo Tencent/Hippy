@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-next",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "description": "Vue-Next binding for Hippy native framework",
   "author": "OpenHippy Team",
   "homepage": "https://hippyjs.org",

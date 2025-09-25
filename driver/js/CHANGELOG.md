@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.7](https://github.com/Tencent/Hippy/compare/3.3.6...3.3.7) (2025-09-25)
+
+
+### Bug Fixes
+
+* **android:** fix height param size of onContentChange event ([970e546](https://github.com/Tencent/Hippy/commit/970e546acfd8f356b621ae3fac34945d26072085))
+* **core:** vsync event used by frame is stopped by animation ending ([70877a5](https://github.com/Tencent/Hippy/commit/70877a59ebcb03bb028c9e78ef15c01352894de4))
+* **ios:** textColor not work for multiline textinput ([#4396](https://github.com/Tencent/Hippy/issues/4396)) ([2c076e7](https://github.com/Tencent/Hippy/commit/2c076e742d78e91d5d2f23311d49dccdf784d237))
+
+
+
+
+
 ## [3.3.6](https://github.com/Tencent/Hippy/compare/3.3.5...3.3.6) (2025-08-25)
 
 

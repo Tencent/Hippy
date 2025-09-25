@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   puts "layout engine is #{layout_engine}, js engine is #{js_engine}"
   
   s.name             = 'hippy'
-  s.version          = '3.3.6'
+  s.version          = '3.3.7'
   s.summary          = 'Hippy Cross Platform Framework'
   s.description      = <<-DESC
                         Hippy is designed for developers to easily build cross-platform 
