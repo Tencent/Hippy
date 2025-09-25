@@ -283,8 +283,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
                 mPreviousContentHeight = contentHeight;
                 mPreviousContentWidth = contentWidth;
                 HippyMap contentSize = new HippyMap();
-                contentSize.pushDouble("width", mPreviousContentWidth);
-                contentSize.pushDouble("height", mPreviousContentWidth);
+                contentSize.pushDouble("width", PixelUtil.px2dp(mPreviousContentWidth));
+                contentSize.pushDouble("height", PixelUtil.px2dp(mPreviousContentHeight));
                 HippyMap eventData = new HippyMap();
                 eventData.pushMap("contentSize", contentSize);
                 EventUtils.sendComponentEvent(mEditText, "onContentSizeChange", eventData);
