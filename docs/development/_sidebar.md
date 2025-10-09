@@ -19,6 +19,7 @@
 - [V8初始化参数与API](development/v8-api.md)
 - [Hermes引擎切换指引（Beta）](development/use-hermes-engine.md)
 - [调试](development/debug.md)
+- [Bugly Hippy 监控](development/bugly-hippy-monitor.md)
 - [曝光上报](development/report.md)
 - [技术支持](development/support.md)
 - [隐私政策](development/privacy.md)
