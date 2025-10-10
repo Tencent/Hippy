@@ -23,10 +23,9 @@
 #pragma once
 
 #include <map>
-#include <vector>
+#include <set>
 #include "renderer/utils/hr_event_utils.h"
 #include <native_display_soloist/native_display_soloist.h>
-
 
 namespace hippy {
 inline namespace render {
@@ -45,7 +44,7 @@ class HRDisplaySyncUtils{
   static bool sEnablePostFrame;
   static OH_DisplaySoloist *sBackDisplaySync;
   static std::mutex sMutex_;
-  static std::map<uint32_t, std::vector<uint32_t>> sListeners;
+  static std::map<uint32_t, std::set<uint32_t>> sListeners;
 };
 } // namespace native
 } // namespace render

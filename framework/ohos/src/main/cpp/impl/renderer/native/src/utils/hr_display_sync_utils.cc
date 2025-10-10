@@ -31,11 +31,11 @@ const char *DO_FRAME = "frameUpdate";
 bool HRDisplaySyncUtils::sEnablePostFrame = false;
 OH_DisplaySoloist *HRDisplaySyncUtils::sBackDisplaySync = nullptr;
 std::mutex HRDisplaySyncUtils::sMutex_;
-std::map<uint32_t, std::vector<uint32_t>> HRDisplaySyncUtils::sListeners;
+std::map<uint32_t, std::set<uint32_t>> HRDisplaySyncUtils::sListeners;
 
 void HRDisplaySyncUtils::RegisterDoFrameListener(uint32_t rendererId, uint32_t rootId) {
   std::lock_guard<std::mutex> lock(sMutex_);
-  sListeners[rendererId].push_back(rootId);
+  sListeners[rendererId].insert(rootId);
   if (!sEnablePostFrame) {
     sEnablePostFrame = true;
     StartPostFrame();
@@ -47,7 +47,7 @@ void HRDisplaySyncUtils::UnregisterDoFrameListener(uint32_t rendererId, uint32_t
   auto it = sListeners.find(rendererId);
   if (it != sListeners.end()) {
     auto& roots = it->second;
-    roots.erase(std::remove(roots.begin(), roots.end(), rootId), roots.end());
+    roots.erase(rootId);
     if (roots.empty()) {
       sListeners.erase(it);
     }
@@ -63,7 +63,7 @@ void HRDisplaySyncUtils::HandleDoFrameCallback() {
   std::lock_guard<std::mutex> lock(sMutex_);
   for (const auto& entry : sListeners) {
     auto rendererId = entry.first;
-    const std::vector<uint32_t>& rootList = entry.second;
+    const std::set<uint32_t>& rootList = entry.second;
     if (!rootList.empty()) {
       for (uint32_t rootId : rootList) {
         HREventUtils::SendRootEvent((uint32_t)rendererId, (uint32_t)rootId, DO_FRAME, nullptr);
