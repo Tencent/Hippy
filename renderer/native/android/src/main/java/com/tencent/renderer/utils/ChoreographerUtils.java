@@ -18,24 +18,24 @@ package com.tencent.renderer.utils;
 
 import android.view.Choreographer;
 import androidx.annotation.MainThread;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 public class ChoreographerUtils {
 
     public static final String DO_FRAME = "frameUpdate";
     private static boolean sEnablePostFrame = false;
-    private static HashMap<Integer, ArrayList<Integer>> sListeners = null;
+    private static HashMap<Integer, HashSet<Integer>> sListeners = null;
 
     private static void handleDoFrameCallback() {
-        for (Entry<Integer, ArrayList<Integer>> entry : sListeners.entrySet()) {
+        for (Entry<Integer, HashSet<Integer>> entry : sListeners.entrySet()) {
             Integer rendererId = entry.getKey();
-            ArrayList<Integer> rootList = entry.getValue();
-            if (rootList == null) {
+            HashSet<Integer> rootSet = entry.getValue();
+            if (rootSet == null) {
                 continue;
             }
-            for (Integer rootId : rootList) {
+            for (Integer rootId : rootSet) {
                 EventUtils.sendRootEvent(rendererId, rootId, DO_FRAME, null);
             }
         }
@@ -62,9 +62,9 @@ public class ChoreographerUtils {
         if (sListeners == null) {
             sListeners = new HashMap<>();
         }
-        ArrayList<Integer> roots = sListeners.get(rendererId);
+        HashSet<Integer> roots = sListeners.get(rendererId);
         if (roots == null) {
-            roots = new ArrayList<>();
+            roots = new HashSet<>();
             roots.add(rootId);
             sListeners.put(rendererId, roots);
         } else {
@@ -87,7 +87,7 @@ public class ChoreographerUtils {
         if (sListeners == null) {
             return;
         }
-        ArrayList<Integer> roots = sListeners.get(rendererId);
+        HashSet<Integer> roots = sListeners.get(rendererId);
         if (roots != null) {
             roots.remove(rootId);
             if (roots.isEmpty()) {
