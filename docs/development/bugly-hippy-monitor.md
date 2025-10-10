@@ -71,7 +71,7 @@ ShiplyCS-HippyAegis 是 Shiply、Bugly、Hippy 团队共建，基于 Aegis-Core 
 
 如果在接入过程中遇到疑问，请联系 [腾讯Bugly客服](https://work.weixin.qq.com/kfid/kfcf4d7385fd3f32b17)。
 
-> 重要提醒：Bugly 专业版暂未对外开放 Hippy 监控，如有诉求，请联系 [腾讯Bugly客服](https://work.weixin.qq.com/kfid/kfcf4d7385fd3f32b17)，Bugly 团队会快速支持。
+> 重要提醒：Bugly专业版，Hippy监控还在灰度发布阶段。如需申请试用，请联系 [腾讯Bugly客服](https://work.weixin.qq.com/kfid/kfcf4d7385fd3f32b17)。
 
 ## 控制台使用指引
 
