@@ -264,7 +264,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id)
   if (it == event_listener_map_->end()) {
     return;
   }
-  auto capture_listeners = it->second[kCapture];
+  auto& capture_listeners = it->second[kCapture];
   auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
                                  [listener_id](const std::shared_ptr<DomEventListenerInfo>& item) {
                                    if (item->id == listener_id) {
@@ -277,7 +277,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id)
   }
 
   // remove dom node bubble function
-  auto bubble_listeners = it->second[kBubble];
+  auto& bubble_listeners = it->second[kBubble];
   auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
                                 [listener_id](const std::shared_ptr<DomEventListenerInfo>& item) {
                                   if (item->id == listener_id) {
