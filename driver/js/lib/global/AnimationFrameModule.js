@@ -42,5 +42,6 @@ global.requestAnimationFrame = (cb) => {
 };
 
 global.cancelAnimationFrame = () => {
+  __GLOBAL__.canRequestAnimationFrame = true;
   AnimationFrameModule.CancelAnimationFrame();
 };
