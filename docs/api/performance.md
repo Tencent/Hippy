@@ -79,7 +79,7 @@ Performance API 冷启动打点指标：
 
 监控方式：
 
-​            1.     Hippy 3.x版本：可以接入最新 aegis-sdk （腾讯内部咨询 TDSF 小助手），已经基于 performance api，可以直接获取打点数据 
+​            1.     Hippy 3.x版本：可以接入最新 aegis-sdk （腾讯内部咨询 端框架小助手），已经基于 performance api，可以直接获取打点数据 
 
 
 
