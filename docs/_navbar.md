@@ -1,6 +1,7 @@
 * [简介](/)
 * [开发指引](development/demo.md)
 * [API](api/hippy-react/introduction.md)
+* [AI编程](ai/hippy-ai.md)
 * [特性](feature/feature3.0/vfs.md)
 * [架构](architecture/introduction.md)
 * [版本日志](https://github.com/Tencent/Hippy/releases)
