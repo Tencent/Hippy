@@ -55,7 +55,7 @@ deepwiki + 文档知识库的组合方案，比纯文档知识库要好不少，
        "hippy-mcp": {
           "url": "https://hippy.woa.com/mcp",
           "headers": {
-            "X-Rtx-Username": "zealotchen" // 修改为自己的企业微信名
+            "X-Rtx-Username": "<自己的企业微信名>"
           }
         }
     ```
@@ -84,7 +84,7 @@ CodeBuddy 内网版可以单独添加 官方 Hippy 知识库：
             "type": "streamableHttp",
             "url": "https://hippy.woa.com/mcp",
             "headers": {
-                "X-Rtx-Username": "zealotchen" // 修改为自己的企业微信名
+                "X-Rtx-Username": "<自己的企业微信名>"
             }
         }
     ```
