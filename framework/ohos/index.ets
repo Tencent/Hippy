@@ -62,6 +62,9 @@ export * from "./src/main/ets/hippy_framework/modules/native/network/NetworkModu
 export * from "./src/main/ets/hippy_framework/modules/native/network/WebSocketModule"
 export * from "./src/main/ets/hippy_framework/modules/native/utils/UtilsModule"
 export * from "./src/main/ets/hippy_framework/modules/HippyModuleManagerImpl"
+export * from "./src/main/ets/hippy_framework/modules/HippyModulePromise"
+export * from "./src/main/ets/hippy_framework/modules/HippyModulePromiseImpl"
+export * from "./src/main/ets/hippy_framework/modules/HippyModuleUtils"
 
 export * from "./src/main/ets/hippy_framework/worker_modules/HippyWModuleManagerImpl"
 export * from "./src/main/ets/hippy_framework/worker_modules/native/HippyWModuleBase"
