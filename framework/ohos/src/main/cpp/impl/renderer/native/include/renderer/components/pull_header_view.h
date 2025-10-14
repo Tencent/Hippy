@@ -30,6 +30,12 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
+class PullHeaderViewDelegate {
+public:
+  virtual ~PullHeaderViewDelegate() = default;
+  virtual void OnPullHeaderViewSizeUpdated(const HRSize &size) {}
+};
+
 class PullHeaderView : public ListItemView {
 public:
   PullHeaderView(std::shared_ptr<NativeRenderContext> &ctx);
@@ -49,12 +55,16 @@ public:
   void CallImpl(const std::string &method, const std::vector<HippyValue> params,
                     std::function<void(const HippyValue &result)> callback) override;
   void OnSetPropsEndImpl() override;
+  
+  void SetPullHeaderViewDelegate(PullHeaderViewDelegate *delegate) { viewDelegate_ = delegate; }
 
 private:
   void OnHeadRefreshFinish(int32_t delay = 0);
   void OnHeaderRefresh();
   
   std::shared_ptr<StackNode> headerItemNode_;
+  
+  PullHeaderViewDelegate *viewDelegate_ = nullptr;
 };
 
 } // namespace native

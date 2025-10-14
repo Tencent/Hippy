@@ -43,7 +43,7 @@ enum class ScrollAction : int32_t {
   ReleaseFooter
 };
 
-class ListView : public BaseView, public ListNodeDelegate, public ListItemNodeDelegate, public RefreshNodeDelegate {
+class ListView : public BaseView, public ListNodeDelegate, public ListItemNodeDelegate, public RefreshNodeDelegate, public PullHeaderViewDelegate {
 public:
   ListView(std::shared_ptr<NativeRenderContext> &ctx);
   ~ListView();
@@ -84,6 +84,9 @@ public:
   void OnRefreshing() override;
   void OnStateChange(int32_t state) override;
   void OnOffsetChange(float_t offset) override;
+  
+  // PullHeaderViewDelegate
+  void OnPullHeaderViewSizeUpdated(const HRSize &size) override;
   
   // pull head
   void OnHeadRefreshFinish(int32_t delay);
