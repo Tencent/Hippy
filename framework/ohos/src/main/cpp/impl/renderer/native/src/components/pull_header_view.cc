@@ -84,6 +84,10 @@ void PullHeaderView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadd
   headerItemNode_->SetSize(HRSize(frame.width, frame.height));
   width_ = frame.width;
   height_ = frame.height;
+  
+  if (viewDelegate_) {
+    viewDelegate_->OnPullHeaderViewSizeUpdated(HRSize(width_, height_));
+  }
 }
 
 bool PullHeaderView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {

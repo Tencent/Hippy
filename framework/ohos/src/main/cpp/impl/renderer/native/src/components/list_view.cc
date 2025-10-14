@@ -55,6 +55,7 @@ ListView::~ListView() {
     stackNode_->RemoveAllChildren();
   }
   if (headerView_) {
+    headerView_->SetPullHeaderViewDelegate(nullptr);
     headerView_->DestroyArkUINode();
   }
 }
@@ -393,6 +394,21 @@ void ListView::OnOffsetChange(float_t offset) {
   }
 }
 
+void ListView::OnPullHeaderViewSizeUpdated(const HRSize &size) {
+  if (size.height > 0 && size.width > 0) {
+    pullHeaderWH_ = isVertical_ ? size.height : size.width;
+    if (isVertical_) {
+      headerView_->SetPosition({0, - pullHeaderWH_});
+    } else {
+      headerView_->SetPosition({- pullHeaderWH_, 0});
+    }
+    if (refreshNode_) {
+      auto refreshOffset = pullHeaderWH_;
+      refreshNode_->SetRefreshOffset(refreshOffset);
+    }
+  }
+}
+
 void ListView::OnHeadRefreshFinish(int32_t delay) {
   FOOTSTONE_DLOG(INFO) << __FUNCTION__ << " delay = " << delay;
   refreshNode_->SetRefreshRefreshing(false);
@@ -409,6 +425,7 @@ void ListView::HandleOnChildrenUpdated() {
       auto newHeaderView = std::static_pointer_cast<PullHeaderView>(children_[0]);
       if (newHeaderView != headerView_) { // 不宜重复设置headerView的position，否则会闪
         headerView_ = newHeaderView;
+        headerView_->SetPullHeaderViewDelegate(this);
         hasPullHeader_ = true;
         pullHeaderWH_ = isVertical_ ? headerView_->GetHeight() : headerView_->GetWidth();
         
