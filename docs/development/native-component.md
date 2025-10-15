@@ -395,7 +395,7 @@ loadParams.wrappedCustomRenderViewBuilder = wrapBuilder(buildCustomRenderView)
 继承 `HippyAPIProvider` 接口并注册自定义组件View：
 
 ```typescript
-export class ExampleAPIProvider implements HippyAPIProvider {
+export class ExampleAPIProvider extends HippyAPIProvider {
   getCustomRenderViewCreatorMap(): Map<string, HRRenderViewCreator> | null {
     let registerMap: Map<string, HRRenderViewCreator> =
       new Map()
