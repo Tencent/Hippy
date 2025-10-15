@@ -39,6 +39,7 @@ public:
   void DestroyArkUINodeImpl() override;
   bool RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
   bool ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) override;
+  bool SetViewProp(const std::string &propKey, const HippyValue &propValue) override;
   bool SetPropImpl(const std::string &propKey, const HippyValue &propValue) override;
   void OnSetPropsEndImpl() override;
   void UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding) override;

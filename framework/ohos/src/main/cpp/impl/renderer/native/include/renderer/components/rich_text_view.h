@@ -87,6 +87,7 @@ private:
   // 解决方法：套了一层容器组件，用来解决ImageSpan位置不生效的问题。
   std::shared_ptr<StackNode> containerNode_ = nullptr;
   std::set<std::shared_ptr<BaseView>> clickableSpanViews_;
+  bool toLazyRegisterClick_ = false;
 # ifdef OHOS_DRAW_CUSTOM_TEXT
   std::shared_ptr<CustomNode> textNode_ = nullptr;
   bool toMarkDirty_ = false;

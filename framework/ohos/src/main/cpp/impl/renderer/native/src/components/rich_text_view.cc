@@ -54,6 +54,9 @@ RichTextView::~RichTextView() {
     textNode_->ResetTextContentWithStyledStringAttribute();
   }
 # endif
+  if (textNode_) {
+    textNode_->SetArkUINodeDelegate(nullptr);
+  }
   auto textMeasureMgr = ctx_->GetTextMeasureManager();
   textMeasureMgr->EraseTextMeasurer(tag_);
   oldUsedTextMeasurerHolder_ = nullptr;
@@ -76,6 +79,11 @@ void RichTextView::CreateArkUINodeImpl() {
 # else
   textNode_ = std::make_shared<TextNode>();
 # endif
+  if (toLazyRegisterClick_) {
+    textNode_->SetArkUINodeDelegate(this);
+    textNode_->RegisterClickEvent();
+    toLazyRegisterClick_ = false;
+  }
 #else
   textNode_ = std::make_shared<TextNode>();
 #endif
@@ -487,7 +495,12 @@ void RichTextView::OnClick(const HRPosition &position) {
 
 void RichTextView::RegisterSpanClickEvent(const std::shared_ptr<BaseView> spanView) {
   clickableSpanViews_.insert(spanView);
-  GetLocalRootArkUINode()->RegisterClickEvent();
+  auto node = GetLocalRootArkUINode();
+  if (node) {
+    node->RegisterClickEvent();
+  } else {
+    toLazyRegisterClick_ = true;
+  }
 }
 
 void RichTextView::UnregisterSpanClickEvent(const std::shared_ptr<BaseView> spanView) {
