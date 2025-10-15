@@ -693,7 +693,13 @@ void ArkUINode::OnNodeEvent(ArkUI_NodeEvent *event) {
   }
 
   auto eventType = OH_ArkUI_NodeEvent_GetEventType(event);
-  if (eventType == ArkUI_NodeEventType::NODE_TOUCH_EVENT) {
+  if (eventType == ArkUI_NodeEventType::NODE_ON_CLICK) {
+    auto nodeComponentEvent = OH_ArkUI_NodeEvent_GetNodeComponentEvent(event);
+    ArkUI_NumberValue* data = nodeComponentEvent->data;
+    float x = HRPixelUtils::PxToDp(data[0].f32);
+    float y = HRPixelUtils::PxToDp(data[1].f32);
+    arkUINodeDelegate_->OnClick(HRPosition(x, y));
+  } else if (eventType == ArkUI_NodeEventType::NODE_TOUCH_EVENT) {
     ArkUI_UIInputEvent *inputEvent = OH_ArkUI_NodeEvent_GetInputEvent(event);
     auto type = OH_ArkUI_UIInputEvent_GetType(inputEvent);
     if (type == ARKUI_UIINPUTEVENT_TYPE_TOUCH) {
@@ -720,6 +726,7 @@ void ArkUINode::OnNodeEvent(ArkUI_NodeEvent *event) {
 void ArkUINode::RegisterClickEvent() {
   // SpanNode调用addGestureToNode API会crash
   if (isSpanNode_) {
+    RegisterOldClickEvent();
     return;
   }
   if (!nodeHandle_) {
@@ -753,10 +760,28 @@ void ArkUINode::RegisterClickEvent() {
 }
 
 void ArkUINode::UnregisterClickEvent() {
+  if (isSpanNode_) {
+    UnregisterOldClickEvent();
+    return;
+  }
   if (tapGesture_) {
     NativeGestureApi::GetInstance()->removeGestureFromNode(nodeHandle_, tapGesture_);
     NativeGestureApi::GetInstance()->dispose(tapGesture_);
     tapGesture_ = nullptr;
+  }
+}
+
+void ArkUINode::RegisterOldClickEvent() {
+  if (!hasOldClickEvent_) {
+    MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, NODE_ON_CLICK, 0, nullptr));
+    hasOldClickEvent_ = true;
+  }
+}
+
+void ArkUINode::UnregisterOldClickEvent() {
+  if (hasOldClickEvent_) {
+    NativeNodeApi::GetInstance()->unregisterNodeEvent(nodeHandle_, NODE_ON_CLICK);
+    hasOldClickEvent_ = false;
   }
 }
 

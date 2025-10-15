@@ -108,9 +108,8 @@ void BaseView::CreateArkUINode(bool isFromLazy, int index) {
   
   CreateArkUINodeImpl();
   if (!GetLocalRootArkUINode()) {
-    // 对于文本绘制时，RichTextSpanView无实际ArkUINode但需要处理点击等事件属性；
+    // 对于文本绘制时，RichTextSpanView无实际ArkUINode；
     // 其它类型View，必然有实际ArkUINode，不会走进这里。
-    UpdateLazyProps();
     return;
   }
   isLazyCreate_ = false;

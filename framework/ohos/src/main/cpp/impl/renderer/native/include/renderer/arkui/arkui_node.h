@@ -143,6 +143,8 @@ public:
   virtual ArkUI_NodeHandle GetChildAt(int32_t postion) const;
   void RegisterClickEvent();
   void UnregisterClickEvent();
+  void RegisterOldClickEvent();
+  void UnregisterOldClickEvent();
   void RegisterLongClickEvent();
   void UnregisterLongClickEvent();
   void RegisterTouchEvent();
@@ -242,6 +244,7 @@ protected:
   
   ArkUINodeDelegate *arkUINodeDelegate_ = nullptr;
 
+  bool hasOldClickEvent_ = false;
   ArkUI_GestureRecognizer *tapGesture_ = nullptr;
   ArkUI_GestureRecognizer *longPressGesture_ = nullptr;
   bool hasTouchEvent_ = false;

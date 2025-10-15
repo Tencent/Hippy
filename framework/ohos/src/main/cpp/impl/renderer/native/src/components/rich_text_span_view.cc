@@ -81,7 +81,7 @@ bool RichTextSpanView::ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleV
 #endif
 }
 
-bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
+bool RichTextSpanView::SetViewProp(const std::string &propKey, const HippyValue &propValue) {
 #ifdef OHOS_DRAW_TEXT
   // 绘制文本时，SpanView重载了click的处理
   if (propKey == "click") {
@@ -93,6 +93,12 @@ bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue 
     return true;
   }
   // TODO(etk): touch等处理的重载，业务需要时可加
+#endif
+  return false;
+}
+
+bool RichTextSpanView::SetPropImpl(const std::string &propKey, const HippyValue &propValue) {
+#ifdef OHOS_DRAW_TEXT
   return false;
 #else
   if (propKey == "text") {
