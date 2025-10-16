@@ -93,7 +93,7 @@ endif ()
 
 if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
   if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
-    set(HERMES_REMOTE_FILENAME "hermes-0.12.30302-rn0.76-stable-20251016-android.tgz")
+    set(HERMES_REMOTE_FILENAME "hermes-runtime-android-v0.12.30302.3.tar.gz")
   else ()
     message(FATAL_ERROR "Unsupported system ${CMAKE_SYSTEM_NAME}")
   endif ()
@@ -101,42 +101,51 @@ if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8"
           REMOTE "global_packages/hermes/${HERMES_COMPONENT}/${HERMES_REMOTE_FILENAME}"
           LOCAL "${HERMES_COMPONENT}")
 
+  # Standard Hermes package structure
+  set(HERMES_INCLUDE_DIR "${hermes_SOURCE_DIR}/include")
+  set(HERMES_LIB_DIR "${hermes_SOURCE_DIR}/unstripped-debug/lib")
+  
   # Set Hermes include directories
-  if(EXISTS "${hermes_SOURCE_DIR}/include")
-    target_include_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/include")
-    message(STATUS "Added hermes include directory: ${hermes_SOURCE_DIR}/include")
+  if(EXISTS "${HERMES_INCLUDE_DIR}/hermes")
+    target_include_directories(${PROJECT_NAME} PUBLIC "${HERMES_INCLUDE_DIR}")
+    message(STATUS "Added hermes include directory: ${HERMES_INCLUDE_DIR}")
   else()
-    message(FATAL_ERROR "Hermes include directory not found: ${hermes_SOURCE_DIR}/include")
+    message(FATAL_ERROR "Hermes include directory not found: ${HERMES_INCLUDE_DIR}")
   endif()
   
-  # Set Hermes library directories and link libraries
-  if(ANDROID_ABI STREQUAL "arm64-v8a")
-    if(EXISTS "${hermes_SOURCE_DIR}/lib/arm64-v8a")
-      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/arm64-v8a")
-      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/arm64-v8a")
-    endif()
-  elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
-    if(EXISTS "${hermes_SOURCE_DIR}/lib/armeabi-v7a")
-      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/armeabi-v7a")
-      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/armeabi-v7a")
-    endif()
-  elseif(ANDROID_ABI STREQUAL "x86")
-    if(EXISTS "${hermes_SOURCE_DIR}/lib/x86")
-      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/x86")
-      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/x86")
-    endif()
-  elseif(ANDROID_ABI STREQUAL "x86_64")
-    if(EXISTS "${hermes_SOURCE_DIR}/lib/x86_64")
-      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/x86_64")
-      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/x86_64")
-    endif()
+  # Set Hermes library directory for current ABI
+  set(HERMES_ABI_LIB_DIR "${HERMES_LIB_DIR}/${ANDROID_ABI}")
+  
+  # Debug: Print the hermes configuration
+  message(STATUS "Hermes configuration:")
+  message(STATUS "  Source dir: ${hermes_SOURCE_DIR}")
+  message(STATUS "  Include dir: ${HERMES_INCLUDE_DIR}")
+  message(STATUS "  Library dir: ${HERMES_ABI_LIB_DIR}")
+  
+  # Check if ABI library directory exists
+  if(NOT EXISTS "${HERMES_ABI_LIB_DIR}")
+    message(FATAL_ERROR "Hermes library directory not found: ${HERMES_ABI_LIB_DIR}")
   endif()
   
-  # Debug: Print the hermes_SOURCE_DIR value
-  message(STATUS "hermes_SOURCE_DIR: ${hermes_SOURCE_DIR}")
-  message(STATUS "hermes include path: ${hermes_SOURCE_DIR}/include")
-
-  target_link_libraries(${PROJECT_NAME} PUBLIC hermes jsi)
+  # Link all Hermes libraries (using full paths for static linking effect)
+  set(HERMES_LIBRARIES
+    "${HERMES_ABI_LIB_DIR}/libhermes.so"
+    "${HERMES_ABI_LIB_DIR}/libjsi.so"
+    "${HERMES_ABI_LIB_DIR}/libfbjni.so"
+    "${HERMES_ABI_LIB_DIR}/libc++_shared.so"
+  )
+  
+  # Verify all libraries exist before linking
+  foreach(LIB ${HERMES_LIBRARIES})
+    if(NOT EXISTS "${LIB}")
+      message(FATAL_ERROR "Hermes library not found: ${LIB}")
+    endif()
+  endforeach()
+  
+  # Link all libraries at once
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${HERMES_LIBRARIES})
+  message(STATUS "Linked Hermes libraries: libhermes.so, libjsi.so, libfbjni.so, libc++_shared.so")
+  
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
   
   # Enable RTTI and exceptions for Hermes-related source files
