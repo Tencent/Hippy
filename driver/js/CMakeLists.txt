@@ -93,15 +93,61 @@ endif ()
 
 if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
   if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
-    set(HERMES_REMOTE_FILENAME "android.tgz")
+    set(HERMES_REMOTE_FILENAME "hermes-0.12.30302-rn0.76-stable-20251016-android.tgz")
   else ()
     message(FATAL_ERROR "Unsupported system ${CMAKE_SYSTEM_NAME}")
   endif ()
   InfraPackage_Add(Hermes
           REMOTE "global_packages/hermes/${HERMES_COMPONENT}/${HERMES_REMOTE_FILENAME}"
           LOCAL "${HERMES_COMPONENT}")
-  target_link_libraries(${PROJECT_NAME} PUBLIC hermes)
+
+  # Set Hermes include directories
+  if(EXISTS "${hermes_SOURCE_DIR}/include")
+    target_include_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/include")
+    message(STATUS "Added hermes include directory: ${hermes_SOURCE_DIR}/include")
+  else()
+    message(FATAL_ERROR "Hermes include directory not found: ${hermes_SOURCE_DIR}/include")
+  endif()
+  
+  # Set Hermes library directories and link libraries
+  if(ANDROID_ABI STREQUAL "arm64-v8a")
+    if(EXISTS "${hermes_SOURCE_DIR}/lib/arm64-v8a")
+      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/arm64-v8a")
+      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/arm64-v8a")
+    endif()
+  elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
+    if(EXISTS "${hermes_SOURCE_DIR}/lib/armeabi-v7a")
+      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/armeabi-v7a")
+      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/armeabi-v7a")
+    endif()
+  elseif(ANDROID_ABI STREQUAL "x86")
+    if(EXISTS "${hermes_SOURCE_DIR}/lib/x86")
+      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/x86")
+      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/x86")
+    endif()
+  elseif(ANDROID_ABI STREQUAL "x86_64")
+    if(EXISTS "${hermes_SOURCE_DIR}/lib/x86_64")
+      target_link_directories(${PROJECT_NAME} PUBLIC "${hermes_SOURCE_DIR}/lib/x86_64")
+      message(STATUS "Added hermes library directory: ${hermes_SOURCE_DIR}/lib/x86_64")
+    endif()
+  endif()
+  
+  # Debug: Print the hermes_SOURCE_DIR value
+  message(STATUS "hermes_SOURCE_DIR: ${hermes_SOURCE_DIR}")
+  message(STATUS "hermes include path: ${hermes_SOURCE_DIR}/include")
+
+  target_link_libraries(${PROJECT_NAME} PUBLIC hermes jsi)
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
+  
+  # Enable RTTI and exceptions for Hermes-related source files
+  set_source_files_properties(
+    src/napi/hermes/hermes_ctx.cc
+    src/napi/hermes/hermes_ctx_value.cc
+    src/napi/hermes/hermes_try_catch.cc
+    src/vm/hermes/hermes_vm.cc
+    src/js_driver_utils.cc
+    PROPERTIES COMPILE_FLAGS "-frtti -fexceptions"
+  )
 elseif ("${JS_ENGINE}" STREQUAL "JSH")
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSH")
 endif ()
