@@ -7,16 +7,6 @@ allprojects {
     }
 }
 
-// Load gradle properties for JS engine configuration
-Properties gradleProperties = new Properties()
-def propFile = new File("gradle.properties")
-if (propFile.exists()) {
-    gradleProperties.load(propFile.newDataInputStream())
-}
-
-def cppJsEngine = gradleProperties.getProperty('CPP_JS_ENGINE', 'V8')
-def cppHermesComponent = gradleProperties.getProperty('CPP_HERMES_COMPONENT', '')
-def cppEnableInspector = gradleProperties.getProperty('CPP_ENABLE_INSPECTOR', 'true')
 
 android {
     compileSdkVersion COMPILE_VERSION as int
@@ -29,44 +19,15 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-        
-        // Pass JS engine configuration to CMake
-        externalNativeBuild {
-            cmake {
-                arguments "-DJS_ENGINE=${cppJsEngine}"
-                if (cppHermesComponent) {
-                    arguments "-DHERMES_COMPONENT=${cppHermesComponent}"
-                }
-                arguments "-DENABLE_INSPECTOR=${cppEnableInspector}"
-            }
-        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            externalNativeBuild {
-                cmake {
-                    arguments "-DJS_ENGINE=${cppJsEngine}"
-                    if (cppHermesComponent) {
-                        arguments "-DHERMES_COMPONENT=${cppHermesComponent}"
-                    }
-                    arguments "-DENABLE_INSPECTOR=${cppEnableInspector}"
-                }
-            }
         }
         debug {
             minifyEnabled false
-            externalNativeBuild {
-                cmake {
-                    arguments "-DJS_ENGINE=${cppJsEngine}"
-                    if (cppHermesComponent) {
-                        arguments "-DHERMES_COMPONENT=${cppHermesComponent}"
-                    }
-                    arguments "-DENABLE_INSPECTOR=${cppEnableInspector}"
-                }
-            }
         }
     }
 
@@ -77,13 +38,6 @@ android {
 
     buildFeatures {
         buildConfig = false
-    }
-    
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.18.1"
-        }
     }
 }
 

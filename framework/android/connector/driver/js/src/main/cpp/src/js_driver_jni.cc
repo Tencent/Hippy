@@ -33,6 +33,7 @@
 #include "connector/js2java.h"
 #include "connector/turbo_module_manager.h"
 #include "driver/js_driver_utils.h"
+#include "driver/vm/js_vm.h"
 #include "footstone/check.h"
 #include "footstone/logging.h"
 #include "footstone/persistent_object_map.h"
@@ -79,7 +80,7 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              CreateJsDriver)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
-             "onCreate",
+             "onCreateWithEngine",
              "([BZZZLcom/openhippy/connector/NativeCallback;"
              "JILcom/openhippy/connector/JsDriver$V8InitParams;IIZZLjava/lang/String;)I",
              CreateJsDriverWithEngine)
@@ -444,14 +445,18 @@ jint CreateJsDriverWithEngine(JNIEnv* j_env,
   }
 
   // Determine engine type based on parameters
-  std::string vm_type = "v8";
+  std::string vm_type = hippy::VM::kJSEngineV8;
   if (j_use_hermes_engine || js_engine_type == "hermes") {
-    vm_type = "hermes";
+    vm_type = hippy::VM::kJSEngineHermes;
   }
 
-  std::shared_ptr<VMInitParam> param;
+  FOOTSTONE_LOG(INFO) << "CreateJsDriverWithEngine: vm_type = " << vm_type
+                      << ", j_use_hermes_engine = " << static_cast<uint32_t>(j_use_hermes_engine)
+                      << ", js_engine_type = " << js_engine_type;
+
+  std::shared_ptr<hippy::VM::VMInitParam> param;
 #ifdef JS_V8
-  if (vm_type == "v8") {
+  if (vm_type == hippy::VM::kJSEngineV8) {
     auto v8_param = std::make_shared<V8VMInitParam>();
     v8_param->enable_v8_serialization = static_cast<bool>(j_enable_v8_serialization);
     v8_param->is_debug = static_cast<bool>(j_is_dev_module);
@@ -473,7 +478,7 @@ jint CreateJsDriverWithEngine(JNIEnv* j_env,
   }
 #endif
 #ifdef JS_HERMES
-  if (vm_type == "hermes") {
+  if (vm_type == hippy::VM::kJSEngineHermes) {
     auto hermes_param = std::make_shared<HermesVMInitParam>();
     hermes_param->is_debug = static_cast<bool>(j_is_dev_module);
     hermes_param->group_id = static_cast<int64_t>(j_group_id);
@@ -486,6 +491,8 @@ jint CreateJsDriverWithEngine(JNIEnv* j_env,
     FOOTSTONE_LOG(ERROR) << "Unsupported engine type: " << vm_type;
     return -1;
   }
+
+  FOOTSTONE_LOG(INFO) << "CreateJsDriverWithEngine: param created successfully, vm_type = " << param->vm_type;
 
 #ifdef ENABLE_INSPECTOR
   if (param->is_debug) {

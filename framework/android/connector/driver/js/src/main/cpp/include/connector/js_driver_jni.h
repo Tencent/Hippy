@@ -43,6 +43,22 @@ jint CreateJsDriver(JNIEnv* j_env,
                     jint j_devtools_id,
                     jboolean j_is_reload);
 
+jint CreateJsDriverWithEngine(JNIEnv* j_env,
+                              jobject j_object,
+                              jbyteArray j_global_config,
+                              jboolean j_single_thread_mode,
+                              jboolean j_enable_v8_serialization,
+                              jboolean j_is_dev_module,
+                              jobject j_callback,
+                              jlong j_group_id,
+                              jint j_dom_manager_id,
+                              jobject j_vm_init_param,
+                              jint j_vfs_id,
+                              jint j_devtools_id,
+                              jboolean j_is_reload,
+                              jboolean j_use_hermes_engine,
+                              jstring j_js_engine_type);
+
 void DestroyJsDriver(JNIEnv* j_env,
                      jobject j_object,
                      jint j_runtime_id,

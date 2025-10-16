@@ -101,7 +101,7 @@ public class JsDriver implements Connector {
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, int domManagerId, V8InitParams v8InitParams, int vfsId, int devtoolsId, 
             boolean isReload, boolean useHermesEngine, String jsEngineType) {
-        mInstanceId = onCreate(globalConfig, useLowMemoryMode, enableV8Serialization,
+        mInstanceId = onCreateWithEngine(globalConfig, useLowMemoryMode, enableV8Serialization,
                 isDevModule, callback, groupId, domManagerId, v8InitParams, vfsId, devtoolsId, 
                 isReload, useHermesEngine, jsEngineType);
     }
@@ -158,7 +158,7 @@ public class JsDriver implements Connector {
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, int domManagerId, V8InitParams v8InitParams, int vfs_id, int devtoolsId, boolean isReload);
 
-    private native int onCreate(byte[] globalConfig, boolean useLowMemoryMode,
+    private native int onCreateWithEngine(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, int domManagerId, V8InitParams v8InitParams, int vfs_id, int devtoolsId, 
             boolean isReload, boolean useHermesEngine, String jsEngineType);

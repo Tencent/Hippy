@@ -34,26 +34,14 @@ import com.tencent.mtt.hippy.common.HippyMap
 import com.tencent.mtt.hippy.utils.LogUtils
 import com.tencent.mtt.hippy.utils.UIThreadUtils
 
-class HippyEngineWrapper//TODO: Coming soon
-    (
-    dm: PageConfiguration.DriverMode,
-    rm: PageConfiguration.RenderMode,
-    isDebug: Boolean,
-    useNodeSnapshot: Boolean,
-    debugServerHost: String,
-    context: Context
-) {
-    this(dm, rm, isDebug, useNodeSnapshot, debugServerHost, context, PageConfiguration.JSEngineType.V8)
-}
-
-constructor(
+class HippyEngineWrapper (
     dm: PageConfiguration.DriverMode,
     rm: PageConfiguration.RenderMode,
     isDebug: Boolean,
     useNodeSnapshot: Boolean,
     debugServerHost: String,
     context: Context,
-    jsEngineType: PageConfiguration.JSEngineType
+    jsEngineType: PageConfiguration.JSEngineType = PageConfiguration.JSEngineType.V8
 ) {
 
     var hippyEngine: HippyEngine
