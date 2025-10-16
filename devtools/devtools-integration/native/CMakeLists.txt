@@ -35,7 +35,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 
 # region vm
-if ("${JS_ENGINE}" STREQUAL "V8")
+if ("${JS_ENGINE}" STREQUAL "V8" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
     if (NOT TARGET v8)
         message(FATAL_ERROR "The V8 target not found, peer dependency not satisfied")
     endif()
@@ -45,9 +45,11 @@ if ("${JS_ENGINE}" STREQUAL "V8")
     if (V8_WITHOUT_INSPECTOR)
         target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
     endif ()
-elseif ("${JS_ENGINE}" STREQUAL "JSC")
+endif ()
+
+if ("${JS_ENGINE}" STREQUAL "JSC")
     target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
-elseif ("${JS_ENGINE}" STREQUAL "HERMES")
+elseif ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
     target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_HERMES")
 endif ()
 # endregion
