@@ -59,7 +59,7 @@
 
 4.  **使用示例**
     *   **Prompt**:
-        > 请根据我提供的 Figma 设计链接，使用 Dev Mode + MCP 协议生成高质量的 Hippy 代码。确保生成的代码结构清晰、还原度高，语义化良好，适配当前项目的组件体系，确保编译通过:
+        > 请根据我提供的 Figma 设计链接，使用 Dev Mode + MCP 协议生成高质量的 Hippy React 代码。确保生成的代码结构清晰、还原度高，语义化良好，适配当前项目的组件体系，确保编译通过:
         > @https://www.figma.com/design/CMXiU5b0y7DWLF6oVpjyqm/Figma-Basics?node-id=0-495&t=7dr4gc6Ig2o3UwRg-4
         > 代码生成目录是 driver/js/examples/hippy-react-demo/src/components/figma-mcp/
         > 可以参考 driver/js/examples/hippy-react-demo/src/components/ 下的其他页面代码

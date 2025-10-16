@@ -1,102 +1,132 @@
 # Hippy AI 编程指引
 
-## 前言
+## 概述
 
-Hippy 团队目前能提供给 AI 的是 iwiki 文档、Hippy源码、Hippy源码生成的知识库。
+本文档为 Hippy 开发者提供 AI 编程工具的使用指南，包含多种 AI 工具的配置方法和最佳实践。
 
-1.  **团队文档**:
-    *   团队早期写了比较多的文档，也把历史 Oncall 单都转化成 iwiki 文档，但是效果一般：
-        *   文档很难覆盖全面，框架逻辑细节、平台差异性、兼容性等涉及范围太广。
-        *   有些问题类型文档是无法解答的，比如分析代码问题原因。
+### 适用场景
 
-2.  **源码 RAG 方案**:
-    *   后面调研了源码 RAG 方案，比如 deepwiki、工蜂 wiki 等。
-
-    [deepwiki评测](https://doc.weixin.qq.com/sheet/e3_ANsAsgZ1ACcCNxwVgy2g4Q3qHbB7S?scode=AJEAIQdfAAoNwvFu2gANsAsgZ1ACc&newPad=1&newPadType=clone&tab=zkgs2j)
-
-    [deepwiki的Hippy项目](https://deepwiki.com/Tencent/Hippy)
-
-3.  **组合方案**:
-    *   在提供了 deepwiki 基础上，文档知识库也能在确定答案情况下快速返回结果，需要组合两个内容。
-    *   基于 Knot 平台的方案（示例）：
-    <img src="ai/img/knot.png" alt="基于 Knot 平台的方案"/>
-
-## 总结
-
-deepwiki + 文档知识库的组合方案，比纯文档知识库要好不少，但比 Cursor codebase 效果差点。目前还是建议大家写代码时，直接把 Hippy 源码引入到 IDE 的 workspace。
+- **代码开发**: 使用 AI 辅助 Hippy 项目开发
+- **问题排查**: 通过 AI 分析代码问题和异常
+- **文档查询**: 快速获取 Hippy 框架相关信息
+- **UI 还原**: 基于设计稿生成 Hippy 代码
 
 下面分几个场景介绍 Hippy AI 使用指引：
+
+### 可用资源
+
+Hippy 团队为 AI 提供以下知识来源：
+
+| 资源类型 | 内容 | 访问方式 | 适用场景 |
+|----------|------|----------|----------|
+| **团队文档** | iwiki文档、Oncall单 | IDE：CodeBuddy导入知识库 | 快速问题解答 |
+| **框架源码** | Hippy 框架源码 | IDE：Cursor/CodeBuddy <br/>源码索引、Deepwiki MCP | 深度代码分析 |
+| **组合方案** | 文档 + 源码 RAG | 网页：Knot智能体<br/>IDE：源码索引、Hippy MCP | 综合问题解决 |
+
+### 效果对比
+
+- **纯文档方案**: 可以解决 Hippy 团队记录过的问题，但覆盖面有限，比如无法分析具体代码问题
+- **Deepwiki方案**: 效果不错，代码分析能力强，效果接近 Cursor 源码索引效果
+- **组合方案**: 结合了知识库和源码索引，适合大部分问题的解答
+
+> 💡 **最佳实践**: <br>
+> IDE 场景：将 Hippy 源码工程添加到 IDE 工作区，并配置 Hippy MCP。<br>
+> 网页场景：通过 Knot 智能体访问，可以快速解答大部分场景的问题。
 
 ---
 
 ## 一、Cursor
 
-1.  **建议源码引入 Hippy codebase**
-    *   在业务项目中添加 workspace。 Hippy 团队通过实际测试发现，引入 Hippy codebase，让 Cursor 去建立源码的索引，能比较好的对很多 Hippy 的问题解答，也能极大的提交日常开发的效率。
+1.  **引入Hippy源码工程到工作区(推荐必须)**
+    *   Hippy 团队通过实际测试发现，引入 Hippy 源码工程到工作区，Cursor 去建立源码的索引，能对问题有很好的解答，能极大的提交日常开发的效率。
+    
+    ![codebase](./img/codebase.png)
 
-    <img src="ai/img/codebase.png" alt="codebase" width="80%"/>
+2.  **配置项目的 `rules` 文件(推荐必须)**
+    *   配置 cursor `rules` 文件，在很多场景都能提交开发效率。可以参考 Hippy 团队的官方 Rule，并补充自己项目的规则信息。
+    *   Hippy 官方 rules 中包含了 Hippy 源码结构、常用组件 API 使用、AI 调试技巧、React/Vue DSL 区别等等，各团队可以根据自己情况补充。
+    *   业务也可以添加自己的 rules，补充目录结构，以及可以参考的代码文件目录、常见问题等。
 
-2.  **添加 deepwiki mcp**
-    ```json
-    "mcpServers": {
-        "deepwiki-sse": {
-             "url": "https://mcp.deepwiki.com/sse"
-        },
-        "deepwiki-mcp": {
-             "url": "https://mcp.deepwiki.com/mcp"
-        }
-      }
-    ```
-    *   强烈建议添加 deepwiki mcp，deepwiki 是把代码信息转换为知识库的方案。Hippy 作为一个开源框架，大量的信息都在代码中。
+3.  **常用 MCP（按需配置）**
 
-3.  **Hippy MCP**
-    *   会集成 Hippy 的知识库信息, 后续提供一些生成代码的能力等。
-    ```json
-       "hippy-mcp": {
+（1）Hippy MCP
+    会集成 Hippy 的知识库信息（iwiki）和 Hippy 框架源码信息（Deepwiki）, 会根据回答的问题类型来给出针对性的解答。建议涉及到 Hippy 框架相关的问题，都可以配置。
+    
+```json
+    "hippy-mcp": {
+          "timeout": 60,
           "url": "https://hippy.woa.com/mcp",
           "headers": {
             "X-Rtx-Username": "<自己的企业微信名>"
           }
-        }
-    ```
+    }
+```
 
-4.  **Prompt 技巧**
-    *   问题尽量描述清晰，推荐可以带上问题代码，让 Cursor 协助排查。
-    *   问题尽量区分用的 React DSL 还是 Vue2/Vue3 DSL。
-    *   涉及代码原理的问题，可以带上 “请使用 deepwiki 的 ask_question”，强制触发 deepwiki。
-    *   编写代码的问题，可以设置参考 xxx 代码，会提高成功率。
+（2）Deepwiki MCP
+    deepwiki 会提供针对 Hippy 框架源码的解答，如果项目工作区没有引入 Hippy 源码，建议添加 Deepwiki mcp。
+    
+```json
+    "mcpServers": {
+        "deepwiki-mcp": {
+            "timeout": 60,
+            "url": "https://mcp.deepwiki.com/mcp"
+        }
+    }
+```
 
 ---
 
 ## 二、CodeBuddy
 
-CodeBuddy 内网版可以单独添加 官方 Hippy 知识库：
+CodeBuddy 内网版可以单独添加官方 Hippy 知识库，其他大部分配置同Cursor，可以参考上文配置：
 
-1.  **询问问题时，通过 @ 可以添加「官方 Hippy 知识库」**
+1.  **询问问题时，通过 @ 可以添加「官方 Hippy 知识库」（推荐必须）**
     *   CodeBuddy 已经内置集成 Knot 的知识库，大家在询问问题时，可以添加 Hippy 知识库。
+     ![codebuddywiki](./img/codebuddy_wiki.png)
+     
+2.  **引入Hippy源码工程到工作区(推荐必须)**
+     *   配置同上文 Cursor 配置
 
-    <img src="ai/img/codebuddy_wiki.png" alt="codebuddywiki" width="80%"/>
+3.  **配置项目的 `rules` 文件(推荐必须)**
+     *   配置同上文 Cursor 配置
 
-2. **Hippy MCP**
-    ```json
-       "hippy-mcp": {
-            "timeout": 60,
-            "type": "streamableHttp",
-            "url": "https://hippy.woa.com/mcp",
-            "headers": {
-                "X-Rtx-Username": "<自己的企业微信名>"
-            }
-        }
-    ```
+4.  **常用 MCP（按需配置）**
+
+（1）Hippy MCP
+    会集成 Hippy 的知识库信息（iwiki）和Hippy框架源码信息（Deepwiki）, 会根据回答的问题类型来给出针对性的解答，建议涉及到Hippy框架相关的问题，都可以配置。
+
+```json
+"hippy-mcp": {
+    "timeout": 60,
+    "type": "streamableHttp",
+    "url": "https://hippy.woa.com/mcp",
+    "headers": {
+        "X-Rtx-Username": "<自己的企业微信名>"
+    }
+}
+```
+
+（2）Deepwiki MCP
+    deepwiki 会提供针对hippy框架源码的解答，如果项目工作区没有引入Hippy源码，建议添加 Deepwiki mcp。
+
+```json
+"mcpServers": {
+    "deepwiki-mcp": {
+        "timeout": 60,
+        "type": "streamableHttp",
+        "url": "https://mcp.deepwiki.com/mcp"
+    }
+}
+```
+
 ---
 
 ## 三、网页/企微入口
 
-
 1.  **Knot 智能体**
 
     ![knot_agent](./img/knot_agent.png)
-
+    
     [Knot 智能体](https://knot.woa.com/chat?web_key=8292b4273a9549d8bbefa5ddb699cdca)
 
     **使用提示**
@@ -104,35 +134,68 @@ CodeBuddy 内网版可以单独添加 官方 Hippy 知识库：
     *   Hippy AI 助手的知识包含：iwiki 文档、Hippy 源码及开发文档、deepwiki。
     *   Hippy AI 助手弹窗可以放大，方便查看。
 
-   **Prompt技巧：**
-    *   问题尽量描述清晰，明确想了解的平台、组件、属性，也可以带上问题代码，。
-    *   问题尽量区分用的 React DSL 还是 Vue2/Vue3 DSL。
-
-
 2.  **企微机器人**
     *   建设中
 
 ---
 
-## 四、单独知识库集成
+## 四、Prompt 技巧
 
-   知识库集成了 Hippy 团队积累的文档，和历史 Oncall 数据，大家可以通过 Hippy 文档、Knot 智能体直接使用，或者集成到自己的系统中。
+### 1. 问题排查类
 
-1.  **Knot 知识库**
-    *   [Knot 知识库](https://knot.woa.com/knowledge/detail/7dd3b112147846c298b88ee102132de0)
+**核心要点**：问题尽量描述清晰，明确想了解的平台、组件、属性，推荐可以带上问题代码
 
-2.  **iWiki 知识库**
-    * [Hippy官方知识库](https://iwiki.woa.com/p/4013486752)
-    * [Hippy历史Oncall数据](https://iwiki.woa.com/p/4015817597)
+> **最佳实践示例：**
+> ```jsx
+> import { View, Text } from '@hippy/react';
+> 
+> function MyComponent() {
+>   return (
+>     <View style={{ height: 100 }}>
+>       <Text style={{ fontSize: 16 }}>Hello Hippy</Text>
+>     </View>
+>   );
+> }
+> 
+> 我在 Android 平台使用 Hippy React 的 Text 组件，设置了 fontSize 属性为 16，
+> 但显示效果不符合预期，文字显示过小。请帮忙分析可能的原因。
+> ```
 
-## 五、其他好用的工具
+### 2. DSL 类型区分
 
-### (一) Figma MCP
+**核心要点**：问题详情中区分使用的 React DSL 还是 Vue2/Vue3 DSL
 
-[Figma MCP接入指引](ai/figma-mcp.md)
+> **Hippy React 示例：**
+> Hippy React 中 Text 组件支持长按文本选中吗？
 
-## 六、后续规划
+> **Hippy Vue 示例：**
+> 使用 Hippy Vue3 开发，如何实现一个自定义的组件？
+
+### 3. MCP 触发优化
+
+**核心要点**：在 Prompt 中带上相关 MCP 提示，提高对应 MCP 触发概率
+
+> **Hippy 框架问题：**
+> 涉及到 Hippy 的提问，无论是对 Hippy 框架还是业务上的诉求，建议触发 Hippy MCP，请使用 @hippy-mcp 触发。
+
+> **框架源码问题：**
+> 涉及到 Hippy 框架源码细节的问题，如果本地没有引入 Hippy 源码到工作区，建议触发 DeepWiki MCP，使用 @deepwiki-mcp 触发。
+
+> **UI 还原问题：**
+> 涉及到 Figma 设计图还原的，建议触发 Figma MCP，请使用 @figma-mcp 触发（一般情况下，只要带上了 Figma 的设计链接，都会触发 Figma MCP）
+
+### 4. 代码引用技巧
+
+**核心要点**：编写代码的问题，可以设置参考 xxx 代码，会提高成功率
+
+> **页面生成示例：**
+> 帮我根据 figma 链接（xxx）实现一个 Hippy React 页面，图片组件请使用 driver/js/examples/hippy-react-demo/src/components/CustomImageView 这个自定义组件。页面实现可以参考已实现的 Hippy React 页面，比如 driver/js/examples/hippy-react-demo/src/components/ListView 下的页面代码。
+
+> **问题排查示例：**
+> 帮我排查一个问题，问题可能和项目中一些代码有关，可以参考项目中 driver/js/examples/hippy-react-demo/src/components/ListView 这个页面的代码来排查。
+
+---
+
+## 五、后续规划
 
 Hippy 团队后续会补充更多 AI 编程实践的案例和工具, 欢迎大家提交建议或者贡献。
-
-
