@@ -43,6 +43,18 @@ class HippyEngineWrapper//TODO: Coming soon
     debugServerHost: String,
     context: Context
 ) {
+    this(dm, rm, isDebug, useNodeSnapshot, debugServerHost, context, PageConfiguration.JSEngineType.V8)
+}
+
+constructor(
+    dm: PageConfiguration.DriverMode,
+    rm: PageConfiguration.RenderMode,
+    isDebug: Boolean,
+    useNodeSnapshot: Boolean,
+    debugServerHost: String,
+    context: Context,
+    jsEngineType: PageConfiguration.JSEngineType
+) {
 
     var hippyEngine: HippyEngine
     var hippyRootView: ViewGroup? = null
@@ -54,6 +66,7 @@ class HippyEngineWrapper//TODO: Coming soon
     var isSnapshotMode: Boolean = useNodeSnapshot
     val driverMode: PageConfiguration.DriverMode = dm
     val renderMode: PageConfiguration.RenderMode = rm
+    val jsEngineType: PageConfiguration.JSEngineType = jsEngineType
     val engineId: Int
 
     companion object {
@@ -83,6 +96,9 @@ class HippyEngineWrapper//TODO: Coming soon
             }
         }
         initParams.codeCacheTag = "common"
+        // Configure JS engine type
+        initParams.useHermesEngine = (jsEngineType == PageConfiguration.JSEngineType.HERMES)
+        initParams.jsEngineType = if (jsEngineType == PageConfiguration.JSEngineType.HERMES) "hermes" else "v8"
         initParams.exceptionHandler = object : HippyExceptionHandlerAdapter {
             override fun handleJsException(e: HippyJsException) {
                 LogUtils.e("hippy", e.message)

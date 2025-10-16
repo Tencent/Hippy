@@ -115,6 +115,16 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             int bridgeType, boolean enableV8Serialization, boolean isDevModule,
             String debugServerHost, int groupId, HippyThirdPartyAdapter thirdPartyAdapter,
             V8InitParams v8InitParams, @NonNull JsDriver jsDriver, long initStartTime) {
+        this(context, coreBundleLoader, bridgeType, enableV8Serialization, isDevModule,
+                debugServerHost, groupId, thirdPartyAdapter, v8InitParams, jsDriver, initStartTime,
+                false, "v8");
+    }
+
+    public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
+            int bridgeType, boolean enableV8Serialization, boolean isDevModule,
+            String debugServerHost, int groupId, HippyThirdPartyAdapter thirdPartyAdapter,
+            V8InitParams v8InitParams, @NonNull JsDriver jsDriver, long initStartTime,
+            boolean useHermesEngine, String jsEngineType) {
         mContext = context;
         mCoreBundleLoader = coreBundleLoader;
         mGroupId = groupId;
@@ -122,7 +132,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         mThirdPartyAdapter = thirdPartyAdapter;
         mEnableV8Serialization = enableV8Serialization;
         mHippyBridge = new HippyBridgeImpl(context, this, bridgeType == BRIDGE_TYPE_SINGLE_THREAD,
-                enableV8Serialization, isDevModule, debugServerHost, v8InitParams, jsDriver);
+                enableV8Serialization, isDevModule, debugServerHost, v8InitParams, jsDriver, 
+                useHermesEngine, jsEngineType);
         if (enableV8Serialization) {
             compatibleSerializer = new Serializer();
             recommendSerializer = new com.tencent.mtt.hippy.serialization.recommend.Serializer();

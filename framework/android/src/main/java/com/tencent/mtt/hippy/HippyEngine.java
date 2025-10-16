@@ -320,6 +320,10 @@ public abstract class HippyEngine {
         public HippyLogAdapter logAdapter;
         public V8InitParams v8InitParams;
         public boolean enableTurbo;
+        // 可选参数 是否使用Hermes引擎，默认为false使用V8
+        public boolean useHermesEngine = false;
+        // 可选参数 指定JS引擎类型："v8" 或 "hermes"，默认为"v8"
+        public String jsEngineType = "v8";
 
         protected void check() {
             if (context == null) {

@@ -43,6 +43,10 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         NATIVE, TDF_CORE, FLUTTER
     }
 
+    enum class JSEngineType {
+        V8, HERMES
+    }
+
     companion object {
         var currentEngineId: Int = -1
     }
@@ -61,6 +65,7 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
     private var dialog: Dialog? = null
     private var driverMode: DriverMode = DriverMode.JS_REACT
     private var renderMode: RenderMode = RenderMode.NATIVE
+    private var jsEngineType: JSEngineType = JSEngineType.V8
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -167,6 +172,15 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         rendererSettingButton.setOnClickListener {
             onRendererSettingClick()
         }
+        
+        // Add JS Engine setting button
+        val jsEngineSettingButton = pageConfigurationRoot.findViewById<View>(R.id.page_configuration_js_engine_setting)
+        val jsEngineSettingText = pageConfigurationRoot.findViewById<TextView>(R.id.page_configuration_js_engine_setting_title)
+        jsEngineSettingButton?.setOnClickListener {
+            onJSEngineSettingClick()
+        }
+        // Update JS engine setting text
+        updateJSEngineSettingText(jsEngineSettingText)
         val debugButton =
             pageConfigurationRoot.findViewById<View>(R.id.page_configuration_debug_setting_image)
         val debugServerHostParent =
@@ -216,7 +230,8 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
                 debugMode,
                 snapshotMode,
                 debugServerHost,
-                applicationContext
+                applicationContext,
+                jsEngineType
             )
             hippyEngineWrapper?.let {
                 currentEngineId = it.engineId
@@ -270,6 +285,29 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
         dialog?.show()
     }
 
+    private fun onJSEngineSettingClick() {
+        dialog = Dialog(this, R.style.PageConfigurationDialogStyle)
+        val jsEngineSetting = layoutInflater.inflate(R.layout.js_engine_setting, null)
+        val jsEngineV8 = jsEngineSetting.findViewById<View>(R.id.page_configuration_js_engine_v8)
+        val jsEngineHermes = jsEngineSetting.findViewById<View>(R.id.page_configuration_js_engine_hermes)
+        jsEngineV8.setOnClickListener(this)
+        jsEngineHermes.setOnClickListener(this)
+        dialog?.setContentView(jsEngineSetting)
+        val dialogWindow = dialog?.window
+        dialogWindow?.setGravity(Gravity.BOTTOM)
+        val lp = dialogWindow?.attributes
+        lp?.width = (getScreenWidth(applicationContext) * 0.95).toInt()
+        dialogWindow?.attributes = lp
+        dialog?.show()
+    }
+
+    private fun updateJSEngineSettingText(textView: TextView?) {
+        textView?.text = when (jsEngineType) {
+            JSEngineType.V8 -> "V8"
+            JSEngineType.HERMES -> "Hermes"
+        }
+    }
+
     private fun onDriverSettingClick() {
         dialog = Dialog(this, R.style.PageConfigurationDialogStyle)
         val driverSetting = layoutInflater.inflate(R.layout.driver_setting, null)
@@ -310,6 +348,16 @@ class PageConfiguration : AppCompatActivity(), View.OnClickListener {
             R.id.page_configuration_renderer_native -> {
                 renderMode = RenderMode.NATIVE
                 (rendererSettingText as TextView).text = resources.getText(R.string.renderer_native)
+                dialog?.dismiss()
+            }
+            R.id.page_configuration_js_engine_v8 -> {
+                jsEngineType = JSEngineType.V8
+                updateJSEngineSettingText(pageConfigurationRoot.findViewById(R.id.page_configuration_js_engine_setting_title))
+                dialog?.dismiss()
+            }
+            R.id.page_configuration_js_engine_hermes -> {
+                jsEngineType = JSEngineType.HERMES
+                updateJSEngineSettingText(pageConfigurationRoot.findViewById(R.id.page_configuration_js_engine_setting_title))
                 dialog?.dismiss()
             }
             R.id.page_configuration_renderer_tdf_core,

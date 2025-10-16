@@ -79,6 +79,12 @@ REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              CreateJsDriver)
 
 REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
+             "onCreate",
+             "([BZZZLcom/openhippy/connector/NativeCallback;"
+             "JILcom/openhippy/connector/JsDriver$V8InitParams;IIZZLjava/lang/String;)I",
+             CreateJsDriverWithEngine)
+
+REGISTER_JNI("com/openhippy/connector/JsDriver", // NOLINT(cert-err58-cpp)
              "onDestroy",
              "(IZZLcom/openhippy/connector/NativeCallback;)V",
              DestroyJsDriver)
@@ -340,6 +346,147 @@ jint CreateJsDriver(JNIEnv* j_env,
 #else
   auto param = std::make_shared<HermesVMInitParam>();
 #endif
+#ifdef ENABLE_INSPECTOR
+  if (param->is_debug) {
+    auto devtools_data_source = devtools::DevtoolsDataSource::Find(
+        footstone::checked_numeric_cast<jlong, uint32_t>(j_devtools_id));
+    param->devtools_data_source = devtools_data_source;
+  }
+#endif
+  auto call_host_callback = [](CallbackInfo& info, void* data) {
+    hippy::bridge::CallHost(info);
+  };
+  param->uncaught_exception_callback = ([](const std::any& bridge, const string_view& description, const string_view& stack) {
+    ExceptionHandler::ReportJsException(bridge, description, stack);
+  });
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
+  std::any dom_manager;
+  auto flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
+  FOOTSTONE_CHECK(flag);
+  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+  auto dom_task_runner = dom_manager_object->GetTaskRunner();
+  auto bridge = std::make_shared<Bridge>(j_env, j_object);
+  auto scope_id = hippy::global_data_holder_key.fetch_add(1);
+  scope_initialized_map.insert({scope_id, false});
+  scope_cv_map.insert({scope_id, std::make_unique<std::condition_variable>()});
+
+  auto scope_initialized_callback = [perf_start_time,
+      scope_id, java_callback, bridge, &holder = hippy::global_data_holder](std::shared_ptr<Scope> scope) {
+    scope->SetBridge(bridge);
+    holder.Insert(scope_id, scope);
+
+    // perfromance end time
+    auto entry = scope->GetPerformance()->PerformanceNavigation("hippyInit");
+    entry->SetHippyJsEngineInitStart(perf_start_time);
+    entry->SetHippyJsEngineInitEnd(footstone::TimePoint::SystemNow());
+
+    FOOTSTONE_LOG(INFO) << "run scope cb";
+    hippy::bridge::CallJavaMethod(java_callback->GetObj(), INIT_CB_STATE::SUCCESS);
+    {
+      std::unique_lock<std::mutex> lock(scope_mutex);
+      scope_initialized_map[scope_id] = true;
+      scope_cv_map[scope_id]->notify_all();
+    }
+  };
+  auto engine = JsDriverUtils::CreateEngineAndAsyncInitialize(
+      dom_task_runner, param, static_cast<int64_t>(j_group_id), static_cast<bool>(j_is_reload));
+  {
+    std::lock_guard<std::mutex> lock(holder_mutex);
+    engine_holder[engine.get()] = engine;
+  }
+  JsDriverUtils::InitInstance(
+      engine,
+      param,
+      global_config,
+      scope_initialized_callback,
+      call_host_callback);
+  return footstone::checked_numeric_cast<uint32_t, jint>(scope_id);
+}
+
+jint CreateJsDriverWithEngine(JNIEnv* j_env,
+                             jobject j_object,
+                             jbyteArray j_global_config,
+                             jboolean j_single_thread_mode,
+                             jboolean j_enable_v8_serialization,
+                             jboolean j_is_dev_module,
+                             jobject j_callback,
+                             jlong j_group_id,
+                             jint j_dom_manager_id,
+                             jobject j_vm_init_param,
+                             jint j_vfs_id,
+                             jint j_devtools_id,
+                             jboolean j_is_reload,
+                             jboolean j_use_hermes_engine,
+                             jstring j_js_engine_type) {
+  FOOTSTONE_LOG(INFO) << "CreateJsDriverWithEngine begin, j_single_thread_mode = "
+                      << static_cast<uint32_t>(j_single_thread_mode)
+                      << ", j_enable_v8_serialization = "
+                      << static_cast<uint32_t>(j_enable_v8_serialization)
+                      << ", j_is_dev_module = "
+                      << static_cast<uint32_t>(j_is_dev_module)
+                      << ", j_group_id = " << j_group_id
+                      << ", j_use_hermes_engine = " << static_cast<uint32_t>(j_use_hermes_engine);
+
+  // perfromance start time
+  auto perf_start_time = footstone::TimePoint::SystemNow();
+
+  auto global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
+  auto java_callback = std::make_shared<JavaRef>(j_env, j_callback);
+
+  // Convert jstring to std::string
+  std::string js_engine_type = "v8";
+  if (j_js_engine_type) {
+    const char* engine_type_cstr = j_env->GetStringUTFChars(j_js_engine_type, nullptr);
+    if (engine_type_cstr) {
+      js_engine_type = std::string(engine_type_cstr);
+      j_env->ReleaseStringUTFChars(j_js_engine_type, engine_type_cstr);
+    }
+  }
+
+  // Determine engine type based on parameters
+  std::string vm_type = "v8";
+  if (j_use_hermes_engine || js_engine_type == "hermes") {
+    vm_type = "hermes";
+  }
+
+  std::shared_ptr<VMInitParam> param;
+#ifdef JS_V8
+  if (vm_type == "v8") {
+    auto v8_param = std::make_shared<V8VMInitParam>();
+    v8_param->enable_v8_serialization = static_cast<bool>(j_enable_v8_serialization);
+    v8_param->is_debug = static_cast<bool>(j_is_dev_module);
+    v8_param->group_id = static_cast<int64_t>(j_group_id);
+    v8_param->vm_type = vm_type;
+    if (j_vm_init_param) {
+      jclass cls = j_env->GetObjectClass(j_vm_init_param);
+      jfieldID init_field = j_env->GetFieldID(cls, "initialHeapSize", "J");
+      jlong initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
+      v8_param->initial_heap_size_in_bytes = footstone::check::checked_numeric_cast<jlong, size_t>(
+          initial_heap_size_in_bytes);
+      jfieldID max_field = j_env->GetFieldID(cls, "maximumHeapSize", "J");
+      jlong maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
+      v8_param->maximum_heap_size_in_bytes = footstone::check::checked_numeric_cast<jlong, size_t>(
+          maximum_heap_size_in_bytes);
+      FOOTSTONE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
+    }
+    param = v8_param;
+  }
+#endif
+#ifdef JS_HERMES
+  if (vm_type == "hermes") {
+    auto hermes_param = std::make_shared<HermesVMInitParam>();
+    hermes_param->is_debug = static_cast<bool>(j_is_dev_module);
+    hermes_param->group_id = static_cast<int64_t>(j_group_id);
+    hermes_param->vm_type = vm_type;
+    param = hermes_param;
+  }
+#endif
+
+  if (!param) {
+    FOOTSTONE_LOG(ERROR) << "Unsupported engine type: " << vm_type;
+    return -1;
+  }
+
 #ifdef ENABLE_INSPECTOR
   if (param->is_debug) {
     auto devtools_data_source = devtools::DevtoolsDataSource::Find(

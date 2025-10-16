@@ -33,13 +33,34 @@ class HippyEngineHelper {
             debugServerHost: String,
             context: Context
         ): HippyEngineWrapper {
+            return createHippyEngine(
+                driverType,
+                rendererType,
+                isDebugMode,
+                isSnapshotMode,
+                debugServerHost,
+                context,
+                PageConfiguration.JSEngineType.V8
+            )
+        }
+
+        fun createHippyEngine(
+            driverType: PageConfiguration.DriverMode,
+            rendererType: PageConfiguration.RenderMode,
+            isDebugMode: Boolean,
+            isSnapshotMode: Boolean,
+            debugServerHost: String,
+            context: Context,
+            jsEngineType: PageConfiguration.JSEngineType
+        ): HippyEngineWrapper {
             val hippyEngineWrapper = HippyEngineWrapper(
                 driverType,
                 rendererType,
                 isDebugMode,
                 isSnapshotMode,
                 debugServerHost,
-                context
+                context,
+                jsEngineType
             )
             hippyEngineList.add(hippyEngineWrapper)
             return hippyEngineWrapper

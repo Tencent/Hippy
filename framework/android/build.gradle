@@ -26,6 +26,16 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.kezong.fat-aar'
 apply from: './publish.gradle'
 
+// Load gradle properties for JS engine configuration
+Properties gradleProperties = new Properties()
+def propFile = new File("gradle.properties")
+if (propFile.exists()) {
+    gradleProperties.load(propFile.newDataInputStream())
+}
+
+def cppJsEngine = gradleProperties.getProperty('CPP_JS_ENGINE', 'V8')
+def cppHermesComponent = gradleProperties.getProperty('CPP_HERMES_COMPONENT', '')
+
 def mergeCppDefinitions() {
     def cppProps = new Properties()
     getAllModules().each {

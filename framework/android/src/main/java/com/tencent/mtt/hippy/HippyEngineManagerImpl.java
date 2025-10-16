@@ -134,6 +134,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private final TimeMonitor mMonitor;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
+    private final boolean mUseHermesEngine;
+    private final String mJsEngineType;
     private HashMap<String, Object> mNativeParams;
     @Nullable
     private HashMap<Integer, Callback<Boolean>> mDestroyModuleListeners;
@@ -161,6 +163,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mGroupId = params.groupId;
         mThirdPartyAdapter = params.thirdPartyAdapter;
         v8InitParams = params.v8InitParams;
+        mUseHermesEngine = params.useHermesEngine;
+        mJsEngineType = params.jsEngineType;
         mMonitor = new TimeMonitor(getEngineId());
     }
 
@@ -893,7 +897,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mJsDriver = new JsDriver();
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
-                    mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver, mInitStartTime);
+                    mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver, mInitStartTime,
+                    mUseHermesEngine, mJsEngineType);
             mDomManager = (domManager != null) ? domManager : new DomManager(mGroupId);
             mRenderer = createRenderer(RenderConnector.NATIVE_RENDERER);
             mDomManager.attachToRenderer(mRenderer);

@@ -66,10 +66,20 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
     private final V8InitParams mV8InitParams;
     @NonNull
     private final JsDriver mJsDriver;
+    private final boolean mUseHermesEngine;
+    private final String mJsEngineType;
 
     public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
             boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
             String debugServerHost, V8InitParams v8InitParams, @NonNull JsDriver jsDriver) {
+        this(engineContext, callback, singleThreadMode, enableV8Serialization, isDevModule,
+                debugServerHost, v8InitParams, jsDriver, false, "v8");
+    }
+
+    public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
+            boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
+            String debugServerHost, V8InitParams v8InitParams, @NonNull JsDriver jsDriver,
+            boolean useHermesEngine, String jsEngineType) {
         mBridgeCallback = callback;
         mSingleThreadMode = singleThreadMode;
         mEnableV8Serialization = enableV8Serialization;
@@ -78,6 +88,8 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
         mContext = engineContext;
         mV8InitParams = v8InitParams;
         mJsDriver = jsDriver;
+        mUseHermesEngine = useHermesEngine;
+        mJsEngineType = jsEngineType;
         mJsDriver.setBridgeProxy(this);
         if (mCodeCacheRootDir == null) {
             Context context = mContext.getGlobalConfigs().getContext();
@@ -113,7 +125,9 @@ public class HippyBridgeImpl implements HippyBridge, JSBridgeProxy, DevRemoteDeb
                         mV8InitParams,
                         mContext.getVfsId(),
                         mContext.getDevtoolsId(),
-                        isReload
+                        isReload,
+                        mUseHermesEngine,
+                        mJsEngineType
                 );
                 mInit = true;
             } catch (Throwable e) {
