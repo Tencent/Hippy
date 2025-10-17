@@ -515,7 +515,7 @@ void Scope::RunJS(const string_view& data,
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
     entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-    
+
     auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
@@ -526,7 +526,7 @@ void Scope::RunJS(const string_view& data,
     // perfromance start time
     auto entry = self->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
     entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-            
+
     auto context = std::static_pointer_cast<hippy::napi::JSHCtx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);

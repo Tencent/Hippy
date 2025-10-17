@@ -43,6 +43,7 @@ class VM {
   static inline const std::string kJSEngineV8 = "V8";
   static inline const std::string kJSEngineJSC = "JSC";
   static inline const std::string kJSEngineHermes = "Hermes";
+  static inline const std::string kJSEngineJSH = "JSH";
     
   using string_view = footstone::string_view;
   using Ctx = hippy::napi::Ctx;

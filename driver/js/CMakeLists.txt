@@ -104,7 +104,7 @@ if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8"
   # Standard Hermes package structure
   set(HERMES_INCLUDE_DIR "${hermes_SOURCE_DIR}/include")
   set(HERMES_LIB_DIR "${hermes_SOURCE_DIR}/unstripped-debug/lib")
-  
+
   # Set Hermes include directories
   if(EXISTS "${HERMES_INCLUDE_DIR}/hermes")
     target_include_directories(${PROJECT_NAME} PUBLIC "${HERMES_INCLUDE_DIR}")
@@ -112,21 +112,21 @@ if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8"
   else()
     message(FATAL_ERROR "Hermes include directory not found: ${HERMES_INCLUDE_DIR}")
   endif()
-  
+
   # Set Hermes library directory for current ABI
   set(HERMES_ABI_LIB_DIR "${HERMES_LIB_DIR}/${ANDROID_ABI}")
-  
+
   # Debug: Print the hermes configuration
   message(STATUS "Hermes configuration:")
   message(STATUS "  Source dir: ${hermes_SOURCE_DIR}")
   message(STATUS "  Include dir: ${HERMES_INCLUDE_DIR}")
   message(STATUS "  Library dir: ${HERMES_ABI_LIB_DIR}")
-  
+
   # Check if ABI library directory exists
   if(NOT EXISTS "${HERMES_ABI_LIB_DIR}")
     message(FATAL_ERROR "Hermes library directory not found: ${HERMES_ABI_LIB_DIR}")
   endif()
-  
+
   # Link all Hermes libraries (using full paths for static linking effect)
   set(HERMES_LIBRARIES
     "${HERMES_ABI_LIB_DIR}/libhermes.so"
@@ -134,27 +134,28 @@ if ("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8"
     "${HERMES_ABI_LIB_DIR}/libfbjni.so"
     "${HERMES_ABI_LIB_DIR}/libc++_shared.so"
   )
-  
+
   # Verify all libraries exist before linking
   foreach(LIB ${HERMES_LIBRARIES})
     if(NOT EXISTS "${LIB}")
       message(FATAL_ERROR "Hermes library not found: ${LIB}")
     endif()
   endforeach()
-  
+
   # Link all libraries at once
   target_link_libraries(${PROJECT_NAME} PUBLIC ${HERMES_LIBRARIES})
   message(STATUS "Linked Hermes libraries: libhermes.so, libjsi.so, libfbjni.so, libc++_shared.so")
-  
+
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_HERMES")
-  
-  # Enable RTTI and exceptions for Hermes-related source files
+
+  # Enable RTTI and exceptions for specific source files to ensure ABI compatibility
+  # This is necessary for HERMES_V8 mode to work correctly
   set_source_files_properties(
+    # Hermes-specific files
     src/napi/hermes/hermes_ctx.cc
     src/napi/hermes/hermes_ctx_value.cc
     src/napi/hermes/hermes_try_catch.cc
     src/vm/hermes/hermes_vm.cc
-    src/js_driver_utils.cc
     PROPERTIES COMPILE_FLAGS "-frtti -fexceptions"
   )
 elseif ("${JS_ENGINE}" STREQUAL "JSH")

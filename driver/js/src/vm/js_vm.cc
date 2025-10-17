@@ -90,26 +90,37 @@ void VM::HandleException(const std::shared_ptr<Ctx>& ctx, const string_view& eve
 std::shared_ptr<VM> VM::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   std::shared_ptr<VM> vm = nullptr;
 
+  FOOTSTONE_DLOG(INFO) << "VM::CreateVM called with vm_type: " << (param ? param->vm_type : "null");
+
   if (!param || param->vm_type.empty()) {
     // Using jsc on iOS and v8 on Android by default.
+    FOOTSTONE_DLOG(INFO) << "Using default engine";
 #ifdef JS_JSC
+    param->vm_type = kJSEngineJSC;
     vm = JSCVM::CreateVM(param);
 #elif defined(JS_V8)
+    param->vm_type = kJSEngineV8;
     vm = V8VM::CreateVM(param);
 #elif defined (JS_JSH)
+    param->vm_type = kJSEngineJSH;
     vm = JSHVM::CreateVM(param);
 #endif /* JS_JSC/JS_V8 */
   } else if (param->vm_type == kJSEngineJSC) {
+    FOOTSTONE_DLOG(INFO) << "Creating JSC engine";
 #ifdef JS_JSC
     vm = JSCVM::CreateVM(param);
 #endif /* JS_JSC */
   } else if (param->vm_type == kJSEngineHermes) {
+    FOOTSTONE_DLOG(INFO) << "Creating Hermes engine";
 #ifdef JS_HERMES
     vm = HermesVM::CreateVM(param);
+    FOOTSTONE_DLOG(INFO) << "HermesVM::CreateVM returned: " << (vm ? "success" : "null");
 #endif /* JS_HERMES */
   } else if (param->vm_type == kJSEngineV8) {
+    FOOTSTONE_DLOG(INFO) << "Creating V8 engine";
 #ifdef JS_V8
     vm = V8VM::CreateVM(param);
+    FOOTSTONE_DLOG(INFO) << "V8VM::CreateVM returned: " << (vm ? "success" : "null");
 #endif /* JS_V8 */
   }
 

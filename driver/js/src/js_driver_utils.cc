@@ -116,66 +116,75 @@ void AsyncInitializeEngine(const std::shared_ptr<Engine>& engine,
                            const std::shared_ptr<TaskRunner>& task_runner,
                            const std::shared_ptr<VMInitParam>& param) {
   auto engine_initialized_callback = [](const std::shared_ptr<Engine>& engine) {
+    auto vm = engine->GetVM();
+    auto vm_type = vm->GetVMType();
+
+    if (vm_type == hippy::VM::kJSEngineV8) {
 #ifdef JS_V8
-    auto v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-    auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
-      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
-      auto scope = scope_wrapper->scope.lock();
-      FOOTSTONE_CHECK(scope);
-      auto exception = info[0];
-      V8VM::HandleException(scope->GetContext(), "uncaughtException", exception);
-      auto engine = scope->GetEngine().lock();
-      FOOTSTONE_CHECK(engine);
-      auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
-      auto context = scope->GetContext();
-      string_view description;
-      auto flag = context->GetValueString(info[1], &description);
-      FOOTSTONE_CHECK(flag);
-      string_view stack;
-      flag = context->GetValueString(info[2], &stack);
-      FOOTSTONE_CHECK(flag);
-      callback(scope->GetBridge(), description, stack);
-    }, nullptr);
-    v8_vm->AddUncaughtExceptionMessageListener(wrapper);
-    v8_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
+      auto v8_vm = std::static_pointer_cast<V8VM>(vm);
+      auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+        auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+        auto scope = scope_wrapper->scope.lock();
+        FOOTSTONE_CHECK(scope);
+        auto exception = info[0];
+        V8VM::HandleException(scope->GetContext(), "uncaughtException", exception);
+        auto engine = scope->GetEngine().lock();
+        FOOTSTONE_CHECK(engine);
+        auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+        auto context = scope->GetContext();
+        string_view description;
+        auto flag = context->GetValueString(info[1], &description);
+        FOOTSTONE_CHECK(flag);
+        string_view stack;
+        flag = context->GetValueString(info[2], &stack);
+        FOOTSTONE_CHECK(flag);
+        callback(scope->GetBridge(), description, stack);
+      }, nullptr);
+      v8_vm->AddUncaughtExceptionMessageListener(wrapper);
+      v8_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-    if (v8_vm->IsDebug()) {
-      if (!v8_vm->GetInspectorClient()) {
-        v8_vm->SetInspectorClient(std::make_shared<V8InspectorClientImpl>());
+      if (v8_vm->IsDebug()) {
+        if (!v8_vm->GetInspectorClient()) {
+          v8_vm->SetInspectorClient(std::make_shared<V8InspectorClientImpl>());
+        }
+        v8_vm->GetInspectorClient()->SetJsRunner(engine->GetJsTaskRunner());
       }
-      v8_vm->GetInspectorClient()->SetJsRunner(engine->GetJsTaskRunner());
-    }
-#endif
-#elif JS_JSH
-    auto jsh_vm = std::static_pointer_cast<JSHVM>(engine->GetVM());
-    auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
-      auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
-      auto scope = scope_wrapper->scope.lock();
-      FOOTSTONE_CHECK(scope);
-      auto exception = info[0];
-      JSHVM::HandleException(scope->GetContext(), "uncaughtException", exception);
-      auto engine = scope->GetEngine().lock();
-      FOOTSTONE_CHECK(engine);
-      auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
-      auto context = scope->GetContext();
-      string_view description;
-      auto flag = context->GetValueString(info[1], &description);
-      FOOTSTONE_CHECK(flag);
-      string_view stack;
-      flag = context->GetValueString(info[2], &stack);
-      FOOTSTONE_CHECK(flag);
-      callback(scope->GetBridge(), description, stack);
-    }, nullptr);
-    jsh_vm->AddUncaughtExceptionMessageListener(wrapper);
-    jsh_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
+#endif /* ENABLE_INSPECTOR && !defined(V8_WITHOUT_INSPECTOR) */
+#endif /* JS_V8 */
+    } else if (vm_type == hippy::VM::kJSEngineJSH) {
+#ifdef JS_JSH
+      auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
+      auto wrapper = std::make_unique<FunctionWrapper>([](CallbackInfo& info, void* data) {
+        auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(std::any_cast<void*>(info.GetSlot()));
+        auto scope = scope_wrapper->scope.lock();
+        FOOTSTONE_CHECK(scope);
+        auto exception = info[0];
+        JSHVM::HandleException(scope->GetContext(), "uncaughtException", exception);
+        auto engine = scope->GetEngine().lock();
+        FOOTSTONE_CHECK(engine);
+        auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+        auto context = scope->GetContext();
+        string_view description;
+        auto flag = context->GetValueString(info[1], &description);
+        FOOTSTONE_CHECK(flag);
+        string_view stack;
+        flag = context->GetValueString(info[2], &stack);
+        FOOTSTONE_CHECK(flag);
+        callback(scope->GetBridge(), description, stack);
+      }, nullptr);
+      jsh_vm->AddUncaughtExceptionMessageListener(wrapper);
+      jsh_vm->SaveUncaughtExceptionCallback(std::move(wrapper));
 #if defined(ENABLE_INSPECTOR) && !defined(JSH_WITHOUT_INSPECTOR)
-    if (jsh_vm->IsDebug()) {
-      if (!jsh_vm->GetInspectorClient()) {
-        jsh_vm->SetInspectorClient(std::make_shared<JSHInspectorClientImpl>());
+      if (jsh_vm->IsDebug()) {
+        if (!jsh_vm->GetInspectorClient()) {
+          jsh_vm->SetInspectorClient(std::make_shared<JSHInspectorClientImpl>());
+        }
       }
+#endif /* ENABLE_INSPECTOR && !defined(JSH_WITHOUT_INSPECTOR) */
+#endif /* JS_JSH */
+    } else if (vm_type == hippy::VM::kJSEngineHermes) {
+        // do nothing
     }
-#endif
-#endif
   };
   engine->AsyncInitialize(task_runner, param, engine_initialized_callback);
 }
@@ -247,65 +256,75 @@ void JsDriverUtils::InitDevTools(const std::shared_ptr<Scope>& scope,
                                  const std::shared_ptr<DevtoolsDataSource>& source) {
   if (vm->IsDebug()) {
     scope->SetDevtoolsDataSource(source);
+
+    if (vm->GetVMType() == hippy::VM::kJSEngineV8) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-    auto v8_vm = std::static_pointer_cast<V8VM>(vm);
-    std::weak_ptr<V8VM> weak_v8_vm = v8_vm;
-    std::weak_ptr<Scope> weak_scope = scope;
-    scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_v8_vm, weak_scope](const std::string& data) {
-      auto v8_vm = weak_v8_vm.lock();
-      if (!v8_vm) {
-        FOOTSTONE_DLOG(FATAL) << "RunApp send_v8_func_ vm invalid or not debugger";
-        return;
-      }
-      auto scope = weak_scope.lock();
-      if (!scope) {
-        return;
-      }
-      auto inspector_client = v8_vm->GetInspectorClient();
-      if (inspector_client) {
-        auto u16str = StringViewUtils::ConvertEncoding(
-            string_view(data), string_view::Encoding::Utf16);
-        inspector_client->SendMessageToV8(scope->GetInspectorContext(), std::move(u16str));
-      }
-    });
-#elif defined(JS_HERMES)
-    auto hermes_vm = std::static_pointer_cast<HermesVM>(vm);
-    std::weak_ptr<HermesVM> weak_hermes_vm = hermes_vm;
-    std::weak_ptr<Scope> weak_scope = scope;
-    scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_hermes_vm, weak_scope](const std::string& data) {
-      auto hermes_vm = weak_hermes_vm.lock();
-      if (!hermes_vm) {
-        return;
-      }
-      auto scope = weak_scope.lock();
-      if (!scope) {
-        return;
-      }
-      // FOOTSTONE_DLOG(INFO) << "From Debugger:" << data.c_str();
-      auto hermesCtx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
-      hermesCtx->GetCDPAgent()->handleCommand(data);
-    });
-#endif
+        auto v8_vm = std::static_pointer_cast<V8VM>(vm);
+        std::weak_ptr<V8VM> weak_v8_vm = v8_vm;
+        std::weak_ptr<Scope> weak_scope = scope;
+        scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_v8_vm, weak_scope](const std::string& data) {
+            auto v8_vm = weak_v8_vm.lock();
+            if (!v8_vm) {
+                FOOTSTONE_DLOG(FATAL) << "RunApp send_v8_func_ vm invalid or not debugger";
+                return;
+            }
+            auto scope = weak_scope.lock();
+            if (!scope) {
+                return;
+            }
+            auto inspector_client = v8_vm->GetInspectorClient();
+            if (inspector_client) {
+                auto u16str = StringViewUtils::ConvertEncoding(
+                        string_view(data), string_view::Encoding::Utf16);
+                inspector_client->SendMessageToV8(scope->GetInspectorContext(), std::move(u16str));
+            }
+        });
+#endif /* ENABLE_INSPECTOR && !defined(V8_WITHOUT_INSPECTOR) */
+    }
+
+#ifdef JS_HERMES
+    else if (vm->GetVMType() == hippy::VM::kJSEngineHermes) {
+      auto hermes_vm = std::static_pointer_cast<HermesVM>(vm);
+      std::weak_ptr<HermesVM> weak_hermes_vm = hermes_vm;
+      std::weak_ptr<Scope> weak_scope = scope;
+      scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_hermes_vm, weak_scope](const std::string& data) {
+        auto hermes_vm = weak_hermes_vm.lock();
+        if (!hermes_vm) {
+          return;
+        }
+        auto scope = weak_scope.lock();
+        if (!scope) {
+          return;
+        }
+        // FOOTSTONE_DLOG(INFO) << "From Debugger:" << data.c_str();
+        auto hermesCtx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
+        hermesCtx->GetCDPAgent()->handleCommand(data);
+      });
+    }
+#endif /* JS_HERMES */
+
 #if defined(JS_JSH) && !defined(JSH_WITHOUT_INSPECTOR)
-    auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
-    std::weak_ptr<JSHVM> weak_jsh_vm = jsh_vm;
-    std::weak_ptr<Scope> weak_scope = scope;
-    scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_jsh_vm, weak_scope](const std::string& data) {
-      auto jsh_vm = weak_jsh_vm.lock();
-      if (!jsh_vm) {
-        FOOTSTONE_DLOG(FATAL) << "RunApp send_jsh_func_ vm invalid or not debugger";
-        return;
-      }
-      auto scope = weak_scope.lock();
-      if (!scope) {
-        return;
-      }
-      auto inspector_client = jsh_vm->GetInspectorClient();
-      if (inspector_client) {
-        inspector_client->SendMessageToJSH(std::move(data));
-      }
-    });
-#endif
+    else if (vm->GetVMType() == hippy::VM::kJSEngineJSH) {
+      auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
+      std::weak_ptr<JSHVM> weak_jsh_vm = jsh_vm;
+      std::weak_ptr<Scope> weak_scope = scope;
+      scope->GetDevtoolsDataSource()->SetVmRequestHandler([weak_jsh_vm, weak_scope](const std::string& data) {
+          auto jsh_vm = weak_jsh_vm.lock();
+          if (!jsh_vm) {
+              FOOTSTONE_DLOG(FATAL) << "RunApp send_jsh_func_ vm invalid or not debugger";
+              return;
+          }
+          auto scope = weak_scope.lock();
+          if (!scope) {
+              return;
+          }
+          auto inspector_client = jsh_vm->GetInspectorClient();
+          if (inspector_client) {
+              inspector_client->SendMessageToJSH(std::move(data));
+          }
+      });
+    }
+#endif /* ENABLE_INSPECTOR && !defined(JSH_WITHOUT_INSPECTOR) */
   }
 }
 #endif /* ENABLE_INSPECTOR */
@@ -461,14 +480,8 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
     code_cache_content = read_file_future.get();
   }
 
-#ifdef JS_HERMES
   FOOTSTONE_DLOG(INFO) << "uri = " << uri
                        << "read_script_flag = " << read_script_flag;
-#else
-  FOOTSTONE_DLOG(INFO) << "uri = " << uri
-                       << ", read_script_flag = " << read_script_flag
-                       << ", script content = " << script_content;
-#endif
 
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     FOOTSTONE_LOG(WARNING) << "read_script_flag = " << read_script_flag
@@ -483,7 +496,7 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
   // perfromance start time
   auto entry = scope->GetPerformance()->PerformanceNavigation(kPerfNavigationHippyInit);
   entry->BundleInfoOfUrl(uri).execute_source_start_ = footstone::TimePoint::SystemNow();
-  
+
 #if (defined JS_V8) || (defined JS_JSH)
 #if (defined JS_V8)
   auto ret = std::static_pointer_cast<V8Ctx>(scope->GetContext())->RunScript(
@@ -522,17 +535,6 @@ bool JsDriverUtils::RunScript(const std::shared_ptr<Scope>& scope,
       FOOTSTONE_CHECK(engine);
       worker_task_runner->PostTask(std::move(func));
     }
-  }
-#elif defined(JS_HERMES)
-  std::shared_ptr<CtxValue> ret = nullptr;
-  try {
-    ret = scope->GetContext()->RunScript(script_content, file_name);
-  } catch (facebook::jsi::JSIException& err) {
-    auto engine = scope->GetEngine().lock();
-    FOOTSTONE_CHECK(engine);
-    auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
-    auto context = scope->GetContext();
-    callback(scope->GetBridge(), "Hermes Exception", err.what());
   }
 #else
   auto ret = scope->GetContext()->RunScript(script_content, file_name);
@@ -659,37 +661,52 @@ void JsDriverUtils::CallJs(const string_view& action,
     std::shared_ptr<CtxValue> action_value = context->CreateString(action);
     std::shared_ptr<CtxValue> params;
     auto vm = engine->GetVM();
-#ifdef JS_V8
-    auto v8_vm = std::static_pointer_cast<V8VM>(vm);
-    if (v8_vm->IsEnableV8Serialization()) {
-      auto result = v8_vm->Deserializer(scope->GetContext(), buffer_data_);
-      if (result.flag) {
-        params = result.result;
-      } else {
-        auto msg = u"deserializer error";
-        if (!StringViewUtils::IsEmpty(result.message)) {
-          msg = StringViewUtils::ConvertEncoding(result.message,
-                                                 string_view::Encoding::Utf16).utf16_value().c_str();
-        }
-        cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
-        return;
-      }
-    } else {
-#endif
 
-#ifdef __OHOS__
-      string_view::u8string str(reinterpret_cast<const uint8_t*>(&buffer_data_[0]),
-                         buffer_data_.length());
-#else
-      std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
-                         buffer_data_.length() / sizeof(char16_t));
+    if (vm->GetVMType() == hippy::VM::kJSEngineV8) {
+#ifdef JS_V8
+      auto v8_vm = std::static_pointer_cast<V8VM>(vm);
+      if (v8_vm->IsEnableV8Serialization()) {
+        auto result = v8_vm->Deserializer(scope->GetContext(), buffer_data_);
+        if (result.flag) {
+          params = result.result;
+        } else {
+          auto msg = u"deserializer error";
+          if (!StringViewUtils::IsEmpty(result.message)) {
+            msg = StringViewUtils::ConvertEncoding(result.message,
+                                                   string_view::Encoding::Utf16).utf16_value().c_str();
+          }
+          cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
+          return;
+        }
+      } else {
 #endif
+        // 使用通用解析逻辑
+        #ifdef __OHOS__
+          string_view::u8string str(reinterpret_cast<const uint8_t*>(&buffer_data_[0]),
+                             buffer_data_.length());
+        #else
+          std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
+                             buffer_data_.length() / sizeof(char16_t));
+        #endif
+        string_view buf_str(std::move(str));
+        FOOTSTONE_DLOG(INFO) << "action = " << action << ", buf_str = " << buf_str;
+        params = vm->ParseJson(context, buf_str);
+#ifdef JS_V8
+      }
+#endif
+    } else {
+      // 其他引擎使用通用解析逻辑
+      #ifdef __OHOS__
+        string_view::u8string str(reinterpret_cast<const uint8_t*>(&buffer_data_[0]),
+                           buffer_data_.length());
+      #else
+        std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
+                           buffer_data_.length() / sizeof(char16_t));
+      #endif
       string_view buf_str(std::move(str));
       FOOTSTONE_DLOG(INFO) << "action = " << action << ", buf_str = " << buf_str;
       params = vm->ParseJson(context, buf_str);
-#ifdef JS_V8
     }
-#endif
     if (!params) {
       params = context->CreateNull();
     }
@@ -753,39 +770,51 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
 
   std::string buffer_data;
   if (info[3] && context->IsObject(info[3])) {
+    auto engine = scope->GetEngine().lock();
+    FOOTSTONE_DCHECK(engine);
+    if (!engine) {
+      return;
+    }
+    auto vm = engine->GetVM();
+
+    if (vm->GetVMType() == hippy::VM::kJSEngineV8) {
 #ifdef JS_V8
-    auto engine = scope->GetEngine().lock();
-    FOOTSTONE_DCHECK(engine);
-    if (!engine) {
-      return;
-    }
-    auto vm = engine->GetVM();
-    auto v8_vm = std::static_pointer_cast<V8VM>(vm);
-    if (v8_vm->IsEnableV8Serialization()) {
-      auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
-      buffer_data = v8_ctx->GetSerializationBuffer(info[3], v8_vm->GetBuffer());
-#elif JS_JSH
-    auto engine = scope->GetEngine().lock();
-    FOOTSTONE_DCHECK(engine);
-    if (!engine) {
-      return;
-    }
-    auto vm = engine->GetVM();
-    auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
-    if (jsh_vm->enable_v8_serialization_) {
+      auto v8_vm = std::static_pointer_cast<V8VM>(vm);
+      if (v8_vm->IsEnableV8Serialization()) {
+        auto v8_ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+        buffer_data = v8_ctx->GetSerializationBuffer(info[3], v8_vm->GetBuffer());
+      } else {
+        string_view json;
+        auto flag = context->GetValueJson(info[3], &json);
+        FOOTSTONE_DCHECK(flag);
+        FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
+        buffer_data = StringViewUtils::ToStdString(
+            StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
+      }
+#endif
+    } else if (vm->GetVMType() == hippy::VM::kJSEngineJSH) {
+#ifdef JS_JSH
+      auto jsh_vm = std::static_pointer_cast<JSHVM>(vm);
+      if (jsh_vm->enable_v8_serialization_) {
+        // JSH序列化逻辑
+      } else {
+        string_view json;
+        auto flag = context->GetValueJson(info[3], &json);
+        FOOTSTONE_DCHECK(flag);
+        FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
+        buffer_data = StringViewUtils::ToStdString(
+            StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
+      }
 #endif
     } else {
+      // 其他引擎使用通用JSON序列化
       string_view json;
       auto flag = context->GetValueJson(info[3], &json);
       FOOTSTONE_DCHECK(flag);
       FOOTSTONE_DLOG(INFO) << "CallJava json = " << json;
       buffer_data = StringViewUtils::ToStdString(
           StringViewUtils::ConvertEncoding(json, string_view::Encoding::Utf8).utf8_value());
-#ifdef JS_V8
     }
-#elif JS_JSH
-    }
-#endif
   }
 
   int32_t transfer_type = 0;
@@ -803,36 +832,41 @@ void JsDriverUtils::LoadInstance(const std::shared_ptr<Scope>& scope, byte_strin
     if (!scope) {
       return;
     }
-#if defined(JS_V8) || defined(JS_JSH)
-    Deserializer deserializer(
-        reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
-        buffer_data_.length());
-    HippyValue value;
-    deserializer.ReadHeader();
-    auto ret = deserializer.ReadValue(value);
-    if (ret) {
-      scope->LoadInstance(std::make_shared<HippyValue>(std::move(value)));
-    } else {
-      scope->GetContext()->ThrowException("LoadInstance param error");
-    }
- #elif defined(JS_HERMES)
-    std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]), buffer_data_.length() / sizeof(char16_t));
-    string_view buf_str(std::move(str));
     auto engine = scope->GetEngine().lock();
     if (!engine) {
       return;
     }
     auto vm = engine->GetVM();
-    auto hermes_vm = std::static_pointer_cast<HermesVM>(vm);
-    auto context = scope->GetContext();
-    HippyValue hippy_value;
-    auto ret = hermes_vm->ParseHippyValue(context, buf_str, hippy_value);
-    if (ret) {
-      scope->LoadInstance(std::make_shared<HippyValue>(std::move(hippy_value)));
-    } else {
-      scope->GetContext()->ThrowException("LoadInstance param error");
-    }
+
+    if (vm->GetVMType() == hippy::VM::kJSEngineV8 || vm->GetVMType() == hippy::VM::kJSEngineJSH) {
+#if defined(JS_V8) || defined(JS_JSH)
+      Deserializer deserializer(
+          reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
+          buffer_data_.length());
+      HippyValue value;
+      deserializer.ReadHeader();
+      auto ret = deserializer.ReadValue(value);
+      if (ret) {
+        scope->LoadInstance(std::make_shared<HippyValue>(std::move(value)));
+      } else {
+        scope->GetContext()->ThrowException("LoadInstance param error");
+      }
 #endif
+    } else if (vm->GetVMType() == hippy::VM::kJSEngineHermes) {
+#ifdef JS_HERMES
+      std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]), buffer_data_.length() / sizeof(char16_t));
+      string_view buf_str(std::move(str));
+      auto hermes_vm = std::static_pointer_cast<HermesVM>(vm);
+      auto context = scope->GetContext();
+      HippyValue hippy_value;
+      auto ret = hermes_vm->ParseHippyValue(context, buf_str, hippy_value);
+      if (ret) {
+        scope->LoadInstance(std::make_shared<HippyValue>(std::move(hippy_value)));
+      } else {
+        scope->GetContext()->ThrowException("LoadInstance param error");
+      }
+#endif
+    }
   };
   runner->PostTask(std::move(callback));
 }

@@ -173,17 +173,21 @@ jint CreateDomManager(JNIEnv* j_env, jobject j_obj, jint j_group_id, jint j_shar
     auto count = worker->FetchAndAddReuseCount();
     FOOTSTONE_DLOG(INFO) << "CreateDomManager worker reuse count " << count << ", dom manager id " << dom_id;
   } else {
+    FOOTSTONE_DLOG(INFO) << "CreateDomManager: Creating new DOM worker";
     auto worker = std::make_shared<WorkerImpl>(kDomWorkerName, false);
     auto callback = std::make_shared<JavaRef>(j_env, j_obj);
     worker->BeforeStart([callback]() {
+      FOOTSTONE_DLOG(INFO) << "DOM worker starting, setting thread priority";
       if (callback->GetObj()) SetThreadPriority(callback->GetObj());
     });
     worker->Start();
+    FOOTSTONE_DLOG(INFO) << "DOM worker started successfully";
     auto runner = std::make_shared<TaskRunner>(kDomRunnerName);
     runner->SetWorker(worker);
     worker->Bind({runner});
     dom_manager->SetTaskRunner(runner);
     dom_manager->SetWorker(worker);
+    FOOTSTONE_DLOG(INFO) << "DOM manager setup completed";
   }
   return footstone::checked_numeric_cast<uint32_t, jint>(dom_id);
 }
