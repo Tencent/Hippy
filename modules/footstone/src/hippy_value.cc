@@ -428,7 +428,9 @@ bool HippyValue::ToBooleanChecked() const {
 
 bool HippyValue::ToString(std::string& str) const {
   bool is_string = IsString();
-  str = str_;
+  if (is_string) {
+    str = str_;
+  }
   return is_string;
 }
 
