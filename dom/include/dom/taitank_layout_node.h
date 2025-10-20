@@ -31,7 +31,7 @@ using namespace taitank;
 
 class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
-  TaitankLayoutNode();
+  TaitankLayoutNode(TaitankConfig* layout_config);
 
   TaitankLayoutNode(TaitankNodeRef engine_node_);
 
@@ -380,7 +380,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   /**
    * @brief 分配节点
    */
-  void Allocate();
+  void Allocate(TaitankConfig* layout_config);
 
   /**
    * @brief 释放节点
@@ -397,7 +397,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
 
 void InitLayoutConstsTaitank();
-std::shared_ptr<LayoutNode> CreateLayoutNodeTaitank();
+std::shared_ptr<LayoutNode> CreateLayoutNodeTaitank(TaitankConfig* layout_config);
 
 }  // namespace dom
 }  // namespace hippy

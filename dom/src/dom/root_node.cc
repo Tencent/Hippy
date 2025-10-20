@@ -102,8 +102,11 @@ bool DomNodeStyleDiffer::Calculate(const std::shared_ptr<hippy::dom::RootNode>& 
   return true;
 }
 
-RootNode::RootNode(uint32_t id, LayoutEngineType layout_engine_type) : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}, layout_engine_type) {
+RootNode::RootNode(uint32_t id, LayoutEngineType layout_engine_type, void* layout_config)
+: DomNode(id, 0, 0, "", "", nullptr, nullptr, {}
+, layout_engine_type, layout_config) {
   layout_engine_type_ = layout_engine_type;
+  layout_config_ = layout_config;
   InitLayoutConsts(layout_engine_type);
   SetRenderInfo({id, 0, 0});
   animation_manager_ = std::make_shared<AnimationManager>();
@@ -112,6 +115,10 @@ RootNode::RootNode(uint32_t id, LayoutEngineType layout_engine_type) : DomNode(i
 }
 
 RootNode::RootNode() : RootNode(0) {}
+
+RootNode::~RootNode() {
+  DestroyLayoutConfig(layout_engine_type_, layout_config_);
+}
 
 void RootNode::AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                 const EventCallback& cb) {

@@ -95,9 +95,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map,
           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> dom_ext_map,
-          std::weak_ptr<RootNode> weak_root_node, LayoutEngineType layout_engine_type);
+          std::weak_ptr<RootNode> weak_root_node, LayoutEngineType layout_engine_type, void* layout_config);
 
-  DomNode(uint32_t id, uint32_t pid, std::weak_ptr<RootNode> weak_root_node, LayoutEngineType layout_engine_type);
+  DomNode(uint32_t id, uint32_t pid, std::weak_ptr<RootNode> weak_root_node, LayoutEngineType layout_engine_type, void* layout_config);
   DomNode();
   virtual ~DomNode();
 

@@ -297,7 +297,8 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        style,
                                        ext,
                                        scope->GetRootNode(),
-                                       layout_type);
+                                       layout_type,
+                                       root_node ? root_node->GetLayoutConfig() : nullptr);
   return std::make_tuple(true, "", dom_node);
 }
 
@@ -506,7 +507,8 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
                   std::get<2>(id_tuple),
                   std::get<2>(pid_tuple),
                   scope->GetRootNode(),
-                  layout_type),
+                  layout_type,
+                  root_node ? root_node->GetLayoutConfig() : nullptr),
               std::get<2>(ref_info_tuple),
               nullptr));
         }
@@ -556,7 +558,8 @@ std::shared_ptr<ClassTemplate<SceneBuilder>> RegisterSceneBuilder(const std::wea
                 std::get<2>(id_tuple),
                 std::get<2>(pid_tuple),
                 scope->GetRootNode(),
-                layout_type),
+                layout_type,
+                root_node ? root_node->GetLayoutConfig() : nullptr),
             nullptr, nullptr));
       }
     }
