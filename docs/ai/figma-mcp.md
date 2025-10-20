@@ -6,10 +6,9 @@
     1.  参考 figma 文档下载最新版本的 figma 桌面端应用。
     2.  需要申请 dev mode 权限。
 
-     ![figma_dev](./img/figma_dev.png)
+      <img src="ai/img/figma_dev.png"  width="50%"> 
     3.  开启 MCP Server。
-    
-     ![figma_mcp_enable](./img/figma_mcp_enable.png)
+      <img src="ai/img/figma_mcp_enable.png"  width="50%"> 
 
 2.  **Cursor/Codebuddy/Vscode 等配置接入 MCP**
     *   可以参考：[配置使用教程](https://km.woa.com/articles/show/632094?kmref=search&from_page=1&no=2)

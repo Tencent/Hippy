@@ -40,7 +40,7 @@ Hippy 团队为 AI 提供以下知识来源：
 1.  **引入Hippy源码工程到工作区(推荐必须)**
     *   Hippy 团队通过实际测试发现，引入 Hippy 源码工程到工作区，Cursor 去建立源码的索引，能对问题有很好的解答，能极大的提高日常开发的效率。
     
-    ![codebase](./img/codebase.png)
+    <img src="ai/img/codebase.png"  width="50%"> 
 
 2.  **配置项目的 `rules` 文件(推荐必须)**
     *   配置 cursor `rules` 文件，在很多场景都能提高开发效率。可以参考 Hippy 团队的官方 Rule，并补充自己项目的规则信息。
@@ -82,7 +82,8 @@ CodeBuddy 内网版可以单独添加官方 Hippy 知识库，其他大部分配
 
 1.  **询问问题时，通过 @ 可以添加「官方 Hippy 知识库」（推荐必须）**
     *   CodeBuddy 已经内置集成 Knot 的知识库，大家在询问问题时，可以添加 Hippy 知识库。
-     ![codebuddywiki](./img/codebuddy_wiki.png)
+    
+    <img src="ai/img/codebuddy_wiki.png"  width="50%"> 
      
 2.  **引入Hippy源码工程到工作区(推荐必须)**
      *   配置同上文 Cursor 配置
@@ -124,10 +125,11 @@ CodeBuddy 内网版可以单独添加官方 Hippy 知识库，其他大部分配
 ## 三、网页/企微入口
 
 1.  **Knot 智能体**
-
-    ![knot_agent](./img/knot_agent.png)
     
     [Knot 智能体](https://knot.woa.com/chat?web_key=8292b4273a9549d8bbefa5ddb699cdca)
+
+    <img src="ai/img/knot_agent.png"  width="50%">
+    <br>
 
     **使用提示**
     *   大家提问后，记得点赞👍/👎，方便后续优化。
@@ -135,7 +137,13 @@ CodeBuddy 内网版可以单独添加官方 Hippy 知识库，其他大部分配
     *   Hippy AI 助手弹窗可以放大，方便查看。
 
 2.  **企微机器人**
-    *   建设中
+    *   企微搜索“Hippy AI小助手”:
+
+    <img src="ai/img/hippy_bot.png" alt="Hippy AI小助手" width="50%">
+
+     *  向“Hippy AI小助手”直接提问，或者添加到开发群:
+
+    <img src="ai/img/hippy_bot_chat.png" alt="向Hippy AI小助手提问" width="50%"> 
 
 ---
 
