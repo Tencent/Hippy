@@ -76,8 +76,9 @@ class RootNode : public DomNode {
   using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
   using EventCallBackRunner = std::function<void(const std::shared_ptr<DomEvent>&)>;
 
-  RootNode(uint32_t id, LayoutEngineType layout_engine_type = LayoutEngineDefault);
+  RootNode(uint32_t id, LayoutEngineType layout_engine_type = LayoutEngineDefault, void* layout_config = nullptr);
   RootNode();
+  ~RootNode();
 
   inline std::weak_ptr<DomManager> GetDomManager() { return dom_manager_; }
   inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
@@ -89,7 +90,7 @@ class RootNode : public DomNode {
   virtual void AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                 const EventCallback& cb) override;
   virtual void RemoveEventListener(const std::string& name, uint64_t listener_id) override;
-  
+
   std::map<uint32_t, std::vector<ListenerOp>> &EventListenerOps() { return event_listener_ops_; }
 
   void ReleaseResources();
@@ -122,9 +123,11 @@ class RootNode : public DomNode {
   }
 
   std::vector<std::weak_ptr<DomNode>> GetAllTextNodes();
-    
+
   LayoutEngineType GetLayoutEngineType() { return layout_engine_type_; }
-  
+
+  void* GetLayoutConfig() { return layout_config_; }
+
   void SetVSyncEventNeedSource(VSyncEventNeedSource source) { vSyncEventNeedSourceBits_ |= source; }
   void UnsetVSyncEventNeedSource(VSyncEventNeedSource source) { vSyncEventNeedSourceBits_ &= (~source); }
   bool HasVSyncEventNeedSource() { return vSyncEventNeedSourceBits_ != 0; }
@@ -160,9 +163,12 @@ class RootNode : public DomNode {
   std::unique_ptr<DomNodeStyleDiffer> style_differ_;
 
   bool disable_set_root_size_ { false };
-  
+
   LayoutEngineType layout_engine_type_ = LayoutEngineDefault;
-  
+
+  // 布局引擎配置结构优先存在RootNode里，避免存在全局static区
+  void* layout_config_ = nullptr;
+
   int32_t vSyncEventNeedSourceBits_ = 0;
 
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> persistent_map_;

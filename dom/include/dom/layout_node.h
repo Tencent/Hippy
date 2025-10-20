@@ -138,7 +138,9 @@ enum LayoutEngineType {
 };
 
 void InitLayoutConsts(LayoutEngineType type);
-std::shared_ptr<LayoutNode> CreateLayoutNode(LayoutEngineType type);
+std::shared_ptr<LayoutNode> CreateLayoutNode(LayoutEngineType type, void* layout_config);
+void* CreateLayoutConfig(LayoutEngineType type);
+void DestroyLayoutConfig(LayoutEngineType type, void* config);
 
 }  // namespace dom
 }  // namespace hippy

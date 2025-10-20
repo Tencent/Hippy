@@ -49,16 +49,47 @@ void InitLayoutConsts(LayoutEngineType type) {
 #endif
 }
 
-std::shared_ptr<LayoutNode> CreateLayoutNode(LayoutEngineType type) {
+std::shared_ptr<LayoutNode> CreateLayoutNode(LayoutEngineType type, void* layout_config) {
 #if defined(LAYOUT_ENGINE_YOGA)
   return CreateLayoutNodeYoga();
 #elif defined(LAYOUT_ENGINE_TAITANK)
-  return CreateLayoutNodeTaitank();
+  return CreateLayoutNodeTaitank((TaitankConfig*)layout_config);
 #elif defined(LAYOUT_ENGINE_YOGA_AND_TAITANK)
   if (type == LayoutEngineYoga) {
     return CreateLayoutNodeYoga();
   } else {
-    return CreateLayoutNodeTaitank();
+    return CreateLayoutNodeTaitank((TaitankConfig*)layout_config);
+  }
+#endif
+}
+
+void* CreateLayoutConfig(LayoutEngineType type) {
+#if defined(LAYOUT_ENGINE_YOGA)
+  return nullptr;
+#elif defined(LAYOUT_ENGINE_TAITANK)
+  return new TaitankConfig();
+#elif defined(LAYOUT_ENGINE_YOGA_AND_TAITANK)
+  if (type == LayoutEngineYoga) {
+    return nullptr;
+  } else {
+    return new TaitankConfig();
+  }
+#endif
+}
+
+void DestroyLayoutConfig(LayoutEngineType type, void* config) {
+  if (!config) {
+    return;
+  }
+#if defined(LAYOUT_ENGINE_YOGA)
+#elif defined(LAYOUT_ENGINE_TAITANK)
+  TaitankConfig *p = (TaitankConfig*)config;
+  delete p;
+#elif defined(LAYOUT_ENGINE_YOGA_AND_TAITANK)
+  if (type == LayoutEngineYoga) {
+  } else {
+    TaitankConfig *p = (TaitankConfig*)config;
+    delete p;
   }
 #endif
 }
