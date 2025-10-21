@@ -136,8 +136,6 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
 
 ### Android 平台
 
-Android 平台支持 Hermes 引擎，支持与 V8 引擎并行使用，并支持运行时动态切换。
-
 #### 1. 编译时选择引擎
 
 **修改 `gradle.properties`**：
