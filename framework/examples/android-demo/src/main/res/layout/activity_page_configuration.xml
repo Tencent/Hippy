@@ -312,7 +312,7 @@
                   android:layout_gravity="center"
                   android:layout_marginLeft="16dp"
                   android:clickable="false"
-                  android:src="@drawable/page_config_debug_2x"
+                  android:src="@drawable/page_config_driver_2x"
                   app:layout_constraintBottom_toBottomOf="parent"
                   app:layout_constraintLeft_toLeftOf="parent"
                   app:layout_constraintTop_toTopOf="parent" />

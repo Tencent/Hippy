@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
+
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="20dp"
+    android:gravity="center"
+    android:text="Select JS Engine"
+    android:textColor="#1E304A"
+    android:textFontWeight="600"
+    android:textSize="18sp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/page_configuration_js_engine_v8"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/page_config_dialog_item_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp">
+
+      <ImageView
+        android:id="@+id/js_engine_v8_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/page_config_driver_2x"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <TextView
+        android:id="@+id/js_engine_v8_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:text="V8 Engine（Default）"
+        android:textColor="#1E304A"
+        android:textFontWeight="500"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/js_engine_v8_icon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/page_configuration_js_engine_hermes"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/page_config_dialog_item_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp">
+
+      <ImageView
+        android:id="@+id/js_engine_hermes_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/page_config_driver_2x"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+      <TextView
+        android:id="@+id/js_engine_hermes_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:text="Hermes Engine"
+        android:textColor="#1E304A"
+        android:textFontWeight="500"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/js_engine_hermes_icon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

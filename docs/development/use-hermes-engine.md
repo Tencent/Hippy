@@ -134,9 +134,48 @@ Hippy 从 `3.4.0` 版本开始支持 Hermes 引擎。本文档将指导你如何
     >
     > Tips 2: `HippyLaunchOptions` 中 `useHermesEngine` 的默认值为 `NO`，因此如果需要启用 Hermes 引擎，则必须显式地将其设置为 `YES`，否则项目将继续使用 JSC 引擎。
 
-### Android 平台 (Alpha版本)
+### Android 平台
 
-由于 Android 平台的 Hermes 引擎切换目前处于 Alpha 阶段，我们将在未来版本中提供详细指引，请关注后续更新。
+Android 平台支持 Hermes 引擎，支持与 V8 引擎并行使用，并支持运行时动态切换。
+
+#### 1. 编译时选择引擎
+
+**修改 `gradle.properties`**：
+
+在项目根目录的 `gradle.properties` 文件中配置 JavaScript 引擎：
+
+```properties
+# 可选值：V8, HERMES_ONLY
+CPP_JS_ENGINE=HERMES_ONLY
+
+# 是否启用调试功能
+CPP_ENABLE_INSPECTOR=true
+```
+
+**引擎配置说明**：
+- `V8`：仅使用 V8 引擎（默认）
+- `HERMES_ONLY`：仅使用 Hermes 引擎
+- `HERMES_V8`：同时支持 V8 和 Hermes 引擎（并行构建，该模式目前暂不支持）
+
+#### 2. 运行时动态切换
+
+在创建 HippyEngine 实例时，可以通过 `EngineInitParams` 动态选择引擎：
+
+```java
+EngineInitParams params = new EngineInitParams();
+params.context = context;
+params.debugMode = false;
+
+// 选择使用 Hermes 引擎
+params.useHermesEngine = true;
+params.jsEngineType = "hermes";
+
+// 或者选择使用 V8 引擎
+// params.useHermesEngine = false;
+// params.jsEngineType = "v8";
+
+HippyEngine engine = HippyEngine.create(params);
+```
 
 ## 前端切换步骤
 
