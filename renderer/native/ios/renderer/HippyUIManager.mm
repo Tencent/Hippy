@@ -1003,32 +1003,45 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
     HippyShadowView *fromShadowView = [_shadowViewRegistry componentForTag:@(fromContainer) onRootTag:@(rootTag)];
     HippyShadowView *toShadowView = [_shadowViewRegistry componentForTag:@(toContainer) onRootTag:@(rootTag)];
+    std::vector<int32_t> moved_ids_render_idxs;
+    moved_ids_render_idxs.reserve(ids.size());
+    
     for (int32_t hippyTag : ids) {
         HippyShadowView *view = [_shadowViewRegistry componentForTag:@(hippyTag) onRootTag:@(rootTag)];
         if (!view) {
             HippyLogWarn(@"Invalid Move, No ShadowView! (%d of %d)", hippyTag, rootTag);
             continue;
         }
+        auto domNode = view.domNode.lock();
+        if (!domNode) {
+            HippyLogWarn(@"DomNode is null for view tag %d", hippyTag);
+            continue;
+        }
+        int32_t nodeRenderIndex = domNode->GetRenderInfo().index;
+        moved_ids_render_idxs.push_back(nodeRenderIndex);
+        
         HippyAssert(fromShadowView == [view parent], @"ShadowView(%d)'s parent should be %d", hippyTag, fromContainer);
         [view removeFromHippySuperview];
-        [toShadowView insertHippySubview:view atIndex:index];
+        [toShadowView insertHippySubview:view atIndex:nodeRenderIndex];
     }
     [fromShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     [toShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
     [fromShadowView didUpdateHippySubviews];
     [toShadowView didUpdateHippySubviews];
     auto strongTags = std::move(ids);
+    
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *fromView = [viewRegistry objectForKey:@(fromContainer)];
         UIView *toView = [viewRegistry objectForKey:@(toContainer)];
-        for (int32_t tag : strongTags) {
+        for (int i = 0; i < strongTags.size(); i++) {
+            int32_t tag = strongTags[i];
             UIView *view = [viewRegistry objectForKey:@(tag)];
             if (!view) {
                 continue;
             }
-            HippyAssert(fromView == [view parent], @"parent of object view with tag %d is not object view with tag %d", tag, fromContainer);
+            HippyAssert(fromView == [view parent], @"Parent of View(%d) should be %@(%d)!", tag, fromView, fromContainer);
             [view removeFromHippySuperview];
-            [toView insertHippySubview:view atIndex:index];
+            [toView insertHippySubview:view atIndex:moved_ids_render_idxs[i]];
         }
         [fromView clearSortedSubviews];
         [fromView didUpdateHippySubviews];
