@@ -726,9 +726,14 @@ void JsDriverUtils::CallNative(hippy::napi::CallbackInfo& info, const std::funct
     bool,
     byte_string)>& callback) {
   FOOTSTONE_DLOG(INFO) << "CallHost";
-  std::any slot_any = info.GetSlot();
-  auto any_pointer = std::any_cast<void*>(&slot_any);
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
+  
+  // 使用引擎专用的工具函数获取ScopeWrapper
+  ScopeWrapper* scope_wrapper = GetScopeWrapperFromSlot(info.GetSlot());
+  if (!scope_wrapper) {
+    FOOTSTONE_DLOG(ERROR) << "Failed to get ScopeWrapper from slot";
+    return;
+  }
+  
   auto scope = scope_wrapper->scope.lock();
   FOOTSTONE_CHECK(scope);
   auto context = scope->GetContext();

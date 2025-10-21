@@ -214,6 +214,7 @@ set(SOURCE_SET
     src/base/js_value_wrapper.cc
     src/engine.cc
     src/js_driver_utils.cc
+    src/js_driver_utils_any_cast.cc
     src/modules/animation_frame_module.cc
     src/modules/animation_module.cc
     src/modules/event_module.cc
@@ -289,6 +290,15 @@ if("${JS_ENGINE}" STREQUAL "HERMES_ONLY" OR "${JS_ENGINE}" STREQUAL "HERMES_V8")
   else()
     message(FATAL_ERROR "Unsupported system ${CMAKE_SYSTEM_NAME} by hermes engine")
   endif()
+
+  # 为Hermes专用文件添加RTTI和异常支持
+  set_source_files_properties(
+    src/napi/hermes/hermes_ctx.cc
+    src/napi/hermes/hermes_ctx_value.cc
+    src/napi/hermes/hermes_try_catch.cc
+    src/vm/hermes/hermes_vm.cc
+    PROPERTIES COMPILE_FLAGS "-frtti -fexceptions"
+  )
 endif ()
 
 set(SOURCE_SET_STANDALONE

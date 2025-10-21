@@ -23,6 +23,7 @@
 #include "driver/napi/hermes/hermes_ctx.h"
 #include "driver/napi/hermes/hermes_try_catch.h"
 #include "driver/scope.h"
+#include "driver/js_driver_utils.h"
 #include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 #include "driver/vm/hermes/native_source_code_hermes.h"
@@ -107,8 +108,8 @@ static Value InvokePropertyCallback(Runtime& runtime,
   if (!global_native_state->Get(kScopeWrapperIndex, scope_any)) {
     return facebook::jsi::Value::undefined();
   }
-  auto any_pointer = std::any_cast<void*>(&scope_any);
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
+  auto scope_wrapper = JsDriverUtils::GetScopeWrapperFromSlot(scope_any);
+  FOOTSTONE_DCHECK(scope_wrapper != nullptr);
   auto scope = scope_wrapper->scope.lock();
   if (scope == nullptr) return facebook::jsi::Value::undefined();
   auto hermes_ctx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
@@ -147,8 +148,8 @@ static Value InvokeConstructorJsCallback(Runtime& runtime,
     return Value::undefined();
   }
   // 2. Get Scope
-  auto any_pointer = std::any_cast<void*>(&scope_any);
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
+  auto scope_wrapper = JsDriverUtils::GetScopeWrapperFromSlot(scope_any);
+  FOOTSTONE_DCHECK(scope_wrapper != nullptr);
   auto scope = scope_wrapper->scope.lock();
   if (scope == nullptr) return facebook::jsi::Value::undefined();
   auto hermes_ctx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
@@ -259,8 +260,8 @@ static Value InvokeJsCallback(Runtime& runtime, const Value& this_value, const V
   if (!global_native_state->Get(kScopeWrapperIndex, scope_any)) {
     return Value::undefined();
   }
-  auto any_pointer = std::any_cast<void*>(&scope_any);
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
+  auto scope_wrapper = JsDriverUtils::GetScopeWrapperFromSlot(scope_any);
+  FOOTSTONE_DCHECK(scope_wrapper != nullptr);
   auto scope = scope_wrapper->scope.lock();
   if (scope == nullptr) return facebook::jsi::Value::undefined();
   auto hermes_ctx = std::static_pointer_cast<HermesCtx>(scope->GetContext());
@@ -1209,8 +1210,8 @@ void HermesCtx::SetWeak(std::shared_ptr<CtxValue> value, std::unique_ptr<WeakCal
   if (!global_native_state_->Get(kScopeWrapperIndex, scope_any)) {
     return;
   }
-  auto any_pointer = std::any_cast<void*>(&scope_any);
-  auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
+  auto scope_wrapper = JsDriverUtils::GetScopeWrapperFromSlot(scope_any);
+  FOOTSTONE_DCHECK(scope_wrapper != nullptr);
   wrapper->scope = scope_wrapper->scope;
   local_state->SetWeakCallbackWrapper(std::move(wrapper));
 }

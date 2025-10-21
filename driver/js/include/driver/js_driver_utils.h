@@ -80,6 +80,10 @@ class JsDriverUtils {
                                                   string_view,
                                                   bool,
                                                   byte_string)>& callback);
+  
+  // 引擎专用的工具函数，用于从slot中获取ScopeWrapper
+  static ScopeWrapper* GetScopeWrapperFromSlot(const std::any& slot);
+  
   static void LoadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data);
   static void UnloadInstance(const std::shared_ptr<Scope>& scope, byte_string&& buffer_data);
     
