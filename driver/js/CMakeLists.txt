@@ -214,7 +214,6 @@ set(SOURCE_SET
     src/base/js_value_wrapper.cc
     src/engine.cc
     src/js_driver_utils.cc
-    src/js_driver_utils_any_cast.cc
     src/modules/animation_frame_module.cc
     src/modules/animation_module.cc
     src/modules/event_module.cc

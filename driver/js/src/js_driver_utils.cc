@@ -899,5 +899,15 @@ void JsDriverUtils::UnloadInstance(const std::shared_ptr<Scope>& scope, byte_str
     runner->PostTask(std::move(callback));
 }
 
+// A public tool function for getting the ScopeWrapper from the slot.
+ScopeWrapper* JsDriverUtils::GetScopeWrapperFromSlot(const std::any& slot) {
+  auto slot_ptr = std::any_cast<void*>(&slot);
+  if (slot_ptr) {
+    return static_cast<ScopeWrapper*>(*slot_ptr);
+  }
+
+  return nullptr;
+}
+
 }  // namespace driver
 }  // namespace hippy
