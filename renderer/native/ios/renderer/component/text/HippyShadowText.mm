@@ -202,7 +202,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
 
     NSNumber *parentTag = [[self parent] hippyTag];
-    // MTTlayout
+    // Layout
     NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::LayoutMeasureMode::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
@@ -363,62 +363,66 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode {
-    if (isnan(width)) {
-        width = 0;
-    }
+    @synchronized (self) {
+        if (isnan(width)) {
+            width = 0;
+        }
 
-    if (_cachedTextStorage && width == _cachedTextStorageWidth && widthMode == _cachedTextStorageWidthMode) {
-        return _cachedTextStorage;
-    }
+        if (_cachedTextStorage && width == _cachedTextStorageWidth && widthMode == _cachedTextStorageWidthMode) {
+            return _cachedTextStorage;
+        }
 
-    // textContainer
-    NSTextContainer *textContainer = [NSTextContainer new];
-    textContainer.lineFragmentPadding = 0.0;
+        // textContainer
+        NSTextContainer *textContainer = [NSTextContainer new];
+        textContainer.lineFragmentPadding = 0.0;
 
-    if (_numberOfLines > 0) {
-        textContainer.lineBreakMode = _ellipsizeMode;
-    } else {
-        textContainer.lineBreakMode = NSLineBreakByClipping;
-    }
+        if (_numberOfLines > 0) {
+            textContainer.lineBreakMode = _ellipsizeMode;
+        } else {
+            textContainer.lineBreakMode = NSLineBreakByClipping;
+        }
 
-    textContainer.maximumNumberOfLines = _numberOfLines;
-    textContainer.size = (CGSize) { widthMode == hippy::LayoutMeasureMode::Undefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
-    
-    // layoutManager && textStorage
-    NSLayoutManager *layoutManager = [NSLayoutManager new];
-    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:self.attributedString];
-    [textStorage addLayoutManager:layoutManager];
-    
-    layoutManager.delegate = self;
-    [layoutManager addTextContainer:textContainer];
-    [layoutManager ensureLayoutForTextContainer:textContainer];
-    
-    // for better perf, only do relayout when MeasureMode is MeasureModeExactly
-    if (_needRelayoutText && hippy::LayoutMeasureMode::Exactly == widthMode) {
-        // relayout text
-        [layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, textStorage.length) actualCharacterRange:nil];
-        [layoutManager removeTextContainerAtIndex:0];
+        textContainer.maximumNumberOfLines = _numberOfLines;
+        textContainer.size = (CGSize) { widthMode == hippy::LayoutMeasureMode::Undefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
+        
+        // layoutManager && textStorage
+        NSLayoutManager *layoutManager = [NSLayoutManager new];
+        NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:self.attributedString];
+        [textStorage addLayoutManager:layoutManager];
+        
+        layoutManager.delegate = self;
         [layoutManager addTextContainer:textContainer];
         [layoutManager ensureLayoutForTextContainer:textContainer];
-        _needRelayoutText = NO;
+        
+        // for better perf, only do relayout when MeasureMode is MeasureModeExactly
+        if (_needRelayoutText && hippy::LayoutMeasureMode::Exactly == widthMode) {
+            // relayout text
+            [layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, textStorage.length) actualCharacterRange:nil];
+            [layoutManager removeTextContainerAtIndex:0];
+            [layoutManager addTextContainer:textContainer];
+            [layoutManager ensureLayoutForTextContainer:textContainer];
+            _needRelayoutText = NO;
+        }
+
+        if (_autoLetterSpacing) {
+            resetFontAttribute(textStorage);
+            _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:textStorage];
+        }
+
+        _cachedTextStorageWidth = width;
+        _cachedTextStorageWidthMode = widthMode;
+        _cachedTextStorage = textStorage;
+
+        return textStorage;
     }
-
-    if (_autoLetterSpacing) {
-        resetFontAttribute(textStorage);
-        _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:textStorage];
-    }
-
-    _cachedTextStorageWidth = width;
-    _cachedTextStorageWidthMode = widthMode;
-    _cachedTextStorage = textStorage;
-
-    return textStorage;
 }
 
 - (void)dirtyText:(BOOL)needToDoLayout {
     [super dirtyText:needToDoLayout];
     _isTextDirty = YES;
-    _cachedTextStorage = nil;
+    @synchronized (self) {
+        _cachedTextStorage = nil;
+    }
     auto domManager = self.domManager.lock();
     auto weakDomManager = self.domManager;
     if (domManager) {
@@ -483,8 +487,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         }
     }
 
-    if (![self isTextDirty] && _cachedAttributedString) {
-        return _cachedAttributedString;
+    @synchronized (self) {
+        if (![self isTextDirty] && _cachedAttributedString) {
+            return _cachedAttributedString;
+        }
     }
 
     if (_fontSize && !isnan(_fontSize)) {
@@ -636,9 +642,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     // create a non-mutable attributedString for use by the Text system which avoids copies down the line
-    _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
-    _isTextDirty = NO;
-    return _cachedAttributedString;
+    @synchronized (self) {
+        _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
+        _isTextDirty = NO;
+        return _cachedAttributedString;
+    }
 }
 
 - (void)_addAttribute:(NSString *)attribute withValue:(id)attributeValue toAttributedString:(NSMutableAttributedString *)attributedString {
