@@ -151,12 +151,18 @@
 }
 
 - (void)finishSetupForInstance {
-    if (!_setupComplete && _instance) {
+    id<HippyBridgeModule> instance = _instance;
+    if (!_setupComplete && instance) {
         _setupComplete = YES;
-        [_bridge registerModuleForFrameUpdates:_instance withModuleData:self];
-        NSDictionary *useInfo = @{@"bridge": _bridge, @"module": _instance};
+
+        NSMutableDictionary *useInfo = [NSMutableDictionary dictionaryWithObject:instance forKey:@"module"];
+        HippyBridge *bridge = _bridge;
+        if (bridge) {
+            [bridge registerModuleForFrameUpdates:instance withModuleData:self];
+            useInfo[@"bridge"] = bridge;
+        }
         [[NSNotificationCenter defaultCenter] postNotificationName:HippyDidInitializeModuleNotification
-                                                            object:nil
+                                                            object:bridge
                                                           userInfo:useInfo];
     }
 }
