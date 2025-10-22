@@ -52,7 +52,7 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
-    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@; text: %@", self.hippyTag, self.textStorage.string];
+    NSString *replacement = [NSString stringWithFormat:@"; tag: %@; text: %@", self.hippyTag, self.textStorage.string];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
 }
 
