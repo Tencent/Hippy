@@ -43,20 +43,23 @@ export class DimensionsUtil {
     await DimensionsUtil.getStatusBarHeight(displayClass);
     let dimensionMap = new Map<string, HippyValue | Map<string, HippyValue>>()
 
-    let windowRect = await DimensionsUtil.getLastWindowRect(context);
-    let w = 0;
-    let h = 0;
-    if (windowRect.width > 0 && windowRect.height > 0) {
-      w = windowRect.width;
-      h = windowRect.height;
-    } else {
-      w = displayClass.width;
-      h = displayClass.height;
+    let wwPixels = ww * displayClass.densityPixels;
+    let whPixels = wh * displayClass.densityPixels;
+
+    if (wwPixels < 0 || whPixels < 0) {
+      let windowRect = await DimensionsUtil.getLastWindowRect(context);
+      if (windowRect.width > 0 && windowRect.height > 0) {
+        wwPixels = windowRect.width;
+        whPixels = windowRect.height;
+      } else {
+        wwPixels = displayClass.width;
+        whPixels = displayClass.height;
+      }
     }
 
     let windowDisplayMetricsMap = new Map<string, HippyValue>()
-    windowDisplayMetricsMap.set("width", ww >= 0 ? ww : w);
-    windowDisplayMetricsMap.set("height", wh >= 0 ? wh : h);
+    windowDisplayMetricsMap.set("width", wwPixels);
+    windowDisplayMetricsMap.set("height", whPixels);
     windowDisplayMetricsMap.set("scale", displayClass.densityPixels / PixelUtil.getDensityScale());
     windowDisplayMetricsMap.set("fontScale", displayClass.scaledDensity / PixelUtil.getDensityScale());
     windowDisplayMetricsMap.set("densityDpi", displayClass.densityDPI / PixelUtil.getDensityScale());
@@ -65,8 +68,8 @@ export class DimensionsUtil {
     dimensionMap.set("windowPhysicalPixels", windowDisplayMetricsMap);
 
     let screenDisplayMetricsMap = new Map<string, HippyValue>()
-    screenDisplayMetricsMap.set("width", w);
-    screenDisplayMetricsMap.set("height", h);
+    screenDisplayMetricsMap.set("width", displayClass.width);
+    screenDisplayMetricsMap.set("height", displayClass.height);
     screenDisplayMetricsMap.set("scale", displayClass.densityPixels / PixelUtil.getDensityScale());
     screenDisplayMetricsMap.set("fontScale", displayClass.scaledDensity / PixelUtil.getDensityScale());
     screenDisplayMetricsMap.set("densityDpi", displayClass.densityDPI / PixelUtil.getDensityScale());
