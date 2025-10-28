@@ -46,6 +46,11 @@ NSAttributedStringKey const HippyTextVerticalAlignAttributeName = @"HippyTextVer
 // Distance to the bottom of the baseline, for text attachment baseline layout, NSNumber value
 NSAttributedStringKey const HippyVerticalAlignBaselineOffsetAttributeName = @"HippyVerticalAlignBaselineOffsetAttributeName";
 
+// Keys for pending attributes collection (avoid string hardcode)
+static NSString *const HippyPendingRangeKey = @"HippyPendingRangeKey";
+static NSString *const HippyPendingOffsetKey = @"HippyPendingOffsetKey";
+static NSString *const HippyPendingValueKey = @"HippyPendingValueKey";
+
 
 CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025;
@@ -91,6 +96,9 @@ static BOOL DirtyTextEqual(NSObject *v1, NSObject *v2) {
     BOOL _isNestedText; // Indicates whether Text is nested, for speeding up typesetting calculations
     BOOL _needRelayoutText; // special styles require two layouts, eg. verticalAlign etc
     hippy::LayoutMeasureMode _cachedTextStorageWidthMode; // cached width mode when building text storage
+    // Collect pending edits to avoid mutating textStorage during layout callbacks
+    NSMutableArray<NSDictionary *> *_pendingBaselineOffsets; // entries: { range:NSValue(NSRange), offset:NSNumber }
+    NSMutableArray<NSDictionary *> *_pendingAttachmentBaselineBottoms; // entries: { range:NSValue(NSRange), value:NSNumber }
 }
 
 @end
@@ -172,6 +180,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
         }
+        _pendingBaselineOffsets = [NSMutableArray array];
+        _pendingAttachmentBaselineBottoms = [NSMutableArray array];
     }
     return self;
 }
@@ -392,15 +402,49 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         
         layoutManager.delegate = self;
         [layoutManager addTextContainer:textContainer];
+        // start clean collection for this layout build
+        [_pendingBaselineOffsets removeAllObjects];
+        [_pendingAttachmentBaselineBottoms removeAllObjects];
         [layoutManager ensureLayoutForTextContainer:textContainer];
+
+        // Apply pending attributes collected during the first layout pass.
+        if (_pendingBaselineOffsets.count > 0 || _pendingAttachmentBaselineBottoms.count > 0) {
+            [textStorage beginEditing];
+            NSUInteger const storageLength = textStorage.length;
+            for (NSDictionary *entry in _pendingBaselineOffsets) {
+                NSValue *rangeValue = entry[HippyPendingRangeKey];
+                NSNumber *offsetValue = entry[HippyPendingOffsetKey];
+                if (!rangeValue || !offsetValue) { continue; }
+                NSRange r = rangeValue.rangeValue;
+                if (r.location == NSNotFound || r.length == 0) { continue; }
+                if (NSMaxRange(r) > storageLength) { continue; }
+                [textStorage addAttribute:NSBaselineOffsetAttributeName value:offsetValue range:r];
+            }
+            for (NSDictionary *entry in _pendingAttachmentBaselineBottoms) {
+                NSValue *rangeValue = entry[HippyPendingRangeKey];
+                NSNumber *value = entry[HippyPendingValueKey];
+                if (!rangeValue || !value) { continue; }
+                NSRange r = rangeValue.rangeValue;
+                if (r.location == NSNotFound || r.length == 0) { continue; }
+                if (NSMaxRange(r) > storageLength) { continue; }
+                [textStorage addAttribute:HippyVerticalAlignBaselineOffsetAttributeName value:value range:r];
+            }
+            [textStorage endEditing];
+            [_pendingBaselineOffsets removeAllObjects];
+            [_pendingAttachmentBaselineBottoms removeAllObjects];
+            _needRelayoutText = YES;
+        }
         
         // for better perf, only do relayout when MeasureMode is MeasureModeExactly
         if (_needRelayoutText && hippy::LayoutMeasureMode::Exactly == widthMode) {
-            // relayout text
+            // relayout text after applying pending attributes from first pass
             [layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, textStorage.length) actualCharacterRange:nil];
             [layoutManager removeTextContainerAtIndex:0];
             [layoutManager addTextContainer:textContainer];
             [layoutManager ensureLayoutForTextContainer:textContainer];
+            // clear any collections from the relayout pass
+            [_pendingBaselineOffsets removeAllObjects];
+            [_pendingAttachmentBaselineBottoms removeAllObjects];
             _needRelayoutText = NO;
         }
 
@@ -1102,9 +1146,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             CGFloat maxTotalHeight = MAX((maxAttachmentHeight + textBaselineToBottom), maxFont.lineHeight);
             realBaselineOffset = (CGRectGetHeight(*lineFragmentUsedRect) - maxTotalHeight) / 2.f;
             if (hasAttachment) {
-                [textStorage addAttribute:HippyVerticalAlignBaselineOffsetAttributeName
-                                    value:@(realBaselineOffset + textBaselineToBottom)
-                                    range:storageRange];
+                // Defer writing attribute to avoid mutating storage during layout
+                [_pendingAttachmentBaselineBottoms addObject:@{ HippyPendingRangeKey: [NSValue valueWithRange:storageRange],
+                                                               HippyPendingValueKey: @(realBaselineOffset + textBaselineToBottom) }];
             }
         }
         
@@ -1146,9 +1190,9 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                         break;
                 }
                 if (abs(offset) > .0f && !attrs[HippyShadowViewAttributeName]) {
-                    // only set for Text
-                    [textStorage addAttribute:NSBaselineOffsetAttributeName value:@(offset) range:range];
-                    _needRelayoutText = YES;
+                    // only set for Text; defer to avoid mutation during layout
+                    [_pendingBaselineOffsets addObject:@{ HippyPendingRangeKey: [NSValue valueWithRange:range],
+                                                          HippyPendingOffsetKey: @(offset) }];
                 }
             }
         }];
