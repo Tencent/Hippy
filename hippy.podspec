@@ -67,6 +67,7 @@ Pod::Spec.new do |s|
     'renderer/native/ios/**/NativeRenderManager.h',
     'renderer/native/ios/**/HippyComponentMap.h',
     'renderer/native/ios/**/UIView+DirectionalLayout.h',
+    'renderer/native/ios/**/HippyViewsRelation.h',
     'modules/vfs/ios/**/!(*HippyVFSDefines).h' # Exclude the specified file
     ]
     framework.public_header_files = [
