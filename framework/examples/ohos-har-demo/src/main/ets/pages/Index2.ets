@@ -87,7 +87,7 @@ class DefaultEngineListener implements EngineListener {
         null,
       )
       loadParams.componentName = "Demo"
-      loadParams.codeCacheTag = "Demo"
+      loadParams.codeCacheTag = "Demo1"
       loadParams.jsParams = new Map<string, HippyValue>()
       loadParams.jsParams.set(
         "msgFromNative",
@@ -146,7 +146,7 @@ class DefaultEngineListener2 implements EngineListener {
         null,
       )
       loadParams.componentName = "Demo"
-      loadParams.codeCacheTag = "Demo"
+      loadParams.codeCacheTag = "Demo2"
       loadParams.jsParams = new Map<string, HippyValue>()
       loadParams.jsParams.set(
         "msgFromNative",
