@@ -97,7 +97,7 @@ class DefaultEngineListener implements EngineListener {
         null
       )
       loadParams.componentName = "Demo"
-      loadParams.codeCacheTag = "Demo"
+      loadParams.codeCacheTag = "Demo_1.0" // 建议tag拼接js version，tag会用来拼接v8 code cache文件的路径，不同js不同cache文件
       loadParams.jsParams = new Map<string, HippyValue>()
       loadParams.jsParams.set(
         "msgFromNative",
