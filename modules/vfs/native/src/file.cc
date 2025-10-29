@@ -124,6 +124,7 @@ uint64_t HippyFile::GetFileModifyTime(const string_view& file_path) {
   auto path_str = StringViewUtils::ConvertEncoding(file_path,
                                                    string_view::Encoding::Utf8).utf8_value();
   auto path =  reinterpret_cast<const char*>(path_str.c_str());
+  path = RemoveFilePrefix(path);
   struct stat statInfo{};
   FILE* fp = fopen(path, "r");
   if (fp == nullptr) {
@@ -137,6 +138,17 @@ uint64_t HippyFile::GetFileModifyTime(const string_view& file_path) {
   FOOTSTONE_DLOG(INFO) << "modify_time = " << modify_time;
   fclose(fp);
   return modify_time;
+}
+
+const char* HippyFile::RemoveFilePrefix(const char* str) {
+  const char* prefix = "file:";
+  size_t prefix_len = strlen(prefix);
+
+  if (strncmp(str, prefix, prefix_len) == 0) {
+    return str + prefix_len;
+  }
+
+  return str;
 }
 
 } // namespace vfs
