@@ -51,6 +51,7 @@ class HippyFile {
   static int CreateDir(const string_view& dir_path, mode_t mode);
   static int CheckDir(const string_view& dir_path, int mode);
   static uint64_t GetFileModifyTime(const string_view& file_path);
+  static const char* RemoveFilePrefix(const char* str);
 
   template <typename CharType>
   static bool ReadFile(const string_view& file_path,
