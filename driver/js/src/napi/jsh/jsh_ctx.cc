@@ -372,6 +372,19 @@ std::shared_ptr<CtxValue> JSHCtx::InternalRunScript(
       if(!CheckJSVMStatus(env_, status)) {
         return nullptr;
       }
+      if (!script) {
+        return nullptr;
+      }
+      if (cacheRejected) {
+        const uint8_t *data = nullptr;
+        size_t length = 0;
+        status = OH_JSVM_CreateCodeCache(env_, script, &data, &length);
+        FOOTSTONE_DCHECK(status == JSVM_OK);
+        if (status == JSVM_OK && data && length > 0) {
+          *cache = string_view(data, length);
+          delete[] data;
+        }
+      }
     } else {
       FOOTSTONE_UNREACHABLE();
     }
@@ -389,8 +402,10 @@ std::shared_ptr<CtxValue> JSHCtx::InternalRunScript(
       size_t length = 0;
       status = OH_JSVM_CreateCodeCache(env_, script, &data, &length);
       FOOTSTONE_DCHECK(status == JSVM_OK);
-      *cache = string_view(data, length);
-      delete[] data;
+      if (status == JSVM_OK && data && length > 0) {
+        *cache = string_view(data, length);
+        delete[] data;
+      }
     } else {
       status = OH_JSVM_CompileScript(env_, jsh_source_value->GetValue(), nullptr, 0, true, nullptr, &script);
       if(!CheckJSVMStatus(env_, status)) {
