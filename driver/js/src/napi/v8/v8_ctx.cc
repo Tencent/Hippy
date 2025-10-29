@@ -430,6 +430,12 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
       v8::ScriptCompiler::Source script_source(source, origin, cached_data);
       script = v8::ScriptCompiler::Compile(
           context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
+      if (cached_data && cached_data->rejected) {
+        const v8::ScriptCompiler::CachedData* new_cached_data =
+            v8::ScriptCompiler::CreateCodeCache(script.ToLocalChecked()->GetUnboundScript());
+        *cache = string_view(new_cached_data->data,
+            footstone::checked_numeric_cast<int, size_t>(new_cached_data->length));
+      }
     } else {
       FOOTSTONE_UNREACHABLE();
     }
