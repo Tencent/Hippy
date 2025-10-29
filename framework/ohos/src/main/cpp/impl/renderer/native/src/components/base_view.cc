@@ -138,13 +138,15 @@ void BaseView::DestroyArkUINode() {
   }
   
   node->SetArkUINodeDelegate(nullptr);
-  node->RemoveSelfFromParent();
-  DestroyArkUINodeImpl();
-  isLazyCreate_ = true;
+
   for (int32_t i = 0; i < (int32_t)children_.size(); i++) {
     auto subView = children_[(uint32_t)i];
     subView->DestroyArkUINode();
   }
+
+  node->RemoveSelfFromParent();
+  DestroyArkUINodeImpl();
+  isLazyCreate_ = true;
 }
 
 std::shared_ptr<RecycleView> BaseView::RecycleArkUINode() {
