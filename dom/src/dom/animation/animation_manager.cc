@@ -70,7 +70,7 @@ void AnimationManager::EmplaceNodeProp(const std::shared_ptr<DomNode>& node, con
   }
   auto animation = GetAnimation(animation_id);
   if (animation) {
-    node->EmplaceStyleMap(prop, HippyValue(animation->GetStartValue()));
+    node->EmplaceStyleMap(prop, HippyValue(animation->GetCurrentValue()));
   }
 }
 
