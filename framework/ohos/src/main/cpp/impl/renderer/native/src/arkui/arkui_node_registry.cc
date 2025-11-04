@@ -86,7 +86,6 @@ void ArkUINodeRegistry::ReceiveEvent(ArkUI_NodeEvent *event) {
     ArkUI_NodeHandle nodeHanle = OH_ArkUI_NodeEvent_GetNodeHandle(event);
     auto it = nodesByHandle_.find(nodeHanle);
     if (it == nodesByHandle_.end()) {
-      FOOTSTONE_LOG(WARNING) << "Node with handle " << nodeHanle << " not found";
       return;
     }
 
@@ -101,7 +100,6 @@ void ArkUINodeRegistry::ReceiveCustomEvent(ArkUI_NodeCustomEvent *event) {
     ArkUI_NodeHandle nodeHanle = OH_ArkUI_NodeCustomEvent_GetNodeHandle(event);
     auto it = customNodesByHandle_.find(nodeHanle);
     if (it == customNodesByHandle_.end()) {
-      FOOTSTONE_LOG(WARNING) << "Custom node with handle " << nodeHanle << " not found";
       return;
     }
 
