@@ -92,6 +92,11 @@ void RichTextView::CreateArkUINodeImpl() {
 void RichTextView::DestroyArkUINodeImpl() {
 #ifdef OHOS_DRAW_TEXT
   containerNode_ = nullptr;
+# ifndef OHOS_DRAW_CUSTOM_TEXT
+  if (textNode_) {
+    textNode_->ResetTextContentWithStyledStringAttribute();
+  }
+# endif
 #endif
   textNode_ = nullptr;
   ClearProps();
