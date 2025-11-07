@@ -545,7 +545,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     if (view) {
         // First of all, mark shadowView as dirty recursively,
         // so that we can collect ui blocks to amend correctly.
-        [shadowView dirtyPropagation:NativeRenderUpdateLifecycleAllDirtied];
+        [shadowView markLayoutDirty];
         
         // Special handling of lazy list, which is a cellView
         // because lazy loading list needs to be re-layout
@@ -641,7 +641,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     HippyComponentData *componentData = [self componentDataForViewName:renderObject.viewName];
     NSDictionary *newProps = [renderObject mergeProps:props];
     [componentData setProps:newProps forShadowView:renderObject];
-    [renderObject dirtyPropagation:NativeRenderUpdateLifecyclePropsDirtied];
+    [renderObject markLayoutDirty];
     [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         [componentData setProps:newProps forView:view];
@@ -891,7 +891,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
         HippyShadowView *renderObject = [currentRegistry objectForKey:@(tag)];
-        [renderObject dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+        [renderObject markLayoutDirty];
         if (renderObject) {
             [renderObject removeFromHippySuperview];
             [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:_shadowViewRegistry];
@@ -961,8 +961,8 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
         [view removeFromHippySuperview];
         [toShadowView insertHippySubview:view atIndex:nodeRenderIndex];
     }
-    [fromShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
-    [toShadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+    [fromShadowView markLayoutDirty];
+    [toShadowView markLayoutDirty];
     [fromShadowView didUpdateHippySubviews];
     [toShadowView didUpdateHippySubviews];
     auto strongTags = std::move(ids);
@@ -1000,7 +1000,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
         int32_t index = node->GetRenderInfo().index;
         int32_t componentTag = node->GetId();
         HippyShadowView *objectView = [_shadowViewRegistry componentForTag:@(componentTag) onRootTag:@(rootTag)];
-        [objectView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+        [objectView markLayoutDirty];
         HippyAssert(!parentObjectView || parentObjectView == [objectView parent], @"parent not same!");
         if (!parentObjectView) {
             parentObjectView = (HippyShadowView *)[objectView parent];
@@ -1044,7 +1044,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
         CGRect frame = CGRectMakeFromLayoutResult(layoutResult);
         HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:componentTag onRootTag:rootTag];
         if (shadowView) {
-            [shadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+            [shadowView markLayoutDirty];
             shadowView.frame = frame;
             shadowView.nodeLayoutResult = layoutResult;
             [self addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -1548,7 +1548,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
                         ((HippyShadowText *)shadowView).fontSizeMultiplier = fontSizeMultiplier;
                     }
                     [shadowView dirtyText:NO];
-                    [shadowView dirtyPropagation:NativeRenderUpdateLifecycleLayoutDirtied];
+                    [shadowView markLayoutDirty];
                 }
             }
             // do layout and refresh UI

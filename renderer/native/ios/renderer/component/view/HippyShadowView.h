@@ -26,14 +26,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, NativeRenderUpdateLifecycle) {
-    NativeRenderUpdateLifecycleUninitialized = 0,
-    NativeRenderUpdateLifecycleComputed = 1,
-    NativeRenderUpdateLifecyclePropsDirtied = 2,
-    NativeRenderUpdateLifecycleLayoutDirtied = 3,
-    NativeRenderUpdateLifecycleAllDirtied = 4,
-};
-
 typedef NS_ENUM(NSUInteger, HippyCreationType) {
     HippyCreationTypeUndetermined = 0,
     HippyCreationTypeInstantly,
@@ -44,7 +36,7 @@ typedef NS_ENUM(NSUInteger, HippyCreationType) {
 
 typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView);
 
-typedef UIView *_Nullable(^HippyViewCreationBlock)(HippyShadowView *renderObject);
+typedef UIView *_Nullable(^HippyViewCreationBlock)(HippyShadowView *shadowView);
 typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
 /// ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
@@ -55,43 +47,27 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 ///    perform the last computation, we skip laying out the subtree entirely.
 @interface HippyShadowView : NSObject <HippyComponent> {
 @protected
-    NativeRenderUpdateLifecycle _propagationLifecycle;
+    /// Indicates whether layout has been computed and processed.
+    /// Set to YES after amendLayoutBeforeMount completes, reset to NO when properties or layout changes.
+    BOOL _isLayoutComputed;
 }
 
 
 #pragma mark - Visibility & Layout Properties
 
-/// Background color propagated to children where appropriate.
+/// Background color for this view.
+/// @discussion This property is set by JS and used for rendering the view's background.
+/// Note: Each view has its own backgroundColor; there is no automatic propagation to children.
 @property(nonatomic, strong) UIColor *backgroundColor;
 
 /// Whether layout direction has been confirmed changed and needs update.
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
-/// Whether the corresponding UIView should be hidden.
-/// @discussion NativeRenderUIManager uses this to determine visibility. Useful when
-/// the view will be clipped and should not be displayed.
-@property (nonatomic, assign, getter=isHidden) BOOL hidden;
-
-/// Position and dimensions.
-/// Defaults to 0
-@property (nonatomic, assign) CGFloat top;
-@property (nonatomic, assign) CGFloat left;
-@property (nonatomic, assign) CGFloat bottom;
-@property (nonatomic, assign) CGFloat right;
-
-@property (nonatomic, assign) CGFloat width;
-@property (nonatomic, assign) CGFloat height;
-
-@property (nonatomic, assign) CGFloat minWidth;
-@property (nonatomic, assign) CGFloat maxWidth;
-@property (nonatomic, assign) CGFloat minHeight;
-@property (nonatomic, assign) CGFloat maxHeight;
-
-/// Get frame set by layout system
+/// Frame set by layout system (computed by C++ DOM engine).
+/// @discussion This is the only layout property actually used in HippyShadowView.
+/// Other layout properties (top/left/width/height/etc) are exported to JS but handled entirely
+/// by the C++ DOM engine, not stored in ObjC.
 @property (nonatomic, assign) CGRect frame;
-
-/// Get padding set by layout system
-@property(nonatomic, assign) UIEdgeInsets paddingAsInsets;
 
 /// z-index, used to override sibling order in the view
 @property (nonatomic, assign) NSInteger zIndex;
@@ -153,23 +129,42 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 /// so in the eyes of CSSLayout it is a leaf node.
 - (BOOL)isCSSLeafNode;
 
-/// Marks the node as dirty and propagates the specified lifecycle change.
-/// @param type The lifecycle change to propagate.
-- (void)dirtyPropagation:(NativeRenderUpdateLifecycle)type NS_REQUIRES_SUPER;
+/// Marks the node as dirty, indicating it needs layout processing.
+/// This method should be called when properties or layout changes.
+- (void)markLayoutDirty NS_REQUIRES_SUPER;
 
-/// Returns whether the node is dirty for the specified lifecycle.
-/// @param dirtyType The lifecycle to check.
-- (BOOL)isPropagationDirty:(NativeRenderUpdateLifecycle)dirtyType;
+/// Returns whether the node's layout has been computed.
+/// @return YES if layout is computed and up-to-date, NO if dirty and needs processing.
+- (BOOL)isLayoutComputed;
 
 /// Marks text as dirty and optionally triggers a layout.
 /// @param needToDoLayout Whether layout should be performed.
 - (void)dirtyText:(BOOL)needToDoLayout NS_REQUIRES_SUPER;
 
-/// Indicates text layout has been computed.
-- (void)setTextComputed NS_REQUIRES_SUPER;
-
 /// Returns whether text layout is dirty.
 - (BOOL)isTextDirty;
+
+#pragma mark - Layout Style Getters
+
+/// Gets the style width and height from C++ DomNode.
+/// @discussion These values are the layout properties set from JS and managed by the C++ layout engine.
+/// @return CGSize with width and height, or NAN values if unable to retrieve.
+- (CGSize)getStyleSize;
+
+/// Gets the style width from C++ DomNode.
+/// @return Width value, or NAN if unable to retrieve.
+- (CGFloat)getStyleWidth;
+
+/// Gets the style height from C++ DomNode.
+/// @return Height value, or NAN if unable to retrieve.
+- (CGFloat)getStyleHeight;
+
+/// Gets the padding from C++ LayoutResult.
+/// @discussion Extracts padding values (paddingTop, paddingLeft, paddingBottom, paddingRight)
+/// from the layout result computed by the C++ layout engine.
+/// Mainly used by text components to calculate content area and apply contentInset.
+/// @return UIEdgeInsets with padding values.
+- (UIEdgeInsets)paddingAsInsets;
 
 #pragma mark - Component Protocol
 
