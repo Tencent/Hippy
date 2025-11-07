@@ -54,10 +54,10 @@
 #import "HippyShadowTextView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyEventDispatcher.h"
+#import "HippyViewsRelation.h"
 #import "dom/root_node.h"
 #import <objc/runtime.h>
 #import <os/lock.h>
-#import <unordered_map>
 
 
 using HippyValue = footstone::value::HippyValue;
@@ -67,81 +67,18 @@ using DomNode = hippy::DomNode;
 using LayoutResult = hippy::LayoutResult;
 using DomValueType = footstone::value::HippyValue::Type;
 using DomValueNumberType = footstone::value::HippyValue::NumberType;
-using LayoutResult = hippy::LayoutResult;
 using RenderInfo = hippy::DomNode::RenderInfo;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 using DomEvent = hippy::DomEvent;
 using RootNode = hippy::RootNode;
 
-
-using HPViewBinding = std::map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
-
 constexpr char kVSyncKey[] = "frameupdate";
 
-@interface NativeRenderViewsRelation : NSObject {
-    HPViewBinding _viewRelation;
-}
-
-- (void)addViewTag:(int32_t)viewTag forSuperViewTag:(int32_t)superviewTag atIndex:(int32_t)index;
-
-- (void)enumerateViewsRelation:(void (^)(NSNumber *, NSArray<NSNumber *> *, NSArray<NSNumber *> *))block;
-
-- (void)removeAllObjects;
-
-@end
-
-@implementation NativeRenderViewsRelation
-
-- (void)addViewTag:(int32_t)viewTag forSuperViewTag:(int32_t)superviewTag atIndex:(int32_t)index {
-    if (superviewTag) {
-        auto &viewTuple = _viewRelation[superviewTag];
-        auto &subviewTagTuple = std::get<0>(viewTuple);
-        auto &subviewIndexTuple = std::get<1>(viewTuple);
-        subviewTagTuple.push_back(viewTag);
-        subviewIndexTuple.push_back(index);
-    }
-}
-
-- (void)enumerateViewsRelation:(void (^)(NSNumber *, NSArray<NSNumber *> *, NSArray<NSNumber *> *))block {
-    //using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
-    for (const auto &element : _viewRelation) {
-        NSNumber *superviewTag = @(element.first);
-        const auto &subviewTuple = element.second;
-        const auto &subviewTags = std::get<0>(subviewTuple);
-        NSMutableArray<NSNumber *> *subviewTagsArray = [NSMutableArray arrayWithCapacity:subviewTags.size()];
-        for (const auto &subviewTag : subviewTags) {
-            [subviewTagsArray addObject:@(subviewTag)];
-        }
-        const auto &subviewIndex = std::get<1>(subviewTuple);
-        NSMutableArray<NSNumber *> *subviewIndexArray = [NSMutableArray arrayWithCapacity:subviewIndex.size()];
-        for (const auto &subviewIndex : subviewIndex) {
-            [subviewIndexArray addObject:@(subviewIndex)];
-        }
-        block(superviewTag, [subviewTagsArray copy], [subviewIndexArray copy]);
-    }
-}
-
-- (void)enumerateViewsHierarchy:(void (^)(int32_t , const std::vector<int32_t> &, const std::vector<int32_t> &))block {
-    for (const auto &element : _viewRelation) {
-        int32_t tag = element.first;
-        const auto &subviewTuple = element.second;
-        const auto &subviewTags = std::get<0>(subviewTuple);
-        const auto &subviewIndex = std::get<1>(subviewTuple);
-        block(tag, subviewTags, subviewIndex);
-    }
-}
-
-- (void)removeAllObjects {
-    _viewRelation.clear();
-}
-
-@end
-
-static void NativeRenderTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>)) {
+static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>)) {
     if (view.hippyTag != nil) {
         block(view);
         for (id<HippyComponent> subview in view.hippySubviews) {
-            NativeRenderTraverseViewNodes(subview, block);
+            HippyTraverseViewNodes(subview, block);
         }
     }
 }
@@ -504,7 +441,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
          fromRegistry:(HippyComponentMap *)registryMap {
     NSDictionary *currentRegistry = [registryMap componentsForRootTag:rootTag];
     for (id<HippyComponent> child in children) {
-        NativeRenderTraverseViewNodes(currentRegistry[child.hippyTag], ^(id<HippyComponent> subview) {
+        HippyTraverseViewNodes(currentRegistry[child.hippyTag], ^(id<HippyComponent> subview) {
             NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
             if ([subview respondsToSelector:@selector(invalidate)]) {
                 [subview performSelector:@selector(invalidate)];
@@ -833,7 +770,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     }
     NSNumber *rootNodeTag = @(strongRootNode->GetId());
     std::lock_guard<std::mutex> lock([self renderQueueLock]);
-    NativeRenderViewsRelation *manager = [[NativeRenderViewsRelation alloc] init];
+    HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         const auto& render_info = node->GetRenderInfo();
         [manager addViewTag:render_info.id forSuperViewTag:render_info.pid atIndex:render_info.index];
