@@ -77,9 +77,21 @@ export class PixelUtil {
     }
   }
 
+  // density要在业务加载hippy，触发调用该方法时再获取；
+  // 不要在static时初始化，static在app启动就初始化，这时候业务可能还没加载hippy，
+  // 在pad上悬浮窗后再加载hippy，会使用到错误的density。（pad上悬浮窗后density会变）
+  public static doInitDensity(): void {
+    if (!PixelUtil.densityInitted) {
+      PixelUtil.density = vp2px(1.0) / 1.0
+      PixelUtil.vp2pxValue = vp2px(1.0)
+      PixelUtil.densityInitted = true;
+    }
+  }
+
+  private static densityInitted: boolean = false
   private static densityScale: number = 1.0
-  private static density: number = vp2px(1.0) / 1.0
-  private static vp2pxValue: number = vp2px(1.0)
+  private static density: number = 1.0
+  private static vp2pxValue: number = 1.0
   private static fontSizeScale: number = 1.0
   private static fontWeightScale: number = 1.0
 }

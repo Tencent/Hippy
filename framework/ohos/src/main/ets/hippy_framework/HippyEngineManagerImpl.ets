@@ -492,6 +492,8 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   }
 
   onSizeChanged(rootId: number, w: number, h: number, ow: number, oh: number): void {
+    // pad上切换悬浮窗时，size改变，density改变
+    PixelUtil.updateDensity(this.libHippy)
     if (this.mEngineContext) {
       let manager = this.mEngineContext.getModuleManager();
       if (manager) {
