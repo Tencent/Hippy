@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 import { HippyLibrary } from '../hippy_library/HippyLibrary';
+import { PixelUtil } from "../support/utils/PixelUtil";
 import { NativeRenderContext } from '../renderer_native/NativeRenderContext';
 import { NativeRenderProvider } from '../renderer_native/NativeRenderProvider';
 import { HippyAny, HippyMap } from '../support/common/HippyTypes';
@@ -93,6 +94,7 @@ export interface HippyEngine {
 
 export function createHippyEngine(params: EngineInitParams): HippyEngine {
   params.check()
+  PixelUtil.doInitDensity()
   LogUtils.enableDebugLog(params.enableLog)
   params.libHippy?.Setting_SetFlags(params.enableUpdateAnimLog);
   return new HippyEngineManagerImpl(params)

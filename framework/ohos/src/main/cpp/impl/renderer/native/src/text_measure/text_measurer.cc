@@ -582,8 +582,8 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
 
   OH_Drawing_TypographyLayout(typography_, maxWidth);
 
-  // MATE 60, beta5, "新品" "商店" text cannot be fully displayed. So add 0.5.
-  ret.width = ceil(OH_Drawing_TypographyGetLongestLine(typography_) + paddingWidthReduce + 0.5 * density);
+  // MATE 60, beta5, "新品" "商店" text cannot be fully displayed. So add 0.5+.
+  ret.width = ceil(OH_Drawing_TypographyGetLongestLine(typography_) + paddingWidthReduce + 0.9 * density);
   double drawResultHeight = OH_Drawing_TypographyGetHeight(typography_);
   ret.height = drawResultHeight;
   ret.isEllipsized = OH_Drawing_TypographyDidExceedMaxLines(typography_);
