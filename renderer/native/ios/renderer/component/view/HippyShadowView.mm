@@ -138,7 +138,7 @@
 //    _textLifecycle = NativeRenderUpdateLifecycleComputed;
 }
 
-- (void)synchronousRecusivelySetCreationTypeToInstant {
+- (void)synchronousRecursivelySetCreationTypeToInstant {
     self.creationType = HippyCreationTypeInstantly;
     for (HippyShadowView *subShadowView in self.hippySubviews) {
         [subShadowView synchronousRecusivelySetCreationTypeToInstant];

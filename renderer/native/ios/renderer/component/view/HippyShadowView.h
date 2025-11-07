@@ -47,33 +47,33 @@ typedef void (^NativeRenderApplierBlock)(NSDictionary<NSNumber *, UIView *> *vie
 typedef UIView *_Nullable(^HippyViewCreationBlock)(HippyShadowView *renderObject);
 typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
-/**
- * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
- * 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.
- * 2. At the end of each Bridge transaction, we call collectUpdatedFrames:widthConstraint:heightConstraint
- *    at the root node to recursively layout the entire hierarchy.
- * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
- *    perform the last computation, we skip laying out the subtree entirely.
- */
+/// ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
+/// 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.
+/// 2. At the end of each Bridge transaction, we call collectUpdatedFrames:widthConstraint:heightConstraint
+///    at the root node to recursively layout the entire hierarchy.
+/// 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
+///    perform the last computation, we skip laying out the subtree entirely.
 @interface HippyShadowView : NSObject <HippyComponent> {
 @protected
     NativeRenderUpdateLifecycle _propagationLifecycle;
 }
 
 
-@property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
+#pragma mark - Visibility & Layout Properties
+
+/// Background color propagated to children where appropriate.
+@property(nonatomic, strong) UIColor *backgroundColor;
+
+/// Whether layout direction has been confirmed changed and needs update.
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
-/**
- * isHidden - NativeRenderUIManager uses this to determine whether or not the UIView should be hidden. Useful if the
- * RenderObject determines that its UIView will be clipped and wants to hide it.
- */
+/// Whether the corresponding UIView should be hidden.
+/// @discussion NativeRenderUIManager uses this to determine visibility. Useful when
+/// the view will be clipped and should not be displayed.
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 
-/**
- * Position and dimensions.
- * Defaults to 0
- */
+/// Position and dimensions.
+/// Defaults to 0
 @property (nonatomic, assign) CGFloat top;
 @property (nonatomic, assign) CGFloat left;
 @property (nonatomic, assign) CGFloat bottom;
@@ -87,93 +87,102 @@ typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *ch
 @property (nonatomic, assign) CGFloat minHeight;
 @property (nonatomic, assign) CGFloat maxHeight;
 
-/**
- * Get frame set by layout system
- */
+/// Get frame set by layout system
 @property (nonatomic, assign) CGRect frame;
 
-/**
- * Get padding set by layout system
- */
+/// Get padding set by layout system
 @property(nonatomic, assign) UIEdgeInsets paddingAsInsets;
 
-/**
- * z-index, used to override sibling order in the view
- */
+/// z-index, used to override sibling order in the view
 @property (nonatomic, assign) NSInteger zIndex;
-
-/**
- * Clipping properties
- */
-//@property (nonatomic, assign) NSString *overflow;
 
 
 #pragma mark - Text Attachment Properties
 
-/// Vertical Alignment for Text / Text Attachment,
-/// Note that this property only takes effect for Text Element.
+/// Vertical alignment for text / text attachment.
+/// @discussion Only takes effect for text-related elements.
 @property (nonatomic, assign) HippyTextVerticalAlignType verticalAlignType;
 
-/// Vertical Align Offset for Text / Text Attachment,
-/// Note that this property only takes effect for Text Element.
+/// Vertical align offset for text / text attachment.
+/// @discussion Only takes effect for text-related elements.
 @property (nonatomic, assign) CGFloat verticalAlignOffset;
 
 
-#pragma mark -
+#pragma mark - Creation & View Instantiation
 
-/**
- * Indicate how we create coresponding UIView
- * HippyCreationTypeInstantly : create views instantly when HippyShadowView is created
- * HippyCreationTypeLazily: create views when UIView is needed
- */
+/// Indicates how the corresponding UIView should be created.
+/// @discussion
+/// - HippyCreationTypeInstantly: Create views when the HippyShadowView is created.
+/// - HippyCreationTypeLazily: Create views only when the UIView is needed.
 @property (nonatomic, assign) HippyCreationType creationType;
 
-/**
- * set create type of itself and its all descendants to HippyCreationTypeInstantly
- */
-- (void)synchronousRecusivelySetCreationTypeToInstant;
+/// Recursively sets the creation type of this node and all descendants to HippyCreationTypeInstantly.
+- (void)synchronousRecursivelySetCreationTypeToInstant;
 
-
+/// Creates the UIView hierarchy for this shadow view subtree.
+/// @param creationBlock Block used to create a UIView for a shadow node.
+/// @param insertionBlock Block used to insert child UIViews into a container.
+/// @return The created container UIView for this shadow node.
 - (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock;
 
-/**
- * reset layout frame to mark dirty and re-layout
- */
+#pragma mark - Layout & Mounting
+
+/// Resets the layout frame and marks dirty for re-layout.
+/// @param frame The new layout frame.
 - (void)setLayoutFrame:(CGRect)frame;
+
+/// Resets the layout frame and optionally propagates layout dirtiness.
+/// @param frame The new layout frame.
+/// @param dirtyPropagation Whether to propagate layout dirtiness up the tree.
 - (void)setLayoutFrame:(CGRect)frame dirtyPropagation:(BOOL)dirtyPropagation;
 
-
 /// Called by UIManager before mounting views.
-/// - Parameter blocks: blocks to be executed
-- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks;
+/// @param blocks Blocks to be executed before mount.
+ - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks;
 
-/// Provide a time to modify the View before mounting,
-/// Call by amendLayoutBeforeMount.
-/// Such as to handle some layout tasks that need to be adjusted independently
-/// after layout engine has completed the layout calculation.
-/// - Parameter applierBlocks: blocks to be executed
+/// Provides a hook to modify the view before mounting.
+/// @discussion Suitable for handling layout adjustments that need to occur
+/// after the layout engine has completed calculations.
+/// @param applierBlocks Blocks to be executed.
 - (void)processUpdatedPropertiesBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks;
 
-/**
- * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
- * HippyShadowText has children which it does not want CSSLayout to lay out so in the eyes of
- * CSSLayout it is a leaf node.
- */
+#pragma mark - Dirty Propagation & Text
+
+/// Return whether or not this node acts as a leaf node in the eyes of CSSLayout.
+/// For example, HippyShadowText has children which it does not want CSSLayout to lay out
+/// so in the eyes of CSSLayout it is a leaf node.
 - (BOOL)isCSSLeafNode;
 
+/// Marks the node as dirty and propagates the specified lifecycle change.
+/// @param type The lifecycle change to propagate.
 - (void)dirtyPropagation:(NativeRenderUpdateLifecycle)type NS_REQUIRES_SUPER;
+
+/// Returns whether the node is dirty for the specified lifecycle.
+/// @param dirtyType The lifecycle to check.
 - (BOOL)isPropagationDirty:(NativeRenderUpdateLifecycle)dirtyType;
 
+/// Marks text as dirty and optionally triggers a layout.
+/// @param needToDoLayout Whether layout should be performed.
 - (void)dirtyText:(BOOL)needToDoLayout NS_REQUIRES_SUPER;
+
+/// Indicates text layout has been computed.
 - (void)setTextComputed NS_REQUIRES_SUPER;
+
+/// Returns whether text layout is dirty.
 - (BOOL)isTextDirty;
 
-/**
- * As described in NativeRenderComponent protocol.
- */
+#pragma mark - Component Protocol
+
+/// As described in NativeRenderComponent protocol.
 - (void)didUpdateHippySubviews NS_REQUIRES_SUPER;
+
+/// Called after props are set.
+/// @param changedProps The keys of properties that have changed.
 - (void)didSetProps:(NSArray<NSString *> *)changedProps NS_REQUIRES_SUPER;
 
+/// Merges new props into current props and returns the actual changes to apply.
+/// @param props New props to merge.
+/// @return The delta props that should be applied.
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 
 @end

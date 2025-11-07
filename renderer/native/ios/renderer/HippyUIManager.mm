@@ -517,7 +517,7 @@ NSString *const HippyFontChangeTriggerNotification = @"HippyFontChangeTriggerNot
     // until the next `cellForItemAtIndexPath` call.
     // we currently resolve this issue by setting the CreationType synchronously.
     // TODO: CreationType's further optimization is needed in the future
-    [shadowView synchronousRecusivelySetCreationTypeToInstant];
+    [shadowView synchronousRecursivelySetCreationTypeToInstant];
     UIView *listItemView = [self createViewRecursiveFromRenderObjectWithNOLock:shadowView];
     
     [self.viewRegistry generateTempCacheBeforeAcquireAllStoredWeakComponentsForRootTag:shadowView.rootTag];
