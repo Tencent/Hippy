@@ -26,6 +26,7 @@ interface ListViewItemProps {
   key?: string;
   itemViewType?: string;
   sticky?: boolean;
+  keepAlive?: boolean;
   style?: HippyTypes.Style;
   onLayout?: (evt: any) => void;
 }
