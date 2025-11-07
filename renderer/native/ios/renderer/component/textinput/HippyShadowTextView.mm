@@ -188,7 +188,7 @@ static hippy::LayoutSize x5MeasureFunc(
 }
 
 - (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
-    if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
+    if (!_isLayoutComputed) {
         //Set needs layout for font change event, etc.
         NSNumber *currentTag = self.hippyTag;
         [blocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry, UIView * _Nullable lazyCreatedView) {

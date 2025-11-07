@@ -256,7 +256,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                 options:0
                              usingBlock:^(HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
-                float width = child.width, height = child.height;
+                // Get width and height from layout style
+                CGSize styleSize = [child getStyleSize];
+                float width = styleSize.width;
+                float height = styleSize.height;
                 if (isnan(width) || isnan(height)) {
                     HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
@@ -343,8 +346,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         
         // Nested <Text> inside <Text> should not call amendLayoutBeforeMount again,
         // so only call amendXxx when subcomponent is not a <Text>.
-        if (NativeRenderUpdateLifecycleComputed != _propagationLifecycle) {
-            _propagationLifecycle = NativeRenderUpdateLifecycleComputed;
+        if (!_isLayoutComputed) {
+            _isLayoutComputed = YES;
             for (HippyShadowView *shadowView in self.hippySubviews) {
                 if (![shadowView isKindOfClass:HippyShadowText.class]) {
                     [shadowView amendLayoutBeforeMount:blocks];
@@ -506,8 +509,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (void)recomputeText {
     [self attributedString];
-    [self setTextComputed];
-    [self dirtyPropagation:NativeRenderUpdateLifecycleAllDirtied];
+    [self markLayoutDirty];
 }
 
 #pragma mark - AttributeString
@@ -591,23 +593,19 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             childInfo.isNestedText = styleInfo.isNestedText;
             NSAttributedString *subStr = [childShadowText _attributedStringWithStyleInfo:childInfo];
             [attributedString appendAttributedString:subStr];
-            [child setTextComputed];
         } else {
-            float width = 0, height = 0;
-            auto domManager = [child domManager].lock();
-            if (domManager) {
-                int32_t componentTag = [child.hippyTag intValue];
-                auto domNode = domManager->GetNode(child.rootNode, componentTag);
-                if (domNode) {
-                    width = domNode->GetLayoutNode()->GetStyleWidth();
-                    height = domNode->GetLayoutNode()->GetStyleHeight();
-                    CGRect frame = child.frame;
-                    frame.size.width = width;
-                    frame.size.height = height;
-                    child.frame = frame;
-                }
-            }
-            if (isnan(width) || isnan(height)) {
+            // Get width and height from layout style
+            CGSize styleSize = [child getStyleSize];
+            float width = styleSize.width;
+            float height = styleSize.height;
+            
+            // Update child's frame with the style size
+            if (!isnan(width) && !isnan(height)) {
+                CGRect frame = child.frame;
+                frame.size.width = width;
+                frame.size.height = height;
+                child.frame = frame;
+            } else {
                 HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
             // take margin into account
@@ -644,8 +642,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 heightOfTallestSubview = height;
             }
             _hasAttachment = YES;
-            // Don't call setTextComputed on this child. HippyTextManager takes care of
-            // processing inline UIViews.
+            // Note: HippyTextManager takes care of processing inline UIViews.
         }
     }
 
