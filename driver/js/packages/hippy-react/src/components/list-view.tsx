@@ -138,6 +138,15 @@ interface ListViewProps {
    * @returns {boolean}
    */
   rowShouldSticky?: (index: number) => boolean;
+
+  /**
+   * Is the row should keep alive during the lifecycle of ListView.
+   * When enabled, the item will not be recycled and its state will be preserved,
+   * but it will increase memory usage. Use with caution.
+   * @param {number} index - Index Of data.
+   * @returns {boolean}
+   */
+  rowShouldKeepAlive?: (index: number) => boolean;
   style?: HippyTypes.Style;
 
   /**
@@ -352,6 +361,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       dataSource,
       initialListSize,
       rowShouldSticky,
+      rowShouldKeepAlive,
       onRowLayout,
       onHeaderPulling,
       onHeaderReleased,
@@ -386,7 +396,14 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           rowChildren = renderRow(index);
         }
 
-        this.handleRowProps(itemProps, index, { getRowKey, getRowStyle, getRowType, onRowLayout, rowShouldSticky });
+        this.handleRowProps(itemProps, index, {
+          getRowKey,
+          getRowStyle,
+          getRowType,
+          onRowLayout,
+          rowShouldSticky,
+          rowShouldKeepAlive,
+        });
 
         [
           { func: onAppear, name: 'onAppear' },
@@ -516,13 +533,14 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   private handleRowProps(
     itemProps: ListViewItemProps,
     index: number,
-    { getRowKey, getRowStyle, onRowLayout, getRowType, rowShouldSticky }:
+    { getRowKey, getRowStyle, onRowLayout, getRowType, rowShouldSticky, rowShouldKeepAlive }:
     {
       getRowKey: ((index: number) => string) | undefined,
       getRowStyle: ((index: number) => HippyTypes.Style) | undefined,
       getRowType: ((index: number) => number) | undefined,
       onRowLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
       rowShouldSticky: ((index: number) => boolean) | undefined,
+      rowShouldKeepAlive: ((index: number) => boolean) | undefined,
     },
   ) {
     if (typeof getRowKey === 'function') {
@@ -549,6 +567,10 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
 
     if (typeof rowShouldSticky === 'function') {
       itemProps.sticky = rowShouldSticky(index);
+    }
+
+    if (typeof rowShouldKeepAlive === 'function') {
+      itemProps.keepAlive = rowShouldKeepAlive(index);
     }
   }
 }

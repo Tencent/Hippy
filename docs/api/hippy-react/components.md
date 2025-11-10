@@ -118,6 +118,7 @@ import icon from './qb_icon_new.png';
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `Android、iOS、Web-Renderer、Voltron`                 |
 | renderRow             | 这里的入参是当前行的索引 index，需返回一个用于构造 `ListViewItem` 内容的 Node 节点。在这里可以凭借 index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回 true 或 false 指定对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| rowShouldKeepAlive    | 回调函数，根据传入参数 index（ListView单元格的index）返回 true 或 false 指定对应的 item 是否需要在 ListView 的整个生命周期内保持存活（不被回收复用）。启用此属性可保证 item 的状态不丢失，但会增加内存占用，请谨慎使用。`最低支持版本 3.4.0` | `(index: number) => boolean`                                | `iOS` |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 事件 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`  | `iOS、hippy-react-web、Voltron`                      |

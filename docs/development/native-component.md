@@ -207,110 +207,605 @@ protected void onAttachedToWindow() {
 
 ---
 
-## 组件扩展
+## 组件扩展概述
 
-我们以创建MyView为例，从头介绍如何扩展一个组件。
+本文介绍如何在 iOS 端扩展自定义 UI 组件。我们以创建 `MyView` 为例，完整演示扩展流程。
 
->本文仅介绍ios端工作，前端工作请查看对应的文档。
+> 注意：本文仅介绍 iOS 端工作，前端相关工作请查看对应的前端文档。
 
-扩展一个UI组件需要包括以下工作：
+### 架构说明
 
-1. 创建对应的`ViewManager`
-2. 注册类并绑定前端组件
-3. 绑定`View`属性及方法
-4. 创建对应的`RenderObject`(可选)和`View`
+Hippy iOS 组件系统包含三个核心部分：
 
-## 创建对应的ViewManager
+```text
+┌─────────────────────────────────────────────────────────┐
+│                     组件架构                              │
+└─────────────────────────────────────────────────────────┘
 
-> ViewManager 是对应的视图管理组件，负责前端视图和终端视图直接进行属性、方法的调用。
-> SDK 中最基础的 `ViewManager` 是 `HippyViewManager`，封装了基本的方法，负责管理 `NativeRenderView`。
-> 用户自定的 `ViewManager` 必须继承自 `HippyViewManager`。
+JavaScript (前端)
+    ↓ (属性/方法调用)
+ViewManager (管理器)
+    ↓ 创建和管理
+    ├─ ShadowView (布局计算) ← 可选，复杂布局时需要
+    └─ UIView (实际显示)
+```
 
-NativeRenderMyViewManager.h
+- **ViewManager**：组件管理器，负责创建组件实例、处理属性设置、导出方法供 JS 调用
+- **UIView**：实际显示的原生视图组件（必需）
+- **ShadowView**：布局计算的虚拟视图，用于复杂布局（可选，大多数情况使用默认的 `HippyShadowView` 即可）
+
+### 扩展步骤
+
+扩展一个 UI 组件需要完成以下步骤：
+
+1. **创建 ViewManager** - 继承 `HippyViewManager`
+2. **创建 UIView** - 实现实际的视图组件
+3. **注册组件** - 使用 `HIPPY_EXPORT_MODULE` 导出
+4. **绑定属性** - 使用宏将 JS 属性映射到原生属性
+5. **导出方法** - 使用宏导出供 JS 调用的方法
+6. **创建 ShadowView**（可选）- 仅在需要自定义布局逻辑时
+
+---
+
+## 1. 创建 ViewManager
+
+`ViewManager` 是组件的管理类，负责创建组件实例和处理 JS 与原生的通信。
+
+### MyViewManager.h
 
 ```objectivec
-@interface NativeRenderMyViewManager:HippyViewManager
+#import <hippy/HippyViewManager.h>
+
+@interface MyViewManager : HippyViewManager
+
 @end
 ```
 
-NativeRenderMyViewManager.m
+### MyViewManager.m
 
 ```objectivec
-@implementation NativeRenderMyViewManager
+#import "MyViewManager.h"
+#import "MyView.h"
 
+@implementation MyViewManager
+
+// 导出模块，JS 中使用 "MyView" 作为组件名
 HIPPY_EXPORT_MODULE(MyView)
 
-HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
-HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
-
-HIPPY_CUSTOM_VIEW_PROPERTY(overflow, CSSOverflow, HippyView)
-{
-    if (json) {
-        view.clipsToBounds = [HippyConvert CSSOverflow:json] != CSSOverflowVisible;
-    } else {
-        view.clipsToBounds = defaultView.clipsToBounds;
-    }
-}
-
+// 创建并返回实际的 UIView 实例
 - (UIView *)view {
-    return [[NativeRenderMyView alloc] init];
+    return [[MyView alloc] init];
 }
 
+// 创建 ShadowView（可选）
+// 大多数情况下返回默认的 HippyShadowView 即可
 - (HippyShadowView *)shadowView {
     return [[HippyShadowView alloc] init];
 }
 
-HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag) {
-    // do sth
+@end
+```
+
+### 模块注册说明
+
+**`HIPPY_EXPORT_MODULE(name)`**
+
+- **作用**：将 ViewManager 注册到 Hippy 框架，使其可以被 JS 调用
+- **参数**：`name` 是 JS 中使用的组件名称（可选）
+  - 如果提供参数，JS 使用指定的名称：`HIPPY_EXPORT_MODULE(MyView)` → JS 中用 `<MyView />`
+  - 如果不提供参数，自动使用类名去掉 "Manager" 后缀：`HIPPY_EXPORT_MODULE()` → `MyViewManager` → `<MyView />`
+
+---
+
+## 2. 创建 UIView
+
+创建实际的原生视图组件。
+
+### MyView.h
+
+```objectivec
+#import <UIKit/UIKit.h>
+
+@interface MyView : UIView
+
+// 自定义属性
+@property (nonatomic, copy) NSString *text;
+@property (nonatomic, strong) UIColor *textColor;
+@property (nonatomic, assign) CGFloat fontSize;
+
+@end
+```
+
+### MyView.m
+
+```objectivec
+#import "MyView.h"
+
+@implementation MyView {
+    UILabel *_label;
 }
 
-HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callback:(HippyPromiseResolveBlock)callback) {
-    // do sth
-    NSArray *result = xxx;
-    callback(result);
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        // 初始化 label
+        _label = [[UILabel alloc] init];
+        _label.textAlignment = NSTextAlignmentCenter;
+        [self addSubview:_label];
+        
+        // 默认样式
+        self.textColor = [UIColor blackColor];
+        self.fontSize = 16.0;
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _label.frame = self.bounds;
+}
+
+- (void)setText:(NSString *)text {
+    _text = [text copy];
+    _label.text = text;
+}
+
+- (void)setTextColor:(UIColor *)textColor {
+    _textColor = textColor;
+    _label.textColor = textColor;
+}
+
+- (void)setFontSize:(CGFloat)fontSize {
+    _fontSize = fontSize;
+    _label.font = [UIFont systemFontOfSize:fontSize];
+}
+
+@end
+```
+
+---
+
+## 3. 属性导出
+
+使用宏将 JS 属性映射到原生组件的属性。
+
+### 3.1 基本属性导出
+
+**`HIPPY_EXPORT_VIEW_PROPERTY(name, type)`**
+
+直接将 JS 属性映射到同名的原生属性。
+
+```objectivec
+@implementation MyViewManager
+
+HIPPY_EXPORT_MODULE(MyView)
+
+// JS: <MyView text="Hello World" />
+// → 自动调用 [myView setText:]
+HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
+
+// JS: <MyView textColor="#FF0000" />
+// → 自动调用 [myView setTextColor:]
+HIPPY_EXPORT_VIEW_PROPERTY(textColor, UIColor)
+
+// JS: <MyView fontSize={18} />
+// → 自动调用 [myView setFontSize:]
+HIPPY_EXPORT_VIEW_PROPERTY(fontSize, CGFloat)
+
+// JS: <MyView backgroundColor="#F0F0F0" />
+HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
+
+// 其他常用类型示例
+HIPPY_EXPORT_VIEW_PROPERTY(enabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(placeholder, NSString)
+
+- (UIView *)view {
+    return [[MyView alloc] init];
+}
+
+@end
+```
+
+**支持的类型**：
+
+- 基础类型：`BOOL`, `NSInteger`, `CGFloat`, `double` 等
+- Objective-C 对象：`NSString`, `NSNumber`, `NSArray`, `NSDictionary` 等
+- UIKit 类型：`UIColor`, `UIFont`, `UIImage` 等
+
+### 3.2 属性名称映射
+
+**`HIPPY_REMAP_VIEW_PROPERTY(jsName, nativeName, type)`**
+
+当 JS 属性名与原生属性名不同时使用。
+
+```objectivec
+// JS 中使用 opacity，映射到原生的 alpha
+// JS: <MyView opacity={0.5} />
+// → 调用 [myView setAlpha:0.5]
+HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
+
+// JS: <MyView color="#FF0000" />
+// → 调用 [myView setTextColor:]
+HIPPY_REMAP_VIEW_PROPERTY(color, textColor, UIColor)
+```
+
+**支持 KeyPath**：第二个参数可以使用 KeyPath 访问嵌套属性。
+
+```objectivec
+// JS: <MyView cornerRadius={10} />
+// → 调用 [myView.layer setCornerRadius:10]
+HIPPY_REMAP_VIEW_PROPERTY(cornerRadius, layer.cornerRadius, CGFloat)
+```
+
+### 3.3 自定义属性处理
+
+**`HIPPY_CUSTOM_VIEW_PROPERTY(name, type, viewClass)`**
+
+当需要自定义属性处理逻辑时使用。
+
+```objectivec
+// 自定义处理 fontWeight 属性
+HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, MyView)
+{
+    // 隐藏参数：
+    // - json: JS 传来的原始值
+    // - view: 当前要设置的视图实例（类型为 viewClass）
+    // - defaultView: 默认视图实例，用于获取默认值
+    
+    if (json) {
+        // 有值时：解析并设置
+        NSString *weight = [HippyConvert NSString:json];
+        UIFont *currentFont = view.label.font;
+        CGFloat fontSize = currentFont.pointSize;
+        
+        if ([weight isEqualToString:@"bold"]) {
+            view.label.font = [UIFont boldSystemFontOfSize:fontSize];
+        } else if ([weight isEqualToString:@"normal"]) {
+            view.label.font = [UIFont systemFontOfSize:fontSize];
+        }
+    } else {
+        // 无值时：使用默认值
+        view.label.font = defaultView.label.font;
+    }
 }
 ```
 
-## 类型导出
+**使用 `HippyConvert` 类型转换**：
 
-`HIPPY_EXPORT_MODULE()` 将`NativeRenderMyViewManager` 类注册，前端在对 `MyView` 进行操作时会通过 `NativeRenderMyViewManager` 进行实例对象指派。
+```objectivec
+#import <hippy/HippyConvert.h>
 
-`HIPPY_EXPORT_MODULE()`中的参数可选。代表的是 `ViewManager` 对应的View名称。
-若用户不填写，则默认使用类名称。
+// 常用转换方法
+UIColor *color = [HippyConvert UIColor:json];
+CGFloat number = [HippyConvert CGFloat:json];
+NSString *text = [HippyConvert NSString:json];
+BOOL flag = [HippyConvert BOOL:json];
+NSArray *array = [HippyConvert NSArray:json];
+NSDictionary *dict = [HippyConvert NSDictionary:json];
+```
 
-## 参数导出
+### 3.4 Shadow 属性导出
 
-`HIPPY_EXPORT_VIEW_PROPERTY` 将终端View的参数和前端参数绑定。当前端设定参数值时，会自动调用 setter 方法设置到终端对应的参数。
+对于影响布局的属性，使用 `HIPPY_EXPORT_SHADOW_PROPERTY` 导出到 ShadowView。
 
-`HIPPY_REMAP_VIEW_PROPERTY()` 负责将前端对应的参数名和终端对应的参数名对应起来。以上述代码为例，前端的`opacity` 参数对应终端的`alpha`参数。此宏一共包含三个参数，第一个为前端参数名，第二个为对应的终端参数名称，第三个为参数类型。另外，此宏在设置终端参数时使用的是`keyPath`方法，即终端可以使用`keyPath`参数。
+```objectivec
+// 这些属性会传递给 ShadowView，参与布局计算
+HIPPY_EXPORT_SHADOW_PROPERTY(numberOfLines, NSInteger)
+HIPPY_EXPORT_SHADOW_PROPERTY(lineHeight, CGFloat)
+```
 
-`HIPPY_CUSTOM_VIEW_PROPERTY()` 允许终端自行解析前端参数。SDK将前端传递过来的原始json类型数据传递给函数体（用户可以使用`HippyConvert`类中的方法解析对应的数据），用户获取后自行解析。
+---
 
->这个方法带有两个隐藏参数-`view`, `defaultView`。`view`是指当前前端要求渲染的view。`defaultView`指当前端渲染参数为nil时创建的一个临时view，使用其默认参数赋值。
+## 4. 方法导出
 
-## 方法导出
+使用 `HIPPY_EXPORT_METHOD` 导出供 JS 调用的方法。
 
-`HIPPY_EXPORT_METHOD` 能够使前端随时调用终端对应的方法。前端通过三种模式调用，分别是 `callNative`, `callNativeWithCallbackId`。终端调用这三种方式时，函数体写法可以参照上面的示例。
+### 4.1 基本方法导出
 
-- callNative：此方法不需要终端返回任何值。
+```objectivec
+// 无返回值的方法
+// JS: callNative('MyView', 'clear', componentId)
+HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
+    // 注意：这里不在主线程执行
+    // hippyTag 是组件的唯一标识
+    
+    // 需要在主线程操作 UI
+    dispatch_async(dispatch_get_main_queue(), ^{
+        MyView *view = (MyView *)[self.bridge.uiManager viewForHippyTag:hippyTag];
+        view.text = @"";
+    });
+}
+```
 
-- callNativeWithCallbackId: 此方法需要终端在函数体中以单个block形式返回数据。block类型为 `HippyPromiseResolveBlock`，参数为一个`id`变量。
+### 4.2 带回调的方法
 
-一个`ViewManager`可以管理一种类型的多个实例，为了在ViewManager中区分当前操作的是哪个View，每一个导出方法对应的第一个参数都是View对应的tag值，用户可根据这个tag值找到对应操作的view。
+```objectivec
+// 带回调的方法
+// JS: callNativeWithPromise('MyView', 'getText', componentId).then(result => ...)
+HIPPY_EXPORT_METHOD(getText:(nonnull NSNumber *)hippyTag 
+                    callback:(HippyPromiseResolveBlock)callback) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        MyView *view = (MyView *)[self.bridge.uiManager viewForHippyTag:hippyTag];
+        
+        // 返回结果给 JS
+        NSDictionary *result = @{
+            @"text": view.text ?: @"",
+            @"length": @(view.text.length)
+        };
+        callback(result);
+    });
+}
+```
 
-> 由于导出方法并不会在主线程中调用，因此如果用户需要进行UI操作，则必须将其分配至主线程。推荐在导出方法中使用[HippyUIManager addUIBlock:]方法。其中的block类型为`HippyViewManagerUIBlock`。
+### 4.3 推荐的 UI 操作方式
 
-> `typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry)`。第二个参数为字典，其中的key就是对应的view tag值，value就是对应的view。
+使用 `addUIBlock:` 在主线程安全地操作 UI。
 
-## 创建RenderObject和View
+```objectivec
+HIPPY_EXPORT_METHOD(setText:(nonnull NSNumber *)hippyTag
+                        text:(NSString *)text
+                    animated:(BOOL)animated) {
+    // 使用 UIBlock 确保在主线程执行
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, 
+                                        NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        // viewRegistry 是 tag -> view 的映射
+        MyView *view = (MyView *)viewRegistry[hippyTag];
+        if ([view isKindOfClass:[MyView class]]) {
+            if (animated) {
+                [UIView transitionWithView:view
+                                  duration:0.3
+                                   options:UIViewAnimationOptionTransitionCrossDissolve
+                                animations:^{
+                                    view.text = text;
+                                } completion:nil];
+            } else {
+                view.text = text;
+            }
+        }
+    }];
+}
+```
 
-在OC层，`HippyUIManager`负责构建Render树，对应的每一个节点都是一个RenderObjectView。Render树结构不保证与dom树一致，因为Render可能有自己的渲染逻辑。
+### 4.4 JS 调用示例
 
->`NativeRenderView`会根据`HippyShadowView`的映射结果构建真正的View视图。因此对于大多数情况下的自定义view manager来说，直接创建一个`HippyShadowView`即可。
+```javascript
+// 前端调用示例
 
-`HippyUIManager`将调用[NativeRenderMyViewManager view]方法去创建一个真正的view，用户需要实现这个方法并返回自己所需要的`NativeRenderMyView`。
+// 无返回值
+this.callNative('MyView', 'clear', this.myViewRef);
 
-到此，一个简单的`NativeRenderMyViewManager`与`NativeRenderMyView`创建完成。
+// 带参数
+this.callNative('MyView', 'setText', this.myViewRef, 'New Text', true);
+
+// 有返回值
+const result = await this.callNativeWithPromise('MyView', 'getText', this.myViewRef);
+console.log('Text content:', result.text, 'Length:', result.length);
+```
+
+---
+
+## 5. 创建自定义 ShadowView（可选）
+
+**何时需要自定义 ShadowView**：
+
+- ✅ 需要自定义布局计算逻辑（如文本组件、列表组件）
+- ✅ 需要在布局阶段处理特殊逻辑
+- ❌ 普通视图使用默认的 `HippyShadowView` 即可
+
+### MyShadowView.h
+
+```objectivec
+#import <hippy/HippyShadowView.h>
+
+@interface MyShadowView : HippyShadowView
+
+@property (nonatomic, assign) NSInteger numberOfLines;
+
+@end
+```
+
+### MyShadowView.m
+
+```objectivec
+#import "MyShadowView.h"
+
+@implementation MyShadowView
+
+- (instancetype)init {
+    if (self = [super init]) {
+        _numberOfLines = 0;
+    }
+    return self;
+}
+
+// 重写布局方法，自定义布局逻辑
+- (void)amendLayoutBeforeMount:(NSMutableSet<NativeRenderApplierBlock> *)blocks {
+    [super amendLayoutBeforeMount:blocks];
+    
+    // 在这里可以根据 numberOfLines 等属性调整布局
+    // ...
+}
+
+@end
+```
+
+### 在 ViewManager 中使用
+
+```objectivec
+@implementation MyViewManager
+
+HIPPY_EXPORT_MODULE(MyView)
+
+- (HippyShadowView *)shadowView {
+    return [[MyShadowView alloc] init];  // 返回自定义的 ShadowView
+}
+
+- (UIView *)view {
+    return [[MyView alloc] init];
+}
+
+// 导出到 ShadowView 的属性
+HIPPY_EXPORT_SHADOW_PROPERTY(numberOfLines, NSInteger)
+
+@end
+```
+
+---
+
+## 完整示例
+
+以下是一个完整的自定义组件示例：
+
+### MyViewManager.h
+
+```objectivec
+#import <hippy/HippyViewManager.h>
+
+@interface MyViewManager : HippyViewManager
+@end
+```
+
+### MyViewManager.m
+
+```objectivec
+#import "MyViewManager.h"
+#import "MyView.h"
+
+@implementation MyViewManager
+
+HIPPY_EXPORT_MODULE(MyView)
+
+// 属性导出
+HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
+HIPPY_EXPORT_VIEW_PROPERTY(textColor, UIColor)
+HIPPY_EXPORT_VIEW_PROPERTY(fontSize, CGFloat)
+HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
+HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
+
+HIPPY_CUSTOM_VIEW_PROPERTY(fontWeight, NSString, MyView) {
+    if (json) {
+        NSString *weight = [HippyConvert NSString:json];
+        UIFont *currentFont = view.label.font;
+        CGFloat fontSize = currentFont.pointSize;
+        
+        if ([weight isEqualToString:@"bold"]) {
+            view.label.font = [UIFont boldSystemFontOfSize:fontSize];
+        } else {
+            view.label.font = [UIFont systemFontOfSize:fontSize];
+        }
+    } else {
+        view.label.font = defaultView.label.font;
+    }
+}
+
+// 方法导出
+HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
+                                        NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        MyView *view = (MyView *)viewRegistry[hippyTag];
+        view.text = @"";
+    }];
+}
+
+HIPPY_EXPORT_METHOD(getText:(nonnull NSNumber *)hippyTag
+                   callback:(HippyPromiseResolveBlock)callback) {
+    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager,
+                                        NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        MyView *view = (MyView *)viewRegistry[hippyTag];
+        NSDictionary *result = @{
+            @"text": view.text ?: @"",
+            @"length": @(view.text.length)
+        };
+        callback(result);
+    }];
+}
+
+// 创建视图
+- (UIView *)view {
+    return [[MyView alloc] init];
+}
+
+// 创建 ShadowView（使用默认）
+- (HippyShadowView *)shadowView {
+    return [[HippyShadowView alloc] init];
+}
+
+@end
+```
+
+### MyView.h
+
+```objectivec
+#import <UIKit/UIKit.h>
+
+@interface MyView : UIView
+
+@property (nonatomic, copy) NSString *text;
+@property (nonatomic, strong) UIColor *textColor;
+@property (nonatomic, assign) CGFloat fontSize;
+@property (nonatomic, readonly) UILabel *label;
+
+@end
+```
+
+### MyView.m
+
+```objectivec
+#import "MyView.h"
+
+@implementation MyView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        // 初始化 label
+        _label = [[UILabel alloc] init];
+        _label.textAlignment = NSTextAlignmentCenter;
+        [self addSubview:_label];
+        
+        // 默认样式
+        self.textColor = [UIColor blackColor];
+        self.fontSize = 16.0;
+        self.backgroundColor = [UIColor whiteColor];
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _label.frame = self.bounds;
+}
+
+- (void)setText:(NSString *)text {
+    _text = [text copy];
+    _label.text = text;
+}
+
+- (void)setTextColor:(UIColor *)textColor {
+    _textColor = textColor;
+    _label.textColor = textColor;
+}
+
+- (void)setFontSize:(CGFloat)fontSize {
+    _fontSize = fontSize;
+    _label.font = [UIFont systemFontOfSize:fontSize];
+}
+
+@end
+```
+
+---
+
+## 总结
+
+扩展 Hippy iOS 组件的核心步骤：
+
+1. **创建 ViewManager** 继承 `HippyViewManager`
+2. **创建 UIView** 实现实际视图
+3. **使用 `HIPPY_EXPORT_MODULE`** 注册组件
+4. **使用属性导出宏** 绑定 JS 属性
+5. **使用 `HIPPY_EXPORT_METHOD`** 导出方法
+6. **必要时自定义 ShadowView** 处理复杂布局
+
+完成以上步骤后，你的自定义组件就可以在 Hippy 前端中使用了！
 
 
 # Ohos
