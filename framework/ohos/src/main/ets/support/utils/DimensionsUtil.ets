@@ -33,11 +33,6 @@ export class DimensionsUtil {
   private static SHOW_NAV_BAR_RES_NAME = "config_showNavigationBar";
   private static NAVIGATE_BAR_HEIGHT = 0;
 
-  static async getLastWindowRect(context: Context): Promise<window.Rect> {
-    const windowObj = await window.getLastWindow(context);
-    return windowObj.getWindowProperties().windowRect;
-  }
-
   static async getDimensions(ww: number, wh: number, context: Context): Promise<HippyMap> {
     let displayClass: display.Display = display.getDefaultDisplaySync();
     await DimensionsUtil.getStatusBarHeight(displayClass);
@@ -47,14 +42,8 @@ export class DimensionsUtil {
     let whPixels = wh * displayClass.densityPixels;
 
     if (wwPixels < 0 || whPixels < 0) {
-      let windowRect = await DimensionsUtil.getLastWindowRect(context);
-      if (windowRect.width > 0 && windowRect.height > 0) {
-        wwPixels = windowRect.width;
-        whPixels = windowRect.height;
-      } else {
-        wwPixels = displayClass.width;
-        whPixels = displayClass.height;
-      }
+      wwPixels = displayClass.width;
+      whPixels = displayClass.height;
     }
 
     let windowDisplayMetricsMap = new Map<string, HippyValue>()
