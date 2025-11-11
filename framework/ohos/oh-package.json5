@@ -6,7 +6,7 @@
   "repository": "https://github.com/Tencent/Hippy.git",
   "homepage": "https://framework.tds.qq.com/",
   "keywords": ["hippy", "cross-platform"],
-  "version": "3.3.2",
+  "version": "3.3.5",
   "dependencies": {},
   "devDependencies": {},
 }

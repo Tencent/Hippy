@@ -6,7 +6,7 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "hippy": "3.3.2"
+    "hippy": "3.3.5"
   },
   "devDependencies": {},
   "dynamicDependencies": {}
