@@ -42,7 +42,9 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
   auto render_manager = dom_manager->GetRenderManager().lock();
   FOOTSTONE_CHECK(render_manager);
   auto root_node = hippy_dom_->root_node.lock();
-  FOOTSTONE_CHECK(root_node);
+  if (!root_node) {
+    return 0;
+  }
   auto children = root_node->GetChildren();
   if (!children.empty()) {
     hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
