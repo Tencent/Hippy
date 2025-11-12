@@ -106,20 +106,42 @@
         
         
         dispatch_async([self prepareQueue], ^{
-            UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc]
-                                                 initWithSize:theImage.size
-                                                 format:[UIGraphicsImageRendererFormat preferredFormat]];
-            UIImage *prepared = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-                [theImage drawAtPoint:CGPointZero];
-            }];
-            
-            typeof(self) strongSelf = weakSelf;
-            if(strongSelf){
-                @synchronized(strongSelf){
-                    if(prepared){
-                        strongSelf->_image = prepared;
+            @autoreleasepool {
+                UIImage *prepared = nil;
+                
+                // Check image dimensions to prevent memory spikes
+                CGFloat imageWidth = theImage.size.width * theImage.scale;
+                CGFloat imageHeight = theImage.size.height * theImage.scale;
+                const CGFloat maxDimension = 4096.0; // Max dimension limit
+                
+                // Skip rendering for oversized images to avoid memory spikes
+                if (imageWidth > maxDimension || imageHeight > maxDimension) {
+                    // Use original image for oversized images
+                    prepared = theImage;
+                } else {
+                    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+                    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(theImage.CGImage);
+                    BOOL hasAlpha = (alphaInfo != kCGImageAlphaNone && 
+                                    alphaInfo != kCGImageAlphaNoneSkipFirst && 
+                                    alphaInfo != kCGImageAlphaNoneSkipLast);
+                    format.opaque = !hasAlpha;
+                    
+                    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc]
+                                                         initWithSize:theImage.size
+                                                         format:format];
+                    prepared = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                        [theImage drawAtPoint:CGPointZero];
+                    }];
+                }
+                
+                typeof(self) strongSelf = weakSelf;
+                if(strongSelf){
+                    @synchronized(strongSelf){
+                        if(prepared){
+                            strongSelf->_image = prepared;
+                        }
+                        completionHandler(prepared);
                     }
-                    completionHandler(prepared);
                 }
             }
         });
@@ -133,57 +155,127 @@
 }
 
 - (UIImage *)image {
-    if (!_image) {
-        UIImage *tmp;
-        if (_data) {
-            CGFloat view_width = _imageViewSize.width;
-            CGFloat view_height = _imageViewSize.height;
-            if (_downSample && view_width > 0 && view_height > 0) {
-                CGFloat scale = self.scale;
-                NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
-                CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
-                if (ref) {
-                    NSInteger width = 0, height = 0;
-                    CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(ref, 0, NULL);
-                    if (properties) {
-                        CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
-                        if (val)
-                            CFNumberGetValue(val, kCFNumberLongType, &height);
-                        val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
-                        if (val)
-                            CFNumberGetValue(val, kCFNumberLongType, &width);
-                        if (width > (view_width * scale) || height > (view_height * scale)) {
-                            NSInteger maxDimensionInPixels = MAX(view_width, view_height) * scale;
-                            NSDictionary *downsampleOptions = @{
-                                (NSString *)kCGImageSourceCreateThumbnailFromImageAlways: @(YES),
-                                (NSString *)kCGImageSourceShouldCacheImmediately: @(YES),
-                                (NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
-                                (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimensionInPixels)
-                            };
-                            CGImageRef downsampleImageRef = CGImageSourceCreateThumbnailAtIndex(ref, 0, (__bridge CFDictionaryRef)downsampleOptions);
-                            tmp = [UIImage imageWithCGImage:downsampleImageRef scale:scale orientation:UIImageOrientationUp];
-                            CGImageRelease(downsampleImageRef);
-                        }
-                        CFRelease(properties);
-                    }
-                    CFRelease(ref);
-                }
-            }
-        } else {
-            tmp = [self imageAtFrame:0];
-        }
-        if(!tmp){
-            tmp = [UIImage imageWithData:_data scale:self.scale];
-        }
-        @synchronized (self) {
-            if(_image == nil){
-                _image = tmp;
-            }
-        }
-    }
     @synchronized (self) {
-        return _image;
+        if (_image) {
+            return _image;
+        }
     }
+    
+    @autoreleasepool {
+        UIImage *decodedImage = nil;
+        
+        if (_data) {
+            decodedImage = [self decodeImageFromData];
+        } else {
+            decodedImage = [self imageAtFrame:0];
+        }
+        
+        // Fallback to simple decoding if needed
+        if (!decodedImage) {
+            decodedImage = [UIImage imageWithData:_data scale:self.scale];
+        }
+        
+        @synchronized (self) {
+            if (!_image) {
+                _image = decodedImage;
+            }
+            return _image;
+        }
+    }
+}
+
+- (nullable UIImage *)decodeImageFromData {
+    if (!_data) {
+        return nil;
+    }
+    
+    // Try downsampling if enabled and view size is available
+    if (_downSample && _imageViewSize.width > 0 && _imageViewSize.height > 0) {
+        UIImage *downsampledImage = [self createDownsampledImageFromData];
+        if (downsampledImage) {
+            return downsampledImage;
+        }
+    }
+    
+    return nil;
+}
+
+- (nullable UIImage *)createDownsampledImageFromData {
+    CGFloat scale = self.scale;
+    CGFloat targetWidth = _imageViewSize.width * scale;
+    CGFloat targetHeight = _imageViewSize.height * scale;
+    
+    // Create image source without caching
+    NSDictionary *sourceOptions = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
+    CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)_data, 
+                                                               (__bridge CFDictionaryRef)sourceOptions);
+    if (!imageSource) {
+        return nil;
+    }
+    
+    UIImage *result = nil;
+    CGSize imageSize = [self getImageSizeFromSource:imageSource];
+    
+    // Only downsample if image is larger than target size
+    if (imageSize.width > targetWidth || imageSize.height > targetHeight) {
+        result = [self createThumbnailFromSource:imageSource 
+                                      targetSize:_imageViewSize 
+                                           scale:scale];
+    }
+    
+    CFRelease(imageSource);
+    return result;
+}
+
+- (CGSize)getImageSizeFromSource:(CGImageSourceRef)imageSource {
+    CGSize size = CGSizeZero;
+    
+    CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+    if (!properties) {
+        return size;
+    }
+    
+    CFTypeRef widthValue = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+    CFTypeRef heightValue = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+    
+    NSInteger width = 0, height = 0;
+    if (widthValue) {
+        CFNumberGetValue(widthValue, kCFNumberLongType, &width);
+    }
+    if (heightValue) {
+        CFNumberGetValue(heightValue, kCFNumberLongType, &height);
+    }
+    
+    size = CGSizeMake(width, height);
+    CFRelease(properties);
+    
+    return size;
+}
+
+- (nullable UIImage *)createThumbnailFromSource:(CGImageSourceRef)imageSource 
+                                     targetSize:(CGSize)targetSize 
+                                          scale:(CGFloat)scale {
+    NSInteger maxDimension = MAX(targetSize.width, targetSize.height) * scale;
+    
+    NSDictionary *thumbnailOptions = @{
+        (NSString *)kCGImageSourceCreateThumbnailFromImageAlways: @(YES),
+        (NSString *)kCGImageSourceShouldCacheImmediately: @(YES),
+        (NSString *)kCGImageSourceCreateThumbnailWithTransform: @(YES),
+        (NSString *)kCGImageSourceThumbnailMaxPixelSize: @(maxDimension)
+    };
+    
+    CGImageRef thumbnailImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, 
+                                                                    (__bridge CFDictionaryRef)thumbnailOptions);
+    if (!thumbnailImage) {
+        return nil;
+    }
+    
+    UIImage *result = [UIImage imageWithCGImage:thumbnailImage 
+                                          scale:scale 
+                                    orientation:UIImageOrientationUp];
+    CGImageRelease(thumbnailImage);
+    
+    return result;
 }
 
 - (UIImage *)imageAtFrame:(NSUInteger)index {
