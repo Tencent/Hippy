@@ -27,13 +27,13 @@
 #import "footstone/string_view_utils.h"
 
 
-static NSString *const kHippyPerfKeyFP = @"FP";
-static NSString *const kHippyPerfKeyFCP = @"FCP";
-static NSString *const kHippyPerfKeyInit = @"NativeInit";
-static NSString *const kHippyPerfKeyJSInit = @"JsEngineInit";
-static NSString *const kHippyPerfKeyRunApp = @"RunApplication";
-static NSString *const kHippyPerfKeyDomCreate = @"DomCreate";
-static NSString *const kHippyPerfKeyFirstFrame = @"FirstFrame";
+NSString *const HippyPerformanceKeyFP = @"FP";
+NSString *const HippyPerformanceKeyFCP = @"FCP";
+NSString *const HippyPerformanceKeyInit = @"NativeInit";
+NSString *const HippyPerformanceKeyJSInit = @"JsEngineInit";
+NSString *const HippyPerformanceKeyRunApp = @"RunApplication";
+NSString *const HippyPerformanceKeyDomCreate = @"DomCreate";
+NSString *const HippyPerformanceKeyFirstFrame = @"FirstFrame";
 
 
 using namespace footstone;
@@ -107,6 +107,139 @@ using namespace footstone;
     }
 }
 
+// MARK: - Thread-safe API with completion blocks
+
+- (void)getHippyInitPerformanceData:(void(^)(NSDictionary * _Nullable data))completion {
+    if (!completion) {
+        return;
+    }
+    
+    std::shared_ptr<hippy::Scope> scope = self.javaScriptExecutor.pScope;
+    if (!scope) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(@{});
+        });
+        return;
+    }
+    
+    auto domManager = scope->GetDomManager().lock();
+    auto performance = scope->GetPerformance();
+    if (!domManager || !performance) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(@{});
+        });
+        return;
+    }
+    
+    std::weak_ptr<hippy::DomManager> weak_domManager = domManager;
+    std::weak_ptr<hippy::Performance> weak_performance = performance;
+    std::vector<std::function<void()>> ops = {[weak_domManager, weak_performance, completion] {
+        auto domManager = weak_domManager.lock();
+        auto performance = weak_performance.lock();
+        if (!domManager || !performance) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(@{});
+            });
+            return;
+        }
+        
+        auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
+        if (!entry) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(@{});
+            });
+            return;
+        }
+        
+        NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+        int64_t totalFPTime = (entry->GetHippyFirstFrameEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
+        int64_t nativeInit = (entry->GetHippyNativeInitEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
+        int64_t jsEngineInit = (entry->GetHippyJsEngineInitEnd() - entry->GetHippyJsEngineInitStart()).ToMilliseconds();
+        int64_t runApplication = (entry->GetHippyRunApplicationEnd() - entry->GetHippyRunApplicationStart()).ToMilliseconds();
+        int64_t domCreate = (entry->GetHippyDomEnd() - entry->GetHippyDomStart()).ToMilliseconds();
+        int64_t firstFrame = (entry->GetHippyFirstFrameEnd() - entry->GetHippyFirstFrameStart()).ToMilliseconds();
+        dic[HippyPerformanceKeyFP] = @(totalFPTime);
+        dic[HippyPerformanceKeyInit] = @(nativeInit);
+        dic[HippyPerformanceKeyJSInit] = @(jsEngineInit);
+        dic[HippyPerformanceKeyRunApp] = @(runApplication);
+        dic[HippyPerformanceKeyDomCreate] = @(domCreate);
+        dic[HippyPerformanceKeyFirstFrame] = @(firstFrame);
+        
+        auto bundle_info_array = entry->GetBundleInfoArray();
+        for (size_t i = 0; i < bundle_info_array.size(); ++i) {
+            auto& info = bundle_info_array[i];
+            auto url = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(info.url_, string_view::Encoding::Utf8).utf8_value());
+            NSString *urlStr = [NSString stringWithCString:url.c_str() encoding:[NSString defaultCStringEncoding]];
+            if (urlStr) {
+                int64_t exeTime = (info.execute_source_end_ - info.execute_source_start_).ToMilliseconds();
+                [dic setObject:@(exeTime) forKey:urlStr.lastPathComponent];
+            }
+        }
+        
+        NSDictionary *result = [dic copy];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(result);
+        });
+    }};
+    
+    domManager->PostTask(hippy::Scene(std::move(ops)));
+}
+
+- (void)getFCPPerformanceData:(void(^)(NSDictionary * _Nullable data))completion {
+    if (!completion) {
+        return;
+    }
+    
+    std::shared_ptr<hippy::Scope> scope = self.javaScriptExecutor.pScope;
+    if (!scope) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(@{});
+        });
+        return;
+    }
+    
+    auto domManager = scope->GetDomManager().lock();
+    auto performance = scope->GetPerformance();
+    if (!domManager || !performance) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(@{});
+        });
+        return;
+    }
+    
+    std::weak_ptr<hippy::DomManager> weak_domManager = domManager;
+    std::weak_ptr<hippy::Performance> weak_performance = performance;
+    std::vector<std::function<void()>> ops = {[weak_domManager, weak_performance, completion] {
+        auto domManager = weak_domManager.lock();
+        auto performance = weak_performance.lock();
+        if (!domManager || !performance) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(@{});
+            });
+            return;
+        }
+        
+        auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
+        if (!entry) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(@{});
+            });
+            return;
+        }
+        
+        int64_t fcpTime = (entry->GetHippyFirstContentfulPaintEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
+        NSDictionary *result = @{ HippyPerformanceKeyFCP : @(fcpTime) };
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(result);
+        });
+    }};
+    
+    domManager->PostTask(hippy::Scene(std::move(ops)));
+}
+
+// MARK: - Deprecated non-thread-safe API
+
 - (NSDictionary *)getHippyInitPerformanceData {
     std::shared_ptr<hippy::Scope> scope = self.javaScriptExecutor.pScope;
     if (!scope) {
@@ -127,20 +260,22 @@ using namespace footstone;
         int64_t runApplication = (entry->GetHippyRunApplicationEnd() - entry->GetHippyRunApplicationStart()).ToMilliseconds();
         int64_t domCreate = (entry->GetHippyDomEnd() - entry->GetHippyDomStart()).ToMilliseconds();
         int64_t firstFrame = (entry->GetHippyFirstFrameEnd() - entry->GetHippyFirstFrameStart()).ToMilliseconds();
-        dic[kHippyPerfKeyFP] = @(totalFPTime);
-        dic[kHippyPerfKeyInit] = @(nativeInit);
-        dic[kHippyPerfKeyJSInit] = @(jsEngineInit);
-        dic[kHippyPerfKeyRunApp] = @(runApplication);
-        dic[kHippyPerfKeyDomCreate] = @(domCreate);
-        dic[kHippyPerfKeyFirstFrame] = @(firstFrame);
+        dic[HippyPerformanceKeyFP] = @(totalFPTime);
+        dic[HippyPerformanceKeyInit] = @(nativeInit);
+        dic[HippyPerformanceKeyJSInit] = @(jsEngineInit);
+        dic[HippyPerformanceKeyRunApp] = @(runApplication);
+        dic[HippyPerformanceKeyDomCreate] = @(domCreate);
+        dic[HippyPerformanceKeyFirstFrame] = @(firstFrame);
         
         auto bundle_info_array = entry->GetBundleInfoArray();
         for (size_t i = 0; i < bundle_info_array.size(); ++i) {
             auto& info = bundle_info_array[i];
             auto url = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(info.url_, string_view::Encoding::Utf8).utf8_value());
             NSString *urlStr = [NSString stringWithCString:url.c_str() encoding:[NSString defaultCStringEncoding]];
-            int64_t exeTime = (info.execute_source_end_ - info.execute_source_start_).ToMilliseconds();
-            [dic setObject:@(exeTime) forKey:urlStr.lastPathComponent];
+            if (urlStr) {
+                int64_t exeTime = (info.execute_source_end_ - info.execute_source_start_).ToMilliseconds();
+                [dic setObject:@(exeTime) forKey:urlStr.lastPathComponent];
+            }
         }
         return dic;
     }
@@ -150,19 +285,19 @@ using namespace footstone;
 - (NSDictionary *)getFCPPerformanceData {
     std::shared_ptr<hippy::Scope> scope = self.javaScriptExecutor.pScope;
     if (!scope) {
-        return nil;
+        return @{};
     }
     auto domManager = scope->GetDomManager().lock();
     auto performance = scope->GetPerformance();
     if (domManager && performance) {
         auto entry = performance->PerformanceNavigation(hippy::kPerfNavigationHippyInit);
         if (!entry) {
-            return nil;
+            return @{};
         }
         int64_t fcpTime = (entry->GetHippyFirstContentfulPaintEnd() - entry->GetHippyNativeInitStart()).ToMilliseconds();
-        return @{ kHippyPerfKeyFCP : @(fcpTime) };
+        return @{ HippyPerformanceKeyFCP : @(fcpTime) };
     }
-    return nil;
+    return @{};
 }
 
 @end

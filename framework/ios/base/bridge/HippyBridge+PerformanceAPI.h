@@ -24,6 +24,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Performance data dictionary keys
+HIPPY_EXTERN NSString *const HippyPerformanceKeyFP;           // First Paint
+HIPPY_EXTERN NSString *const HippyPerformanceKeyFCP;          // First Contentful Paint
+HIPPY_EXTERN NSString *const HippyPerformanceKeyInit;         // Native Init
+HIPPY_EXTERN NSString *const HippyPerformanceKeyJSInit;       // JS Engine Init
+HIPPY_EXTERN NSString *const HippyPerformanceKeyRunApp;       // Run Application
+HIPPY_EXTERN NSString *const HippyPerformanceKeyDomCreate;    // DOM Create
+HIPPY_EXTERN NSString *const HippyPerformanceKeyFirstFrame;   // First Frame
+
 /// Performance API Category of HippyBridge
 @interface HippyBridge (PerformanceAPI)
 
@@ -34,11 +43,21 @@ NS_ASSUME_NONNULL_BEGIN
 /// Update FCP perf record.
 - (void)updatePerfRecordOnFirstContentfulPaintEnd;
 
+/// Get all perf data (Thread-safe version with completion block)
+/// - Parameter completion: Completion block called with performance data on main thread
+- (void)getHippyInitPerformanceData:(void(^)(NSDictionary * _Nullable data))completion;
+
+/// Get fcp perf data (Thread-safe version with completion block)
+/// - Parameter completion: Completion block called with performance data on main thread
+- (void)getFCPPerformanceData:(void(^)(NSDictionary * _Nullable data))completion;
+
 /// Get all perf data
-- (NSDictionary *)getHippyInitPerformanceData;
+/// @warning This method is not thread-safe. Use getHippyInitPerformanceData: instead.
+- (NSDictionary *)getHippyInitPerformanceData __attribute__((deprecated("Use getHippyInitPerformanceData: instead")));
 
 /// Get fcp perf data
-- (nullable NSDictionary *)getFCPPerformanceData;
+/// @warning This method is not thread-safe. Use getFCPPerformanceData: instead.
+- (NSDictionary *)getFCPPerformanceData __attribute__((deprecated("Use getFCPPerformanceData: instead")));
 
 @end
 
