@@ -62,6 +62,7 @@
 | style              | -                                                            | [`View Styles`](api/style/layout.md) | `Android、iOS、Web-Renderer、Voltron`     |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、Web-Renderer、Voltron`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、Web-Renderer、Voltron`     |
+| shouldRasterizeIOS | 决定视图在被混合之前是否应该被栅格化。启用栅格化可以使视图及其子视图被渲染成一张位图，可以提升复杂视图的性能，特别是在应用了不透明度、阴影等效果时。另外，当视图应用了 `transform` 变换（如缩放、旋转等）导致显示模糊时，开启此属性通常可以解决模糊问题。栅格化会占用额外内存，建议仅在必要时使用。 | `boolean` | `iOS` |
 | focusable          | 允许使用遥控器触发 View 的激活状态，改为 true 后使用遥控器将能触发 div 的 `@focus` 事件，需要通过 `nextFocusDownId`、`nextFocusUpId`、`nextFocusLeftId`、`nextFocusRightId` 参数指明四个方向键将移动到的的节点 ID       | `boolean`         | `Android`     |
 | scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。`（仅在 overflow-y/x: scroll 时适用）` | `number`                                                     | `Android、iOS、Web-Renderer、Voltron`    |
 | pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` `（仅在 overflow-y/x: scroll 时适用）` | `boolean`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
