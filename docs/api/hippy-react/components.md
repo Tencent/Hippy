@@ -483,6 +483,7 @@ import icon from './qb_icon_new.png';
 | style              | -                                                            | [`View Styles`](api/style/layout.md) | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| shouldRasterizeIOS | 决定视图在被混合之前是否应该被栅格化。启用栅格化可以使视图及其子视图被渲染成一张位图，可以提升复杂视图的性能，特别是在应用了不透明度、阴影等效果时。另外，当视图应用了 `transform` 变换（如缩放、旋转等）导致显示模糊时，开启此属性通常可以解决模糊问题。栅格化会占用额外内存，建议仅在必要时使用。 | `boolean` | `iOS` |
 | nativeBackgroundAndroid    | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx) | `Object`| `Android`    |
 | onLayout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                           | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
