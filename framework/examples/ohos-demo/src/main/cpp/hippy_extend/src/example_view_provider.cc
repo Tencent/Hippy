@@ -20,7 +20,7 @@
  *
  */
 
-#include "renderer/api/hippy_view_provider.h"
+#include "renderer/api_internal/hippy_view_provider.h"
 #include "../include/example_view_a.h"
 #include "../include/example_view_b.h"
 

@@ -23,7 +23,7 @@
 #include "renderer/native_render_manager.h"
 #include "renderer/native_render_provider_napi.h"
 #include "renderer/native_render_provider_manager.h"
-#include "renderer/api/hippy_view_provider.h"
+#include "renderer/api_internal/hippy_view_provider.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include <cstdint>
 #include <iostream>

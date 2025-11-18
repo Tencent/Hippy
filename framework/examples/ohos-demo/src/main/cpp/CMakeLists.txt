@@ -18,6 +18,7 @@
 # limitations under the License.
 #
 
+# 示例一：
 # 对于需要源码依赖 Hippy c++ 代码的特别需求，需要做2点：
 # 1 集成 Hippy c++ 源码，生成使用方自己的 so，类似下面配置。
 # 2 Hippy 内部不再编译 hippy so，注释掉 Hippy/framework/ohos/src/main/cpp/CMakeLists.txt 里内容。
@@ -49,3 +50,20 @@ set(PUBLIC_SOURCE_SET
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET} PUBLIC ${PUBLIC_SOURCE_SET})
 
 #]]
+
+
+# 示例二：
+# 下面是监听Hippy组件设置非内部属性的例子（外部判断是否自己关心的属性，用来处理上报等）：
+
+project(hippy_ex)
+cmake_minimum_required(VERSION 3.14)
+
+add_library(${PROJECT_NAME} SHARED)
+
+set(PUBLIC_SOURCE_SET
+  hippy_extend/src/example_external_prop_handler.cc
+  )
+target_sources(${PROJECT_NAME} PUBLIC ${PUBLIC_SOURCE_SET})
+
+find_package(hippy)
+target_link_libraries(${PROJECT_NAME} PUBLIC hippy::hippy libhilog_ndk.z.so)

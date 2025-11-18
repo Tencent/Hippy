@@ -20,7 +20,7 @@
  *
  */
 
-#include "renderer/api_c/hippy.h"
+#include "renderer/api_c/hippy_c.h"
 #include "oh_napi/data_holder.h"
 #include "renderer/native_render_manager.h"
 #include "renderer/utils/hr_pixel_utils.h"
