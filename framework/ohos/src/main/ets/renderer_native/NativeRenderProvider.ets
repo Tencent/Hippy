@@ -351,6 +351,17 @@ export class NativeRenderProvider {
     this.renderImpl.onChildRemovedForCApi(params)
   }
 
+  // for c-api
+  getNodeUniqueIdByIdForCApi(id: string): number | undefined {
+    if (!AppStorage.has('UIContextForHippy')) {
+      LogUtils.e("", "AppStorage has no UIContext when get node unique id.")
+      return undefined
+    }
+    let context = AppStorage.get<UIContext>('UIContextForHippy')
+    const node: FrameNode | null = context?.getFrameNodeById(id) || null
+    return node?.getUniqueId()
+  }
+
   // for c-interface
   destroyRootForCInterface(rootId: number): void {
     this.renderImpl.destroyRootForCInterface(rootId)

@@ -32,6 +32,7 @@ inline namespace native {
 class NativeDialogApi {
 public:
   static ArkUI_NativeDialogAPI_1 *GetInstance();
+  static ArkUI_NativeDialogAPI_2 *GetInstanceV2();
 
 private:
   NativeDialogApi() {}

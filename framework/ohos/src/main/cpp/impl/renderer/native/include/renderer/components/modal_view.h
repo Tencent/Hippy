@@ -46,11 +46,11 @@ public:
 
   void OnAreaChange(ArkUI_NumberValue* data) override;
 
-  void Show();
+  void Show(int32_t parentNodeUniqueId);
 
 private:
 
-  void OpenDialog();
+  void OpenDialog(int32_t parentNodeUniqueId);
   void CloseDialog();
 
   std::shared_ptr<StackNode> stackNode_;
@@ -58,6 +58,7 @@ private:
   bool transparent = true;
   std::string animationType = "fade";
   bool darkStatusBarText = false;
+  bool is_show_in_page_ = false;
 };
 
 } // namespace native

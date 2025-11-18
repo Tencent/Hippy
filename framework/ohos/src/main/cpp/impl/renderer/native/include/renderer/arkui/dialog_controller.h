@@ -35,7 +35,7 @@ class DialogController {
 public:
   DialogController();
   ~DialogController();
- 
+
   void SetContent(ArkUI_NodeHandle content);
   void RemoveContent();
   void SetContentAlignment(int32_t alignment, float offsetX, float offsetY);
@@ -44,13 +44,15 @@ public:
   void SetAutoCancel(bool autoCancel);
   void SetMask(uint32_t maskColor, const ArkUI_Rect* maskRect);
   void SetBackgroundColor(uint32_t backgroundColor);
-  void SetCornerRadius(float topLeft, float topRight, float bottomLeft, float bottomRight); 
+  void SetCornerRadius(float topLeft, float topRight, float bottomLeft, float bottomRight);
   void SetGridColumnCount(int32_t gridCount);
   void EnableCustomStyle(bool enableCustomStyle);
   void EnableCustomAnimation(bool enableCustomAnimation);
   void RegisterOnWillDismiss(ArkUI_OnWillDismissEvent eventHandler);
   void Show();
-  void Close(); 
+  void Close();
+  void SetShowInPage(int32_t uniqueId);
+
 private:
   void MaybeThrow(int32_t status) {
     if (status != 0) {

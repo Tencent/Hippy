@@ -43,7 +43,7 @@ ArkUINode::ArkUINode(ArkUI_NodeHandle nodeHandle) : nodeHandle_(nodeHandle) {
     FOOTSTONE_LOG(ERROR) << "ark ui node construction, handle is null";
     return;
   }
-  
+
   SetDefaultAttributes();
   ArkUINodeRegistry::GetInstance().RegisterNode(this);
 }
@@ -604,9 +604,12 @@ ArkUINode &ArkUINode::SetAlignment(ArkUI_Alignment align) {
 }
 
 ArkUINode &ArkUINode::SetExpandSafeArea() {
-//TODO  NODE_EXPAND_SAFE_AREA not define in devEco 5.0.0.400 will add in later
-//  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_EXPAND_SAFE_AREA,nullptr ));
-//  SetBaseAttributeFlag(AttributeFlag::EXPAND_SAFE_AREA);
+  ArkUI_NumberValue value[] = {
+    {.u32 = ARKUI_SAFE_AREA_TYPE_SYSTEM | ARKUI_SAFE_AREA_TYPE_CUTOUT | ARKUI_SAFE_AREA_TYPE_KEYBOARD},
+    {.u32 = ARKUI_SAFE_AREA_EDGE_TOP | ARKUI_SAFE_AREA_EDGE_BOTTOM | ARKUI_SAFE_AREA_EDGE_START | ARKUI_SAFE_AREA_EDGE_END}};
+  ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue), nullptr, nullptr};
+  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_EXPAND_SAFE_AREA, &item));
+  SetBaseAttributeFlag(AttributeFlag::EXPAND_SAFE_AREA);
   return *this;
 }
 
@@ -751,7 +754,7 @@ void ArkUINode::RegisterClickEvent() {
           node->arkUINodeDelegate_->OnClick(HRPosition(x, y));
         }
       };
-      NativeGestureApi::GetInstance()->setGestureEventTarget(tapGesture_, 
+      NativeGestureApi::GetInstance()->setGestureEventTarget(tapGesture_,
         GESTURE_EVENT_ACTION_ACCEPT | GESTURE_EVENT_ACTION_UPDATE | GESTURE_EVENT_ACTION_END,
         this, onActionCallBack);
       NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, tapGesture_, NORMAL, NORMAL_GESTURE_MASK);
@@ -811,7 +814,7 @@ void ArkUINode::RegisterLongClickEvent() {
           node->arkUINodeDelegate_->OnLongClick(HRPosition(x, y));
         }
       };
-      NativeGestureApi::GetInstance()->setGestureEventTarget(longPressGesture_, 
+      NativeGestureApi::GetInstance()->setGestureEventTarget(longPressGesture_,
         GESTURE_EVENT_ACTION_ACCEPT | GESTURE_EVENT_ACTION_UPDATE | GESTURE_EVENT_ACTION_END,
         this, onActionCallBack);
       NativeGestureApi::GetInstance()->addGestureToNode(nodeHandle_, longPressGesture_, NORMAL, NORMAL_GESTURE_MASK);
