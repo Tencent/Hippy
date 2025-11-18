@@ -56,7 +56,7 @@ public:
   void SetTag(uint32_t tag);
   void SetViewType(const std::string &type);
   void SetParent(std::shared_ptr<BaseView> parent);
-  
+
   bool IsLazyCreate() { return isLazyCreate_; }
 
   virtual ArkUINode *GetLocalRootArkUINode() { return nullptr; }
@@ -64,12 +64,12 @@ public:
   virtual void CreateArkUINodeImpl() = 0;
   void DestroyArkUINode();
   virtual void DestroyArkUINodeImpl() = 0;
-  
+
   virtual std::shared_ptr<RecycleView> RecycleArkUINode();
   virtual bool RecycleArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) { return false; }
   virtual bool ReuseArkUINode(std::shared_ptr<RecycleView> &recycleView, int32_t index);
   virtual bool ReuseArkUINodeImpl(std::shared_ptr<RecycleView> &recycleView) { return false; }
-  
+
   bool SetProp(const std::string &propKey, const HippyValue &propValue);
   void OnSetPropsEnd();
   virtual bool SetViewProp(const std::string &propKey, const HippyValue &propValue) { return false; }
@@ -101,6 +101,8 @@ public:
   virtual void OnAttach() override;
   virtual void OnDetach() override;
 
+  static std::string MakeId(uint32_t tag);
+
 protected:
   virtual void OnChildInserted(std::shared_ptr<BaseView> const &childView, int index);
   virtual void OnChildRemoved(std::shared_ptr<BaseView> const &childView, int32_t index);
@@ -131,7 +133,7 @@ protected:
   void SetInterceptPullUp(bool flag);
   void SetAttachedToWindowHandle(bool flag);
   void SetDetachedFromWindowHandle(bool flag);
-  
+
   void UpdateLazyProps();
   void UpdateLazyAll();
 
@@ -203,7 +205,7 @@ protected:
   std::optional<HRRect> lazyFrame_;
   std::optional<HRPadding> lazyPadding_;
 private:
-  HippyValueObjectType CallNativeRenderProviderMethod(napi_env env, napi_ref render_provider_ref, uint32_t component_id, const std::string &method);  
+  HippyValueObjectType CallNativeRenderProviderMethod(napi_env env, napi_ref render_provider_ref, uint32_t component_id, const std::string &method);
 };
 
 }  // namespace native

@@ -35,6 +35,15 @@ ArkUI_NativeDialogAPI_1 *NativeDialogApi::GetInstance() {
   return api_;
 }
 
+ArkUI_NativeDialogAPI_2 *NativeDialogApi::GetInstanceV2() {
+  static ArkUI_NativeDialogAPI_2 *api_ = nullptr;
+  if (api_ == nullptr) {
+    api_ = reinterpret_cast<ArkUI_NativeDialogAPI_2 *>(
+      OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_DIALOG, "ArkUI_NativeDialogAPI_2"));
+  }
+  return api_;
+}
+
 } // namespace native
 } // namespace render
 } // namespace hippy

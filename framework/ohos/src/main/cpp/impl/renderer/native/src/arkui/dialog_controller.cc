@@ -51,19 +51,19 @@ void DialogController::RemoveContent(){
 void DialogController::SetContentAlignment(int32_t alignment, float offsetX, float offsetY){
   if(!dialogHandle)
     return;
-  MaybeThrow(NativeDialogApi::GetInstance()->setContentAlignment(dialogHandle,alignment,offsetX,offsetY));  
+  MaybeThrow(NativeDialogApi::GetInstance()->setContentAlignment(dialogHandle,alignment,offsetX,offsetY));
 }
 
 void DialogController::ResetContentAlignment(){
   if(!dialogHandle)
     return;
-  MaybeThrow(NativeDialogApi::GetInstance()->resetContentAlignment(dialogHandle));  
+  MaybeThrow(NativeDialogApi::GetInstance()->resetContentAlignment(dialogHandle));
 }
 
 void DialogController::SetModalMode(bool isModal){
   if(!dialogHandle)
     return;
-  MaybeThrow(NativeDialogApi::GetInstance()->setModalMode(dialogHandle,isModal));  
+  MaybeThrow(NativeDialogApi::GetInstance()->setModalMode(dialogHandle,isModal));
 }
 
 void DialogController::SetAutoCancel(bool autoCancel){
@@ -123,7 +123,19 @@ void DialogController::Close(){
 void DialogController::RegisterOnWillDismiss(ArkUI_OnWillDismissEvent eventHandler){
   if(!dialogHandle)
     return;
-  MaybeThrow(NativeDialogApi::GetInstance()->registerOnWillDismiss(dialogHandle,eventHandler));    
+  MaybeThrow(NativeDialogApi::GetInstance()->registerOnWillDismiss(dialogHandle,eventHandler));
+}
+
+void DialogController::SetShowInPage(int32_t uniqueId) {
+  if(!dialogHandle) {
+    return;
+  }
+  if (!NativeDialogApi::GetInstanceV2()) {
+    return;
+  }
+  MaybeThrow(NativeDialogApi::GetInstanceV2()->setImmersiveMode(dialogHandle, ARKUI_IMMERSIVE_MODE_EXTEND));
+  MaybeThrow(NativeDialogApi::GetInstanceV2()->setLevelUniqueId(dialogHandle, uniqueId)); // 先设置节点ID
+  MaybeThrow(NativeDialogApi::GetInstanceV2()->setLevelMode(dialogHandle, ARKUI_LEVEL_MODE_EMBEDDED)); // 再设置层级模式
 }
 
 } // namespace native

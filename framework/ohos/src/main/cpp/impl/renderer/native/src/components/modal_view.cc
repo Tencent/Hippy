@@ -59,6 +59,8 @@ bool ModalView::SetPropImpl(const std::string &propKey, const HippyValue &propVa
     this->animationType = HRValueUtils::GetString(propValue);
   } else if(propKey == "darkStatusBarText"){
     this->darkStatusBarText = HRValueUtils::GetBool(propValue, false);
+  } else if (propKey == "show-in-page-ohos") {
+    is_show_in_page_ = HRValueUtils::GetBool(propValue, false);
   }
   return BaseView::SetPropImpl(propKey, propValue);
 }
@@ -76,8 +78,7 @@ void ModalView::OnSetPropsEndImpl(){
 }
 
 void ModalView::UpdateRenderViewFrameImpl(const HRRect &frame, const HRPadding &padding){
-//should overwrite this function ,but do nothing, size will change in OnAreaChange
-  FOOTSTONE_DLOG(INFO)<<__FUNCTION__<<" frame("<<(int)frame.x<<","<<(int)frame.y<<","<<(int)frame.width<<","<<(int)frame.height<<")";
+
 }
 
 void ModalView::OnChildInsertedImpl(std::shared_ptr<BaseView> const &childView, int index){
@@ -94,12 +95,12 @@ void ModalView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, i
   }
 }
 
-void ModalView::Show() {
+void ModalView::Show(int32_t parentNodeUniqueId) {
   CreateArkUINode(false);
-  OpenDialog();
+  OpenDialog(parentNodeUniqueId);
 }
 
-void ModalView::OpenDialog() {
+void ModalView::OpenDialog(int32_t parentNodeUniqueId) {
   if (!dialog_) {
     dialog_ = std::make_shared<DialogController>();
   }
@@ -113,6 +114,9 @@ void ModalView::OpenDialog() {
   dialog_->SetCornerRadius(0, 0, 0, 0);
   dialog_->SetModalMode(true);
   dialog_->SetContent(GetLocalRootArkUINode()->GetArkUINodeHandle());
+  if (is_show_in_page_ && parentNodeUniqueId > 0) {
+    dialog_->SetShowInPage(parentNodeUniqueId);
+  }
   dialog_->Show();
   HREventUtils::SendComponentEvent(GetCtx(), GetTag(),HREventUtils::EVENT_MODAL_SHOW, nullptr);
 
@@ -120,7 +124,6 @@ void ModalView::OpenDialog() {
     GetLocalRootArkUINode()->SetBackgroundColor(0x00000000);
   }
   GetLocalRootArkUINode()->SetSizePercent(HRSize(1.f,1.f));
-  GetLocalRootArkUINode()->SetExpandSafeArea();//TODO will update when NODE_EXPAND_SAFE_AREA add in sdk
 }
 
 void ModalView::CloseDialog() {

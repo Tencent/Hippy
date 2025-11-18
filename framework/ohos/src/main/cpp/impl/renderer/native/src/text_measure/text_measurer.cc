@@ -122,9 +122,9 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
 #endif
   typographyStyle_ = OH_Drawing_CreateTypographyStyle();
   OH_Drawing_SetTypographyTextDirection(typographyStyle_, TEXT_DIRECTION_LTR); // 从左向右排版
-  
+
   HippyValue propValue;
-  
+
   text_align_ = TEXT_ALIGN_START;
   if (GetPropValue(propMap, HRNodeProps::TEXT_ALIGN, propValue)) {
     auto& strValue = HippyValue2String(propValue);
@@ -188,7 +188,7 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
 
 // 因为使用了API14才有的接口，App也需要升级最低支持版本为API14，否则会加载so crash。
 // 这里临时定义宏，如果有业务暂时不方便升级到API14，可以临时define为0。
-#define OHOS_HAS_API14 1
+#define OHOS_HAS_API14 0
 #if OHOS_HAS_API14
   OH_Drawing_FontCollection *fontCollection = nullptr;
   if (hasCustomFont) {
@@ -274,14 +274,14 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
 #endif
 
   OH_Drawing_TextStyle *txtStyle = OH_Drawing_CreateTextStyle();
-  
+
   HippyValue propValue;
-  
+
   if (GetPropValue(propMap, HRNodeProps::LINE_HEIGHT, propValue)) {
     auto doubleValue = HippyValue2Double(propValue);
     lineHeight_ = doubleValue;
   }
-  
+
   uint32_t color = 0xff000000; // 颜色默认值，绘制时必须有颜色设置
   if (GetPropValue(propMap, HRNodeProps::COLOR, propValue)) {
     auto uintValue = HippyValue2Uint(propValue);
@@ -348,7 +348,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
     }
     OH_Drawing_SetTextStyleDecorationStyle(txtStyle, ds);
   }
-  
+
   uint32_t shadowColor = 0xff000000;
   double shadowOffsetX = 0;
   double shadowOffsetY = 0;
@@ -388,7 +388,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
     OH_Drawing_SetTextStyleHalfLeading(txtStyle, true);
   }
 #endif
-  
+
   // If font height is set, measure results for some special char will be wrong.
   // For example, ε (utf8 code: e0bdbdceb5). Measured height is less than drawn height.
   // OH_Drawing_SetTextStyleFontHeight(txtStyle, 1.25);
@@ -403,17 +403,17 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
     fontStyle = FONT_STYLE_ITALIC;
   }
   OH_Drawing_SetTextStyleFontStyle(txtStyle, fontStyle);
-    
+
   // use default locale,
   // If en is set, measure results for Chinese characters will be inaccurate.
   // OH_Drawing_SetTextStyleLocale(txtStyle, "zh");
-  
+
   if (GetPropValue(propMap, HRNodeProps::LETTER_SPACING, propValue)) {
     auto doubleValue = HippyValue2Double(propValue);
     double letterSpacing = doubleValue;
     OH_Drawing_SetTextStyleLetterSpacing(txtStyle, letterSpacing * density);
   }
-  
+
   OH_ArkUI_StyledString_PushTextStyle(styled_string_, txtStyle);
   if (GetPropValue(propMap, "text", propValue)) {
     auto& strValue = HippyValue2String(propValue);
@@ -423,7 +423,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
     int strLen = (int)str16.size();
     spanOffsets_.emplace_back(std::tuple(charOffset_, charOffset_ + strLen));
     charOffset_ += strLen;
-    
+
 #ifdef MEASURE_TEXT_LOG_RESULT
     logTextContent_ += "[span]";
     logTextContent_ += propValue;
@@ -460,7 +460,7 @@ void TextMeasurer::AddImage(HippyValueObjectType &propMap, float density) {
 #endif
 
   HippyValue propValue;
-  
+
   OH_Drawing_PlaceholderSpan span;
   if (GetPropValue(propMap, HRNodeProps::WIDTH, propValue)) {
     double doubleValue = HippyValue2Double(propValue);
@@ -473,7 +473,7 @@ void TextMeasurer::AddImage(HippyValueObjectType &propMap, float density) {
   span.alignment = OH_Drawing_PlaceholderVerticalAlignment::ALIGNMENT_CENTER_OF_ROW_BOX;
 
   OH_ArkUI_StyledString_AddPlaceholder(styled_string_, &span);
-  
+
   if (minLineHeight_ < span.height) {
     minLineHeight_ = span.height;
   }
@@ -510,7 +510,7 @@ void TextMeasurer::AddImage(HippyValueObjectType &propMap, float density) {
   }
 
   imageSpans_.push_back(spanH);
-  
+
 #ifdef MEASURE_TEXT_CHECK_PROP
   const static std::vector<std::string> dropProp = {"backgroundColor", "src", "tintColor"};
   for (uint32_t i = 0; i < dropProp.size(); i++) {
@@ -552,10 +552,10 @@ double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasur
     OhImageSpanPos pos;
     pos.x = boxLeft;
     pos.y = boxTop;
-    
+
     pos.x += (paddingLeft_ + borderLeftWidth_) * density;
     pos.y += (paddingTop_ + borderTopWidth_) * density;
-    
+
     ret.spanPos.push_back(pos);
   }
   return bottom;
@@ -564,14 +564,14 @@ double TextMeasurer::CalcSpanPostion(OH_Drawing_Typography *typography, OhMeasur
 OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, int heightMode, bool isSizeIncludePadding, float density) {
   OhMeasureResult ret;
   size_t lineCount = 0;
-  
+
   typography_ = OH_ArkUI_StyledString_CreateTypography(styled_string_);
   double maxWidth = double(width);
   if (maxWidth == 0 || std::isnan(maxWidth)) {
     // fix text measure width wrong when maxWidth is nan or 0
     maxWidth = std::numeric_limits<double>::max();
   }
-  
+
   double paddingWidthReduce = 0;
   double paddingHeightReduce = 0;
   if (isSizeIncludePadding) {
@@ -588,14 +588,14 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
   ret.height = drawResultHeight;
   ret.isEllipsized = OH_Drawing_TypographyDidExceedMaxLines(typography_);
   lineCount = OH_Drawing_TypographyGetLineCount(typography_);
-  
+
   double realHeight = CalcSpanPostion(typography_, ret, density);
   ret.height = fmax(ret.height, realHeight);
-  
+
   if (ret.height < minLineHeight_) {
     ret.height = minLineHeight_;
   }
-  
+
 #ifdef MEASURE_TEXT_LOG_RESULT
   FOOTSTONE_DLOG(INFO) << "hippy text - measure result, maxWidth: " << maxWidth
     << ", result: (" << ret.width << ", " << ret.height << "), "
@@ -608,16 +608,16 @@ OhMeasureResult TextMeasurer::EndMeasure(int width, int widthMode, int height, i
     FOOTSTONE_DLOG(INFO) << "hippy text - lineHeight fix result, result height: " << ret.height;
 #endif
   }
-  
+
   if (ret.height > drawResultHeight) {
     correctPxOffsetY_ = (float)(ret.height - drawResultHeight) / 2.f;
   }
-  
+
   ret.height += paddingHeightReduce;
-  
+
   measureWidth_ = maxWidth;
   resultWidth_ = ret.width;
-  
+
   return ret;
 }
 

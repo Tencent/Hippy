@@ -54,7 +54,7 @@ public:
 
   void BindNativeRoot(ArkUI_NodeContentHandle contentHandle, uint32_t node_id);
   void UnbindNativeRoot(uint32_t node_id);
-  
+
   void BindNativeRootToParent(ArkUI_NodeHandle parentNodeHandle, uint32_t node_id);
   void UnbindNativeRootFromParent(uint32_t node_id);
 
@@ -65,7 +65,7 @@ public:
   std::shared_ptr<RootView> &GetRootView() {
     return root_view_;
   }
-  
+
   std::shared_ptr<NativeRenderContext> GetRenderContext() {
     return ctx_;
   }
@@ -111,9 +111,9 @@ public:
   HRRect GetViewFrameInRoot(uint32_t node_id);
   void AddBizViewInRoot(uint32_t biz_view_id, ArkUI_NodeHandle node_handle, const HRPosition &position);
   void RemoveBizViewInRoot(uint32_t biz_view_id);
-  
+
   void DoCallbackForFetchLocalPathAsync(uint32_t node_id, bool success, const std::string &path);
-  
+
   std::shared_ptr<BaseView> GetViewFromRegistry(uint32_t node_id);
 
   void CheckAndDestroyTsRootForCInterface();
@@ -132,14 +132,16 @@ private:
   void prepareReportFirstContentViewAdd(std::shared_ptr<HRMutation> &m);
 
   std::shared_ptr<BaseView> CreateCustomRenderView(uint32_t tag, std::string &view_name, bool is_parent_text);
-  
+
+  int32_t GetNodeUniqueIdById(const std::string &id);
+
   std::shared_ptr<NativeRenderContext> ctx_;
   uint32_t root_id_;
   std::unordered_map<uint32_t, ArkUI_NodeContentHandle> nodeContentMap_;
   std::unordered_map<uint32_t, ArkUI_NodeHandle> parentNodeMap_;
   std::shared_ptr<RootView> root_view_;
   std::map<uint32_t, std::shared_ptr<BaseView>> view_registry_;
-  
+
   std::vector<std::shared_ptr<HRMutation>> mutations_;
   uint64_t end_batch_callback_id_count_ = 0;
   std::map<uint64_t, EndBatchCallback> end_batch_callback_map_;
@@ -158,7 +160,7 @@ private:
 
   bool isFirstViewAdd = false;
   FCPType isFirstContentViewAdd = FCPType::NONE;
-  
+
   bool hasCustomTsView_ = false;
 };
 
