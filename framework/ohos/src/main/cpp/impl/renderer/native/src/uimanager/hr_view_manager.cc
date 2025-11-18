@@ -26,7 +26,7 @@
 #include "oh_napi/oh_napi_object.h"
 #include "oh_napi/oh_napi_object_builder.h"
 #include "oh_napi/oh_napi_utils.h"
-#include "renderer/api/hippy_view_provider.h"
+#include "renderer/api_internal/hippy_view_provider.h"
 #include "renderer/arkui/native_node_api.h"
 #include "renderer/components/custom_ts_view.h"
 #include "renderer/components/custom_view.h"

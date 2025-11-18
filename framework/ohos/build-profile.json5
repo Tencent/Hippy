@@ -1,6 +1,9 @@
 {
   "apiType": "stageMode",
   "buildOption": {
+    "nativeLib": {
+      "headerPath": "./src/main/cpp/impl/renderer/native/include/renderer/api"
+    },
     "sourceOption": {
       "workers": [
         "./src/main/ets/support/workers/worker.ets",

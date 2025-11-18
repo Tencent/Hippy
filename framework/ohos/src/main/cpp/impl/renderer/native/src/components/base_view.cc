@@ -34,8 +34,24 @@
 #include "renderer/utils/hr_value_utils.h"
 #include "renderer/utils/hr_convert_utils.h"
 #include "renderer/uimanager/hr_gesture_dispatcher.h"
+#include "renderer/api/hippy.h"
+#include "renderer/api_internal/hr_any_data_internal.h"
 
-#define HIPPY_COMPONENT_KEY_PREFIX "HippyKey"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static HRRenderViewOnSetProp gExternalPropHandlerOnSet = nullptr;
+static HRRenderViewOnResetProp gExternalPropHandlerOnReset = nullptr;
+
+void HRRenderViewSetExternalPropHandler(HRRenderViewOnSetProp set, HRRenderViewOnResetProp reset) {
+  gExternalPropHandlerOnSet = set;
+  gExternalPropHandlerOnReset = reset;
+}
+
+#ifdef __cplusplus
+}
+#endif
 
 namespace hippy {
 inline namespace render {
@@ -350,6 +366,14 @@ bool BaseView::SetPropImpl(const std::string &propKey, const HippyValue &propVal
     }
     if (!handled) {
       handled = SetEventProp(propKey, propValue);
+    }
+    if (!handled) {
+      // pass prop not handled forward to extern handler
+      if (gExternalPropHandlerOnSet) {
+        struct HRAnyDataInternal anyDataInternal;
+        anyDataInternal.anyValue = std::make_shared<HippyValue>(propValue);
+        handled = gExternalPropHandlerOnSet(GetLocalRootArkUINode()->GetArkUINodeHandle(), propKey.c_str(), &anyDataInternal);
+      }
     }
     return handled;
   }

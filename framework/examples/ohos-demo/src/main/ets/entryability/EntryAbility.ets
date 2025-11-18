@@ -27,6 +27,7 @@ import font from '@ohos.font';
 import { EngineInitParams } from 'hippy';
 import { BusinessError } from '@kit.BasicServicesKit';
 import fs from '@ohos.file.fs';
+import libHippyEx from 'libhippy_ex.so'
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
@@ -35,6 +36,8 @@ export default class EntryAbility extends UIAbility {
 
     AppStorage.setOrCreate("libHippy", libHippy)
     AppStorage.setOrCreate("abilityContext", this.context)
+
+    AppStorage.setOrCreate("libHippyEx", libHippyEx)
 
     let pageManagementItems:Object[] = []
     AppStorage.setOrCreate("pageManagementItems", pageManagementItems)

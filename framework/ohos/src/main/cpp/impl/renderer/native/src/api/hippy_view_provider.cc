@@ -20,7 +20,7 @@
  *
  */
 
-#include "renderer/api/hippy_view_provider.h"
+#include "renderer/api_internal/hippy_view_provider.h"
 
 namespace hippy {
 inline namespace render {
