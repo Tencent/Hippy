@@ -44,6 +44,9 @@ export class NetInfoModule extends HippyNativeModuleBase {
   public getCurrentConnectionType(): string {
     try {
       let netHandle = connection.getDefaultNetSync();
+      if (netHandle.netId == 0) {
+        return NetInfoModule.CONNECTION_TYPE_NONE
+      }
       let netCapabilities = connection.getNetCapabilitiesSync(netHandle);
       LogUtils.i(NETINFO_MODULE_TAG, "currentConnectionType: " + netCapabilities.bearerTypes);
       if (netCapabilities == null || netCapabilities.bearerTypes == null) {
