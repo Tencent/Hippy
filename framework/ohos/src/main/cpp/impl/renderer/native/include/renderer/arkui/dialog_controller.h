@@ -48,7 +48,7 @@ public:
   void SetGridColumnCount(int32_t gridCount);
   void EnableCustomStyle(bool enableCustomStyle);
   void EnableCustomAnimation(bool enableCustomAnimation);
-  void RegisterOnWillDismiss(ArkUI_OnWillDismissEvent eventHandler);
+  void RegisterOnWillDismiss(void (*callback)(ArkUI_DialogDismissEvent* event));
   void Show();
   void Close();
   void SetShowInPage(int32_t uniqueId);
