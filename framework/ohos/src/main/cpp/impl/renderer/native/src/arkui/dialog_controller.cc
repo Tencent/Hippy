@@ -120,10 +120,10 @@ void DialogController::Close(){
   MaybeThrow(NativeDialogApi::GetInstance()->close(dialogHandle));
 }
 
-void DialogController::RegisterOnWillDismiss(ArkUI_OnWillDismissEvent eventHandler){
+void DialogController::RegisterOnWillDismiss(void (*callback)(ArkUI_DialogDismissEvent* event)){
   if(!dialogHandle)
     return;
-  MaybeThrow(NativeDialogApi::GetInstance()->registerOnWillDismiss(dialogHandle,eventHandler));
+  MaybeThrow(NativeDialogApi::GetInstance()->registerOnWillDismissWithUserData(dialogHandle, nullptr, callback));
 }
 
 void DialogController::SetShowInPage(int32_t uniqueId) {

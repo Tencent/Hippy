@@ -30,6 +30,17 @@ inline namespace render {
 inline namespace native {
 const int DURATION = 200;
 
+// 自定义Dialog关闭回调函数
+void OnHippyDialogDismiss(ArkUI_DialogDismissEvent* event) {
+  if (!event) {
+    return;
+  }
+  auto reason = OH_ArkUI_DialogDismissEvent_GetDismissReason(event);
+  if (reason == DIALOG_DISMISS_BACK_PRESS || reason == DIALOG_DISMISS_SLIDE_DOWN) {
+    OH_ArkUI_DialogDismissEvent_SetShouldBlockDismiss(event, true);
+  }
+}
+
 ModalView::ModalView(std::shared_ptr<NativeRenderContext> &ctx) : BaseView(ctx) {
 }
 
@@ -114,6 +125,7 @@ void ModalView::OpenDialog(int32_t parentNodeUniqueId) {
   dialog_->SetCornerRadius(0, 0, 0, 0);
   dialog_->SetModalMode(true);
   dialog_->SetContent(GetLocalRootArkUINode()->GetArkUINodeHandle());
+  dialog_->RegisterOnWillDismiss(OnHippyDialogDismiss);
   if (is_show_in_page_ && parentNodeUniqueId > 0) {
     dialog_->SetShowInPage(parentNodeUniqueId);
   }
