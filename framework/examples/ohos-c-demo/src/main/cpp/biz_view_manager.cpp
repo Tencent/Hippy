@@ -21,7 +21,7 @@
  */
 
 #include "biz_view_manager.h"
-#include "renderer/api_c/hippy.h"
+#include "renderer/api_c/hippy_c.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include <arkui/native_interface.h>
 #include <arkui/native_node.h>
