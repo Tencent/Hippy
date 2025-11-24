@@ -196,6 +196,10 @@ void HRViewManager::ApplyMutations() {
 }
 
 void HRViewManager::ApplyMutation(std::shared_ptr<HRMutation> &m) {
+  if (!m) {
+    FOOTSTONE_LOG(WARNING) << "Apply mutation, but m is nullptr";
+    return;
+  }
   if (m->type_ == HRMutationType::CREATE) {
     auto tm = std::static_pointer_cast<HRCreateMutation>(m);
     bool is_nine_img = false;

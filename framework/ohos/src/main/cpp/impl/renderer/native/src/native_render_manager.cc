@@ -682,7 +682,9 @@ void NativeRenderManager::MoveRenderNode_C(std::weak_ptr<RootNode> root_node, st
     }
     m->node_infos_.push_back(HRMoveNodeInfo(render_info.id, render_info.index));
   }
-  c_render_provider_->MoveNode(root_id, m);
+  if (m) {
+    c_render_provider_->MoveNode(root_id, m);
+  }
 }
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
