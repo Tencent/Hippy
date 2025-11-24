@@ -25,6 +25,7 @@ import { connection } from '@kit.NetworkKit'
 import { LogUtils } from '../../../../support/utils/LogUtils'
 import { HippyAny } from '../../../../support/common/HippyTypes'
 import { HippyModulePromise } from '../../HippyModulePromise'
+import { EventDispatcher } from '../../javascript/EventDispatcher'
 
 const NETINFO_MODULE_TAG = "NetInfoModule"
 
@@ -133,6 +134,16 @@ export class NetInfoModule extends HippyNativeModuleBase {
       this.netConnection.register((error) => {
         LogUtils.d(NETINFO_MODULE_TAG, "registerReceiver: " + JSON.stringify(error))
       })
+      // 订阅网络可用事件
+      this.netConnection.on('netAvailable', (data: connection.NetHandle) => {
+        LogUtils.d(NETINFO_MODULE_TAG, "Network available, netId: " + data.netId);
+        this.handleNativeEvent();
+      });
+      // 订阅网络丢失事件
+      this.netConnection.on('netLost', (data: connection.NetHandle) => {
+        LogUtils.d(NETINFO_MODULE_TAG, "Network lost");
+        this.handleNativeEvent();
+      });
     } catch (e) {
       LogUtils.e("NetInfoModule", "registerReceiver: " + e.getMessage());
     }
@@ -145,6 +156,21 @@ export class NetInfoModule extends HippyNativeModuleBase {
       })
     } catch (e) {
       LogUtils.d("NetInfoModule", "unregisterReceiver: " + e.getMessage());
+    }
+  }
+
+  private handleNativeEvent() {
+    if (this.ctx) {
+      let manager = this.ctx.getModuleManager();
+      if (manager) {
+        let eventModule = manager.getJavaScriptModule(EventDispatcher.MODULE_NAME);
+        if (eventModule) {
+          let type = this.getCurrentConnectionType();
+          let map = new Map<string, string>();
+          map.set('network_info', type);
+          (eventModule as EventDispatcher).receiveNativeEvent("networkStatusDidChange", map);
+        }
+      }
     }
   }
 }
