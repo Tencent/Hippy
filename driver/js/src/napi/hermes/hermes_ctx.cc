@@ -91,9 +91,12 @@ static void HandleJsException(std::shared_ptr<Scope> scope, std::shared_ptr<Herm
   FOOTSTONE_DCHECK(engine);
   if (engine) {
       auto callback = engine->GetVM()->GetUncaughtExceptionCallback();
+      if (!callback) {
+        return;
+      }
       auto context = scope->GetContext();
       footstone::string_view description("Hermes Engine JS Exception");
-      footstone::string_view stack(exception->GetMessage());
+      footstone::string_view stack(exception ? exception->GetMessage() : "");
       callback(scope->GetBridge(), description, stack);
   }
 }
