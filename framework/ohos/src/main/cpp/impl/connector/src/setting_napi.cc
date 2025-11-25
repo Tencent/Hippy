@@ -26,6 +26,7 @@
 #include "oh_napi/ark_ts.h"
 #include "footstone/check.h"
 #include "footstone/logging.h"
+#include "renderer/utils/hr_device_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
 
 namespace hippy {
@@ -83,11 +84,18 @@ static napi_value SetFontWeightScale(napi_env env, napi_callback_info info) {
   return arkTs.GetUndefined();
 }
 
+static napi_value SetDesktop(napi_env env, napi_callback_info info) {
+  HRDeviceUtils::SetDesktop();
+  ArkTS arkTs(env);
+  return arkTs.GetUndefined();
+}
+
 REGISTER_OH_NAPI("Setting", "Setting_SetFlags", SetFlags)
 REGISTER_OH_NAPI("Setting", "Setting_SetDensity", SetDensity)
 REGISTER_OH_NAPI("Setting", "Setting_SetDensityScale", SetDensityScale)
 REGISTER_OH_NAPI("Setting", "Setting_SetFontSizeScale", SetFontSizeScale)
 REGISTER_OH_NAPI("Setting", "Setting_SetFontWeightScale", SetFontWeightScale)
+REGISTER_OH_NAPI("Setting", "Setting_SetDesktop", SetDesktop)
 
 }
 }

@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import deviceInfo from '@ohos.deviceInfo';
 import { HippyLibrary } from '../hippy_library/HippyLibrary';
 import { PixelUtil } from "../support/utils/PixelUtil";
 import { NativeRenderContext } from '../renderer_native/NativeRenderContext';
@@ -97,6 +98,12 @@ export function createHippyEngine(params: EngineInitParams): HippyEngine {
   PixelUtil.doInitDensity()
   LogUtils.enableDebugLog(params.enableLog)
   params.libHippy?.Setting_SetFlags(params.enableUpdateAnimLog);
+
+  let deviceType: string = deviceInfo.deviceType;
+  if (deviceType === "2in1") {
+    params.libHippy?.Setting_SetDesktop();
+  }
+
   return new HippyEngineManagerImpl(params)
 }
 
