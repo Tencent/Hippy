@@ -78,6 +78,7 @@ set(SOURCE_SET
   src/uimanager/hr_keyboard_manager.cc
   src/utils/hr_event_utils.cc
   src/utils/hr_convert_utils.cc
+  src/utils/hr_device_utils.cc
   src/utils/hr_pixel_utils.cc
   src/utils/hr_text_convert_utils.cc
   src/utils/hr_url_utils.cc

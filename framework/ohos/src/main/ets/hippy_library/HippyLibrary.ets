@@ -143,6 +143,7 @@ export interface HippyLibrary {
   Setting_SetDensityScale(densityScale: number): void;
   Setting_SetFontSizeScale(fontSizeScale: number): void;
   Setting_SetFontWeightScale(fontWeightScale: number): void;
+  Setting_SetDesktop(): void;
 
   // main线程使用
   WorkerManager_InitWModuleManager(notifyMainThreadFunction: (

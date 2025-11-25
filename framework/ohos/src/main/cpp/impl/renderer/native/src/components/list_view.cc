@@ -25,6 +25,7 @@
 #include "renderer/components/refresh_wrapper_view.h"
 #include "renderer/dom_node/hr_node_props.h"
 #include "renderer/utils/hr_convert_utils.h"
+#include "renderer/utils/hr_device_utils.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "renderer/utils/hr_pixel_utils.h"
 #include "renderer/utils/hr_value_utils.h"
@@ -333,6 +334,19 @@ void ListView::OnScrollStop() {
   if (onScrollEventEnable_) {
     EmitScrollEvent(HREventUtils::EVENT_SCROLLER_ON_SCROLL);
   }
+
+  if (HRDeviceUtils::IsDesktop()) {
+    if (footerView_ && pullAction_ == ScrollAction::PullFooter) {
+      if (footerViewFullVisible_) {
+        HREventUtils::SendComponentEvent(footerView_->GetCtx(), footerView_->GetTag(),
+                                         HREventUtils::EVENT_PULL_FOOTER_RELEASED, nullptr);
+      } else {
+        auto lastIndex = static_cast<int32_t>(children_.size()) - 1;
+        listNode_->ScrollToIndex(lastIndex - 1 - (hasPullHeader_? 1 : 0), true, ARKUI_SCROLL_ALIGNMENT_END);
+      }
+      pullAction_ = ScrollAction::None;
+    }
+  }
 }
 
 void ListView::OnReachStart() {
@@ -346,11 +360,13 @@ void ListView::OnReachEnd() {
 
 void ListView::OnTouch(int32_t actionType, const HRPosition &screenPosition) {
   BaseView::OnTouch(actionType, screenPosition);
-  
-  if (actionType == UI_TOUCH_EVENT_ACTION_DOWN || actionType == UI_TOUCH_EVENT_ACTION_MOVE) {
-    CheckBeginDrag();
-  } else if (actionType == UI_TOUCH_EVENT_ACTION_UP || actionType == UI_TOUCH_EVENT_ACTION_CANCEL) {
-    CheckEndDrag();
+
+  if (!HRDeviceUtils::IsDesktop()) {
+    if (actionType == UI_TOUCH_EVENT_ACTION_DOWN || actionType == UI_TOUCH_EVENT_ACTION_MOVE) {
+      CheckBeginDrag();
+    } else if (actionType == UI_TOUCH_EVENT_ACTION_UP || actionType == UI_TOUCH_EVENT_ACTION_CANCEL) {
+      CheckEndDrag();
+    }
   }
 }
 
@@ -614,7 +630,7 @@ void ListView::CheckPullOnItemVisibleAreaChange(int32_t index, bool isVisible, f
   auto lastIndex = static_cast<int32_t>(children_.size()) - 1;
   if (footerView_ && index == lastIndex) {
     if (isVisible) {
-      if (isDragging_) {
+      if (HRDeviceUtils::IsDesktop()) {
         pullAction_ = ScrollAction::PullFooter;
         if (currentRatio >= 1.0) {
           footerViewFullVisible_ = true;
@@ -622,7 +638,16 @@ void ListView::CheckPullOnItemVisibleAreaChange(int32_t index, bool isVisible, f
           footerViewFullVisible_ = false;
         }
       } else {
-        listNode_->ScrollToIndex(lastIndex - 1 - (hasPullHeader_? 1 : 0), true, ARKUI_SCROLL_ALIGNMENT_END);
+        if (isDragging_) {
+          pullAction_ = ScrollAction::PullFooter;
+          if (currentRatio >= 1.0) {
+            footerViewFullVisible_ = true;
+          } else {
+            footerViewFullVisible_ = false;
+          }
+        } else {
+          listNode_->ScrollToIndex(lastIndex - 1 - (hasPullHeader_? 1 : 0), true, ARKUI_SCROLL_ALIGNMENT_END);
+        }
       }
     } else {
       footerViewFullVisible_ = false;
