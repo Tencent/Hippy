@@ -34,9 +34,12 @@ set(HIPPY_DRIVER_JS_CPP_DIR "${PROJECT_ROOT_DIR}/driver/js")
 set(HIPPY_DOM_CPP_DIR "${PROJECT_ROOT_DIR}/dom")
 set(HIPPY_VFS_CPP_DIR "${PROJECT_ROOT_DIR}/modules/vfs")
 
-add_library(hippy_impl STATIC
-  "${HIPPY_IMPL_CPP_DIR}/entry.cc"
-)
+add_library(hippy_impl STATIC)
+
+set(PUBLIC_SOURCE_SET
+    "${HIPPY_IMPL_CPP_DIR}/entry.cc")
+
+target_sources(${PROJECT_NAME} PUBLIC ${PUBLIC_SOURCE_SET})
 
 target_include_directories(hippy_impl PUBLIC
   "${HIPPY_IMPL_CPP_DIR}"

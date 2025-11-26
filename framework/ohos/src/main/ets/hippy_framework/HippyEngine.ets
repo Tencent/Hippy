@@ -104,6 +104,10 @@ export function createHippyEngine(params: EngineInitParams): HippyEngine {
     params.libHippy?.Setting_SetDesktop();
   }
 
+  if (params.logAdapter) {
+    params.libHippy?.Entry_SetNativeLogHandler(params.logAdapter);
+  }
+
   return new HippyEngineManagerImpl(params)
 }
 
@@ -250,7 +254,7 @@ export class EngineInitParams {
       this.deviceAdapter = new DefaultDeviceAdapter()
     }
     if (this.logAdapter === null) {
-      this.logAdapter = new DefaultLogAdapter()
+      // 这里不用创建DefaultLogAdapter，默认c层输出log性能更好
     }
     if (this.engineMonitor === null) {
       this.engineMonitor = new DefaultEngineMonitorAdapter()
