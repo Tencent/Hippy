@@ -78,6 +78,10 @@ void AnimationSet::Init() {
   }
   if (begin_animation_) {
     start_value_ = begin_animation_->GetStartValue();
+    // 和Animation类似，AnimationSet这里current_value也应该用start_value初始化,
+    // 否则0值会有问题，比如对延迟scale动画，初始0值会导致不显示。
+    // 这样和Hippy2.0表现也一致。
+    current_value_ = start_value_;
     delay_ = begin_animation_->GetDelay();
   }
 }
