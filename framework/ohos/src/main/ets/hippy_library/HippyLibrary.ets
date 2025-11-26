@@ -36,6 +36,7 @@ import {
 import {
   ImageRemoteLoaderInnerAdapter
 } from "../hippy_framework/adapter/image/inner/ImageRemoteLoaderInnerAdapter";
+import { HippyLogAdapter } from "../hippy_framework/adapter/log/HippyLogAdapter";
 
 export interface HippyRenderViewInfo {
   tag: number
@@ -159,4 +160,5 @@ export interface HippyLibrary {
   Worker_UnregisterWModules(moduleNames: HippyArray): void;
   Worker_CallJsFunction(instanceId: number, action: string, buffer: ArrayBuffer): void;
 
+  Entry_SetNativeLogHandler(logAdapter: HippyLogAdapter): void;
 }

@@ -36,6 +36,7 @@ import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { ExampleFontAdapter } from '../hippy_extend/ExampleFontAdapter'
 import { ExampleImageLocalLoader,
   ExampleImageRemoteLoader } from '../hippy_extend/ExampleImageLoaderAdapter'
+import { ExampleLogAdapter } from '../hippy_extend/ExampleLogAdapter'
 
 export enum DriverMode {
   JS_REACT,
@@ -182,6 +183,9 @@ struct PageConfiguration {
     params.enableTurbo = true
 
     params.fontAdapter = new ExampleFontAdapter()
+
+    // 日志重定向输出适配器举例
+    //params.logAdapter = new ExampleLogAdapter()
 
     // 图片加载适配器举例
     //params.imageLocalLoader = new ExampleImageLocalLoader();
