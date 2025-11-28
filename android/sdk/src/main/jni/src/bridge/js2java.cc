@@ -107,7 +107,9 @@ void CallJava(const hippy::napi::CallbackInfo& info, int32_t runtime_id) {
       auto flag = context->GetValueJson(info[3], &json);
       TDF_BASE_DCHECK(flag);
       TDF_BASE_DLOG(INFO) << "CallJava json = " << json;
-      buffer_data = StringViewUtils::ToU8StdStr(json);
+      if (flag) {
+        buffer_data = StringViewUtils::ToU8StdStr(json);
+      }
     }
   }
 
