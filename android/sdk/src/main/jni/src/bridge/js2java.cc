@@ -138,7 +138,9 @@ void CallJava(hippy::napi::CBDataTuple *data) {
       auto flag = v8_ctx->GetValueJson(obj, &json);
       TDF_BASE_DCHECK(flag);
       TDF_BASE_DLOG(INFO) << "CallJava json = " << json;
-      buffer_data = StringViewUtils::ToU8StdStr(json);
+      if (flag) {
+        buffer_data = StringViewUtils::ToU8StdStr(json);
+      }
     }
   }
 
