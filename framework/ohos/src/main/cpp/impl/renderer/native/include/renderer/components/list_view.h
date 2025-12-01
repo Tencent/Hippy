@@ -46,7 +46,7 @@ enum class ScrollAction : int32_t {
 class ListView : public BaseView, public ListNodeDelegate, public ListItemNodeDelegate, public RefreshNodeDelegate, public PullHeaderViewDelegate {
 public:
   ListView(std::shared_ptr<NativeRenderContext> &ctx);
-  ~ListView();
+  virtual ~ListView();
 
   void Init() override;
 
@@ -91,8 +91,8 @@ public:
   // pull head
   void OnHeadRefreshFinish(int32_t delay);
   void OnHeadRefresh();
-private:
-  void HandleOnChildrenUpdated();
+protected:
+  virtual void HandleOnChildrenUpdated();
   void CreateArkUINodeAfterHeaderCheck();
 
   void EmitScrollEvent(const std::string &eventName);

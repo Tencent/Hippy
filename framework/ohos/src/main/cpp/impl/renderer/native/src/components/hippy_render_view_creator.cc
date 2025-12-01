@@ -22,6 +22,7 @@
 
 #include "renderer/components/hippy_render_view_creator.h"
 #include "renderer/components/div_view.h"
+#include "renderer/components/extend/bidirection_list_view.h"
 #include "renderer/components/image_nine_view.h"
 #include "renderer/components/image_view.h"
 #include "renderer/components/list_item_view.h"
@@ -137,6 +138,10 @@ std::shared_ptr<BaseView> HippyCreateRenderView(std::string &view_name, bool is_
     } else {
       view = std::make_shared<PullFooterView>(ctx);
     }
+    view->Init();
+    return view;
+  } else if (view_name == "ListViewEx") {
+    auto view = std::make_shared<BidirectionListView>(ctx);
     view->Init();
     return view;
   }

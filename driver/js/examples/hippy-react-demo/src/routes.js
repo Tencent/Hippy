@@ -1,6 +1,9 @@
 import * as components from './components';
 import * as modules from './modules';
 import * as externals from './externals';
+import {
+  Platform,
+} from '@hippy/react';
 
 const PAGE_LIST = {
   ...components,
@@ -15,7 +18,7 @@ export const Type = {
   OTHER: 3,
 };
 
-export default [
+const demos = [
   {
     path: '/Components',
     name: 'Components',
@@ -257,3 +260,20 @@ export default [
     },
   },
 ];
+function checkModulesStart(demo) {
+    return demo.name == 'Modules';
+}
+if (Platform.OS === 'ohos') {
+  let index = demos.findIndex(checkModulesStart);
+  demos.splice(index, 0,
+    {
+      path: '/ListViewEx',
+      name: '<ListViewEx> 组件',
+      component: PAGE_LIST.ListViewEx,
+      meta: {
+        type: Type.COMPONENT,
+      },
+    }
+  );
+}
+export default demos;

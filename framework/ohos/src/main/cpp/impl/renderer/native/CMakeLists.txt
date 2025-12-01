@@ -141,6 +141,7 @@ set(SOURCE_SET
   src/components/waterfall_view.cc
   src/components/waterfall_pull_footer_view.cc
   src/components/waterfall_pull_header_view.cc
+  src/components/extend/bidirection_list_view.cc
   src/image_loader/image_loader.cc
   src/recycle/recycle_view.cc
   src/text_measure/font_collection_manager.cc
