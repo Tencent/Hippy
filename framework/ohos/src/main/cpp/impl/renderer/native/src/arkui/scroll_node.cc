@@ -176,7 +176,7 @@ void ScrollNode::OnNodeEvent(ArkUI_NodeEvent *event) {
 }
 
 void ScrollNode::ScrollTo(float x, float y, bool animated, int32_t duration) {
-  int32_t timeValue = 1000;
+  int32_t timeValue = 200;
   if (!animated) {
     timeValue = 0;
   }

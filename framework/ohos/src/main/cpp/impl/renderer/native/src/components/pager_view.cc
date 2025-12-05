@@ -24,6 +24,9 @@
 #include "renderer/utils/hr_value_utils.h"
 #include "renderer/utils/hr_event_utils.h"
 #include "footstone/logging.h"
+#include <deviceinfo.h>
+
+#define OHOS_API_18_VERSION 50100 // 5.1.0(API18)
 
 namespace hippy {
 inline namespace render {
@@ -116,18 +119,29 @@ void PagerView::OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, i
 }
 
 void PagerView::OnChange(const int32_t &index) {
-  HippyValueObjectType selectedPayload = {{PAGE_ITEM_POSITION, HippyValue{index}}};
-  std::shared_ptr<HippyValue> selectedParams = std::make_shared<HippyValue>(selectedPayload);
-  HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_PAGE_SELECTED, selectedParams);
-  OnViewComponentEvent(HREventUtils::EVENT_PAGE_SELECTED, selectedPayload);
+  if (OH_GetDistributionOSApiVersion() < OHOS_API_18_VERSION) {
+    HippyValueObjectType selectedPayload = {{PAGE_ITEM_POSITION, HippyValue{index}}};
+    std::shared_ptr<HippyValue> selectedParams = std::make_shared<HippyValue>(selectedPayload);
+    HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_PAGE_SELECTED, selectedParams);
+    OnViewComponentEvent(HREventUtils::EVENT_PAGE_SELECTED, selectedPayload);
+    index_ = index;
+  }
 
   HippyValueObjectType changedPayload = {{PAGE_SCROLL_STATE, HippyValue{SCROLL_STATE_IDLE}}};
   std::shared_ptr<HippyValue> changedParams = std::make_shared<HippyValue>(changedPayload);
   HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_PAGE_SCROLL_STATE_CHANGED,
                                    changedParams);
   OnViewComponentEvent(HREventUtils::EVENT_PAGE_SCROLL_STATE_CHANGED, changedPayload);
+}
 
-  index_ = index;
+void PagerView::OnSelected(const int32_t &index) {
+  if (OH_GetDistributionOSApiVersion() >= OHOS_API_18_VERSION) {
+    HippyValueObjectType selectedPayload = {{PAGE_ITEM_POSITION, HippyValue{index}}};
+    std::shared_ptr<HippyValue> selectedParams = std::make_shared<HippyValue>(selectedPayload);
+    HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_PAGE_SELECTED, selectedParams);
+    OnViewComponentEvent(HREventUtils::EVENT_PAGE_SELECTED, selectedPayload);
+    index_ = index;
+  }
 }
 
 void PagerView::OnAnimationStart(const int32_t &currentIndex, const int32_t &targetIndex,

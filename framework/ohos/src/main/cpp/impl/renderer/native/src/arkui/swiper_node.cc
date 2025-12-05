@@ -34,7 +34,8 @@ inline namespace render {
 inline namespace native {
 
 static constexpr ArkUI_NodeEventType SWIPER_NODE_EVENT_TYPES[] = {
-  NODE_SWIPER_EVENT_ON_CHANGE,        
+  NODE_SWIPER_EVENT_ON_CHANGE,
+  NODE_SWIPER_EVENT_ON_SELECTED, // API18
   NODE_SWIPER_EVENT_ON_ANIMATION_START,
   NODE_SWIPER_EVENT_ON_ANIMATION_END,
   NODE_SWIPER_EVENT_ON_CONTENT_DID_SCROLL,
@@ -69,6 +70,9 @@ void SwiperNode::OnNodeEvent(ArkUI_NodeEvent *event) {
   if (eventType == ArkUI_NodeEventType::NODE_SWIPER_EVENT_ON_CHANGE) {
     int32_t index = nodeComponentEvent->data[0].i32;
     swiperNodeDelegate_->OnChange(index);
+  } else if (eventType == ArkUI_NodeEventType::NODE_SWIPER_EVENT_ON_SELECTED) {
+    int32_t index = nodeComponentEvent->data[0].i32;
+    swiperNodeDelegate_->OnSelected(index);
   } else if (eventType == ArkUI_NodeEventType::NODE_SWIPER_EVENT_ON_ANIMATION_START) {
     int32_t currentIndex = nodeComponentEvent->data[0].i32;
     int32_t targetIndex = nodeComponentEvent->data[1].i32;
