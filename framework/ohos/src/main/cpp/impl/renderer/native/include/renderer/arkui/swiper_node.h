@@ -34,6 +34,7 @@ class SwiperNodeDelegate {
   virtual ~SwiperNodeDelegate() = default;
 
   virtual void OnChange(const int32_t &index) {}
+  virtual void OnSelected(const int32_t &index) {}
   virtual void OnAnimationStart(const int32_t &currentIndex, const int32_t &targetIndex,
                                 const float_t &currentOffset, const float_t &targetOffset,
                                 const float_t &swipeVelocity) {}

@@ -65,6 +65,7 @@ target_link_libraries(hippy_impl PUBLIC
   libohfileuri.so
   libimage_source.so
   libpixelmap.so
+  libdeviceinfo_ndk.z.so
   uv
   footstone
   oh_napi

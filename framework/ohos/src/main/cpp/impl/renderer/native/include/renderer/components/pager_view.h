@@ -48,6 +48,7 @@ public:
   void OnChildRemovedImpl(std::shared_ptr<BaseView> const &childView, int32_t index) override;
 
   void OnChange(const int32_t &index) override;
+  void OnSelected(const int32_t &index) override;
   void OnAnimationStart(const int32_t &currentIndex, const int32_t &targetIndex,
                         const float_t &currentOffset, const float_t &targetOffset,
                         const float_t &swipeVelocity) override;
