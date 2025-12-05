@@ -195,6 +195,8 @@ protected:
   std::function<void(const HRPosition &screenPosition)> eventTouchCancel_;
   std::function<void()> eventAttachedToWindow_;
   std::function<void()> eventDetachedFromWindow_;
+  
+  bool attachEventHasSend_ = false;
 
   bool flagInterceptPullUp_ = false;
 
