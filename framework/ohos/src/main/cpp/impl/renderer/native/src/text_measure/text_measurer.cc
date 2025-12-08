@@ -169,6 +169,8 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
   OH_Drawing_SetTypographyTextEllipsis(typographyStyle_, ellipsis.c_str());
   OH_Drawing_SetTypographyTextEllipsisModal(typographyStyle_, em);
 
+  OH_Drawing_SetTypographyTextWordBreakType(typographyStyle_, WORD_BREAK_TYPE_BREAK_ALL);
+
   bool hasCustomFont = false;
   if (fontCache) {
     for (auto itName = fontFamilyNames.begin(); itName != fontFamilyNames.end(); itName++) {
