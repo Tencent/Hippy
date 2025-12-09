@@ -1261,7 +1261,9 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 				{// 默认修改大小，如果以后有新的属性需要增加返回类型
 					ii.sizeFactor = mAdapter.getPageSize(ii.position);
 					needPopulate = true;
-				}
+				} else {
+                    needPopulate = false;
+                }
 			}
 
 			if (newPos == ViewPagerAdapter.POSITION_UNCHANGED)
