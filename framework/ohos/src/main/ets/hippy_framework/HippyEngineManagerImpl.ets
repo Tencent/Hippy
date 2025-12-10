@@ -183,15 +183,17 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
   }
 
   checkWindowInfo(): void {
-    window.getLastWindow(getContext(this)).then((data) => {
-      try {
+    if (this.params.mainWindow) {
+      if (!this.mWindowInfo) {
+        this.mWindowInfo = new HippyWindowInfo(this.params.mainWindow, this.libHippy);
+      }
+    } else {
+      window.getLastWindow(getContext(this)).then((data) => {
         if (!this.mWindowInfo) {
           this.mWindowInfo = new HippyWindowInfo(data, this.libHippy);
         }
-      } catch (e) {
-        LogUtils.e('hippy', `getLastWindow error:${e}`)
-      }
-    });
+      });
+    }
   }
 
   onInitDevError(e: HippyJsException): void {

@@ -29,11 +29,19 @@ export class HippyWindowInfo {
   constructor(mainWindow: window.Window, libHippy: HippyLibrary) {
     this.mainWindow = mainWindow
     this.libHippy = libHippy
-    this.mainWindow?.on('keyboardHeightChange', this.keyboardListener)
+    try {
+      this.mainWindow?.on('keyboardHeightChange', this.keyboardListener)
+    } catch (e) {
+      LogUtils.e('hippy', `window info new error:${e}`)
+    }
   }
 
   onDestroy(): void {
-    this.mainWindow?.off('keyboardHeightChange', this.keyboardListener)
+    try {
+      this.mainWindow?.off('keyboardHeightChange', this.keyboardListener)
+    } catch (e) {
+      LogUtils.e('hippy', `window info destroy error:${e}`)
+    }
   }
 
   keyboardListener: Callback<number> = (height) => {
