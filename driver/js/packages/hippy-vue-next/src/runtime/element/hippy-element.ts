@@ -919,6 +919,7 @@ export class HippyElement extends HippyNode {
         style,
       },
       tagName: this.tagName,
+      index: this.index,
     };
 
     // hack in dev environment, added properties for chrome inspector debugging
