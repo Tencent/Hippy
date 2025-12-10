@@ -55,6 +55,7 @@ import { HippyFontAdapter } from './adapter/font/HippyFontAdapter';
 import { HippyJsException } from './common/HippyJsException';
 import { HippyImageLocalLoaderAdapter } from './adapter/image/HippyImageLocalLoaderAdapter';
 import { HippyImageRemoteLoaderAdapter } from './adapter/image/HippyImageRemoteLoaderAdapter';
+import window from '@ohos.window';
 
 export interface HippyEngine {
   getGroupId(): number
@@ -136,6 +137,10 @@ export class EngineInitParams {
   // 1 默认使用CApi，enableArkCApi开关控制；WebView的支持类似自定义ts组件;
   // 2 需要外部设置，是因为外部可在创建HippyRoot组件前提前创建view，这时候Hippy内部没创建过ts组件拿不到；
   public uiContext: UIContext | null;
+  // 可选参数 Hippy所在的window
+  // Hippy内部会通过该window监听键盘高度变化，如果业务明确指定，会使用之，否则使用window.getLastWindow获取。
+  // 对于业务已经弹小window再打开Hippy页面的场景，一定要明确指定window，否则会获取到错误的小窗window。
+  public mainWindow: window.Window | null = null;
   // 可选参数 true:资源文件来自rawfile目录; false:资源文件来自resfile目录
   public isLoadFromRawfile: boolean = true;
   // 可选参数 资源文件来自resfile目录时，资源文件所在模块的名字，比如某个hsp模块
