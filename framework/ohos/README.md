@@ -30,6 +30,7 @@ Install latest DevEco Studio.
   import libHippy from 'libhippy.so'
   AppStorage.setOrCreate("libHippy", libHippy)
   AppStorage.setOrCreate("abilityContext", this.context)
+  AppStorage.setOrCreate("mainWindow", mainWindow)
   ```
 
 - Create HippyEngine、init HippyEngine、and load js bundle.

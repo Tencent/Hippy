@@ -186,11 +186,23 @@ export class HippyEngineManagerImpl implements HippyEngine, FrameworkProxy, DevS
     if (this.params.mainWindow) {
       if (!this.mWindowInfo) {
         this.mWindowInfo = new HippyWindowInfo(this.params.mainWindow, this.libHippy);
+        try {
+          let height = this.params.mainWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM).topRect.height;
+          DimensionsUtil.STATUS_BAR_HEIGHT = height;
+        } catch (e) {
+          LogUtils.e('hippy', `get window status bar height error1:${e}`)
+        }
       }
     } else {
       window.getLastWindow(getContext(this)).then((data) => {
         if (!this.mWindowInfo) {
           this.mWindowInfo = new HippyWindowInfo(data, this.libHippy);
+          try {
+            let height = data.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM).topRect.height;
+            DimensionsUtil.STATUS_BAR_HEIGHT = height;
+          } catch (e) {
+            LogUtils.e('hippy', `get window status bar height error2:${e}`)
+          }
         }
       });
     }

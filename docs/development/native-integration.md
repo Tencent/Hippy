@@ -328,6 +328,7 @@ ENV['layout_engine'] = 'Yoga'
   import libHippy from 'libhippy.so' // libhippy.so下面可能会有红线提示，可忽略
   AppStorage.setOrCreate("libHippy", libHippy)
   AppStorage.setOrCreate("abilityContext", this.context)
+  AppStorage.setOrCreate("mainWindow", mainWindow)
   ```
 
 > 注：App 直接集成 Hippy，context 使用 UIAbility context；如果 App 在一个模块里集成 Hippy，js 等资源也集成在模块里，context 使用 getContext().createModuleContext("moduleName")，否则会找不到 js 等资源。
@@ -434,6 +435,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET} PUBLIC ${PUBLIC_SOURCE_SET}
   import libHippy from 'libhippy.so'
   AppStorage.setOrCreate("libHippy", libHippy)
   AppStorage.setOrCreate("abilityContext", this.context)
+  AppStorage.setOrCreate("mainWindow", mainWindow)
   ```
 
 - 创建 HippyEngine、初始化 HippyEngine、加载业务 bundle
