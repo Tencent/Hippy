@@ -157,11 +157,11 @@ class Scope : public std::enable_shared_from_this<Scope> {
   Scope(std::weak_ptr<Engine> engine,
         std::string name);
   ~Scope();
-  
+
   inline void SetScopeId(uint32_t scope_id) {
     scope_id_ = scope_id;
   }
-  
+
   inline uint32_t GetScopeId() {
     return scope_id_;
   }
@@ -374,7 +374,10 @@ class Scope : public std::enable_shared_from_this<Scope> {
       auto any_pointer = std::any_cast<void*>(&slot_any);
       auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
       auto scope = scope_wrapper->scope.lock();
-      FOOTSTONE_CHECK(scope);
+      FOOTSTONE_DCHECK(scope);
+      if (!scope || !scope->GetEngine().lock()) {
+        return;
+      }
       auto context = scope->GetContext();
 
       auto class_template = reinterpret_cast<ClassTemplate<T>*>(data);

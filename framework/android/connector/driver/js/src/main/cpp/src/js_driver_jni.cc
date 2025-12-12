@@ -378,8 +378,10 @@ jint CreateJsDriver(JNIEnv* j_env,
     hippy::bridge::CallJavaMethod(java_callback->GetObj(), INIT_CB_STATE::SUCCESS);
     {
       std::unique_lock<std::mutex> lock(scope_mutex);
-      scope_initialized_map[scope_id] = true;
-      scope_cv_map[scope_id]->notify_all();
+      if (scope_initialized_map.find(scope_id) != scope_initialized_map.end()) {
+        scope_initialized_map[scope_id] = true;
+        scope_cv_map[scope_id]->notify_all();
+      }
     }
   };
   auto engine = JsDriverUtils::CreateEngineAndAsyncInitialize(

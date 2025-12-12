@@ -182,7 +182,10 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(CallbackInfo& info, bo
   auto any_pointer = std::any_cast<void*>(&slot_any);
   auto scope_wrapper = reinterpret_cast<ScopeWrapper*>(static_cast<void *>(*any_pointer));
   auto scope = scope_wrapper->scope.lock();
-  FOOTSTONE_CHECK(scope);
+  FOOTSTONE_DCHECK(scope);
+  if (!scope || !scope->GetEngine().lock()) {
+    return nullptr;
+  }
   auto context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
