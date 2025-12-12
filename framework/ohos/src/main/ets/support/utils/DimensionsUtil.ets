@@ -35,7 +35,6 @@ export class DimensionsUtil {
 
   static async getDimensions(ww: number, wh: number, context: Context): Promise<HippyMap> {
     let displayClass: display.Display = display.getDefaultDisplaySync();
-    await DimensionsUtil.getStatusBarHeight(displayClass);
     let dimensionMap = new Map<string, HippyValue | Map<string, HippyValue>>()
 
     let wwPixels = ww * displayClass.densityPixels;
@@ -66,29 +65,6 @@ export class DimensionsUtil {
     screenDisplayMetricsMap.set("navigationBarHeight", DimensionsUtil.NAVIGATE_BAR_HEIGHT);
     dimensionMap.set("screenPhysicalPixels", screenDisplayMetricsMap);
     return dimensionMap
-  }
-
-  public static async getStatusBarHeight(displayClass: display.Display): Promise<number> {
-    LogUtils.d(DIMENSSION_TAG, 'Succeeded in getting cutoutInfo.');
-    if (DimensionsUtil.STATUS_BAR_HEIGHT > 0) {
-      return DimensionsUtil.STATUS_BAR_HEIGHT
-    }
-    try {
-      let data: display.CutoutInfo = await displayClass.getCutoutInfo();
-      LogUtils.d(DIMENSSION_TAG, 'Succeeded in getting cutoutInfo. Data: ' + JSON.stringify(data));
-      if (data.waterfallDisplayAreaRects.bottom.height > 0) {
-        DimensionsUtil.NAVIGATE_BAR_HEIGHT = data.waterfallDisplayAreaRects.bottom.height
-      }
-      if (data.waterfallDisplayAreaRects.top.height > 0) { //瀑布屏曲面部分显示区域
-        DimensionsUtil.STATUS_BAR_HEIGHT = data.waterfallDisplayAreaRects.top.top + data.waterfallDisplayAreaRects.top.height
-      }
-      if (DimensionsUtil.STATUS_BAR_HEIGHT < 1 && data.boundingRects && data.boundingRects.length > 0) { //挖孔、刘海等区域的边界矩形
-        DimensionsUtil.STATUS_BAR_HEIGHT = data.boundingRects[0].top + data.boundingRects[0].height
-      }
-    } catch (exception) {
-      LogUtils.e(DIMENSSION_TAG, 'Failed to obtain the default display object. Code: ' + JSON.stringify(exception));
-    }
-    return DimensionsUtil.STATUS_BAR_HEIGHT
   }
 
   public static convertDimensionsToDp(dimensionMap: HippyMap) {

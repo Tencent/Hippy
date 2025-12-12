@@ -37,6 +37,7 @@ import HippyRenderBaseView
   from 'hippy/src/main/ets/renderer_native/components/base/HippyRenderBaseView';
 import demoNapi from 'libdemo.so';
 import { buildCustomRenderView, ExampleAPIProvider } from '../hippy_extend/ExampleAPIProvider';
+import { window } from '@kit.ArkUI'
 
 class DefaultEngineListener implements EngineListener {
   private hippyEngine: HippyEngine
@@ -102,12 +103,13 @@ struct Index {
   @State message: string = 'C接入Hippy根组件';
   @StorageLink('libHippy') private libHippy: HippyLibrary | null = null
   @StorageLink('abilityContext') private abilityContext: Context | null = null
+  @StorageLink('mainWindow') private mainWindow: window.Window | null = null
   @State exception: string = ""
   private hippyEngine: HippyEngine | null = null
   private rootViewWrapper: HippyRootViewWrapper = new HippyRootViewWrapper()
 
   aboutToAppear(): void {
-    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
+    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext(), this.mainWindow)
     params.providers = new Array(new ExampleAPIProvider())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = true

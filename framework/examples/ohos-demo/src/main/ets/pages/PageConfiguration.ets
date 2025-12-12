@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { router } from '@kit.ArkUI'
+import { router, window } from '@kit.ArkUI'
 import {
   createHippyEngine,
   EngineInitParams,
@@ -141,6 +141,7 @@ struct PageConfiguration {
 
   @StorageLink('libHippy') private libHippy: HippyLibrary | null = null
   @StorageLink('abilityContext') private abilityContext: Context | null = null
+  @StorageLink('mainWindow') private mainWindow: window.Window | null = null
 
   @State driver:Resource = $r('app.string.driver_js_react')
   private driverSettingDlg:CustomDialogController = {} as CustomDialogController
@@ -172,7 +173,7 @@ struct PageConfiguration {
   }
 
   initEngine(info:HippyInfo): HippyEngine {
-    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
+    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext(), this.mainWindow)
     params.debugServerHost = info.debugServerHost as string
     params.debugMode = info.isDebugMode as boolean
     // params.isLoadFromRawfile = false
