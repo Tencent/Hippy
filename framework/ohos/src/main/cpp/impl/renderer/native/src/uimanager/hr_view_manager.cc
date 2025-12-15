@@ -422,6 +422,7 @@ void HRViewManager::UpdateEventListener(uint32_t tag, HippyValueObjectType &prop
     // custom ts view
     if (IsCustomTsRenderView(renderView->GetViewType())) {
       UpdateCustomTsEventListener(tag, props);
+      renderView->UpdateEventListener(props); // c层也要记录事件，否则attach等c层事件发不到前端
       return;
     }
 
