@@ -59,12 +59,8 @@ export class UIManagerModule extends HippyWebModule {
       let index;
       if (refId) {
         const anchor = this.findViewById(refId);
-        if (anchor && anchor.dom && anchor.pId === pId) {
-          index = Array.from(anchor.dom.parentElement?.children || []).indexOf(anchor.dom);
-          if (index !== -1) {
-            index = relativeToRef === HippyTypes.RelativeToRef.BEFORE ? index : index + 1;
-            anchor.index = relativeToRef === HippyTypes.RelativeToRef.BEFORE ? index + 1 : index;
-          }
+        if (anchor && anchor.pId === pId) {
+          index = relativeToRef === (-1 as HippyTypes.RelativeToRef.BEFORE) ? anchor.index : anchor.index + 1;
         }
       }
       try {
