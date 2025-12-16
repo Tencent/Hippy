@@ -422,6 +422,7 @@ void HRViewManager::UpdateEventListener(uint32_t tag, HippyValueObjectType &prop
     // custom ts view
     if (IsCustomTsRenderView(renderView->GetViewType())) {
       UpdateCustomTsEventListener(tag, props);
+      renderView->UpdateEventListener(props); // c层也要记录事件，否则attach等c层事件发不到前端
       return;
     }
 
@@ -704,7 +705,7 @@ void HRViewManager::UpdateCustomTsProps(std::shared_ptr<BaseView> &view, const H
       for (auto prop_it = props.begin(); prop_it != props.end(); prop_it++) {
         auto &key = prop_it->first;
         if (key == HRNodeProps::VISIBILITY || key == HRNodeProps::TRANSFORM || key == HRNodeProps::OVERFLOW ||
-            key == "native-scroll-ohos") {
+            key == "native-scroll-ohos" || key == "attachedtowindow" || key == "detachedfromwindow") {
           customTsView->SetProp(key, prop_it->second);
         }
       }
