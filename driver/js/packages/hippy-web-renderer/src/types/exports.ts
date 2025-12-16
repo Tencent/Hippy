@@ -164,7 +164,3 @@ export interface AnimationOptions {
 }
 
 export type AnimationList = { animationId?: number | undefined; follow?: boolean; }[];
-export const RelativeToRefType = {
-  BEFORE: -1,
-  AFTER: 1,
-};

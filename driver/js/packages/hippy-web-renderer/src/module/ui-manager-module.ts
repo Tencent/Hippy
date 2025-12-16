@@ -19,7 +19,7 @@
  */
 
 import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
-import { HippyBaseView, HippyCallBack, InnerNodeTag, RelativeToRefType, UIProps } from '../types';
+import { HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
 import { AnimationModule } from './animation-module';
 
@@ -62,8 +62,8 @@ export class UIManagerModule extends HippyWebModule {
         if (anchor && anchor.dom && anchor.pId === pId) {
           index = Array.from(anchor.dom.parentElement?.children || []).indexOf(anchor.dom);
           if (index !== -1) {
-            index = relativeToRef === RelativeToRefType.BEFORE ? index : index + 1;
-            anchor.index = relativeToRef === RelativeToRefType.BEFORE ? index + 1 : index;
+            index = relativeToRef === HippyTypes.RelativeToRef.BEFORE ? index : index + 1;
+            anchor.index = relativeToRef === HippyTypes.RelativeToRef.BEFORE ? index + 1 : index;
           }
         }
       }
@@ -307,8 +307,9 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     let realIndex = index;
-    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
-      realIndex = parent.dom?.childNodes?.length ?? index;
+    if (!parent.insertChild) {
+      const childrenLen = parent.dom?.childNodes?.length ?? 0;
+      realIndex = childrenLen > index ? index : childrenLen;
     }
     await view.beforeMount?.(parent, realIndex);
     await parent.beforeChildMount?.(view, realIndex);

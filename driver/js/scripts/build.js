@@ -32,7 +32,7 @@ let builds = [...reactBuilds, ...reactWebBuilds, ...vueBuilds, ...vueNextBuilds,
 // filter builds via command line arg
 if (process.argv[2]) {
   const filters = process.argv[2].split(',');
-  builds = builds.filter(b => filters.some(f => b.output.file.indexOf(f) > -1 || b.output.name.indexOf(f) > -1));
+  builds = builds.filter(b => filters.some(f => b.output.file?.indexOf(f) > -1 || b.output.name?.indexOf(f) > -1));
 }
 
 function blue(str) {
