@@ -184,6 +184,7 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
   }
 
   public async beforeChildMount(child: HippyBaseView, childPosition: number) {
+    await super.beforeChildMount(child, childPosition);
     if (childPosition === 0 && this.contentContainerStyle) {
       setElementStyle(child.dom!, this.contentContainerStyle);
     }

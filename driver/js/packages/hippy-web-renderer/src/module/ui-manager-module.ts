@@ -19,7 +19,7 @@
  */
 
 import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
-import { HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
+import { HippyBaseView, HippyCallBack, InnerNodeTag, RelativeToRefType, UIProps } from '../types';
 import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
 import { AnimationModule } from './animation-module';
 
@@ -45,8 +45,8 @@ export class UIManagerModule extends HippyWebModule {
     this.createNodePreCheck(rootViewId);
     const updateViewIdSet = new Set();
     for (let c = 0; c < data.length; c++) {
-      const [nodeItemData] = data[c];
-      const { id, pId, index, props, name: tagName } = nodeItemData;
+      const [nodeItemData, { refId, relativeToRef }] = data[c];
+      const { id, pId, props, name: tagName } = nodeItemData;
       if (!tagName) {
         warn(`create component failed, tagName is ${tagName}`);
         continue;
@@ -55,6 +55,17 @@ export class UIManagerModule extends HippyWebModule {
       if (!view) {
         warn(`create component failed, not support the component ${tagName}`);
         continue;
+      }
+      let index;
+      if (refId) {
+        const anchor = this.findViewById(refId);
+        if (anchor && anchor.dom && anchor.pId === pId) {
+          index = Array.from(anchor.dom.parentElement?.children || []).indexOf(anchor.dom);
+          if (index !== -1) {
+            index = relativeToRef === RelativeToRefType.BEFORE ? index : index + 1;
+            anchor.index = relativeToRef === RelativeToRefType.BEFORE ? index + 1 : index;
+          }
+        }
       }
       try {
         await this.viewInit(view, props, index!);
