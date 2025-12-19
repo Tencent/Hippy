@@ -57,21 +57,6 @@ CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025;
 CGFloat const HippyTextAutoSizeGranularity = 0.001;
 static const CGFloat gDefaultFontSize = 14.0;
 
-static UIFont *HippyCreateFontOnMainThread(NSString *fontFamily, CGFloat size) {
-    if (!fontFamily) {
-        return nil;
-    }
-    if ([NSThread isMainThread]) {
-        return [UIFont fontWithName:fontFamily size:size];
-    } else {
-        __block UIFont *font = nil;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            font = [UIFont fontWithName:fontFamily size:size];
-        });
-        return font;
-    }
-}
-
 static BOOL DirtyTextEqual(BOOL v1, BOOL v2) {
     return v1 == v2;
 }
@@ -585,7 +570,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     UIFont *f = nil;
     if (styleInfo.fontFamily) {
-        f = HippyCreateFontOnMainThread(styleInfo.fontFamily, [styleInfo.fontSize floatValue]);
+        f = [UIFont fontWithName:styleInfo.fontFamily size:[styleInfo.fontSize floatValue]];
     }
 
     UIFont *font = [HippyFont updateFont:f
