@@ -737,7 +737,7 @@ key1               value1
     }
 
     viewManager.callRenderViewMethodForCApi(params.tag, params.method, params.params, params.callbackId == 0 ? null : (result: HippyAny) => {
-      this.libHippy?.NativeRenderProvider_DoCallbackForCallCustomTsView(this.instanceId, params.rootTag, params.tag, params.callbackId, result)
+      this.libHippy?.NativeRenderProvider_DoCallbackForCallCustomTsView(this.instanceId, params.rootTag, params.tag, params.callbackId, HRValueUtils.convertMapToObject(result))
     })
   }
 

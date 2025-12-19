@@ -72,4 +72,28 @@ export class HRValueUtils {
     return null
   }
 
+  static convertMapToObject(value: HippyAny): HippyAny {
+    if(value instanceof Array) {
+      return (value as Array<HippyAny>).map(item => HRValueUtils.convertMapToObject(item))
+    } else if (value instanceof Map) {
+      let map = value as Map<string, HippyAny>
+      let obj = new Map<string, HippyAny>()
+      map.forEach((v: HippyAny, k: string) => {
+        obj[k] = HRValueUtils.convertMapToObject(v)
+      })
+      let map2: Map<string, HippyAny> = new Map(Object.entries(value))
+      map2.forEach((v: HippyAny, k: string) => {
+        obj[k] = HRValueUtils.convertMapToObject(v)
+      })
+      return obj
+    } else if (typeof value === 'object' && value !== null) {
+      let map: Map<string, HippyAny> = new Map(Object.entries(value))
+      let obj = new Map<string, HippyAny>()
+      map.forEach((v: HippyAny, k: string) => {
+        obj[k] = HRValueUtils.convertMapToObject(v)
+      })
+      return obj
+    }
+    return value
+  }
 }
