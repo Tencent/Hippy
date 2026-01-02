@@ -1,0 +1,28 @@
+name: '[gh] pr add review comment'
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: 'Pull request number to comment on'
+        required: true
+        type: number
+      body:
+        description: 'Comment body to post on the pull request'
+        required: true
+        type: string
+
+jobs:
+  add_review_comment:
+    if: github.repository == 'Tencent/Hippy'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Post comment to pull request
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COMMENT_BODY: ${{ inputs.body }}
+      run: |
+        gh pr comment ${{ inputs.pull_request_number }} \
+          --body "$COMMENT_BODY" \
+          --repo "$GITHUB_REPOSITORY"
+
