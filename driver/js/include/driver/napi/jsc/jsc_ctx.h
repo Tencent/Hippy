@@ -61,6 +61,9 @@ struct ConstructorData {
   ConstructorData(void* func_wrapper, std::shared_ptr<JSCCtxValue>prototype, JSClassRef ref): function_wrapper(func_wrapper), prototype(prototype), weak_callback_wrapper(nullptr), class_ref(ref), object_data_map({}) {}
   ~ConstructorData() {
     JSClassRelease(class_ref);
+    function_wrapper = nullptr;
+    prototype = nullptr;
+    weak_callback_wrapper = nullptr;
   }
 };
 
