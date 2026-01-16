@@ -84,20 +84,29 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
     if (count + 10 > value.length) {
       enlargeBuffer(count + 10);
     }
-    LogUtils.d("CallFunction", "putVarint l " + l + ", count " + count);
+    if (LogUtils.isDebugMode()) {
+      LogUtils.d("CallFunction", "putVarint l " + l + ", count " + count);
+    }
     long rest = l;
     int bytes = 0;
     byte b;
     do {
       b = (byte) rest;
-      LogUtils.d("CallFunction", "putVarint origin b " + b + ", count " + count);
+      if (LogUtils.isDebugMode()) {
+        LogUtils.d("CallFunction", "putVarint origin b " + b + ", count " + count);
+      }
       b |= 0x80;
-      LogUtils.d("CallFunction", "putVarint b " + Byte.toUnsignedInt(b) + ", count " + count);
+      if (LogUtils.isDebugMode()) {
+        LogUtils.d("CallFunction", "putVarint b " + Byte.toUnsignedInt(b) + ", count " + count);
+      }
       value[count++] = b;
       rest >>>= 7;
       bytes++;
     } while (rest != 0);
-    LogUtils.d("CallFunction", "putVarint bb " + Byte.toUnsignedInt((byte) (b & 0x7f)) + ", bytes " + bytes + ", count " + count);
+    if (LogUtils.isDebugMode()) {
+      LogUtils.d("CallFunction",
+              "putVarint bb " + Byte.toUnsignedInt((byte) (b & 0x7f)) + ", bytes " + bytes + ", count " + count);
+    }
     value[count - 1] = (byte) (b & 0x7f);
     return bytes;
   }
