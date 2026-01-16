@@ -50,6 +50,9 @@ target_link_options(${PROJECT_NAME} PRIVATE
       "-Wl,--icf=safe")
 # endregion
 
+# Support Android 16K Page
+target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
+
 # region core
 add_subdirectory(${PROJECT_ROOT_DIR}/core ${CMAKE_CURRENT_BINARY_DIR}/core)
 target_link_libraries(${PROJECT_NAME} PRIVATE core)
