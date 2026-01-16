@@ -338,33 +338,53 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     NSAssert(self.subviews.count == 1, @"we should only have exactly one subview");
     NSAssert([self.subviews lastObject] == _scrollView, @"our only subview should be a scrollview");
 
+    CGRect previousFrame = CGRectEqualToRect(CGRectZero, _scrollView.frame) ? self.bounds : _scrollView.frame;
+    _scrollView.frame = self.bounds;
+    
     if (_scrollView.pagingEnabled) {
-        //下面计算index,currIndex的计算需要使用scrollview原contentSize除以原frame
-        CGRect originFrame = CGRectEqualToRect(CGRectZero, _scrollView.frame) ? self.bounds : _scrollView.frame;
-        _scrollView.frame = self.bounds;
-        if (CGRectGetWidth(originFrame) > 0) {
-            NSInteger currIndex = _scrollView.contentOffset.x / CGRectGetWidth(originFrame);
-            // 解决HippyScrollView横竖屏切换时 didScrollView没有回调onScroll的问题
-            _allowNextScrollNoMatterWhat = YES;
-            _scrollView.contentOffset = CGPointMake(currIndex * CGRectGetWidth(_scrollView.frame), 0);
-        }
+        [self adjustContentOffsetForPagingWithPreviousFrame:previousFrame];
     } else {
-        //横竖屏切换后如果仍然保持原有的contentOffset可能会造成offset超过contentsize，需要先做个计算避免此情况
-        CGPoint originalOffset = _scrollView.contentOffset;
-        _scrollView.frame = self.bounds;
-        CGRect frame = self.bounds;
-        CGSize contentSize = _scrollView.contentSize;
-        if (originalOffset.x + frame.size.width > contentSize.width) {
-            CGFloat temp = contentSize.width - frame.size.width;
-            originalOffset.x = MAX(0, temp);
-        }
-        if (originalOffset.y + frame.size.height > contentSize.height) {
-            CGFloat temp = contentSize.height - frame.size.height;
-            originalOffset.y = MAX(0, temp);
-        }
-
-        _scrollView.contentOffset = originalOffset;
+        [self clampContentOffsetToBounds];
     }
+}
+
+/// Adjusts contentOffset to maintain current page index when frame size changes (e.g., during rotation).
+/// Uses previous frame size to calculate current page, then applies new offset based on new frame size.
+- (void)adjustContentOffsetForPagingWithPreviousFrame:(CGRect)previousFrame {
+    CGFloat previousDimension = _horizontal ? CGRectGetWidth(previousFrame) : CGRectGetHeight(previousFrame);
+    if (previousDimension <= 0) {
+        return;
+    }
+    
+    CGFloat currentOffset = _horizontal ? _scrollView.contentOffset.x : _scrollView.contentOffset.y;
+    NSInteger pageIndex = (NSInteger)(currentOffset / previousDimension);
+    
+    CGFloat newDimension = _horizontal ? CGRectGetWidth(_scrollView.frame) : CGRectGetHeight(_scrollView.frame);
+    CGFloat newOffset = pageIndex * newDimension;
+    
+    // Ensure at least one scroll event fires after offset change (fixes missing onScroll callback during rotation)
+    _allowNextScrollNoMatterWhat = YES;
+    
+    if (_horizontal) {
+        _scrollView.contentOffset = CGPointMake(newOffset, _scrollView.contentOffset.y);
+    } else {
+        _scrollView.contentOffset = CGPointMake(_scrollView.contentOffset.x, newOffset);
+    }
+}
+
+/// Clamps contentOffset to prevent it from exceeding contentSize bounds after frame size changes.
+- (void)clampContentOffsetToBounds {
+    CGPoint offset = _scrollView.contentOffset;
+    CGSize frameSize = self.bounds.size;
+    CGSize contentSize = _scrollView.contentSize;
+    
+    CGFloat maxOffsetX = MAX(0, contentSize.width - frameSize.width);
+    CGFloat maxOffsetY = MAX(0, contentSize.height - frameSize.height);
+    
+    offset.x = MIN(offset.x, maxOffsetX);
+    offset.y = MIN(offset.y, maxOffsetY);
+    
+    _scrollView.contentOffset = offset;
 }
 
 - (void)setContentSize:(CGSize)contentSize {
