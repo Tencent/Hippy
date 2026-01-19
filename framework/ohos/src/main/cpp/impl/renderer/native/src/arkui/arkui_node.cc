@@ -136,7 +136,9 @@ bool ArkUINode::HasParent() {
 }
 
 void ArkUINode::SetDefaultAttributes() {
-  // TODO: HitTest改默认行为有问题，待研究。
+  // Hippy组件和自定义组件嵌套的复杂场景，鸿蒙默认又不裁剪overflow的部分，复杂场景容易出现点不了的问题。
+  // 所以兼容方法：默认hitTest都响应，业务具体场景要阻塞，鸿蒙上使用hit-test-ohos属性自己兼容。
+  //（基于多数场景能点更重要，少数场景才有覆盖的假设）
   SetHitTestMode(ARKUI_HIT_TEST_MODE_TRANSPARENT);
   baseAttributesFlagValue_ = 0;
 }
