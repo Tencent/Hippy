@@ -118,6 +118,9 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
 
         // copy image data
         dataSource = CGDataProviderCopyData(CGImageGetDataProvider(imageRef));
+        if (dataSource == NULL) {
+            return inputImage;
+        }
         memcpy(buffer1.data, CFDataGetBytePtr(dataSource), bytes);
         CFRelease(dataSource);
         dataSource = NULL;
