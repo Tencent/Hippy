@@ -39,7 +39,6 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
   public id!: number;
   public pId!: number;
-  public index!: number;
   public dom!: T|null;
   public props: any = {};
   public firstUpdateStyle = true;
@@ -63,6 +62,22 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.handleOnTouchEnd = this.handleOnTouchEnd.bind(this);
     this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
     this.handleOnLongClick = this.handleOnLongClick.bind(this);
+  }
+
+  public get index() {
+    let index = -1; // -1 means not mounted
+    if (this.dom) {
+      index = Array.from(this.dom.parentElement?.children || []).indexOf(this.dom);
+    }
+    return index;
+  }
+  public set index(value: number) {
+    if (this.dom && value !== this.index) {
+      const parent = this.dom.parentElement;
+      if (parent) {
+        parent.insertBefore(this.dom, parent.children[value]);
+      }
+    }
   }
 
   public updateProperty(key: string, value: any) {
@@ -246,7 +261,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public async beforeMount(parent: HippyBaseView, position: number) {
-    this.index = position;
+
   }
 
   public async beforeChildMount(child: HippyBaseView, childPosition: number) {
