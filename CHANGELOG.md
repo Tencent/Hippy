@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.9](https://github.com/iPel/Hippy/compare/2.15.8...2.15.9) (2026-01-19)
+
+
+### Bug Fixes
+
+* **android:** avoiding code optimization issues for R8 compile ([dc3558c](https://github.com/iPel/Hippy/commit/dc3558c04edc44d26dead94b582545dedf5f7a75))
+* **android:** only debug call R8 avoiding log ([3b4f6e5](https://github.com/iPel/Hippy/commit/3b4f6e563834654cd5b6ea4fe37b3f72f361490a))
+* **core:** fix turbo memory leak ([d2bec33](https://github.com/iPel/Hippy/commit/d2bec330bbdf6f15fb40f229f835a32df807d60d))
+* **ios:** auto-update of page index may lag by one frame in view pager ([41a47e2](https://github.com/iPel/Hippy/commit/41a47e236acce8bf7ee96c44d8afac57cb18bd7b))
+* **ios:** improve accuracy of ViewPager's onPageScroll params ([#3992](https://github.com/iPel/Hippy/issues/3992)) ([6b8952a](https://github.com/iPel/Hippy/commit/6b8952abf5110b4aea2fe99f67c909be3140a781))
+* **ios:** improved accuracy of ViewPager's ScrollStateChanged API ([e28274c](https://github.com/iPel/Hippy/commit/e28274ceb81afaaecbc2713e8cf437880157bbc3))
+* **ios:** resolve issues with ListView cell reuse mechanism ([#3968](https://github.com/iPel/Hippy/issues/3968)) ([1d40f8b](https://github.com/iPel/Hippy/commit/1d40f8b05eb56f0cc27872b1e62b54f52e50f4d1))
+
+
+### Features
+
+* **android:** support 16k page ([a4e30b1](https://github.com/iPel/Hippy/commit/a4e30b199d235e212011845469431919601d5a8e))
+* **ios:** pageIndex of ViewPager auto update after data changes ([515bf22](https://github.com/iPel/Hippy/commit/515bf22e3defba781c4a254c1100ef431ec376ce))
+
+
+### Performance Improvements
+
+* **ios:** draw backgroundImage asynchronously for performance ([6149062](https://github.com/iPel/Hippy/commit/6149062c4299c2c7994989c5a6c38e711c4e9593))
+
+
+
+
+
 ## [2.15.8](https://github.com/Tencent/Hippy/compare/2.15.7...2.15.8) (2024-04-11)
 
 
