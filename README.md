@@ -106,7 +106,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 3. Run `npm run init:example [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]`.
 4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo] dev`.
 
-> Or you can `cd` to `driver/js/examples/hippy-react-demo`, `driver/js/examples/hippy-vue-demo` or `driver/js/examples/hippy-vue-next-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
+> Or you can `cd` to `driver/js/examples/hippy-react-demo`, `driver/js/examples/hippy-vue-demo` or `driver/js/examples/hippy-vue-next-demo` directory to run `npm run hippy:dev` instead.
 >
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue, @hippy/vue-next are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` again.
 >
