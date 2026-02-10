@@ -232,7 +232,7 @@ declare namespace HippyTypes {
       language: string;
       direction: number;
     };
-    OS?: 'android' | 'ios' | 'web' | null;
+    OS?: 'android' | 'ios' | 'web' | 'ohos' | null;
     PackageName?: string;
     VersionName?: string;
   }
@@ -502,9 +502,9 @@ declare namespace HippyTypes {
     device: {
       cancelVibrate: () => void;
       vibrate: (pattern: number, repeatTimes?: number) => void;
-      platform: {
-        Localization: { country: string, language: string, direction: number } | undefined;
-        OS: Platform;
+    platform: {
+      Localization: { country: string, language: string, direction: number } | undefined;
+      OS: Platform['OS'];
         APILevel?: number; // Android Only
       };
       screen: Sizes;
@@ -590,7 +590,7 @@ declare type Diff<T extends keyof any, U extends keyof any> =
 
 declare type Overwrite<T, U> = Pick<T, Diff<keyof T, keyof U>> & U;
 
-declare const __PLATFORM__: HippyTypes.Platform;
+declare const __PLATFORM__: HippyTypes.__PLATFORM__;
 
 /* eslint-disable */
 // @ts-ignore

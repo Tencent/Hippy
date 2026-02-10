@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.4.0](https://github.com/Tencent/Hippy/compare/3.3.7...3.4.0) (2026-02-10)
+
+
+### Bug Fixes
+
+* **doc:** replace non-existent npm run hippy:debug with hippy:dev ([#4537](https://github.com/Tencent/Hippy/issues/4537)) ([34742f6](https://github.com/Tencent/Hippy/commit/34742f6cce185be15db52b0871126f483cd792bd)), closes [#4536](https://github.com/Tencent/Hippy/issues/4536)
+
+
+
+
+
 ## [3.0.2-beta](https://github.com/Tencent/Hippy/compare/3.0.1...3.0.2-beta) (2023-08-22)
 
 
