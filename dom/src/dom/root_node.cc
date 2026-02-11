@@ -375,20 +375,31 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   }
   auto event_name = event->GetType();
   std::stack<std::shared_ptr<DomNode>> capture_list = {};
+  std::queue<std::shared_ptr<DomNode>> bubble_list = {};
   // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
-  if (event->CanCapture()) {
+  auto canCapture = event->CanCapture();
+  auto canBubble = event->CanBubble();
+  if (canCapture || canBubble) {
     // 获取捕获列表
     auto parent = target->GetParent();
     while (parent) {
-      capture_list.push(parent);
+      if (canCapture) {
+        capture_list.push(parent);
+      }
+      if (canBubble) {
+        bubble_list.push(parent);
+      }
       parent = parent->GetParent();
     }
   }
   auto capture_target_listeners = target->GetEventListener(event_name, true);
   auto bubble_target_listeners = target->GetEventListener(event_name, false);
   // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
+  /*
+   * fix: bubble_list 不能由 capture_list 来生成。
+   * 如果 capture_list 为空 (Can_Capture 为 false), 则会导致 bubble_list 序列无法正确构建
+   */
   // 执行捕获流程
-  std::stack<std::shared_ptr<DomNode>> bubble_list = {};
   while (!capture_list.empty()) {
     auto capture_node = capture_list.top();
     capture_list.pop();
@@ -401,7 +412,6 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
     if (event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
       return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
     }
-    bubble_list.push(std::move(capture_node));
   }
   // 执行本身节点回调
   event->SetCurrentTarget(event->GetTarget());
@@ -421,7 +431,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   }
   // 执行冒泡流程
   while (!bubble_list.empty()) {
-    auto bubble_node = bubble_list.top();
+    auto bubble_node = bubble_list.front();
     bubble_list.pop();
     event->SetCurrentTarget(bubble_node);
     auto listeners = bubble_node->GetEventListener(event_name, false);
