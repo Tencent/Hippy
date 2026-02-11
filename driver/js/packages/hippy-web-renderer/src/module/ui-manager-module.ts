@@ -45,8 +45,8 @@ export class UIManagerModule extends HippyWebModule {
     this.createNodePreCheck(rootViewId);
     const updateViewIdSet = new Set();
     for (let c = 0; c < data.length; c++) {
-      const [nodeItemData] = data[c];
-      const { id, pId, index, props, name: tagName } = nodeItemData;
+      const [nodeItemData, { refId, relativeToRef }] = data[c];
+      const { id, pId, props, name: tagName } = nodeItemData;
       if (!tagName) {
         warn(`create component failed, tagName is ${tagName}`);
         continue;
@@ -55,6 +55,13 @@ export class UIManagerModule extends HippyWebModule {
       if (!view) {
         warn(`create component failed, not support the component ${tagName}`);
         continue;
+      }
+      let index;
+      if (refId) {
+        const anchor = this.findViewById(refId);
+        if (anchor && anchor.pId === pId) {
+          index = relativeToRef === (-1 as HippyTypes.RelativeToRef.BEFORE) ? anchor.index : anchor.index + 1;
+        }
       }
       try {
         await this.viewInit(view, props, index!);
@@ -296,8 +303,9 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     let realIndex = index;
-    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
-      realIndex = parent.dom?.childNodes?.length ?? index;
+    if (!parent.insertChild) {
+      const childrenLen = parent.dom?.childNodes?.length ?? 0;
+      realIndex = childrenLen > index ? index : childrenLen;
     }
     await view.beforeMount?.(parent, realIndex);
     await parent.beforeChildMount?.(view, realIndex);
