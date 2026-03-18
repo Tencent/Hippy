@@ -67,6 +67,7 @@ private:
   
   bool isDragging_ = false;
   bool isScrollStarted_ = false;
+  bool isMomentumStarted_ = false;
   float lastScrollOffset_ = 0;
   int64_t lastScrollTime_ = 0;
 };
