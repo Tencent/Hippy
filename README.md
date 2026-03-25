@@ -15,7 +15,7 @@ Hippy is now applied in [Tencent](http://www.tencent.com/) major apps such as Mo
 * Designed for Web developers, officially support Web frameworks like `React` and `Vue`.
 * Same APIs for different platforms.
 * Excellent performance with JS engine binding communication.
-* Build-in recyclable component with better performance.
+* Built-in recyclable component with better performance.
 * Smoothly and gracefully migrate to Web browser.
 * Fully supported Flex [Layout engine](https://github.com/Tencent/taitank).
 
