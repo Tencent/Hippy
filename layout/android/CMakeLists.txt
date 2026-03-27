@@ -38,4 +38,7 @@ file(GLOB jni_src jni/*.cpp)
 
 add_library(flexbox SHARED ${engine_src} ${jni_src})
 
+# Support Android 16K Page
+target_link_options(flexbox PRIVATE "-Wl,-z,max-page-size=16384")
+
 target_link_libraries(flexbox android log)
