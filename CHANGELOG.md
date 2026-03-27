@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.6](https://github.com/iPel/Hippy/compare/2.17.5...2.17.6) (2026-03-27)
+
+
+### Bug Fixes
+
+* **ios:** animation thread race and add protection for running script ([#4205](https://github.com/iPel/Hippy/issues/4205)) ([5582016](https://github.com/iPel/Hippy/commit/55820164df5f397acf60257ce77bad64bc8d50e0))
+* **ios:** char_traits compile error for xcode 16.3 ([382ac02](https://github.com/iPel/Hippy/commit/382ac02c0b7a0e41765582dbeb9600b517154b37))
+* **ios:** exception may occur while setting linearGradient prop ([47ad55e](https://github.com/iPel/Hippy/commit/47ad55e172ef5559970facb93c7f0ed8d37fac3b))
+* **ios:** improve accuracy of ViewPager's onPageScroll parameters ([#3992](https://github.com/iPel/Hippy/issues/3992)) ([d2e0569](https://github.com/iPel/Hippy/commit/d2e0569703c2b493a359f8d8e3ec012b0dcbdae9))
+* **ios:** improved accuracy of ViewPager's ScrollStateChanged API ([d6eb6cd](https://github.com/iPel/Hippy/commit/d6eb6cd6cb4fbc04c8239e3c16e49b61be4a81cc))
+* **ios:** iOS18 adaptation of TextView component ([4e0402c](https://github.com/iPel/Hippy/commit/4e0402cb832d7f166c58344b6c60799d00d123ed))
+* **ios:** turbo module type convert nullptr crash ([6a3d884](https://github.com/iPel/Hippy/commit/6a3d884db618ad1f94da304f57b5b94a8e9a29d8))
+* **ios:** websocket module support extra headers ([#4069](https://github.com/iPel/Hippy/issues/4069)) ([d9021a1](https://github.com/iPel/Hippy/commit/d9021a11a01864d25d5301c543c1852cc593ae5d))
+
+
+### Features
+
+* **android:** support 16k page ([730795d](https://github.com/iPel/Hippy/commit/730795d27ddcacbac8d075f619684714e97372fc))
+* **ios:** add HippyFontChangeTriggerNotification for native font update ([3a35175](https://github.com/iPel/Hippy/commit/3a3517577d454a07b0d92cee7408ce6eb5486530))
+* **ios:** add initialContentIndex prop for ListView ([#4029](https://github.com/iPel/Hippy/issues/4029)) ([f51db89](https://github.com/iPel/Hippy/commit/f51db8991f20472e18570d644a4dc62935d51889))
+
+
+
+
+
 ## [2.17.5](https://github.com/Tencent/Hippy/compare/2.17.4...2.17.5) (2024-07-18)
 
 

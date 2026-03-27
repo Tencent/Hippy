@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.6](https://github.com/Tencent/Hippy/compare/2.17.5...2.17.6) (2026-03-27)
+
+**Note:** Version bump only for package @hippy/vue-next
+
+
+
+
+
 ## [2.17.3](https://github.com/Tencent/Hippy/compare/2.17.2...2.17.3) (2024-04-10)
 
 **Note:** Version bump only for package @hippy/vue-next
