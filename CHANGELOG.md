@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.10](https://github.com/iPel/Hippy/compare/2.15.9...2.15.10) (2026-03-30)
+
+
+### Features
+
+* **android:** support 16k page for libflexbox.so ([0e376d1](https://github.com/iPel/Hippy/commit/0e376d107cb026cc0f3d44cd3bee32afa1f9d1a6))
+
+
+
+
+
 ## [2.15.9](https://github.com/iPel/Hippy/compare/2.15.8...2.15.9) (2026-01-19)
 
 
