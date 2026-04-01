@@ -43,21 +43,24 @@ jobs:
     steps:
     - name: Greetings
       uses: actions/github-script@v6.3.3
+      env:
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
       with:
         script: |
           const { owner, repo } = context.repo;
           const { issues, reactions } = github.rest;
+          const issue_number = Number(process.env.ISSUE_NUMBER);
 
           const { data: { id } } = await issues.createComment({
             owner,
             repo,
-            issue_number: ${{ github.event.issue.number }},
+            issue_number,
             body: process.env.greetings_message
           });
           await reactions.createForIssue({
             owner,
             repo,
-            issue_number: ${{ github.event.issue.number }},
+            issue_number,
             content: '+1'
           });
     - run: npm install markdown-it
@@ -149,6 +152,8 @@ jobs:
       uses: actions/github-script@v6.3.3
       env:
         triage_logs: ${{ needs.triage.outputs.logs }}
+        triage_architecture: ${{ needs.triage.outputs.architecture }}
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
@@ -156,10 +161,13 @@ jobs:
           const { issues } = github.rest;
           const { appendFileSync } = require('fs');
           const { EOL } = require('os');
+          const issue_number = Number(process.env.ISSUE_NUMBER);
 
+          const pcLength = process.env.triage_architecture.includes('64') ? 16 : 8;
           function parse(log) {
             const stack = [];
-            for (const [_, pc, file, func] of log.matchAll(/#[0-9a-f]+\s+pc\s+(?:0x)?([0-9a-f]{${{ contains(needs.triage.outputs.architecture, '64') && 16 || 8}}})\s+([^\s]+)(?:\s+\(([^\+]+\+[0-9]+)\))*/ig)) {
+            const regex = new RegExp(`#[0-9a-f]+\\s+pc\\s+(?:0x)?([0-9a-f]{${pcLength}})\\s+([^\\s]+)(?:\\s+\\(([^\\+]+\\+[0-9]+)\\))*`, 'ig');
+            for (const [_, pc, file, func] of log.matchAll(regex)) {
               stack.push({pc, func, file});
             }
             return stack;
@@ -173,7 +181,7 @@ jobs:
           await issues.createComment({
             owner,
             repo,
-            issue_number: ${{ github.event.issue.number }},
+            issue_number,
             body: process.env[backtrace.length > 0 ? 'translates_addresses_message' : 'no_backtrace_message']
           });
     - name: Symbols
@@ -181,42 +189,53 @@ jobs:
       if: steps.backtrace_parsed.outputs.backtrace
       continue-on-error: true
       shell: bash
+      env:
+        TRIAGE_ARCHITECTURE: ${{ needs.triage.outputs.architecture }}
+        TRIAGE_VERSION: ${{ needs.triage.outputs.version }}
       run: |
-        if [[ "${{ needs.triage.outputs.architecture }}" == "arm" ]]; then
+        if [[ "$TRIAGE_ARCHITECTURE" == "arm" ]]; then
           ZIP_FILE="armeabi-v7a.zip"
-        elif [[ "${{ needs.triage.outputs.architecture }}" == "arm64" ]]; then
+        elif [[ "$TRIAGE_ARCHITECTURE" == "arm64" ]]; then
           ZIP_FILE="arm64-v8a.zip"
-        elif [[ "${{ needs.triage.outputs.architecture }}" == "x86" ]]; then
+        elif [[ "$TRIAGE_ARCHITECTURE" == "x86" ]]; then
           ZIP_FILE="x86.zip"
-        elif [[ "${{ needs.triage.outputs.architecture }}" == "x86_64" ]]; then
+        elif [[ "$TRIAGE_ARCHITECTURE" == "x86_64" ]]; then
           ZIP_FILE="x86_64.zip"
         else
-          echo "Unknown architecture(${{ needs.triage.outputs.architecture }})"
+          echo "Unknown architecture($TRIAGE_ARCHITECTURE)"
           exit 1
         fi
-        curl -Of https://artifacts-store.openhippy.com/hippy/android/hippy-common/${{ needs.triage.outputs.version }}/symbols/$ZIP_FILE
+        curl -Of "https://artifacts-store.openhippy.com/hippy/android/hippy-common/${TRIAGE_VERSION}/symbols/${ZIP_FILE}"
         mkdir symbols
-        unzip -d symbols $ZIP_FILE
-        rm $ZIP_FILE
-        echo "success=1" >> $GITHUB_OUTPUT
+        unzip -d symbols "$ZIP_FILE"
+        rm "$ZIP_FILE"
+        echo "success=1" >> "$GITHUB_OUTPUT"
     - uses: actions/github-script@v6.3.3
       if: steps.symbols_fetched.result == 'success' && !steps.symbols_fetched.outputs.success
+      env:
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
+        TRIAGE_VERSION: ${{ needs.triage.outputs.version }}
+        TRIAGE_ARCHITECTURE: ${{ needs.triage.outputs.architecture }}
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const { owner, repo } = context.repo;
           const { issues } = github.rest;
           const util = require('util');
+          const issue_number = Number(process.env.ISSUE_NUMBER);
 
           await issues.createComment({
             owner,
             repo,
-            issue_number: ${{ github.event.issue.number }},
-            body: util.format(process.env.fetch_symbol_failed_message, '${{ needs.triage.outputs.version }}', '${{ needs.triage.outputs.architecture }}')
+            issue_number,
+            body: util.format(process.env.fetch_symbol_failed_message, process.env.TRIAGE_VERSION, process.env.TRIAGE_ARCHITECTURE)
           });
     - name: Translates
       if: steps.symbols_fetched.outputs.success
       uses: actions/github-script@v6.3.3
+      env:
+        BACKTRACE_JSON: ${{ steps.backtrace_parsed.outputs.backtrace }}
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
@@ -227,6 +246,7 @@ jobs:
           const fs = require('fs');
           const os = require('os');
           const util = require('util');
+          const issue_number = Number(process.env.ISSUE_NUMBER);
 
           const bin = path.join(process.env['ANDROID_NDK_HOME'], 'toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-addr2line');
           function addr2line(lib, pc) {
@@ -234,7 +254,7 @@ jobs:
             return { func, source };
           }
 
-          const backtrace = JSON.parse('${{ steps.backtrace_parsed.outputs.backtrace }}');
+          const backtrace = JSON.parse(process.env.BACKTRACE_JSON);
 
           let body;
           let error;
@@ -266,7 +286,7 @@ jobs:
           const { data: { id } } = await issues.createComment({
             owner,
             repo,
-            issue_number: ${{ github.event.issue.number }},
+            issue_number,
             body
           });
 
