@@ -288,6 +288,9 @@ public class WebSocketClient {
       public void run() {
         try {
           synchronized (mSendLock) {
+            if (mSocket == null) {
+              return;
+            }
             OutputStream outputStream = mSocket.getOutputStream();
             outputStream.write(frame);
             outputStream.flush();
