@@ -71,24 +71,35 @@ public class FileUtils {
     if (!file.exists()) {
       return null;
     } else {
+      FileInputStream fileReader = null;
+      ByteArrayOutputStream byteArrayOutputStream = null;
       try {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        FileInputStream fileReader = new FileInputStream(file);
-        try {
-          byte[] buffer = new byte[4096];
-          int len;
-          while ((len = fileReader.read(buffer, 0, buffer.length)) != -1) {
-            byteArrayOutputStream.write(buffer, 0, len);
-          }
-        } catch (Throwable e) {
-          LogUtils.d("FileUtils", "readFileToByteArray: " + e.getMessage());
+        byteArrayOutputStream = new ByteArrayOutputStream();
+        fileReader = new FileInputStream(file);
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = fileReader.read(buffer, 0, buffer.length)) != -1) {
+          byteArrayOutputStream.write(buffer, 0, len);
         }
-
-        fileReader.close();
         data = byteArrayOutputStream.toByteArray();
-        byteArrayOutputStream.close();
       } catch (Exception e) {
         e.printStackTrace();
+      } finally {
+        if (fileReader != null) {
+          try {
+            fileReader.close();
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
+        }
+
+        if (byteArrayOutputStream != null) {
+          try {
+            byteArrayOutputStream.close();
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
+        }
       }
     }
     return data;
