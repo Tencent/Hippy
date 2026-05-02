@@ -63,7 +63,7 @@ export class WebSocketModule extends HippyWebModule {
       error('hippy', 'send: ERROR: request is null or no socket id specified');
       return;
     }
-    if (!this.webSocketConnections[data.id] || !this.webSocketConnections[data.id].disconnected) {
+    if (!this.webSocketConnections[data.id] || this.webSocketConnections[data.id].disconnected) {
       error('hippy', 'send: ERROR: no socket id specified or disconnected');
       return;
     }
