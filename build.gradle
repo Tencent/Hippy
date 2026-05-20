@@ -49,6 +49,16 @@ allprojects {
     }
 }
 
+// Print build start timestamp
+gradle.projectsLoaded {
+    def dateOutput = new ByteArrayOutputStream()
+    exec {
+        commandLine 'date'
+        standardOutput = dateOutput
+    }
+    logger.lifecycle("Build started at: ${dateOutput.toString().trim()}")
+}
+
 ext.deps = [
         annotation: 'androidx.annotation:annotation:1.0.0',
         junit: 'junit:junit:4.13.2',
