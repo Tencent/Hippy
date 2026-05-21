@@ -16,6 +16,13 @@ buildscript {
     }
 }
 
+// CI Build diagnostics
+println "[CI Diagnostics] Build started at: ${new Date()}"
+println "[CI Diagnostics] Runner: ${System.getenv('RUNNER_NAME') ?: 'unknown'}"
+println "[CI Diagnostics] OS: ${System.getProperty('os.name')} ${System.getProperty('os.version')}"
+println "[CI Diagnostics] User: ${System.getProperty('user.name')}"
+println "[CI Diagnostics] Working dir: ${System.getProperty('user.dir')}"
+
 allprojects {
     repositories {
         google()
