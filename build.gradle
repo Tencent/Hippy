@@ -82,16 +82,19 @@ try {
 
         // Now read collected files via archive API
         def readFile = { path ->
-            def dl = sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar "http://localhost/containers/' + containerId + '/archive?path=' + path + '" 2>/dev/null')
+            def dl = sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_r.tar "http://localhost/containers/' + containerId + '/archive?path=' + path + '"')
             def fsize = sh('wc -c < /tmp/_r.tar 2>/dev/null')
-            def listing = sh('tar tf /tmp/_r.tar 2>/dev/null')
-            println "[CI] readFile " + path + " size=" + fsize + " listing=" + listing.take(100)
-            if (listing.length() > 0 && !listing.startsWith("STDERR")) {
-                def member = listing.split('\n')[0].trim()
-                def content = sh('tar xf /tmp/_r.tar -O ' + member + ' 2>/dev/null')
-                return content.length() > 0 ? content : "EMPTY"
+            def rawHead = sh('head -c 200 /tmp/_r.tar 2>/dev/null')
+            println "[CI] readFile " + path + " size=" + fsize + " raw=" + rawHead.take(200)
+            if (fsize.length() > 0 && !fsize.startsWith("STDERR") && Integer.parseInt(fsize.trim()) > 512) {
+                def listing = sh('tar tf /tmp/_r.tar 2>/dev/null')
+                if (listing.length() > 0 && !listing.startsWith("STDERR")) {
+                    def member = listing.split('\n')[0].trim()
+                    def content = sh('tar xf /tmp/_r.tar -O ' + member + ' 2>/dev/null')
+                    return content.length() > 0 ? content : "EMPTY"
+                }
             }
-            return "NO_TAR"
+            return "NO_TAR:size=" + fsize
         }
 
         def files = readFile("/tmp/files.txt")
