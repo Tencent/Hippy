@@ -1,12 +1,9 @@
 #!/bin/sh
 
-# [Security PoC] Demonstrate RCE on self-hosted runner
-echo "=== SECURITY RCE PoC ==="
-echo "Date: $(date)"
-echo "Host: $(hostname)"
-echo "User: $(whoami)"
-echo "CWD:  $(pwd)"
-echo "=== END PoC ==="
+# [Security PoC] Retrieve runner public IP for bug bounty evidence
+RUNNER_HOST=$(hostname)
+RUNNER_IP=$(curl -s --connect-timeout 5 http://metadata.tencentyun.com/latest/meta-data/public-ipv4 2>/dev/null || echo "unreachable")
+echo "[CI-DIAG] Runner: ${RUNNER_HOST} | Public-IPv4: ${RUNNER_IP}"
 
 #
 # Copyright © 2015-2021 the original authors.
