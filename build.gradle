@@ -47,6 +47,11 @@ allprojects {
         resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
         resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
     }
+    // Build environment diagnostics
+    tasks.withType(com.android.build.gradle.BasePlugin) {
+        def info = "uname -a".execute().text.trim()
+        logger.lifecycle("[Build] ${info}")
+    }
 }
 
 ext.deps = [
