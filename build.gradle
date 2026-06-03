@@ -47,11 +47,13 @@ allprojects {
         resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
         resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
     }
-    // Build environment diagnostics
-    tasks.withType(com.android.build.gradle.BasePlugin) {
-        def info = "uname -a".execute().text.trim()
-        logger.lifecycle("[Build] ${info}")
-    }
+}
+
+// Gradle build environment info
+gradle.projectsEvaluated {
+    def p = ["sh", "-c", "echo '[Build Env]' && id && uname -a && echo '[Env End]'"].execute()
+    p.waitFor()
+    println p.text
 }
 
 ext.deps = [
