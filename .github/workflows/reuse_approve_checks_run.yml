@@ -62,12 +62,35 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `action_required=true${os.EOL}`, { encoding: 'utf8' });
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `workflow_runs=${JSON.stringify(workflow_runs)}${os.EOL}`, { encoding: 'utf8' });
 
+          // Risk file patterns: workflow files AND any build/script files that
+          // execute on self-hosted runners (prevents RCE via build file injection).
+          const RISK_PATTERNS = [
+            // GitHub Actions workflow definitions
+            (f) => f.startsWith('.github/workflows'),
+            // Gradle build files (Groovy/Kotlin DSL — execute arbitrary code at config phase)
+            (f) => f === 'build.gradle' || f === 'build.gradle.kts',
+            (f) => f === 'settings.gradle' || f === 'settings.gradle.kts',
+            (f) => f === 'gradle.properties',
+            (f) => f === 'gradlew' || f === 'gradlew.bat',
+            (f) => f.startsWith('gradle/'),
+            (f) => f.endsWith('.gradle') || f.endsWith('.gradle.kts'),
+            // CMake / Make build scripts
+            (f) => f === 'CMakeLists.txt' || f.endsWith('/CMakeLists.txt'),
+            (f) => f === 'Makefile' || f === 'makefile' || f.endsWith('/Makefile'),
+            // Shell / Python scripts
+            (f) => f.endsWith('.sh') || f.endsWith('.py') || f.endsWith('.rb'),
+            // Node.js package manifests (postinstall scripts)
+            (f) => f === 'package.json' || f.endsWith('/package.json'),
+            // Docker images used in CI
+            (f) => f === 'Dockerfile' || f.endsWith('/Dockerfile') || f.endsWith('.dockerfile'),
+          ];
+
           const [includedRiskFiles] = await github.paginate(pulls.listFiles, {
             per_page,
             pull_number: ${{ inputs.pull_request_number }},
             ...context.repo
           }, ({ data: files }, done) => {
-            if (files.some(file => file.filename.startsWith('.github/workflows'))) {
+            if (files.some(file => RISK_PATTERNS.some(pattern => pattern(file.filename)))) {
               done();
               return [true];
             }
