@@ -1210,7 +1210,7 @@ void NativeRenderManager::DoMeasureText(const std::weak_ptr<RootNode> root_node,
       if (grand_child_count == 0) {
         CollectAllProps(spanPropMap, child);
         if (child->GetViewName() == "Text") {
-          measureInst->AddText(spanPropMap, density);
+          measureInst->AddText(spanPropMap, density, false, true);
         } else if (child->GetViewName() == "Image") {
           if (spanPropMap.find("width") != spanPropMap.end() && spanPropMap.find("height") != spanPropMap.end()) {
             measureInst->AddImage(spanPropMap, density);
@@ -1226,7 +1226,7 @@ void NativeRenderManager::DoMeasureText(const std::weak_ptr<RootNode> root_node,
           HippyValueObjectType grandSpanPropMap = spanPropMap;
           CollectAllProps(grandSpanPropMap, grand_child, false);
           if (grand_child->GetViewName() == "Text") {
-            measureInst->AddText(grandSpanPropMap, density);
+            measureInst->AddText(grandSpanPropMap, density, false, true);
           } else if (grand_child->GetViewName() == "Image") {
             if (grandSpanPropMap.find("width") != grandSpanPropMap.end() && grandSpanPropMap.find("height") != grandSpanPropMap.end()) {
               measureInst->AddImage(grandSpanPropMap, density);

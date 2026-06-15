@@ -270,7 +270,7 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
 #endif
 }
 
-void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool isTextInput) {
+void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool isTextInput, bool isSpan) {
 #ifdef MEASURE_TEXT_CHECK_PROP
   StartCollectProp();
 #endif
@@ -292,7 +292,7 @@ void TextMeasurer::AddText(HippyValueObjectType &propMap, float density, bool is
   OH_Drawing_SetTextStyleColor(txtStyle, color);
 
   OH_Drawing_Brush *brush = nullptr;
-  if (GetPropValue(propMap, HRNodeProps::BACKGROUND_COLOR, propValue)) {
+  if (isSpan && GetPropValue(propMap, HRNodeProps::BACKGROUND_COLOR, propValue)) {
     auto uintValue = HippyValue2Uint(propValue);
     brush = OH_Drawing_BrushCreate();
     if (brush) {
