@@ -156,11 +156,14 @@ void PagerView::OnAnimationStart(const int32_t &currentIndex, const int32_t &tar
 void PagerView::OnAnimationEnd(const int32_t &currentIndex, const float_t &currentOffset) {
   FOOTSTONE_DLOG(INFO) << "PagerView::OnAnimationEnd - Index: " << currentIndex
                        << ", Final offset: " << currentOffset;
-  HippyValueObjectType type = {{PAGE_ITEM_POSITION, HippyValue{lastScrollEventPosition_}},
-                               {PAGE_ITEM_OFFSET, HippyValue{lastScrollEventOffset_ < 0 ? -1.0 : 1.0}}};
-  std::shared_ptr<HippyValue> params = std::make_shared<HippyValue>(type);
-  HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_PAGE_SCROLL, params);
-  OnViewComponentEvent(HREventUtils::EVENT_PAGE_SCROLL, type);
+
+  if (currentOffset >= -0.05 && currentOffset <= 0.05) {
+    HippyValueObjectType type = {{PAGE_ITEM_POSITION, HippyValue{currentIndex}},
+                                {PAGE_ITEM_OFFSET, HippyValue{0}}};
+    std::shared_ptr<HippyValue> params = std::make_shared<HippyValue>(type);
+    HREventUtils::SendComponentEvent(ctx_, tag_, HREventUtils::EVENT_PAGE_SCROLL, params);
+    OnViewComponentEvent(HREventUtils::EVENT_PAGE_SCROLL, type);
+  }
 }
 
 void PagerView::OnContentDidScroll(const int32_t currentIndex, const int32_t pageIndex, const float_t pageOffset) {
@@ -194,7 +197,7 @@ void PagerView::OnContentDidScroll(const int32_t currentIndex, const int32_t pag
   }
   
   // 限频原因：高频率和js交互有性能问题。对比一次切换Android 19次通知，鸿蒙有48次通知。
-  // 限频策略：取1/3的事件量。不单用offset距离限制的原因：offset不是线性函数。
+  // 限频策略：取1/2的事件量。不单用offset距离限制的原因：offset不是线性函数。
   if (position != lastScrollEventPosition_) {
     lastScrollEventPosition_ = position;
     scrollEventCount_ = 0;
@@ -205,7 +208,7 @@ void PagerView::OnContentDidScroll(const int32_t currentIndex, const int32_t pag
   if (dOffset < 0) {
     dOffset = -dOffset;
   }
-  if (scrollEventCount_ % 3 != 0 && dOffset < 0.1) {
+  if (scrollEventCount_ % 2 != 0 && dOffset < 0.1) {
     return;
   }
   
