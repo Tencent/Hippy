@@ -83,7 +83,7 @@ public:
   }
   
   void StartMeasure(HippyValueObjectType &propMap, const std::set<std::string> &fontFamilyNames, const std::shared_ptr<FontCollectionCache> fontCache);
-  void AddText(HippyValueObjectType &propMap, float density, bool isTextInput = false);
+  void AddText(HippyValueObjectType &propMap, float density, bool isTextInput = false, bool isSpan = false);
   void AddImage(HippyValueObjectType &propMap, float density);
   OhMeasureResult EndMeasure(int width, int widthMode, int height, int heightMode, bool isSizeIncludePadding, float density);
   
