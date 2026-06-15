@@ -67,6 +67,33 @@ final class BorderResolvedInfo {
     private final BorderRadius borderRadius = new BorderRadius(0);
     private final BorderStyles borderStyles = new BorderStyles(BorderStyle.NONE);
 
+    /**
+     * Returns the resolved border radius, in pixels, shared by all four corners,
+     * or {@code -1f} when there is no border radius at all or when the four
+     * corners do not all share the same radius.
+     *
+     * <p>The value returned here is the radius <em>after</em> {@link
+     * #resolveBorderRadius(float, float, float, BackgroundDrawable.BorderRadius)}
+     * has potentially scaled the user-supplied radii down so that
+     * {@code (left + right)} and {@code (top + bottom)} corner radii fit within
+     * the rect bounds. Callers that draw geometry based on this value must
+     * therefore use it together with the resolved {@code mRect} / {@code
+     * borderWidth}, not with the raw values configured on {@code
+     * BackgroundDrawable}.
+     *
+     * <p>This method must be called <em>after</em> {@link #resolve}; otherwise
+     * the returned value reflects stale state from the previous resolve cycle.
+     */
+    float getUniformBorderRadius() {
+        if (!hasBorderRadius) {
+            return -1f;
+        }
+        if (borderRadius.hasSameRadiusOnAllSides()) {
+            return borderRadius.topLeft;
+        }
+        return -1f;
+    }
+
     void resolve(RectF rect, int preferBorderWidth, BorderWidth preferBorderWidths, float preferBorderRadius,
             BorderRadius preferBorderRadii, int preferBorderColor, BorderColor preferBorderColors,
             BorderStyle preferBorderStyle, BorderStyles preferBorderStyles) {

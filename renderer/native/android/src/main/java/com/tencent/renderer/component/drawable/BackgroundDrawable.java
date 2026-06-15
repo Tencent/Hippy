@@ -143,8 +143,38 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
 
         if (mResolvedInfo.hasBorderRadius) {
-            assert mResolvedInfo.borderOutsidePath != null;
-            canvas.drawPath(mResolvedInfo.borderOutsidePath, paint);
+            // Prefer Canvas.drawRoundRect over Canvas.drawPath when the four corners
+            // share the same radius.
+            //
+            // drawRoundRect maps to a dedicated HWUI primitive on all supported API
+            // levels and is recorded as a vector command in the parent RenderNode's
+            // display list, so any ancestor transform (e.g. transform: scale()) is
+            // applied as a matrix transform at draw time and the result remains
+            // crisp at any scale.
+            //
+            // drawPath, in contrast, has historically been observed on some
+            // older HWUI versions to render arbitrary Path geometry through a
+            // path-tessellation cache: the tessellated result may be cached and
+            // reused, and on those versions an ancestor RenderNode being scaled
+            // later does not necessarily trigger a re-tessellation at the new
+            // effective scale, which manifests as blurry / aliased rounded
+            // corners. The exact mechanism, the affected version range and
+            // OEM coverage are all HWUI implementation details outside of our
+            // control, but the observable symptom is reliably absent when the
+            // same geometry is drawn via drawRoundRect. We therefore prefer
+            // drawRoundRect whenever the geometry can be expressed as a
+            // uniform-radius round rect.
+            float uniformRadius = mResolvedInfo.getUniformBorderRadius();
+            if (uniformRadius >= 0) {
+                canvas.drawRoundRect(mRect, uniformRadius, uniformRadius, paint);
+            } else {
+                // Non-uniform per-corner radii cannot be expressed by drawRoundRect;
+                // fall back to the pre-built rounded-rect Path here. This branch may
+                // still be affected by the older-HWUI drawPath issue described
+                // above, but it is rarely hit in practice.
+                assert mResolvedInfo.borderOutsidePath != null;
+                canvas.drawPath(mResolvedInfo.borderOutsidePath, paint);
+            }
         } else {
             canvas.drawRect(mRect, paint);
         }
@@ -187,6 +217,85 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         if (!mResolvedInfo.hasVisibleBorder) {
             return;
         }
+        // Fast path: the four sides share the same width / color / style (i.e.
+        // !drawBorderSideBySide) AND the four corners share the same resolved
+        // radius. Under these conditions the border can be expressed exactly as
+        // a single stroked round rect along the geometric midline of the band
+        // between borderOutsidePath and borderInsidePath, which lets us emit
+        // the border as one Canvas.drawRoundRect command.
+        //
+        // Why a fast path is needed:
+        //
+        // The general path below relies on
+        //     canvas.clipPath(borderOutsidePath);
+        //     canvas.clipPath(borderInsidePath, Region.Op.DIFFERENCE);
+        //     canvas.drawPath(borderMidlinePath, STROKE);
+        // to confine the stroke to the border band. On some older HWUI
+        // versions, non-rectangular clipPath - and especially non-INTERSECT
+        // clipPath such as Region.Op.DIFFERENCE used here - is not
+        // accelerated directly on the GPU; instead the affected RenderNode is
+        // rendered into an intermediate offscreen surface so that the clip
+        // can be applied via per-pixel masking. Whether the fallback uses an
+        // HWUI layer, the path tessellation cache or another mechanism, and
+        // exactly which Android versions / OEM builds are affected, are HWUI
+        // implementation details outside of our control. What matters here
+        // is the observable effect: once the RenderNode's content has been
+        // rasterized at its natural size, an ancestor transform such as
+        // transform: scale(1.5) can only resample that raster, producing
+        // visibly blurry / aliased corners and a border that does not appear
+        // to scale together with its parent. This was originally reported
+        // on an API 24 device, with an API 31 device rendering correctly;
+        // those two data points are the only ones we have actually verified
+        // and should not be read as a precise affected-version range.
+        //
+        // Canvas.drawRoundRect, by contrast, is a first-class HWUI primitive
+        // on every supported API level and is recorded into the display list
+        // as a vector command, so it is unaffected by the issue above.
+        if (!mResolvedInfo.drawBorderSideBySide
+                && mResolvedInfo.hasBorderRadius
+                && mResolvedInfo.hasContentRadius
+                && mResolvedInfo.borderMidlineRect != null) {
+            float uniformRadius = mResolvedInfo.getUniformBorderRadius();
+            if (uniformRadius >= 0) {
+                assert mPaint != null;
+                float strokeWidth = mResolvedInfo.strokeWidth.left;
+                // Geometry of the fast path:
+                //   - borderMidlineRect is the outer rect inset by borderWidth/2
+                //     on each side, i.e. the centerline of the border band.
+                //   - With strokeWidth = borderWidth, the STROKE expands by
+                //     borderWidth/2 on each side of the midline, so the outer
+                //     edge of the stroke lands exactly on borderOutsidePath
+                //     and the inner edge lands exactly on borderInsidePath.
+                //   - The midline radius is therefore (uniformRadius -
+                //     borderWidth/2). Within this fast path we already require
+                //     !drawBorderSideBySide (equal widths on all four sides)
+                //     and a uniform corner radius, under which the
+                //     hasContentRadius predicate (see
+                //     BorderResolvedInfo#hasContentRadius) reduces to
+                //     uniformRadius > borderWidth, so midlineRadius is
+                //     strictly positive. The Math.max(0f, ...) is purely
+                //     defensive against floating-point rounding when the two
+                //     values are extremely close.
+                // The stroked round rect therefore tiles exactly the band
+                // that the general path would have produced via clipPath,
+                // with no clipping required.
+                float midlineRadius = Math.max(0f, uniformRadius - strokeWidth * 0.5f);
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setStrokeWidth(strokeWidth);
+                mPaint.setColor(mResolvedInfo.borderColor.left);
+                mPaint.setPathEffect(mResolvedInfo.pathEffect.left);
+                canvas.drawRoundRect(mResolvedInfo.borderMidlineRect,
+                        midlineRadius, midlineRadius, mPaint);
+                return;
+            }
+        }
+        // General path: per-side widths / colors / styles, non-uniform corner
+        // radii, or no rounded corners at all. Falls back to the historical
+        // clipPath + drawPath implementation. On older HWUI versions this path
+        // may still trigger the offscreen-rasterization behavior described
+        // above, but in those cases the geometry cannot be reduced to a single
+        // drawRoundRect; addressing it would require a more involved rewrite
+        // (e.g. building the border band as a closed Path and filling it).
         canvas.save();
         if (mResolvedInfo.hasBorderRadius) {
             canvas.clipPath(mResolvedInfo.borderOutsidePath);
@@ -440,6 +549,10 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                 default:
                     LogUtils.w(TAG, "setBorderRadius: Unknown arc: " + arc);
             }
+        }
+
+        public boolean hasSameRadiusOnAllSides() {
+            return topLeft == topRight && topRight == bottomRight && bottomRight == bottomLeft;
         }
     }
 
