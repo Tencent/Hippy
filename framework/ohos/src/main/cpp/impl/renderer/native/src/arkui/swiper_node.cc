@@ -44,9 +44,17 @@ static constexpr ArkUI_NodeEventType SWIPER_NODE_EVENT_TYPES[] = {
 SwiperNode::SwiperNode()
     : ArkUINode(NativeNodeApi::GetInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_SWIPER)) {
   RegisterTouchEvent();
+  SetDefaultNestedScroll();
+
   for (auto eventType : SWIPER_NODE_EVENT_TYPES) {
     MaybeThrow(NativeNodeApi::GetInstance()->registerNodeEvent(nodeHandle_, eventType, 0, nullptr));
   }
+}
+
+void SwiperNode::SetDefaultNestedScroll() {
+  ArkUI_NumberValue value = {.i32 = ARKUI_SWIPER_NESTED_SRCOLL_SELF_FIRST};
+  ArkUI_AttributeItem item = {&value, 1, nullptr, nullptr};
+  MaybeThrow(NativeNodeApi::GetInstance()->setAttribute(nodeHandle_, NODE_SWIPER_NESTED_SCROLL, &item));
 }
 
 SwiperNode::~SwiperNode() {

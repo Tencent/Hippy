@@ -80,6 +80,9 @@ public:
   void ResetAllAttributes() override;
   
 private:
+
+  void SetDefaultNestedScroll();
+
   bool hasAdapter_ = false;
 };
 
