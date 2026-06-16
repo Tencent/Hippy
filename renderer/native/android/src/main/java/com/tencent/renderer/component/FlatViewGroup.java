@@ -35,6 +35,8 @@ import com.tencent.renderer.node.RenderNode;
 public class FlatViewGroup extends ViewGroup {
 
     private static final String TAG = "FlatViewGroup";
+    private static final float TRANSFORM_EPSILON = 1e-4f;
+    private static final int MAX_TRANSFORM_ANCESTOR_DEPTH = 20;
     private final DispatchDrawHelper mDispatchDrawHelper = new DispatchDrawHelper();
 
     public FlatViewGroup(Context context) {
@@ -113,28 +115,32 @@ public class FlatViewGroup extends ViewGroup {
      * <p>This is used to gate the {@link Canvas#saveLayer} fallback in
      * {@link #dispatchDraw(Canvas)}: on older HWUI versions, a {@link
      * Canvas#clipPath} command issued under an ancestor RenderNode that is
-     * later scaled does not necessarily compose correctly with that scale,
-     * producing visibly mis-clipped rounded corners. Forcing an offscreen
-     * layer for the duration of the children draw isolates the clip into a
-     * pre-rasterized buffer that is then resampled by the ancestor scale,
-     * which is the same way the ancestor scales every other pixel and
-     * therefore stays geometrically consistent.
+     * later scaled does not necessarily compose correctly with that scale.
+     * Android's hardware acceleration docs state that before API 28, some
+     * Canvas operations were implemented as scale-1.0 textures and then scaled
+     * by the GPU; starting from API 28, all drawing operations can scale
+     * correctly. Forcing an offscreen layer for the duration of the children
+     * draw isolates the clip into a pre-rasterized buffer that is then
+     * resampled by the ancestor scale, which is the same way the ancestor
+     * scales every other pixel and therefore stays geometrically consistent.
      */
     private boolean hasAncestorOrSelfTransform() {
-        final float epsilon = 1e-4f;
         View v = this;
-        // Walk up until we hit a non-View parent (Window root) or null.
-        while (v != null) {
+        // Walk up until we hit a non-View parent (Window root), null, or the
+        // depth guard. A bounded walk keeps dispatchDraw predictable in deeply
+        // nested list/item trees while still covering the common transform
+        // owners (self, item container, page container, transition wrapper).
+        for (int depth = 0; v != null && depth < MAX_TRANSFORM_ANCESTOR_DEPTH; depth++) {
             float sx = v.getScaleX();
             float sy = v.getScaleY();
             float rz = v.getRotation();
             float rx = v.getRotationX();
             float ry = v.getRotationY();
-            if (Math.abs(sx - 1f) > epsilon
-                    || Math.abs(sy - 1f) > epsilon
-                    || Math.abs(rz) > epsilon
-                    || Math.abs(rx) > epsilon
-                    || Math.abs(ry) > epsilon) {
+            if (Math.abs(sx - 1f) > TRANSFORM_EPSILON
+                    || Math.abs(sy - 1f) > TRANSFORM_EPSILON
+                    || Math.abs(rz) > TRANSFORM_EPSILON
+                    || Math.abs(rx) > TRANSFORM_EPSILON
+                    || Math.abs(ry) > TRANSFORM_EPSILON) {
                 return true;
             }
             ViewParent p = v.getParent();
@@ -164,8 +170,13 @@ public class FlatViewGroup extends ViewGroup {
         //   1. there is actually a rounded-corner clip to apply, AND
         //   2. this view or one of its ancestors carries a non-trivial scale
         //      or rotation transform.
+        // This fallback is limited to Android 8.1 (API 27) and below. API 28
+        // is the cutoff because Android's hardware acceleration docs state
+        // that Canvas scaling for all drawing operations works from API 28
+        // onward.
         // In all other cases the legacy clipPath / clipRect path is kept
-        // verbatim, so non-transformed scenes pay zero extra cost.
+        // verbatim, so non-transformed scenes and newer Android versions pay
+        // zero extra cost.
         //
         // The layer scope covers exactly the children draw - dispatchDraw is
         // invoked after onDraw, so the BackgroundDrawable shadow has already
@@ -173,6 +184,7 @@ public class FlatViewGroup extends ViewGroup {
         // intercepted by the layer.
         boolean useOffscreenLayer = roundCornerClipPath != null
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1
                 && hasAncestorOrSelfTransform();
         int restoreCount;
         if (useOffscreenLayer) {

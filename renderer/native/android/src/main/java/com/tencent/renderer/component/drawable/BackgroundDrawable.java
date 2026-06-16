@@ -34,6 +34,7 @@ import java.util.List;
 public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder {
 
     private static final String TAG = "BackgroundDrawable";
+    private static final float RADIUS_EPSILON = 1e-4f;
     private final BorderResolvedInfo mResolvedInfo = new BorderResolvedInfo();
     private int mBackgroundColor = Color.TRANSPARENT;
     private int mBorderWidth = 0;
@@ -173,16 +174,13 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
             // applied as a matrix transform at draw time and the result remains
             // crisp at any scale.
             //
-            // drawPath, in contrast, has historically been observed on some
-            // older HWUI versions to render arbitrary Path geometry through a
-            // path-tessellation cache: the tessellated result may be cached and
-            // reused, and on those versions an ancestor RenderNode being scaled
-            // later does not necessarily trigger a re-tessellation at the new
-            // effective scale, which manifests as blurry / aliased rounded
-            // corners. The exact mechanism, the affected version range and
-            // OEM coverage are all HWUI implementation details outside of our
-            // control, but the observable symptom is reliably absent when the
-            // same geometry is drawn via drawRoundRect. We therefore prefer
+            // drawPath, in contrast, falls under the HWUI Canvas-scaling
+            // limitation documented for complex drawing operations before API
+            // 28: the hardware-accelerated 2D pipeline may rasterize such
+            // operations at scale 1.0 and then let the GPU scale that texture,
+            // which can degrade quality under ancestor transforms. Android's
+            // hardware acceleration docs list drawPath / complex shapes as
+            // scaling correctly starting from API 28. We therefore prefer
             // drawRoundRect whenever the geometry can be expressed as a
             // uniform-radius round rect.
             float uniformRadius = mResolvedInfo.getUniformBorderRadius();
@@ -251,23 +249,17 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         //     canvas.clipPath(borderOutsidePath);
         //     canvas.clipPath(borderInsidePath, Region.Op.DIFFERENCE);
         //     canvas.drawPath(borderMidlinePath, STROKE);
-        // to confine the stroke to the border band. On some older HWUI
-        // versions, non-rectangular clipPath - and especially non-INTERSECT
-        // clipPath such as Region.Op.DIFFERENCE used here - is not
-        // accelerated directly on the GPU; instead the affected RenderNode is
-        // rendered into an intermediate offscreen surface so that the clip
-        // can be applied via per-pixel masking. Whether the fallback uses an
-        // HWUI layer, the path tessellation cache or another mechanism, and
-        // exactly which Android versions / OEM builds are affected, are HWUI
-        // implementation details outside of our control. What matters here
-        // is the observable effect: once the RenderNode's content has been
-        // rasterized at its natural size, an ancestor transform such as
-        // transform: scale(1.5) can only resample that raster, producing
-        // visibly blurry / aliased corners and a border that does not appear
-        // to scale together with its parent. This was originally reported
-        // on an API 24 device, with an API 31 device rendering correctly;
-        // those two data points are the only ones we have actually verified
-        // and should not be read as a precise affected-version range.
+        // to confine the stroke to the border band. This is a complex Canvas
+        // operation built from path clipping and drawPath. Android's hardware
+        // acceleration docs state that before API 28, some drawing operations
+        // were implemented as scale-1.0 textures and then scaled by the GPU,
+        // causing quality degradation at high scale; the same docs list
+        // drawPath / complex shapes as scaling correctly starting from API 28.
+        // In this path, once the RenderNode's content has been rasterized at
+        // its natural size, an ancestor transform such as transform: scale(1.5)
+        // can only resample that raster, producing visibly blurry / aliased
+        // corners and a border that does not appear to scale together with its
+        // parent.
         //
         // Canvas.drawRoundRect, by contrast, is a first-class HWUI primitive
         // on every supported API level and is recorded into the display list
@@ -335,8 +327,11 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         // may still trigger the offscreen-rasterization behavior described
         // above. When a rounded complex border cannot use the drawRoundRect
         // fast path, explicitly isolate the border drawing into a layer on
-        // older Android versions so the outer and inner path clips are applied
-        // in the same local rasterization step.
+        // older Android versions (API 27 and below) so the outer and inner path
+        // clips are applied in the same local rasterization step. API 28 is the
+        // cutoff because Android's hardware acceleration docs state that Canvas
+        // scaling for all drawing operations works from API 28 onward, and list
+        // drawPath / complex shapes as scaling correctly starting from API 28.
         boolean useLayer = shouldDrawComplexRoundedBorderInLayer();
         if (useLayer) {
             canvas.saveLayer(mRect, null);
@@ -390,6 +385,8 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
     }
 
     private boolean shouldDrawComplexRoundedBorderInLayer() {
+        // O_MR1 is API 27, so this fallback applies only before the official
+        // API 28 Canvas-scaling boundary documented by Android.
         return mResolvedInfo.hasBorderRadius && Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1;
     }
 
@@ -406,6 +403,8 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
 
     private boolean canDrawBorderSideAsFill(int strokeWidth, @Nullable PathEffect pathEffect,
             @Nullable Path fillPath) {
+        // Only solid borders can be represented by the pre-filled side path;
+        // dashed / dotted borders must keep the stroked pathEffect flow.
         return strokeWidth <= 0 || pathEffect == null && fillPath != null;
     }
 
@@ -630,7 +629,9 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
 
         public boolean hasSameRadiusOnAllSides() {
-            return topLeft == topRight && topRight == bottomRight && bottomRight == bottomLeft;
+            return Math.abs(topLeft - topRight) <= RADIUS_EPSILON
+                    && Math.abs(topRight - bottomRight) <= RADIUS_EPSILON
+                    && Math.abs(bottomRight - bottomLeft) <= RADIUS_EPSILON;
         }
     }
 
