@@ -23,6 +23,7 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.os.Build;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -115,6 +116,26 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
     public Path getBorderPath() {
         updatePath();
         return mResolvedInfo.hasBorderRadius ? mResolvedInfo.borderOutsidePath : null;
+    }
+
+    /**
+     * Returns the resolved border radius shared by all four corners (in pixels),
+     * or {@code -1f} when there is no border radius or the four corners do not
+     * share the same radius.
+     *
+     * <p>This is the radius <em>after</em> the BorderResolvedInfo resolve step
+     * has potentially scaled the configured radii to fit within the rect bounds,
+     * so callers that combine this value with the rect must use the <em>same</em>
+     * rect that was passed into {@link #updatePath()} ({@code mRect}).
+     *
+     * <p>Mainly intended to let parent {@code ViewGroup}s install a uniform
+     * round-rect {@link android.graphics.Outline} for clip-to-outline based
+     * rounded-corner clipping, which is unaffected by the older-HWUI
+     * {@code clipPath}-under-ancestor-scale issue.
+     */
+    public float getUniformBorderRadius() {
+        updatePath();
+        return mResolvedInfo.getUniformBorderRadius();
     }
 
     protected void updatePath() {
@@ -289,14 +310,39 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                 return;
             }
         }
+        if (mResolvedInfo.drawBorderSideBySide && shouldDrawSideBySideBorderAsFill()) {
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.left,
+                    mResolvedInfo.borderColor.left,
+                    mResolvedInfo.borderSideFill.left);
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.top,
+                    mResolvedInfo.borderColor.top,
+                    mResolvedInfo.borderSideFill.top);
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.right,
+                    mResolvedInfo.borderColor.right,
+                    mResolvedInfo.borderSideFill.right);
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.bottom,
+                    mResolvedInfo.borderColor.bottom,
+                    mResolvedInfo.borderSideFill.bottom);
+            return;
+        }
         // General path: per-side widths / colors / styles, non-uniform corner
         // radii, or no rounded corners at all. Falls back to the historical
         // clipPath + drawPath implementation. On older HWUI versions this path
         // may still trigger the offscreen-rasterization behavior described
-        // above, but in those cases the geometry cannot be reduced to a single
-        // drawRoundRect; addressing it would require a more involved rewrite
-        // (e.g. building the border band as a closed Path and filling it).
-        canvas.save();
+        // above. When a rounded complex border cannot use the drawRoundRect
+        // fast path, explicitly isolate the border drawing into a layer on
+        // older Android versions so the outer and inner path clips are applied
+        // in the same local rasterization step.
+        boolean useLayer = shouldDrawComplexRoundedBorderInLayer();
+        if (useLayer) {
+            canvas.saveLayer(mRect, null);
+        } else {
+            canvas.save();
+        }
         if (mResolvedInfo.hasBorderRadius) {
             canvas.clipPath(mResolvedInfo.borderOutsidePath);
             if (mResolvedInfo.hasContentRadius) {
@@ -341,6 +387,38 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                     mResolvedInfo.borderSideClip.bottom);
         }
         canvas.restore();
+    }
+
+    private boolean shouldDrawComplexRoundedBorderInLayer() {
+        return mResolvedInfo.hasBorderRadius && Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1;
+    }
+
+    private boolean shouldDrawSideBySideBorderAsFill() {
+        return canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.left,
+                mResolvedInfo.pathEffect.left, mResolvedInfo.borderSideFill.left)
+                && canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.top,
+                        mResolvedInfo.pathEffect.top, mResolvedInfo.borderSideFill.top)
+                && canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.right,
+                        mResolvedInfo.pathEffect.right, mResolvedInfo.borderSideFill.right)
+                && canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.bottom,
+                        mResolvedInfo.pathEffect.bottom, mResolvedInfo.borderSideFill.bottom);
+    }
+
+    private boolean canDrawBorderSideAsFill(int strokeWidth, @Nullable PathEffect pathEffect,
+            @Nullable Path fillPath) {
+        return strokeWidth <= 0 || pathEffect == null && fillPath != null;
+    }
+
+    private void drawBorderSideFillInternal(@NonNull Canvas canvas, int strokeWidth, int color,
+            @Nullable Path fillPath) {
+        if (strokeWidth <= 0 || fillPath == null) {
+            return;
+        }
+        assert mPaint != null;
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setColor(color);
+        mPaint.setPathEffect(null);
+        canvas.drawPath(fillPath, mPaint);
     }
 
     private void drawBorderSideInternal(@NonNull Canvas canvas, int strokeWidth, int color,

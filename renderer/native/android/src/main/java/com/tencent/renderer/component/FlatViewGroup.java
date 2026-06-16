@@ -18,7 +18,11 @@ package com.tencent.renderer.component;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Path;
+import android.os.Build;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -87,6 +91,62 @@ public class FlatViewGroup extends ViewGroup {
         return (index < 0 || index >= getChildCount()) ? i : index;
     }
 
+    /**
+     * Returns {@code true} if {@code this} view, or any of its ancestors up
+     * to (but not including) the root view, has a non-identity transform
+     * applied via the View RenderNode properties
+     * ({@link View#getScaleX}, {@link View#getScaleY},
+     * {@link View#getRotation}, {@link View#getRotationX},
+     * {@link View#getRotationY}).
+     *
+     * <p>Why we walk the view tree instead of inspecting the canvas matrix:
+     * with hardware-accelerated rendering, the canvas passed into
+     * {@code dispatchDraw} is a per-RenderNode RecordingCanvas whose matrix
+     * only contains the local translations performed during the current
+     * RenderNode's display-list recording; the scale/rotation properties of
+     * an ancestor RenderNode are applied later, on the RenderThread, during
+     * composition, and never appear in this canvas's matrix. Walking the
+     * view tree's logical transform properties gives us the truthful
+     * "is anyone scaling me?" answer regardless of whether software or
+     * hardware rendering is in effect.
+     *
+     * <p>This is used to gate the {@link Canvas#saveLayer} fallback in
+     * {@link #dispatchDraw(Canvas)}: on older HWUI versions, a {@link
+     * Canvas#clipPath} command issued under an ancestor RenderNode that is
+     * later scaled does not necessarily compose correctly with that scale,
+     * producing visibly mis-clipped rounded corners. Forcing an offscreen
+     * layer for the duration of the children draw isolates the clip into a
+     * pre-rasterized buffer that is then resampled by the ancestor scale,
+     * which is the same way the ancestor scales every other pixel and
+     * therefore stays geometrically consistent.
+     */
+    private boolean hasAncestorOrSelfTransform() {
+        final float epsilon = 1e-4f;
+        View v = this;
+        // Walk up until we hit a non-View parent (Window root) or null.
+        while (v != null) {
+            float sx = v.getScaleX();
+            float sy = v.getScaleY();
+            float rz = v.getRotation();
+            float rx = v.getRotationX();
+            float ry = v.getRotationY();
+            if (Math.abs(sx - 1f) > epsilon
+                    || Math.abs(sy - 1f) > epsilon
+                    || Math.abs(rz) > epsilon
+                    || Math.abs(rx) > epsilon
+                    || Math.abs(ry) > epsilon) {
+                return true;
+            }
+            ViewParent p = v.getParent();
+            if (p instanceof View) {
+                v = (View) p;
+            } else {
+                break;
+            }
+        }
+        return false;
+    }
+
     @Override
     protected void dispatchDraw(Canvas canvas) {
         RenderNode node = RenderManager.getRenderNode(this);
@@ -95,13 +155,45 @@ public class FlatViewGroup extends ViewGroup {
             return;
         }
         boolean clipChildren = getClipChildren();
-        canvas.save();
-        if (clipChildren) {
-            Component component = node.getComponent();
-            if (component != null && component.getContentRegionPath() != null) {
-                canvas.clipPath(component.getContentRegionPath());
-            } else {
-                canvas.clipRect(0, 0, getRight() - getLeft(), getBottom() - getTop());
+        Component component = node.getComponent();
+        Path roundCornerClipPath = (clipChildren && component != null)
+                ? component.getContentRegionPath() : null;
+        // Decide whether we need to escape into an offscreen layer to
+        // guarantee that rounded-corner clipping composes correctly with any
+        // ancestor scale. We do this only when:
+        //   1. there is actually a rounded-corner clip to apply, AND
+        //   2. this view or one of its ancestors carries a non-trivial scale
+        //      or rotation transform.
+        // In all other cases the legacy clipPath / clipRect path is kept
+        // verbatim, so non-transformed scenes pay zero extra cost.
+        //
+        // The layer scope covers exactly the children draw - dispatchDraw is
+        // invoked after onDraw, so the BackgroundDrawable shadow has already
+        // been recorded into the parent RenderNode's display list and is not
+        // intercepted by the layer.
+        boolean useOffscreenLayer = roundCornerClipPath != null
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && hasAncestorOrSelfTransform();
+        int restoreCount;
+        if (useOffscreenLayer) {
+            // saveLayer with a null paint creates a transparent offscreen
+            // buffer sized to the current clip; subsequent draws are
+            // rasterized into that buffer and the buffer is composited back
+            // at restore time. The clipPath issued *inside* the layer is
+            // applied while rasterizing, before the ancestor scale resamples
+            // the buffer, so the resulting rounded-corner mask scales
+            // together with every other pixel.
+            restoreCount = canvas.saveLayer(0, 0, getRight() - getLeft(),
+                    getBottom() - getTop(), null);
+            canvas.clipPath(roundCornerClipPath);
+        } else {
+            restoreCount = canvas.save();
+            if (clipChildren) {
+                if (roundCornerClipPath != null) {
+                    canvas.clipPath(roundCornerClipPath);
+                } else {
+                    canvas.clipRect(0, 0, getRight() - getLeft(), getBottom() - getTop());
+                }
             }
         }
         mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
@@ -111,7 +203,7 @@ public class FlatViewGroup extends ViewGroup {
             mDispatchDrawHelper.drawNext(this);
         }
         mDispatchDrawHelper.onDispatchDrawEnd();
-        canvas.restore();
+        canvas.restoreToCount(restoreCount);
     }
 
     @Override

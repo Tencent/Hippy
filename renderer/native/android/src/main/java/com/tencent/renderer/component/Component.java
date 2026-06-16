@@ -187,6 +187,17 @@ public class Component implements Drawable.Callback {
     }
 
     /**
+     * Returns the resolved uniform border radius (in pixels) of the background,
+     * or {@code -1f} when there is no border radius or the four corners do not
+     * share the same radius. See
+     * {@link BackgroundDrawable#getUniformBorderRadius()} for the precise
+     * semantics.
+     */
+    public float getUniformBorderRadius() {
+        return (mBackgroundDrawable != null) ? mBackgroundDrawable.getUniformBorderRadius() : -1f;
+    }
+
+    /**
      * Get background layer drawable
      *
      * <p>At present, display RippleDrawable by setting the view background, it may not be the best

@@ -54,6 +54,7 @@ final class BorderResolvedInfo {
     final BorderColor borderColor = new BorderColor(Color.TRANSPARENT);
     final BorderSideValue<Path> borderSideClip = new BorderSideValue<>();
     final BorderSideValue<Path> borderSideMidline = new BorderSideValue<>();
+    final BorderSideValue<Path> borderSideFill = new BorderSideValue<>();
     final BorderSideValue<PathEffect> pathEffect = new BorderSideValue<>();
     boolean hasVisibleBorder;
     boolean hasBorderRadius;
@@ -427,6 +428,7 @@ final class BorderResolvedInfo {
         }
         clip.lineTo(rect.left, rect.bottom);
         clip.close();
+        updateBorderSideFill(BorderSide.LEFT, clip);
         strokeWidth.left = strokeSize;
         pathEffect.left = buildPathEffect(style, borderWidth.left, (int) strokeLength, roundStart, roundEnd);
     }
@@ -485,7 +487,7 @@ final class BorderResolvedInfo {
         if (endRadius > borderWidth.top && endRadius > borderWidth.left) {
             float endDiameter = 2 * endRadius;
             // top-left inside arc
-            float endAngle = 90 - arcAngle(startRadius, borderWidth.left, borderWidth.top, 1);
+            float endAngle = 90 - arcAngle(endRadius, borderWidth.left, borderWidth.top, 1);
             clip.arcTo(
                     rect.left + borderWidth.left,
                     rect.top + borderWidth.top,
@@ -494,7 +496,7 @@ final class BorderResolvedInfo {
                     270, -endAngle, false);
             // top-left midline arc
             float endMidlineAngle = style != BorderStyle.DOTTED ? 90
-                    : 90 - arcAngle(startRadius, borderWidth.left, borderWidth.top, 0.5f);
+                    : 90 - arcAngle(endRadius, borderWidth.left, borderWidth.top, 0.5f);
             midline.arcTo(
                     rect.left + borderWidth.left * 0.5f,
                     rect.top + borderWidth.top * 0.5f,
@@ -514,6 +516,7 @@ final class BorderResolvedInfo {
         }
         clip.lineTo(rect.left, rect.top);
         clip.close();
+        updateBorderSideFill(BorderSide.TOP, clip);
         strokeWidth.top = strokeSize;
         pathEffect.top = buildPathEffect(style, borderWidth.top, (int) strokeLength, roundStart, roundEnd);
     }
@@ -573,7 +576,7 @@ final class BorderResolvedInfo {
         if (endRadius > borderWidth.top && endRadius > borderWidth.right) {
             float endDiameter = 2 * endRadius;
             // top-right inside arc
-            float endAngle = 90 - arcAngle(startRadius, borderWidth.top, borderWidth.right, 1);
+            float endAngle = 90 - arcAngle(endRadius, borderWidth.top, borderWidth.right, 1);
             clip.arcTo(
                     rect.right - endDiameter + borderWidth.right,
                     rect.top + borderWidth.top,
@@ -582,7 +585,7 @@ final class BorderResolvedInfo {
                     0, -endAngle, false);
             // top-right midline arc
             float endMidlineAngle = style != BorderStyle.DOTTED ? 90
-                    : 90 - arcAngle(startRadius, borderWidth.top, borderWidth.right, 0.5f);
+                    : 90 - arcAngle(endRadius, borderWidth.top, borderWidth.right, 0.5f);
             midline.arcTo(
                     rect.right - endDiameter + borderWidth.right * 0.5f,
                     rect.top + borderWidth.top * 0.5f,
@@ -602,6 +605,7 @@ final class BorderResolvedInfo {
         }
         clip.lineTo(rect.right, rect.top);
         clip.close();
+        updateBorderSideFill(BorderSide.RIGHT, clip);
         strokeWidth.right = strokeSize;
         pathEffect.right = buildPathEffect(style, borderWidth.right, (int) strokeLength, roundStart, roundEnd);
     }
@@ -661,7 +665,7 @@ final class BorderResolvedInfo {
         if (endRadius > borderWidth.bottom && endRadius > borderWidth.right) {
             float endDiameter = 2 * endRadius;
             // bottom-right inside arc
-            float endAngle = 90 - arcAngle(startRadius, borderWidth.right, borderWidth.bottom, 1);
+            float endAngle = 90 - arcAngle(endRadius, borderWidth.right, borderWidth.bottom, 1);
             clip.arcTo(
                     rect.right - endDiameter + borderWidth.right,
                     rect.bottom - endDiameter + borderWidth.bottom,
@@ -670,7 +674,7 @@ final class BorderResolvedInfo {
                     90, -endAngle, false);
             // bottom-right midline arc
             float endMidlineAngle = style != BorderStyle.DOTTED ? 90
-                    : 90 - arcAngle(startRadius, borderWidth.right, borderWidth.bottom, 0.5f);
+                    : 90 - arcAngle(endRadius, borderWidth.right, borderWidth.bottom, 0.5f);
             midline.arcTo(
                     rect.right - endDiameter + borderWidth.right * 0.5f,
                     rect.bottom - endDiameter + borderWidth.bottom * 0.5f,
@@ -690,8 +694,45 @@ final class BorderResolvedInfo {
         }
         clip.lineTo(rect.right, rect.bottom);
         clip.close();
+        updateBorderSideFill(BorderSide.BOTTOM, clip);
         strokeWidth.bottom = strokeSize;
         pathEffect.bottom = buildPathEffect(style, borderWidth.bottom, (int) strokeLength, roundStart, roundEnd);
+    }
+
+    private void updateBorderSideFill(BorderSide side, Path sideClip) {
+        Path sideFill;
+        switch (side) {
+            case LEFT:
+                sideFill = borderSideFill.left;
+                if (sideFill == null) {
+                    borderSideFill.left = sideFill = new Path();
+                }
+                break;
+            case TOP:
+                sideFill = borderSideFill.top;
+                if (sideFill == null) {
+                    borderSideFill.top = sideFill = new Path();
+                }
+                break;
+            case RIGHT:
+                sideFill = borderSideFill.right;
+                if (sideFill == null) {
+                    borderSideFill.right = sideFill = new Path();
+                }
+                break;
+            case BOTTOM:
+                sideFill = borderSideFill.bottom;
+                if (sideFill == null) {
+                    borderSideFill.bottom = sideFill = new Path();
+                }
+                break;
+            default:
+                return;
+        }
+        sideFill.set(sideClip);
+        if (hasBorderRadius && borderOutsidePath != null) {
+            sideFill.op(borderOutsidePath, Path.Op.INTERSECT);
+        }
     }
 
     private static boolean hasContentRadius(BorderWidth borderWidth, BorderRadius borderRadius) {
