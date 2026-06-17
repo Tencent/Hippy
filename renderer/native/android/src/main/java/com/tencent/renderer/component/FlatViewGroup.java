@@ -38,8 +38,12 @@ public class FlatViewGroup extends ViewGroup {
     private static final String TAG = "FlatViewGroup";
     private static final float TRANSFORM_EPSILON = 1e-4f;
     private static final int MAX_TRANSFORM_ANCESTOR_DEPTH = 20;
+    // UI thread only: Android View drawing is expected to be single-threaded, so this
+    // static counter is only used to avoid nested offscreen layers within one draw pass.
     private static int sOffscreenLayerDepth = 0;
     private final DispatchDrawHelper mDispatchDrawHelper = new DispatchDrawHelper();
+    // Reused during draw() to avoid allocation. Safe under the same UI-thread-only
+    // drawing assumption as sOffscreenLayerDepth.
     private final Rect mLayerBounds = new Rect();
 
     public FlatViewGroup(Context context) {
@@ -122,6 +126,9 @@ public class FlatViewGroup extends ViewGroup {
     }
 
     private boolean shouldDrawInOffscreenLayer() {
+        // Keep the ancestor transform walk on the old-HWUI fallback path only. Newer
+        // Android versions handle Canvas scaling for complex drawing operations, so
+        // they can short-circuit before hasAncestorOrSelfTransform().
         return sOffscreenLayerDepth == 0
                 && getWidth() > 0
                 && getHeight() > 0
@@ -152,6 +159,11 @@ public class FlatViewGroup extends ViewGroup {
                 } else {
                     canvas.clipRect(0, 0, getWidth(), getHeight());
                 }
+            } else {
+                // Even without clipping children, the layer is still useful on old
+                // HWUI when an ancestor transform is present: it isolates this view's
+                // complex/path drawing into one local rasterization step instead of
+                // letting nested draws trigger their own scaled texture artifacts.
             }
         } else if (clipChildren) {
             restoreCount = canvas.save();

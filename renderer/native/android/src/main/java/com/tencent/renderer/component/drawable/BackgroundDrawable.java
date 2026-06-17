@@ -34,7 +34,6 @@ import java.util.List;
 public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder {
 
     private static final String TAG = "BackgroundDrawable";
-    private static final float RADIUS_EPSILON = 1e-4f;
     private final BorderResolvedInfo mResolvedInfo = new BorderResolvedInfo();
     private int mBackgroundColor = Color.TRANSPARENT;
     private int mBorderWidth = 0;
@@ -405,7 +404,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
             @Nullable Path fillPath) {
         // Only solid borders can be represented by the pre-filled side path;
         // dashed / dotted borders must keep the stroked pathEffect flow.
-        return strokeWidth <= 0 || pathEffect == null && fillPath != null;
+        return strokeWidth <= 0 || (pathEffect == null && fillPath != null);
     }
 
     private void drawBorderSideFillInternal(@NonNull Canvas canvas, int strokeWidth, int color,
@@ -590,6 +589,8 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
     }
 
     public static class BorderRadius {
+
+        private static final float RADIUS_EPSILON = 1e-4f;
 
         public float topLeft;
         public float topRight;
