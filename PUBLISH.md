@@ -4,7 +4,7 @@ Hippy version management follows principle that all modules use same version.
 
 ## 1. Update Version Number
 
-The front-end Uses [lerna](https://lerna.js.org/) for versioning and CHANGELOG generation, but cannot use its publishing functionality because it needs to update the terminal package.
+The front-end uses [lerna](https://lerna.js.org/) for versioning and CHANGELOG generation, but cannot use its publishing functionality because it needs to update the terminal package.
 
 Update version and CHANGELOG usage:
 
@@ -155,7 +155,7 @@ git push origin tag          # 提交 tag
     ```bash
       // annotation local reference in `setting.gradle` 
       // include 'android-sdk'
-      // project(':android-sdk').projectDir = new File('../../ android/sdk')
+      // project(':android-sdk').projectDir = new File('../../android/sdk')
 
       --------------
 
