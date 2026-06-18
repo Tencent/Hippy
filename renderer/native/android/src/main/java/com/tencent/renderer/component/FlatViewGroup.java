@@ -144,34 +144,12 @@ public class FlatViewGroup extends ViewGroup {
             super.draw(canvas);
             return;
         }
-        boolean clipChildren = getClipChildren();
-        Component component = node.getComponent();
-        Path roundCornerClipPath = (component != null) ? component.getContentRegionPath() : null;
         boolean useOffscreenLayer = shouldDrawInOffscreenLayer();
         int restoreCount = -1;
         if (useOffscreenLayer) {
             canvas.getClipBounds(mLayerBounds);
             restoreCount = canvas.saveLayer(mLayerBounds.left, mLayerBounds.top,
                     mLayerBounds.right, mLayerBounds.bottom, null);
-            if (clipChildren) {
-                if (roundCornerClipPath != null) {
-                    canvas.clipPath(roundCornerClipPath);
-                } else {
-                    canvas.clipRect(0, 0, getWidth(), getHeight());
-                }
-            } else {
-                // Even without clipping children, the layer is still useful on old
-                // HWUI when an ancestor transform is present: it isolates this view's
-                // complex/path drawing into one local rasterization step instead of
-                // letting nested draws trigger their own scaled texture artifacts.
-            }
-        } else if (clipChildren) {
-            restoreCount = canvas.save();
-            if (roundCornerClipPath != null) {
-                canvas.clipPath(roundCornerClipPath);
-            } else {
-                canvas.clipRect(0, 0, getWidth(), getHeight());
-            }
         }
         if (useOffscreenLayer) {
             sOffscreenLayerDepth++;
@@ -195,13 +173,31 @@ public class FlatViewGroup extends ViewGroup {
             super.dispatchDraw(canvas);
             return;
         }
-        mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
-        super.dispatchDraw(canvas);
-        if (mDispatchDrawHelper.isActive()) {
-            // Check the remaining non rendered sub nodes, behind the last sub node with host view
-            mDispatchDrawHelper.drawNext(this);
+        boolean clipChildren = getClipChildren();
+        int restoreCount = -1;
+        if (clipChildren) {
+            Component component = node.getComponent();
+            Path roundCornerClipPath = (component != null) ? component.getContentRegionPath() : null;
+            restoreCount = canvas.save();
+            if (roundCornerClipPath != null) {
+                canvas.clipPath(roundCornerClipPath);
+            } else {
+                canvas.clipRect(0, 0, getWidth(), getHeight());
+            }
         }
-        mDispatchDrawHelper.onDispatchDrawEnd();
+        mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
+        try {
+            super.dispatchDraw(canvas);
+            if (mDispatchDrawHelper.isActive()) {
+                // Check the remaining non rendered sub nodes, behind the last sub node with host view
+                mDispatchDrawHelper.drawNext(this);
+            }
+        } finally {
+            mDispatchDrawHelper.onDispatchDrawEnd();
+            if (restoreCount >= 0) {
+                canvas.restoreToCount(restoreCount);
+            }
+        }
     }
 
     @Override
