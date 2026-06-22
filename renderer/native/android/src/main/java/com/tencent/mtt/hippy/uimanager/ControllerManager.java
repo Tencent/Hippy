@@ -54,6 +54,7 @@ import com.tencent.mtt.hippy.views.waterfall.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.node.VirtualNode;
@@ -178,7 +179,6 @@ public class ControllerManager {
     }
 
     public void destroy() {
-        mControllerRegistry.destroy();
         mControllerUpdateManger.destroy();
         for (Pool<Integer, View> pool : mPreCreateViewPools.values()) {
             pool.clear();
@@ -190,10 +190,13 @@ public class ControllerManager {
         mRecycleViewPools.clear();
         int count = mControllerRegistry.getRootViewCount();
         if (count > 0) {
-            for (int i = 0; i < count; i++) {
-                deleteRootView(mControllerRegistry.getRootIdAt(i));
+            for (int i = count - 1; i >= 0; i--) {
+                int rootId = mControllerRegistry.getRootIdAt(i);
+                deleteRootView(rootId);
+                NativeRendererManager.removeRootNode(rootId);
             }
         }
+        mControllerRegistry.destroy();
     }
 
     @Nullable
