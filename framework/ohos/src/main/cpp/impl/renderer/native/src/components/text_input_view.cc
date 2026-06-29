@@ -236,7 +236,8 @@ void TextInputView::OnSetPropsEndImpl(){
     value_ = "";
   }
   if (!fontFamily_.has_value()) {
-    fontFamily_ = "HarmonyOS Sans";
+    // 设置空字符串会使用系统默认字体，不要写固定字体名
+    fontFamily_ = "";
     SetPropFlag(TextInputPropFontFamily);
   }
   if (!fontSize_.has_value()) {
