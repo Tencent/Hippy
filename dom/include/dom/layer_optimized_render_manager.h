@@ -64,6 +64,8 @@ class LayerOptimizedRenderManager : public RenderManager {
  private:
   std::shared_ptr<RenderManager> render_manager_;
 
+  bool IsEliminated(const std::shared_ptr<DomNode>& node) const;
+
   bool CanBeEliminated(const std::shared_ptr<DomNode>& node);
 
   void UpdateRenderInfo(const std::shared_ptr<DomNode>& node);
