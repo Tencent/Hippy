@@ -322,6 +322,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             mBackgroundExecutor = null;
         }
         mRenderProvider.destroy();
+        mUITaskQueue.clear();
         mRenderManager.destroy();
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
