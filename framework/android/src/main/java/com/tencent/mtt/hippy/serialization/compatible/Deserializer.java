@@ -239,7 +239,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
         if (key instanceof Number) {
           object.pushObject(String.valueOf(key), value);
         } else if (key instanceof String) {
-          if (key == "null") {
+          if ("null".equals(key)) {
             object.pushObject(null, value);
           } else {
             object.pushObject((String) key, value);
@@ -263,7 +263,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
       key = key.toString();
       Object value = readValue(StringLocation.MAP_VALUE, key);
       if (value != Undefined) {
-        if (key == "null") {
+        if ("null".equals(key)) {
           object.pushObject(null, value);
         } else {
           object.pushObject((String) key, value);
