@@ -190,7 +190,7 @@ void TextMeasurer::StartMeasure(HippyValueObjectType &propMap, const std::set<st
 
 // 因为使用了API14才有的接口，App也需要升级最低支持版本为API14，否则会加载so crash。
 // 这里临时定义宏，如果有业务暂时不方便升级到API14，可以临时define为0。
-#define OHOS_HAS_API14 0
+#define OHOS_HAS_API14 1
 #if OHOS_HAS_API14
   OH_Drawing_FontCollection *fontCollection = nullptr;
   if (hasCustomFont) {
