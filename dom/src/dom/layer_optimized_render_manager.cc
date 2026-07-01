@@ -37,7 +37,7 @@ void LayerOptimizedRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node : nodes) {
     node->SetLayoutOnly(ComputeLayoutOnly(node));
-    if (!CanBeEliminated(node)) {
+    if (!IsEliminated(node)) {
       UpdateRenderInfo(node);
       nodes_to_create.push_back(node);
     }
@@ -54,9 +54,10 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& node : nodes) {
-    bool could_be_eliminated = CanBeEliminated(node);
+    bool could_be_eliminated = IsEliminated(node);
     node->SetLayoutOnly(ComputeLayoutOnly(node));
-    if (!CanBeEliminated(node)) {
+    bool can_be_eliminated = CanBeEliminated(node);
+    if (!can_be_eliminated) {
       if (could_be_eliminated) {
         UpdateRenderInfo(node);
         nodes_to_create.push_back(node);
@@ -278,8 +279,12 @@ bool LayerOptimizedRenderManager::IsJustLayoutProp(const char *prop_name) const 
                      [prop_name](const char *prop) { return strcmp(prop, prop_name) == 0; });
 }
 
+bool LayerOptimizedRenderManager::IsEliminated(const std::shared_ptr<DomNode>& node) const {
+  return (node->IsLayoutOnly() || node->IsVirtual()) && node->IsEnableEliminated();
+}
+
 bool LayerOptimizedRenderManager::CanBeEliminated(const std::shared_ptr<DomNode>& node) {
-  bool eliminated = (node->IsLayoutOnly() || node->IsVirtual()) && node->IsEnableEliminated();
+  bool eliminated = IsEliminated(node);
   if (!eliminated) {
     node->SetEnableEliminated(false);
   }
@@ -300,7 +305,7 @@ void LayerOptimizedRenderManager::UpdateRenderInfo(const std::shared_ptr<DomNode
 std::shared_ptr<DomNode> LayerOptimizedRenderManager::GetRenderParent(
         const std::shared_ptr<DomNode> &node) {
   auto parent = node->GetParent();
-  while (parent && CanBeEliminated(parent)) {
+  while (parent && IsEliminated(parent)) {
     parent = parent->GetParent();
   }
   return parent;
@@ -323,7 +328,7 @@ LayerOptimizedRenderManager::CalculateRenderNodeIndex(const std::shared_ptr<DomN
       return std::make_pair(true, index);
     }
 
-    if (CanBeEliminated(child_node)) {
+    if (IsEliminated(child_node)) {
       auto view_index = CalculateRenderNodeIndex(child_node, node, index);
       if (view_index.first) {
         return view_index;
@@ -341,7 +346,7 @@ void LayerOptimizedRenderManager::FindValidChildren(const std::shared_ptr<DomNod
                                                     std::vector<std::shared_ptr<DomNode>>& valid_children_nodes) {
   for (size_t i = 0; i < node->GetChildCount(); i++) {
     auto child_node = node->GetChildAt(i);
-    if (CanBeEliminated(child_node)) {
+    if (IsEliminated(child_node)) {
       FindValidChildren(child_node, valid_children_nodes);
     } else {
       valid_children_nodes.push_back(child_node);
