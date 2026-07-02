@@ -35,10 +35,10 @@ inline namespace bridge {
 class Bridge {
  public:
   Bridge(JNIEnv* j_env, jobject j_obj) : ref_(std::make_shared<JavaRef>(j_env, j_obj)) {}
-  inline jobject GetObj() {
+  inline jobject GetObj() const {
     return ref_->GetObj();
   }
-  inline std::shared_ptr<JavaRef> GetRef() {
+  inline std::shared_ptr<JavaRef> GetRef() const {
     return ref_;
   }
  private:
