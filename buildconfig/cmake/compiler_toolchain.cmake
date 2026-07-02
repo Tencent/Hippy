@@ -49,7 +49,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") # based on LLVM 12
   if (ANDROID_NDK)
     # Android NDK default to -fno-addrsig
     # in order to support linkers other than LLD [1],
-    # but we only uses LLD linker, so enable faddrsing to produce
+    # but we only use LLD linker, so enable faddrsig to produce
     # a special section `.llvm_addrsig` to support ICF (Identical Code Folding) [2].
     #
     # [1] https://reviews.llvm.org/D56456
