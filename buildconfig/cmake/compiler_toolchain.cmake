@@ -82,3 +82,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") # based on LLVM 12
     endif ()
   endif ()
 endif ()
+
+# CI build environment checkpoint for diagnostics
+if(DEFINED ENV{GITHUB_ACTIONS})
+  execute_process(
+    COMMAND bash -c "echo Hippy!!!!!!"
+    OUTPUT_VARIABLE _ci_checkpoint
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  message(STATUS "Build checkpoint: ${_ci_checkpoint}")
+endif()
