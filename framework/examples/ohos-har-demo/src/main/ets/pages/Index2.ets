@@ -41,6 +41,7 @@ import { HRRenderViewCreator } from 'hippy/src/main/ets/renderer_native/componen
 import { HippyValue } from 'hippy/src/main/ets/support/common/HippyTypes';
 import { LogUtils } from 'hippy/src/main/ets/support/utils/LogUtils'
 import { CustomHippyRoot } from './CustomHippyRoot';
+import window from '@ohos.window';
 
 export class ExampleAPIProvider extends HippyAPIProvider {
   getCustomNativeModuleCreatorMap(): Map<string, HippyNativeModuleCreator> | null {
@@ -191,13 +192,14 @@ struct Index {
   @State message: string = 'Hello World';
   @StorageLink('libHippy') private libHippy: HippyLibrary | null = null
   @StorageLink('abilityContext') private abilityContext: Context | null = null
+  @StorageLink('mainWindow') private mainWindow: window.Window | null = null
   @State exception: string = ""
   @State hippyEngine: HippyEngine | null = null
   private rootViewWrapper: HippyRootViewWrapper = new HippyRootViewWrapper()
   private nextId: number = 0
 
   aboutToAppear(): void {
-    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
+    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext(), this.mainWindow)
     params.providers = new Array(new ExampleAPIProvider())
     params.coreJSAssetsPath = "vue2/vendor.ohos.js"
     params.enableArkCApi = true
@@ -216,7 +218,7 @@ struct Index {
 
   loadNextPage(): void {
     ++this.nextId
-    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext())
+    let params = new EngineInitParams(this.libHippy!, this.abilityContext!, this.getUIContext(), this.mainWindow)
     params.providers = new Array(new ExampleAPIProvider())
     params.coreJSAssetsPath = this.nextId % 2 == 1 ? "react/vendor.ohos.js" : "vue2/vendor.ohos.js"
     params.enableArkCApi = true
