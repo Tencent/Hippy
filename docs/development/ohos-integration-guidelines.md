@@ -90,11 +90,11 @@
 Hippy页面退出时，需要释放资源。 destroyModule 用来释放对应 loadModule 的页面资源，destroyEngine 用来释放对应 initEngine 的引擎环境资源。
 一定要先 destroyModule，返回后再 destroyEngine。
 
- ```TypeScript
+```TypeScript
   hippyEngine?.destroyModule(rootId, () => {
     hippyEngine?.destroyEngine();
   });
-  ```
+```
 
 具体可以参考 [Har Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-har-demo) 工程中 `EntryAbility.ets` `Index.ets` 实现
 
@@ -132,7 +132,7 @@ Hippy页面退出时，需要释放资源。 destroyModule 用来释放对应 lo
 
 - CMakeLists.txt 内容如下
 
- ```cmake
+```cmake
 cmake_minimum_required(VERSION 3.14)
 project(hippy)
 
@@ -153,7 +153,7 @@ set(SOURCE_SET
 set(PUBLIC_SOURCE_SET
   )
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET} PUBLIC ${PUBLIC_SOURCE_SET})
- ```
+```
 
 ### 4. 初始化代码
 
@@ -195,7 +195,7 @@ Hippy页面退出时，需要释放资源。 destroyModule 用来释放对应 lo
   hippyEngine?.destroyModule(rootId, () => {
     hippyEngine?.destroyEngine();
   });
-  ```
+ ```
 
 具体可以参考 [Demo](https://github.com/Tencent/Hippy/tree/main/framework/examples/ohos-demo) 工程中 `EntryAbility.ets` 等实现
 
@@ -222,4 +222,40 @@ Hippy页面退出时，需要释放资源。 destroyModule 用来释放对应 lo
 ### 页面点击穿透问题
 
 - 鸿蒙下 ArkUINode 里默认把所有组件的 HitTest 模式都设为了 TRANSPARENT，可能导致某些业务场景顶层的页面拦不住事件。
-  - 原因和兼容方法：Hippy组件和自定义组件嵌套的复杂场景，鸿蒙默认又不裁剪overflow的部分，复杂场景容易出现点不了的问题。 所以兼容方法：默认HitTest都响应，业务具体场景要阻塞，鸿蒙上使用hit-test-ohos属性自己兼容。 （基于多数场景能点更重要，少数场景才有覆盖的假设）。
+  - 原因和兼容方法：Hippy组件和自定义组件嵌套的复杂场景，鸿蒙默认又不裁剪overflow的部分，复杂场景容易出现点不了的问题。 所以兼容方法：默认HitTest都响应，业务具体场景要阻塞，鸿蒙上使用 `hit-test-ohos` 属性自己兼容。 （基于多数场景能点更重要，少数场景才有覆盖的假设）。
+
+#### hit-test-ohos 属性说明
+
+在鸿蒙端，通过 `hit-test-ohos` 属性可以控制组件的点击测试（HitTest）行为。该属性为字符串类型，默认值为 `"transparent"`。
+
+**属性值及鸿蒙 API 对应关系：**
+
+| 属性值 | 鸿蒙 API 枚举 | 行为说明 |
+|---|---|---|
+| `"default"` | `ARKUI_HIT_TEST_MODE_DEFAULT` | 默认模式，节点自身和子节点均会响应点击测试 |
+| `"block"` | `ARKUI_HIT_TEST_MODE_BLOCK` | 阻塞模式，节点自身响应点击测试，但子节点不响应 |
+| `"transparent"` | `ARKUI_HIT_TEST_MODE_TRANSPARENT` | 透传模式（默认值），节点自身不响应点击测试，但子节点会响应 |
+| `"none"` | `ARKUI_HIT_TEST_MODE_NONE` | 无响应模式，节点自身和子节点均不响应点击测试 |
+
+**使用示例：**
+
+当需要某个覆盖层拦截所有点击事件（阻止事件穿透到下层组件）时：
+
+```jsx
+<View 
+  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+  hit-test-ohos="block"
+>
+  {/* 覆盖层内容 */}
+</View>
+```
+
+当需要某个容器本身不响应点击，但允许子组件正常响应时（即默认行为）：
+
+```jsx
+<View hit-test-ohos="transparent">
+  <View onClick={() => {}}>可点击的子组件</View>
+</View>
+```
+
+**实现参考：** 该属性在 [base_view.cc](framework/ohos/src/main/cpp/impl/renderer/native/src/components/base_view.cc) 的 `SetPropImpl` 方法中处理，最终调用 `ArkUINode::SetHitTestMode()` 设置到鸿蒙原生节点上。
