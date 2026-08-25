@@ -111,13 +111,20 @@ export class FileRequestAdapter implements HippyFileAdapter {
   }
 
   private geFileName(url: string): string {
-    // 找到最后一个斜杠的位置
-    const lastIndex = url.lastIndexOf('/');
-    // 如果找到了斜杠，则截取斜杠之后的部分作为图片名
-    if (lastIndex !== -1) {
-      return url.slice(lastIndex + 1);
+    let pureUrl = url;
+    const queryIndex = pureUrl.indexOf('?');
+    if (queryIndex !== -1) {
+      pureUrl = pureUrl.slice(0, queryIndex);
     }
-    // 如果没有找到斜杠，则整个URL可能就是图片名
-    return url;
+    const fragmentIndex = pureUrl.indexOf('#');
+    if (fragmentIndex !== -1) {
+      pureUrl = pureUrl.slice(0, fragmentIndex);
+    }
+
+    const lastIndex = pureUrl.lastIndexOf('/');
+    if (lastIndex !== -1) {
+      return pureUrl.slice(lastIndex + 1);
+    }
+    return pureUrl;
   }
 }
