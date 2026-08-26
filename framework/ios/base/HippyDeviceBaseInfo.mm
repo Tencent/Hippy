@@ -64,15 +64,15 @@ NSDictionary *hippyExportedDimensions(HippyBridge * _Nonnull bridge,
     // Get final RootSize
     CGSize rootSize = bridge.lastRootSizeForDimensions ? bridge.lastRootSizeForDimensions.CGSizeValue : windowSize;
     
-    // To be replace by HippyKeyWindow().windowScene.statusBarManager.statusBarFrame;
-    CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+    CGFloat statusBarHeight = HippyStatusBarHeight();
     if (statusBarHeight == 0) {
         // Since different devices have different statusbar height values,
         // It is not recommended to use it for layout,
         // but, it has been used in some scenarios,
         // To reduce the impact of the problem, provide a default value when not available.
         if ([bridge.delegate respondsToSelector:@selector(defaultStatusBarHeightNoMatterHiddenOrNot)]) {
-            statusBarHeight = bridge.delegate.defaultStatusBarHeightNoMatterHiddenOrNot ?: 0.0;
+            CGFloat defaultHeight = bridge.delegate.defaultStatusBarHeightNoMatterHiddenOrNot;
+            statusBarHeight = (isfinite(defaultHeight) && defaultHeight > 0) ? defaultHeight : 0.0;
         }
     }
     
@@ -126,7 +126,7 @@ NSString *const HippyDimensionsShouldUpdateNotification = @"HippyDimensionsShoul
 @synthesize bridge = _bridge;
 
 static UIInterfaceOrientation getStatusBarOrientation(void) {
-    return [[UIApplication sharedApplication] statusBarOrientation];
+    return HippyCurrentInterfaceOrientation();
 }
 
 - (instancetype)init {
