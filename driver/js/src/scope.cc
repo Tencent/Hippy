@@ -656,12 +656,18 @@ void Scope::SetCallbackForUriLoader() {
       if (runner) {
         auto task = [weak_this, uri, start, end, ret_code, error_msg]() {
           DEFINE_AND_CHECK_SELF(Scope)
-          auto entry = self->GetPerformance()->PerformanceResource(uri);
-          if (entry) {
-            entry->SetLoadSourceStart(start);
-            entry->SetLoadSourceEnd(end);
+          if (!self->engine_.lock()) {
+            return;
           }
-          if (ret_code != 0) {
+          auto performance = self->GetPerformance();
+          if (performance) {
+            auto entry = performance->PerformanceResource(uri);
+            if (entry) {
+              entry->SetLoadSourceStart(start);
+              entry->SetLoadSourceEnd(end);
+            }
+          }
+          if (ret_code != 0 && self->GetContext()) {
             self->HandleUriLoaderError(uri, ret_code, error_msg);
           }
         };
@@ -672,6 +678,9 @@ void Scope::SetCallbackForUriLoader() {
 }
 
 void Scope::HandleUriLoaderError(const string_view& uri, const int32_t ret_code, const string_view& error_msg) {
+  if (!context_) {
+    return;
+  }
   std::unordered_map<string_view, std::shared_ptr<CtxValue>> error_map;
   error_map["code"] = context_->CreateNumber(static_cast<double>(ret_code));
   error_map["message"] = context_->CreateString(error_msg);

@@ -278,15 +278,19 @@ void OnResourceLoadEnd(JNIEnv* j_env, jobject j_object, jint j_scope_id, jstring
     std::weak_ptr<Scope> weak_scope = scope;
     auto task = [weak_scope, uri, j_start_time, j_end_time, ret_code, error_msg]() {
       auto scope = weak_scope.lock();
-      if (scope) {
-        auto entry = scope->GetPerformance()->PerformanceResource(uri);
+      if (!scope || !scope->GetEngine().lock()) {
+        return;
+      }
+      auto performance = scope->GetPerformance();
+      if (performance) {
+        auto entry = performance->PerformanceResource(uri);
         if (entry) {
           entry->SetLoadSourceStart(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_start_time)));
           entry->SetLoadSourceEnd(footstone::TimePoint::FromEpochDelta(footstone::TimeDelta::FromMilliseconds(j_end_time)));
         }
-        if (ret_code != 0) {
-          scope->HandleUriLoaderError(uri, ret_code, error_msg);
-        }
+      }
+      if (ret_code != 0 && scope->GetContext()) {
+        scope->HandleUriLoaderError(uri, ret_code, error_msg);
       }
     };
     runner->PostTask(std::move(task));
