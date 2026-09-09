@@ -23,7 +23,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -72,19 +74,55 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public HippyRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ListItemRenderNode renderNode = getChildNodeByAdapterPosition(positionToCreateHolder);
         View renderView = renderNode.onCreateViewHolder();
+        detachFromParentIfAttached(renderView);
+        View itemView;
         if (isPullHeader(positionToCreateHolder)) {
             ((HippyPullHeaderView) renderView).setRecyclerView(hippyRecyclerView);
             initHeaderRefreshHelper(renderView, renderNode);
-            return new HippyRecyclerViewHolder(headerRefreshHelper.getView(), renderNode);
+            itemView = headerRefreshHelper.getView();
         } else if (renderView instanceof HippyPullFooterView) {
             ((HippyPullFooterView) renderView).setRecyclerView(hippyRecyclerView);
             initFooterRefreshHelper(renderView, renderNode);
-            return new HippyRecyclerViewHolder(footerRefreshHelper.getView(), renderNode);
+            itemView = footerRefreshHelper.getView();
         } else if (isStickyPosition(positionToCreateHolder)) {
-            View stickyView = hippyRecyclerView.getStickyContainer(parent.getContext(), renderView);
-            return new HippyRecyclerViewHolder(stickyView, renderNode);
+            itemView = hippyRecyclerView.getStickyContainer(parent.getContext(), renderView);
+        } else {
+            itemView = renderView;
         }
-        return new HippyRecyclerViewHolder(renderView, renderNode);
+        detachFromParentIfAttached(itemView);
+        return new HippyRecyclerViewHolder(itemView, renderNode);
+    }
+
+    /**
+     * RecyclerView.Adapter.createViewHolder 要求返回的 itemView 不能已挂到树上。
+     * Hippy 会复用 hostView / 单例 PullRefreshContainer，吸顶也会把 item 挂到外部容器，
+     * 这里在交给 ViewHolder 之前摘掉残留 parent。
+     * <p>
+     * parent 是 RecyclerView 时不能用 ViewGroup.removeView：那会绕过 ChildHelper 的下标簿记，
+     * 也不会派发 dispatchChildDetached，等于把一次立即抛出的 IllegalStateException 换成之后
+     * ChildHelper 内部的错乱崩溃，必须经 LayoutManager 摘除。
+     */
+    private void detachFromParentIfAttached(View view) {
+        if (view == null || !(view.getParent() instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup parent = (ViewGroup) view.getParent();
+        String detail = "itemView is still attached before ViewHolder create, parent="
+                + parent.getClass().getName() + ", viewId=" + view.getId()
+                + ", position=" + positionToCreateHolder;
+        if (parent instanceof RecyclerView) {
+            LayoutManager layoutManager = ((RecyclerView) parent).getLayoutManager();
+            if (layoutManager == null) {
+                //摘不干净不如不摘，让createViewHolder抛IllegalStateException，堆栈比后续的簿记错乱更直接
+                LogUtils.e(TAG, detail + ", give up detaching without layout manager");
+                return;
+            }
+            LogUtils.e(TAG, detail + ", detach it by layout manager");
+            layoutManager.removeView(view);
+            return;
+        }
+        LogUtils.w(TAG, detail + ", detach it from parent");
+        parent.removeView(view);
     }
 
     String getAttachedIds() {
