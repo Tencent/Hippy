@@ -28,6 +28,7 @@
 #import "HippyAssert.h"
 #import "UIView+MountEvent.h"
 #import "HippyUIManager.h"
+#import "HippyUtils.h"
 
 @implementation HippyModalHostView {
     BOOL _isPresented;
@@ -73,7 +74,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
         return;
     }
 
-    UIInterfaceOrientation currentOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    UIInterfaceOrientation currentOrientation = HippyCurrentInterfaceOrientation();
     if (currentOrientation == _lastKnownOrientation) {
         return;
     }
