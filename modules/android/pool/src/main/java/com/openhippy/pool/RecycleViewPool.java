@@ -17,7 +17,6 @@
 package com.openhippy.pool;
 
 import android.view.View;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pools;
@@ -47,21 +46,27 @@ public class RecycleViewPool extends BasePool<String, View> {
         if (pool == null) {
             return null;
         }
-        return pool.acquire();
+        View view = pool.acquire();
+        if (isAttached(view)) {
+            LogUtils.w(TAG, "Discard pooled view still attached: key=" + key + ", parent="
+                    + view.getParent().getClass().getName());
+            return null;
+        }
+        return view;
     }
 
     @Override
     public void release(@NonNull View instance) {
-        if (instance.getParent() instanceof ViewGroup) {
-            ViewGroup parent = (ViewGroup) instance.getParent();
-            parent.removeView(instance);
-        }
-        String className = instance.getClass().getName();
-        release(className, instance);
+        release(instance.getClass().getName(), instance);
     }
 
     @Override
     public void release(@NonNull String key, @NonNull View instance) {
+        if (isAttached(instance)) {
+            LogUtils.w(TAG, "Skip recycling view still attached: key=" + key + ", parent="
+                    + instance.getParent().getClass().getName());
+            return;
+        }
         SimplePool<View> pool = mPools.get(key);
         if (pool == null) {
             pool = new Pools.SimplePool<>(mPoolSize);
@@ -73,6 +78,15 @@ public class RecycleViewPool extends BasePool<String, View> {
             LogUtils.w(TAG,
                     "Put recycle item to pool failed: key=" + key + ", msg=" + e.getMessage());
         }
+    }
+
+    /**
+     * 仍挂在树上的view一律不进出本池：这里拿不到parent的类型，而RecyclerView这类自带子view簿记的
+     * 容器一旦被直接removeView就会内部状态错乱，代价比少一次复用大得多。残留parent说明调用方漏了
+     * 摘除，交给日志暴露。
+     */
+    private static boolean isAttached(@Nullable View view) {
+        return view != null && view.getParent() != null;
     }
 
     @Override
