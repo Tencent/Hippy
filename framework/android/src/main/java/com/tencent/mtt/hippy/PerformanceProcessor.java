@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy;
 
 import androidx.annotation.NonNull;
+import com.openhippy.connector.JsDriver;
 import com.tencent.vfs.Processor;
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.ResourceDataHolder.RequestFrom;
@@ -56,25 +57,34 @@ public class PerformanceProcessor extends Processor {
     @Override
     public void handleResponseAsync(@NonNull ResourceDataHolder holder,
             @NonNull ProcessorCallback callback) {
-        HippyEngineContext engineContext = mEngineContextRef.get();
-        if (shouldDoRecord(holder) && engineContext != null) {
-            engineContext.getJsDriver().doRecordResourceLoadResult(holder.uri, holder.loadStartTime,
-                    System.currentTimeMillis(), holder.resultCode, holder.errorMessage);
-        }
+        recordResourceLoadResult(holder);
         super.handleResponseAsync(holder, callback);
     }
 
     @Override
     public void handleResponseSync(@NonNull ResourceDataHolder holder) {
-        HippyEngineContext engineContext = mEngineContextRef.get();
-        if (shouldDoRecord(holder) && engineContext != null) {
-            engineContext.getJsDriver().doRecordResourceLoadResult(holder.uri, holder.loadStartTime,
-                    System.currentTimeMillis(), holder.resultCode, holder.errorMessage);
-        }
+        recordResourceLoadResult(holder);
         super.handleResponseSync(holder);
     }
 
+    private void recordResourceLoadResult(@NonNull ResourceDataHolder holder) {
+        if (!shouldDoRecord(holder)) {
+            return;
+        }
+        HippyEngineContext engineContext = mEngineContextRef.get();
+        if (engineContext == null) {
+            return;
+        }
+        JsDriver jsDriver = engineContext.getJsDriver();
+        if (jsDriver == null || !jsDriver.isInitialized()) {
+            return;
+        }
+        jsDriver.doRecordResourceLoadResult(holder.uri, holder.loadStartTime,
+                System.currentTimeMillis(), holder.resultCode, holder.errorMessage);
+    }
+
     private boolean shouldDoRecord(@NonNull ResourceDataHolder holder) {
-        return holder.requestFrom != RequestFrom.NATIVE && !UrlUtils.isBase64Url(holder.uri);
+        return holder.uri != null && holder.requestFrom != RequestFrom.NATIVE
+                && !UrlUtils.isBase64Url(holder.uri);
     }
 }

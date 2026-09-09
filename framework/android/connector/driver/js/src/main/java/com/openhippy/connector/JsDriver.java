@@ -50,6 +50,10 @@ public class JsDriver implements Connector {
         return mInstanceId;
     }
 
+    public boolean isInitialized() {
+        return mInstanceId >= 0;
+    }
+
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
         if (mBridgeProxy != null && mBridgeProxy.get() != null) {
             mBridgeProxy.get().callNatives(moduleName, moduleFunc, callId, buffer);
@@ -70,23 +74,38 @@ public class JsDriver implements Connector {
     }
 
     public void recordNativeInitEndTime(long startTime, long endTime) {
+        if (!isInitialized()) {
+            return;
+        }
         onNativeInitEnd(mInstanceId, startTime, endTime);
     }
 
     public void recordFirstPaintEndTime(long time, int rootId) {
+        if (!isInitialized()) {
+            return;
+        }
         onFirstPaintEnd(mInstanceId, time, rootId);
     }
 
     public void recordFirstContentfulPaintEndTime(long time) {
+        if (!isInitialized()) {
+            return;
+        }
         onFirstContentfulPaintEnd(mInstanceId, time);
     }
 
     public void doRecordResourceLoadResult(@NonNull String uri, long startTime, long endTime,
             long retCode, @Nullable String errorMsg) {
+        if (!isInitialized()) {
+            return;
+        }
         onResourceLoadEnd(mInstanceId, uri, startTime, endTime, retCode, errorMsg);
     }
 
     public void onResourceReady(ByteBuffer output, long resId) {
+        if (!isInitialized()) {
+            return;
+        }
         onResourceReady(mInstanceId, output, resId);
     }
 
@@ -99,39 +118,65 @@ public class JsDriver implements Connector {
 
     public void onDestroy(boolean useLowMemoryMode, boolean isReload,
             NativeCallback callback) {
-        onDestroy(mInstanceId, useLowMemoryMode, isReload, callback);
+        int instanceId = mInstanceId;
+        mInstanceId = -1;
+        if (instanceId < 0) {
+            return;
+        }
+        onDestroy(instanceId, useLowMemoryMode, isReload, callback);
     }
 
     public void callFunction(String action, NativeCallback callback,
             ByteBuffer buffer, int offset, int length) {
+        if (!isInitialized()) {
+            return;
+        }
         callFunction(mInstanceId, action, callback, buffer, offset, length);
     }
 
     public void callFunction(String action, NativeCallback callback,
             byte[] buffer, int offset, int length) {
+        if (!isInitialized()) {
+            return;
+        }
         callFunction(mInstanceId, action, callback, buffer, offset, length);
     }
 
     public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheDir, int vfsId, NativeCallback callback) {
+        if (!isInitialized()) {
+            return false;
+        }
         return runScriptFromUri(mInstanceId, uri, assetManager, canUseCodeCache, codeCacheDir,
                 vfsId,
                 callback);
     }
 
     public void loadInstance(byte[] buffer, int offset, int length, NativeCallback callback) {
+        if (!isInitialized()) {
+            return;
+        }
         loadInstance(mInstanceId, buffer, offset, length, callback);
     }
 
     public void unloadInstance(byte[] buffer, int offset, int length) {
+        if (!isInitialized()) {
+            return;
+        }
         unloadInstance(mInstanceId, buffer, offset, length);
     }
 
     public void attachToDom(@NonNull Connector domConnector) {
+        if (!isInitialized()) {
+            return;
+        }
         attachToDom(mInstanceId, domConnector.getInstanceId());
     }
 
     public void attachToRoot(@NonNull View root) {
+        if (!isInitialized()) {
+            return;
+        }
         attachToRoot(mInstanceId, root.getId());
     }
 
