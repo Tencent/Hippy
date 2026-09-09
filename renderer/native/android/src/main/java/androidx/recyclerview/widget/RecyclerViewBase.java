@@ -25,6 +25,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool.ScrapData;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -34,10 +35,13 @@ import java.util.ArrayList;
 
 public class RecyclerViewBase extends RecyclerView {
 
+    private static final String TAG = "RecyclerViewBase";
+
     protected HippyOverPullHelper overPullHelper;
     protected HippyOverPullListener overPullListener;
     protected VelocityTracker velocityTracker;
     private boolean enableOverDrag;
+    private boolean hasLoggedScrollSkip;
 
     public RecyclerViewBase(@NonNull Context context) {
         super(context);
@@ -249,6 +253,33 @@ public class RecyclerViewBase extends RecyclerView {
      * IndexOutOfBoundsException
      */
     public boolean isDataChangedWithoutNotify() {
-        return getAdapter().getItemCount() != mState.getItemCount();
+        Adapter<?> adapter = getAdapter();
+        return adapter != null && adapter.getItemCount() != mState.getItemCount();
+    }
+
+    /**
+     * itemCount对不齐的窗口内，LayoutManager仍然会按照state的itemCount去fill，取到的position在adapter
+     * 里已经越界，tryGetViewHolderForPositionByDeadline会抛IndexOutOfBoundsException。这里跳过本帧滚动，
+     * consumed保持为0，ViewFlinger会在同一帧判定滚动结束，不需要额外调用stopScroll。
+     * 窗口关闭后（setListData末尾的dispatchLayout会重新同步state的itemCount）滚动自动恢复。
+     */
+    @Override
+    void scrollStep(int dx, int dy, @Nullable int[] consumed) {
+        if (isDataChangedWithoutNotify()) {
+            if (consumed != null) {
+                consumed[0] = 0;
+                consumed[1] = 0;
+            }
+            if (!hasLoggedScrollSkip) {
+                // fling期间每帧都会走到这里，只在进入该窗口时打一次，避免刷屏
+                hasLoggedScrollSkip = true;
+                LogUtils.w(TAG, "scrollStep: data changed without notify, skip scrolling, adapter "
+                        + "itemCount " + getAdapter().getItemCount() + ", state itemCount "
+                        + mState.getItemCount());
+            }
+            return;
+        }
+        hasLoggedScrollSkip = false;
+        super.scrollStep(dx, dy, consumed);
     }
 }
