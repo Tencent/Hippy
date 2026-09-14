@@ -15,7 +15,7 @@ jobs:
       run: |
         echo $DATA > ./data
     - name: Push
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: data
         path: ./data
