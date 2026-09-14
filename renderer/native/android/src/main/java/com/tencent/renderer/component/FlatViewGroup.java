@@ -18,7 +18,12 @@ package com.tencent.renderer.component;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Path;
+import android.graphics.Rect;
+import android.os.Build;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -31,7 +36,15 @@ import com.tencent.renderer.node.RenderNode;
 public class FlatViewGroup extends ViewGroup {
 
     private static final String TAG = "FlatViewGroup";
+    private static final float TRANSFORM_EPSILON = 1e-4f;
+    private static final int MAX_TRANSFORM_ANCESTOR_DEPTH = 20;
+    // UI thread only: Android View drawing is expected to be single-threaded, so this
+    // static counter is only used to avoid nested offscreen layers within one draw pass.
+    private static int sOffscreenLayerDepth = 0;
     private final DispatchDrawHelper mDispatchDrawHelper = new DispatchDrawHelper();
+    // Reused during draw() to avoid allocation. Safe under the same UI-thread-only
+    // drawing assumption as sOffscreenLayerDepth.
+    private final Rect mLayerBounds = new Rect();
 
     public FlatViewGroup(Context context) {
         super(context);
@@ -87,6 +100,72 @@ public class FlatViewGroup extends ViewGroup {
         return (index < 0 || index >= getChildCount()) ? i : index;
     }
 
+    private boolean hasAncestorOrSelfTransform() {
+        View view = this;
+        for (int depth = 0; view != null && depth < MAX_TRANSFORM_ANCESTOR_DEPTH; depth++) {
+            float sx = view.getScaleX();
+            float sy = view.getScaleY();
+            float rz = view.getRotation();
+            float rx = view.getRotationX();
+            float ry = view.getRotationY();
+            if (Math.abs(sx - 1f) > TRANSFORM_EPSILON
+                    || Math.abs(sy - 1f) > TRANSFORM_EPSILON
+                    || Math.abs(rz) > TRANSFORM_EPSILON
+                    || Math.abs(rx) > TRANSFORM_EPSILON
+                    || Math.abs(ry) > TRANSFORM_EPSILON) {
+                return true;
+            }
+            ViewParent parent = view.getParent();
+            if (parent instanceof View) {
+                view = (View) parent;
+            } else {
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldDrawInOffscreenLayer() {
+        // Keep the ancestor transform walk on the old-HWUI fallback path only. Newer
+        // Android versions handle Canvas scaling for complex drawing operations, so
+        // they can short-circuit before hasAncestorOrSelfTransform().
+        return sOffscreenLayerDepth == 0
+                && getWidth() > 0
+                && getHeight() > 0
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1
+                && hasAncestorOrSelfTransform();
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node == null) {
+            super.draw(canvas);
+            return;
+        }
+        boolean useOffscreenLayer = shouldDrawInOffscreenLayer();
+        int restoreCount = -1;
+        if (useOffscreenLayer) {
+            canvas.getClipBounds(mLayerBounds);
+            restoreCount = canvas.saveLayer(mLayerBounds.left, mLayerBounds.top,
+                    mLayerBounds.right, mLayerBounds.bottom, null);
+        }
+        if (useOffscreenLayer) {
+            sOffscreenLayerDepth++;
+        }
+        try {
+            super.draw(canvas);
+        } finally {
+            if (restoreCount >= 0) {
+                canvas.restoreToCount(restoreCount);
+            }
+            if (useOffscreenLayer) {
+                sOffscreenLayerDepth--;
+            }
+        }
+    }
+
     @Override
     protected void dispatchDraw(Canvas canvas) {
         RenderNode node = RenderManager.getRenderNode(this);
@@ -95,23 +174,30 @@ public class FlatViewGroup extends ViewGroup {
             return;
         }
         boolean clipChildren = getClipChildren();
-        canvas.save();
+        int restoreCount = -1;
         if (clipChildren) {
             Component component = node.getComponent();
-            if (component != null && component.getContentRegionPath() != null) {
-                canvas.clipPath(component.getContentRegionPath());
+            Path roundCornerClipPath = (component != null) ? component.getContentRegionPath() : null;
+            restoreCount = canvas.save();
+            if (roundCornerClipPath != null) {
+                canvas.clipPath(roundCornerClipPath);
             } else {
-                canvas.clipRect(0, 0, getRight() - getLeft(), getBottom() - getTop());
+                canvas.clipRect(0, 0, getWidth(), getHeight());
             }
         }
         mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
-        super.dispatchDraw(canvas);
-        if (mDispatchDrawHelper.isActive()) {
-            // Check the remaining non rendered sub nodes, behind the last sub node with host view
-            mDispatchDrawHelper.drawNext(this);
+        try {
+            super.dispatchDraw(canvas);
+            if (mDispatchDrawHelper.isActive()) {
+                // Check the remaining non rendered sub nodes, behind the last sub node with host view
+                mDispatchDrawHelper.drawNext(this);
+            }
+        } finally {
+            mDispatchDrawHelper.onDispatchDrawEnd();
+            if (restoreCount >= 0) {
+                canvas.restoreToCount(restoreCount);
+            }
         }
-        mDispatchDrawHelper.onDispatchDrawEnd();
-        canvas.restore();
     }
 
     @Override

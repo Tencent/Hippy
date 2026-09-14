@@ -23,6 +23,7 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.os.Build;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -117,6 +118,26 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         return mResolvedInfo.hasBorderRadius ? mResolvedInfo.borderOutsidePath : null;
     }
 
+    /**
+     * Returns the resolved border radius shared by all four corners (in pixels),
+     * or {@code -1f} when there is no border radius or the four corners do not
+     * share the same radius.
+     *
+     * <p>This is the radius <em>after</em> the BorderResolvedInfo resolve step
+     * has potentially scaled the configured radii to fit within the rect bounds,
+     * so callers that combine this value with the rect must use the <em>same</em>
+     * rect that was passed into {@link #updatePath()} ({@code mRect}).
+     *
+     * <p>Mainly intended to let parent {@code ViewGroup}s install a uniform
+     * round-rect {@link android.graphics.Outline} for clip-to-outline based
+     * rounded-corner clipping, which is unaffected by the older-HWUI
+     * {@code clipPath}-under-ancestor-scale issue.
+     */
+    public float getUniformBorderRadius() {
+        updatePath();
+        return mResolvedInfo.getUniformBorderRadius();
+    }
+
     protected void updatePath() {
         if (!mUpdatePathRequired) {
             return;
@@ -143,8 +164,35 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
 
         if (mResolvedInfo.hasBorderRadius) {
-            assert mResolvedInfo.borderOutsidePath != null;
-            canvas.drawPath(mResolvedInfo.borderOutsidePath, paint);
+            // Prefer Canvas.drawRoundRect over Canvas.drawPath when the four corners
+            // share the same radius.
+            //
+            // drawRoundRect maps to a dedicated HWUI primitive on all supported API
+            // levels and is recorded as a vector command in the parent RenderNode's
+            // display list, so any ancestor transform (e.g. transform: scale()) is
+            // applied as a matrix transform at draw time and the result remains
+            // crisp at any scale.
+            //
+            // drawPath, in contrast, falls under the HWUI Canvas-scaling
+            // limitation documented for complex drawing operations before API
+            // 28: the hardware-accelerated 2D pipeline may rasterize such
+            // operations at scale 1.0 and then let the GPU scale that texture,
+            // which can degrade quality under ancestor transforms. Android's
+            // hardware acceleration docs list drawPath / complex shapes as
+            // scaling correctly starting from API 28. We therefore prefer
+            // drawRoundRect whenever the geometry can be expressed as a
+            // uniform-radius round rect.
+            float uniformRadius = mResolvedInfo.getUniformBorderRadius();
+            if (uniformRadius >= 0) {
+                canvas.drawRoundRect(mRect, uniformRadius, uniformRadius, paint);
+            } else {
+                // Non-uniform per-corner radii cannot be expressed by drawRoundRect;
+                // fall back to the pre-built rounded-rect Path here. This branch may
+                // still be affected by the older-HWUI drawPath issue described
+                // above, but it is rarely hit in practice.
+                assert mResolvedInfo.borderOutsidePath != null;
+                canvas.drawPath(mResolvedInfo.borderOutsidePath, paint);
+            }
         } else {
             canvas.drawRect(mRect, paint);
         }
@@ -187,7 +235,108 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         if (!mResolvedInfo.hasVisibleBorder) {
             return;
         }
-        canvas.save();
+        // Fast path: the four sides share the same width / color / style (i.e.
+        // !drawBorderSideBySide) AND the four corners share the same resolved
+        // radius. Under these conditions the border can be expressed exactly as
+        // a single stroked round rect along the geometric midline of the band
+        // between borderOutsidePath and borderInsidePath, which lets us emit
+        // the border as one Canvas.drawRoundRect command.
+        //
+        // Why a fast path is needed:
+        //
+        // The general path below relies on
+        //     canvas.clipPath(borderOutsidePath);
+        //     canvas.clipPath(borderInsidePath, Region.Op.DIFFERENCE);
+        //     canvas.drawPath(borderMidlinePath, STROKE);
+        // to confine the stroke to the border band. This is a complex Canvas
+        // operation built from path clipping and drawPath. Android's hardware
+        // acceleration docs state that before API 28, some drawing operations
+        // were implemented as scale-1.0 textures and then scaled by the GPU,
+        // causing quality degradation at high scale; the same docs list
+        // drawPath / complex shapes as scaling correctly starting from API 28.
+        // In this path, once the RenderNode's content has been rasterized at
+        // its natural size, an ancestor transform such as transform: scale(1.5)
+        // can only resample that raster, producing visibly blurry / aliased
+        // corners and a border that does not appear to scale together with its
+        // parent.
+        //
+        // Canvas.drawRoundRect, by contrast, is a first-class HWUI primitive
+        // on every supported API level and is recorded into the display list
+        // as a vector command, so it is unaffected by the issue above.
+        if (!mResolvedInfo.drawBorderSideBySide
+                && mResolvedInfo.hasBorderRadius
+                && mResolvedInfo.hasContentRadius
+                && mResolvedInfo.borderMidlineRect != null) {
+            float uniformRadius = mResolvedInfo.getUniformBorderRadius();
+            if (uniformRadius >= 0) {
+                assert mPaint != null;
+                float strokeWidth = mResolvedInfo.strokeWidth.left;
+                // Geometry of the fast path:
+                //   - borderMidlineRect is the outer rect inset by borderWidth/2
+                //     on each side, i.e. the centerline of the border band.
+                //   - With strokeWidth = borderWidth, the STROKE expands by
+                //     borderWidth/2 on each side of the midline, so the outer
+                //     edge of the stroke lands exactly on borderOutsidePath
+                //     and the inner edge lands exactly on borderInsidePath.
+                //   - The midline radius is therefore (uniformRadius -
+                //     borderWidth/2). Within this fast path we already require
+                //     !drawBorderSideBySide (equal widths on all four sides)
+                //     and a uniform corner radius, under which the
+                //     hasContentRadius predicate (see
+                //     BorderResolvedInfo#hasContentRadius) reduces to
+                //     uniformRadius > borderWidth, so midlineRadius is
+                //     strictly positive. The Math.max(0f, ...) is purely
+                //     defensive against floating-point rounding when the two
+                //     values are extremely close.
+                // The stroked round rect therefore tiles exactly the band
+                // that the general path would have produced via clipPath,
+                // with no clipping required.
+                float midlineRadius = Math.max(0f, uniformRadius - strokeWidth * 0.5f);
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setStrokeWidth(strokeWidth);
+                mPaint.setColor(mResolvedInfo.borderColor.left);
+                mPaint.setPathEffect(mResolvedInfo.pathEffect.left);
+                canvas.drawRoundRect(mResolvedInfo.borderMidlineRect,
+                        midlineRadius, midlineRadius, mPaint);
+                return;
+            }
+        }
+        if (mResolvedInfo.drawBorderSideBySide && shouldDrawSideBySideBorderAsFill()) {
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.left,
+                    mResolvedInfo.borderColor.left,
+                    mResolvedInfo.borderSideFill.left);
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.top,
+                    mResolvedInfo.borderColor.top,
+                    mResolvedInfo.borderSideFill.top);
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.right,
+                    mResolvedInfo.borderColor.right,
+                    mResolvedInfo.borderSideFill.right);
+            drawBorderSideFillInternal(canvas,
+                    mResolvedInfo.strokeWidth.bottom,
+                    mResolvedInfo.borderColor.bottom,
+                    mResolvedInfo.borderSideFill.bottom);
+            return;
+        }
+        // General path: per-side widths / colors / styles, non-uniform corner
+        // radii, or no rounded corners at all. Falls back to the historical
+        // clipPath + drawPath implementation. On older HWUI versions this path
+        // may still trigger the offscreen-rasterization behavior described
+        // above. When a rounded complex border cannot use the drawRoundRect
+        // fast path, explicitly isolate the border drawing into a layer on
+        // older Android versions (API 27 and below) so the outer and inner path
+        // clips are applied in the same local rasterization step. API 28 is the
+        // cutoff because Android's hardware acceleration docs state that Canvas
+        // scaling for all drawing operations works from API 28 onward, and list
+        // drawPath / complex shapes as scaling correctly starting from API 28.
+        boolean useLayer = shouldDrawComplexRoundedBorderInLayer();
+        if (useLayer) {
+            canvas.saveLayer(mRect, null);
+        } else {
+            canvas.save();
+        }
         if (mResolvedInfo.hasBorderRadius) {
             canvas.clipPath(mResolvedInfo.borderOutsidePath);
             if (mResolvedInfo.hasContentRadius) {
@@ -232,6 +381,42 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                     mResolvedInfo.borderSideClip.bottom);
         }
         canvas.restore();
+    }
+
+    private boolean shouldDrawComplexRoundedBorderInLayer() {
+        // O_MR1 is API 27, so this fallback applies only before the official
+        // API 28 Canvas-scaling boundary documented by Android.
+        return mResolvedInfo.hasBorderRadius && Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1;
+    }
+
+    private boolean shouldDrawSideBySideBorderAsFill() {
+        return canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.left,
+                mResolvedInfo.pathEffect.left, mResolvedInfo.borderSideFill.left)
+                && canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.top,
+                        mResolvedInfo.pathEffect.top, mResolvedInfo.borderSideFill.top)
+                && canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.right,
+                        mResolvedInfo.pathEffect.right, mResolvedInfo.borderSideFill.right)
+                && canDrawBorderSideAsFill(mResolvedInfo.strokeWidth.bottom,
+                        mResolvedInfo.pathEffect.bottom, mResolvedInfo.borderSideFill.bottom);
+    }
+
+    private boolean canDrawBorderSideAsFill(int strokeWidth, @Nullable PathEffect pathEffect,
+            @Nullable Path fillPath) {
+        // Only solid borders can be represented by the pre-filled side path;
+        // dashed / dotted borders must keep the stroked pathEffect flow.
+        return strokeWidth <= 0 || (pathEffect == null && fillPath != null);
+    }
+
+    private void drawBorderSideFillInternal(@NonNull Canvas canvas, int strokeWidth, int color,
+            @Nullable Path fillPath) {
+        if (strokeWidth <= 0 || fillPath == null) {
+            return;
+        }
+        assert mPaint != null;
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setColor(color);
+        mPaint.setPathEffect(null);
+        canvas.drawPath(fillPath, mPaint);
     }
 
     private void drawBorderSideInternal(@NonNull Canvas canvas, int strokeWidth, int color,
@@ -405,6 +590,8 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
 
     public static class BorderRadius {
 
+        private static final float RADIUS_EPSILON = 1e-4f;
+
         public float topLeft;
         public float topRight;
         public float bottomRight;
@@ -440,6 +627,12 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                 default:
                     LogUtils.w(TAG, "setBorderRadius: Unknown arc: " + arc);
             }
+        }
+
+        public boolean hasSameRadiusOnAllSides() {
+            return Math.abs(topLeft - topRight) <= RADIUS_EPSILON
+                    && Math.abs(topRight - bottomRight) <= RADIUS_EPSILON
+                    && Math.abs(bottomRight - bottomLeft) <= RADIUS_EPSILON;
         }
     }
 
