@@ -166,17 +166,12 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
 
   FOOTSTONE_DLOG(INFO) << "RequestUntrustedContent uri = " << uri;
 
-  std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  auto cb = [this, weak_scope, weak_function, encode, uri](UriLoader::RetCode ret_code,
+  // cb may run on a non-JS thread (e.g. network callback), so it must not take strong refs to Scope.
+  auto cb = [this, handle = scope->GetAnyThreadHandle(), weak_function, encode, uri](UriLoader::RetCode ret_code,
                                                            const std::unordered_map<std::string, std::string>&,
                                                            UriLoader::bytes content) {
-    std::shared_ptr<Scope> scope = weak_scope.lock();
-    if (!scope) {
-      return;
-    }
-
     string_view cur_dir;
     string_view file_name;
     size_t pos = StringViewUtils::FindLastOf(uri, '/', '/', u'/', U'/');
@@ -195,12 +190,8 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
       FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << content.length() << ", encode = " << encode
                            << ", code = " << string_view(content);
     }
-    auto callback = [this, weak_scope, weak_function, move_code = std::move(content), cur_dir, file_name, uri]() {
-      std::shared_ptr<Scope> scope = weak_scope.lock();
-      if (!scope) {
-        return;
-      }
-
+    auto callback = [this, weak_function, move_code = std::move(content), cur_dir, file_name, uri](
+        const std::shared_ptr<Scope>& scope) {
       std::shared_ptr<Ctx> ctx = scope->GetContext();
       std::shared_ptr<CtxValue> error = nullptr;
       if (!move_code.empty()) {
@@ -238,10 +229,7 @@ void ContextifyModule::LoadUntrustedContent(CallbackInfo& info, void* data) {
         RemoveCBFunc(uri);
       }
     };
-    auto runner = scope->GetTaskRunner();
-    if (runner) {
-      runner->PostTask(std::move(callback));
-    }
+    handle.Post(std::move(callback));
   };
 
   auto loader = scope->GetUriLoader().lock();
