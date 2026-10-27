@@ -551,6 +551,9 @@ void JsDriverUtils::DestroyInstance(std::shared_ptr<Engine>&& engine,
                                     std::shared_ptr<Scope>&& scope,
                                     const std::function<void(bool)>& callback,
                                     bool is_reload) {
+  // Must happen while engine and scope are still held here, so that non-JS threads stop taking strong refs
+  // before the last refs are moved into scope_destroy_callback (see Scope::AnyThreadHandle).
+  scope->Close();
   auto vm = engine->GetVM();
   auto group = vm->GetGroupId();
   if (vm->IsDebug()) {

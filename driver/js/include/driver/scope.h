@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
@@ -340,6 +341,34 @@ class Scope : public std::enable_shared_from_this<Scope> {
     will_exit_cbs_.push_back(cb);
   }
 
+ private:
+  struct CloseState {
+    std::mutex mutex;
+    bool closed = false;
+  };
+
+ public:
+  // Lets non-JS threads (e.g. network callbacks) run code on the JS thread with this scope, without ever owning the
+  // last strong ref of Scope/Engine: their destruction must happen on the JS thread. Holds no strong ref itself.
+  class AnyThreadHandle {
+   public:
+    AnyThreadHandle() = default;
+    // Safe to call from any thread. Posts `task` to the JS runner unless the scope is gone or closed; `task` runs
+    // there with a strong ref to the scope, and is skipped if the scope has been closed in the meantime.
+    void Post(std::function<void(const std::shared_ptr<Scope>&)> task) const;
+
+   private:
+    friend class Scope;
+    std::weak_ptr<Scope> scope_;
+    std::shared_ptr<CloseState> state_;
+  };
+
+  AnyThreadHandle GetAnyThreadHandle();
+
+  // Stops AnyThreadHandle from taking strong refs. Must be called by the owner while it still holds the scope and
+  // engine, i.e. before releasing them.
+  void Close();
+
   inline std::shared_ptr<Performance> GetPerformance() {
     return performance_;
   }
@@ -518,6 +547,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
  private:
   uint32_t scope_id_ = 0;
   std::atomic<bool> is_valid_;
+  std::shared_ptr<CloseState> close_state_ = std::make_shared<CloseState>();
   std::weak_ptr<Engine> engine_;
   std::shared_ptr<Ctx> context_;
   std::shared_ptr<CtxValue> bridge_object_;

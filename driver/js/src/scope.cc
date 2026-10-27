@@ -197,6 +197,54 @@ void Scope::WillExit() {
   FOOTSTONE_DLOG(INFO) << "ExitCtx end";
 }
 
+Scope::AnyThreadHandle Scope::GetAnyThreadHandle() {
+  AnyThreadHandle handle;
+  handle.scope_ = weak_from_this();
+  handle.state_ = close_state_;
+  return handle;
+}
+
+void Scope::Close() {
+  std::lock_guard<std::mutex> lock(close_state_->mutex);
+  close_state_->closed = true;
+}
+
+void Scope::AnyThreadHandle::Post(std::function<void(const std::shared_ptr<Scope>&)> task) const {
+  if (!state_) {
+    return;
+  }
+  // While not closed, the owner still holds Scope and Engine, so the strong refs below are never the last ones.
+  // They are released before the lock, i.e. before Close() can return and the owner can let go of its refs.
+  std::lock_guard<std::mutex> lock(state_->mutex);
+  if (state_->closed) {
+    return;
+  }
+  auto scope = scope_.lock();
+  if (!scope) {
+    return;
+  }
+  auto engine = scope->engine_.lock();
+  if (!engine) {
+    return;
+  }
+  auto runner = engine->GetJsTaskRunner();
+  if (!runner) {
+    return;
+  }
+  runner->PostTask([weak_scope = scope_, state = state_, task = std::move(task)] {
+    {
+      std::lock_guard<std::mutex> lock(state->mutex);
+      if (state->closed) {
+        return;
+      }
+    }
+    auto scope = weak_scope.lock();
+    if (scope) {
+      task(scope);
+    }
+  });
+}
+
 void Scope::SyncInitialize() {
   RegisterJavascriptClasses();
   BindModule();
@@ -643,36 +691,23 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
 void Scope::SetCallbackForUriLoader() {
   auto the_loader = loader_.lock();
   if (the_loader) {
-    the_loader->SetRequestResultCallback([WEAK_THIS](const string_view& uri,
+    // May be called on a non-JS thread (e.g. network callback), so never take strong refs to Scope here.
+    the_loader->SetRequestResultCallback([handle = GetAnyThreadHandle()](const string_view& uri,
         const TimePoint& start, const TimePoint& end,
         const int32_t ret_code, const string_view& error_msg) {
-      DEFINE_AND_CHECK_SELF(Scope)
-      // 该函数可能在非主线程非dom线程产生scope的持有，当hippy engine销毁时，有可能scope在，engine已经被释放，
-      // 所以，这里判断到scope在engine不在时,没有必要再走下去。
-      if (!self->engine_.lock()) {
-        return;
-      }
-      auto runner = self->GetTaskRunner();
-      if (runner) {
-        auto task = [weak_this, uri, start, end, ret_code, error_msg]() {
-          DEFINE_AND_CHECK_SELF(Scope)
-          if (!self->engine_.lock()) {
-            return;
+      handle.Post([uri, start, end, ret_code, error_msg](const std::shared_ptr<Scope>& scope) {
+        auto performance = scope->GetPerformance();
+        if (performance) {
+          auto entry = performance->PerformanceResource(uri);
+          if (entry) {
+            entry->SetLoadSourceStart(start);
+            entry->SetLoadSourceEnd(end);
           }
-          auto performance = self->GetPerformance();
-          if (performance) {
-            auto entry = performance->PerformanceResource(uri);
-            if (entry) {
-              entry->SetLoadSourceStart(start);
-              entry->SetLoadSourceEnd(end);
-            }
-          }
-          if (ret_code != 0 && self->GetContext()) {
-            self->HandleUriLoaderError(uri, ret_code, error_msg);
-          }
-        };
-        runner->PostTask(std::move(task));
-      }
+        }
+        if (ret_code != 0) {
+          scope->HandleUriLoaderError(uri, ret_code, error_msg);
+        }
+      });
     });
   }
 }
