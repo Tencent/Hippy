@@ -178,6 +178,60 @@ UIWindow *__nullable HippyKeyWindow(void) {
     return keyWindow;
 }
 
+UIWindowScene *__nullable HippyKeyWindowScene(void) {
+    if (HippyRunningInAppExtension()) {
+        return nil;
+    }
+    UIWindowScene *keyWindowScene = HippyKeyWindow().windowScene;
+    if (keyWindowScene) {
+        return keyWindowScene;
+    }
+    // The key window may not exist yet, or may belong to no scene,
+    // pick the most relevant connected window scene instead.
+    UIWindowScene *fallbackScene = nil;
+    for (UIScene *scene in HippySharedApplication().connectedScenes) {
+        if (![scene isKindOfClass:[UIWindowScene class]]) {
+            continue;
+        }
+        if (UISceneActivationStateForegroundActive == scene.activationState) {
+            return (UIWindowScene *)scene;
+        }
+        if (!fallbackScene && UISceneActivationStateUnattached != scene.activationState) {
+            fallbackScene = (UIWindowScene *)scene;
+        }
+    }
+    return fallbackScene;
+}
+
+CGFloat HippyStatusBarHeight(void) {
+    CGFloat statusBarHeight = 0.0;
+    if (@available(iOS 13.0, *)) {
+        statusBarHeight = HippyKeyWindowScene().statusBarManager.statusBarFrame.size.height;
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        statusBarHeight = HippySharedApplication().statusBarFrame.size.height;
+#pragma clang diagnostic pop
+    }
+    // Guard against NaN/infinite values, which are not JSON serializable
+    // and would otherwise be propagated to the JS layer.
+    if (!isfinite(statusBarHeight) || statusBarHeight < 0) {
+        return 0.0;
+    }
+    return statusBarHeight;
+}
+
+UIInterfaceOrientation HippyCurrentInterfaceOrientation(void) {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = HippyKeyWindowScene();
+        return windowScene ? windowScene.interfaceOrientation : UIInterfaceOrientationUnknown;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    return HippySharedApplication().statusBarOrientation;
+#pragma clang diagnostic pop
+}
+
 UIViewController *__nullable HippyPresentedViewController(void) {
     if (HippyRunningInAppExtension()) {
         return nil;

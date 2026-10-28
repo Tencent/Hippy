@@ -61,6 +61,24 @@ HIPPY_EXTERN UIApplication *__nullable HippySharedApplication(void);
 // or view controller
 HIPPY_EXTERN UIWindow *__nullable HippyKeyWindow(void);
 
+// Returns the window scene hosting the key window, falling back to any usable
+// foreground scene when the key window is not available yet.
+HIPPY_EXTERN UIWindowScene *__nullable HippyKeyWindowScene(void) API_AVAILABLE(ios(13.0));
+
+// Returns the current status bar height, or 0 when it cannot be determined.
+//
+// Note: the status bar height must never be read from the deprecated
+// `UIApplication.statusBarFrame`, which may return NaN in apps built with the
+// iOS 27 SDK, see iOS 27 release notes (162044221).
+HIPPY_EXTERN CGFloat HippyStatusBarHeight(void);
+
+// Returns the current interface orientation, or UIInterfaceOrientationUnknown
+// when it cannot be determined.
+//
+// Note: same as above, the deprecated `UIApplication.statusBarOrientation`
+// may return unknown in apps built with the iOS 27 SDK.
+HIPPY_EXTERN UIInterfaceOrientation HippyCurrentInterfaceOrientation(void);
+
 // Returns the presented view controller, useful if you need
 // e.g. to present a modal view controller or alert over it
 HIPPY_EXTERN UIViewController *__nullable HippyPresentedViewController(void);
