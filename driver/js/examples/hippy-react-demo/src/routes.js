@@ -196,6 +196,14 @@ const demos = [
     },
   },
   {
+    path: '/ImageLoaderModule',
+    name: 'ImageLoaderModule 模块',
+    component: PAGE_LIST.ImageLoaderModule,
+    meta: {
+      type: Type.MODULE,
+    },
+  },
+  {
     path: '/UIManagerModule',
     name: 'UIManagerModule 模块',
     component: PAGE_LIST.UIManagerModule,
