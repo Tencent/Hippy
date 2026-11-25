@@ -351,12 +351,20 @@ describe('runtime/element/hippy-element', () => {
       expect(updateChildSpy).not.toHaveBeenCalled();
     });
 
-    it('removeStyle should clear all style attribute', () => {
+    it('removeStyle should clear styles without breaking later v-show updates', () => {
       const hippyElement = new HippyElement('div');
       hippyElement.setStyle('boxShadowOpacity', '0');
+      hippyElement.style.display = 'none';
       expect(hippyElement.style.shadowOpacity).toBe(0);
       hippyElement.removeStyle();
       expect(hippyElement.style).toEqual({});
+
+      // Clearing styles used to discard the display setter, so subsequent
+      // v-show writes stopped notifying native even though the JS value changed.
+      const updateNative = jest.spyOn(hippyElement, 'updateNativeNode');
+      hippyElement.style.display = 'none';
+      expect(updateNative).toHaveBeenCalledTimes(1);
+      updateNative.mockRestore();
     });
 
     it('set style value to undefined should delete property', () => {

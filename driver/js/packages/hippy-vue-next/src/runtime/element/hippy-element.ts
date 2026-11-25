@@ -539,9 +539,10 @@ export class HippyElement extends HippyNode {
   /**
    * remove style attr
    */
-  public removeStyle(notToNative = false): void {
-    // remove all style
-    this.style = {};
+  public removeStyle(notToNative = false, preserveDisplay = false): void {
+    // Clear normalized styles and reinstall the native display bridge.
+    this.style = preserveDisplay ? { display: this.style.display } : {};
+    this.fixVShowDirectiveIssue();
     if (!notToNative) {
       this.updateNativeNode();
     }

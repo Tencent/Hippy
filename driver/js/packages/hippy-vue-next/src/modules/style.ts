@@ -19,7 +19,7 @@
  */
 
 import { camelize } from '@vue/runtime-core';
-import { isString } from '@vue/shared';
+import { hasOwn, isObject, isString } from '@vue/shared';
 
 import { type HippyElement } from '../runtime/element/hippy-element';
 import type { NeedToTyped } from '../types';
@@ -58,13 +58,11 @@ export function patchStyle(
     // if the previous and next attributes are the same, skip the patch calculation.
     return;
   }
-  if (prev && !next) {
-    // clear style
-    el.removeStyle();
-  } else if (isString(next)) {
+  if (isString(next)) {
     // in hippy, the styles are all array or Object types, and if it is a string, thrown an exception
     throw new Error('Style is Not Object');
-  } else if (next) {
+  }
+  if (next) {
     // the new style is an array or Object, apply the new style to all
     // style is an array, so we do not update native instantly, we will update at the end
     Object.keys(next).forEach((key) => {
@@ -73,8 +71,9 @@ export function patchStyle(
         batchedStyles[camelize(key)] = value;
       }
     });
-    el.removeStyle(true);
-    // update native node
-    el.setStyles(batchedStyles);
   }
+  // Preserve v-show state unless display was owned by the old inline style.
+  const preserveDisplay = !isObject(prev) || !hasOwn(prev, 'display');
+  el.removeStyle(true, preserveDisplay);
+  el.setStyles(batchedStyles);
 }
