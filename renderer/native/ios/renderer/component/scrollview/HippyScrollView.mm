@@ -36,11 +36,7 @@ HIPPY_NESTEDSCROLL_PROTOCOL_PROPERTY_IMP
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         [self.panGestureRecognizer addTarget:self action:@selector(handleCustomPan:)];
-        if (@available(iOS 11.0, *)) {
-            self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-        } else {
-            // Fallback on earlier versions
-        }
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
     return self;
 }

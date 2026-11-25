@@ -22,7 +22,6 @@
 
 #import "HippyAnimatedImage.h"
 #import <ImageIO/ImageIO.h>
-#import <MobileCoreServices/MobileCoreServices.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import "HippyWeakProxy.h"
 
@@ -603,15 +602,8 @@ static NSHashTable *allAnimatedImagesWeak;
         NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
         NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
         BOOL isPNG = NO;
-        if (@available(iOS 14.0, *)) {
-            if (imageSourceContainerType) {
-                isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)imageSourceContainerType] conformsToType:UTTypePNG];
-            }
-        } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            isPNG = UTTypeConformsTo(imageSourceContainerType, kUTTypePNG);
-#pragma clang diagnostic pop
+        if (imageSourceContainerType) {
+            isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)imageSourceContainerType] conformsToType:UTTypePNG];
         }
         if (isPNG) {
             imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
@@ -900,4 +892,3 @@ static RAILogLevel _logLevel;
 }
 
 @end
-

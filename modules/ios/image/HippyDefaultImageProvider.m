@@ -23,7 +23,6 @@
 #import <UIKit/UIKit.h>
 #import "HippyDefaultImageProvider.h"
 #import "NSData+DataType.h"
-#import <CoreServices/CoreServices.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <os/lock.h>
 
@@ -83,26 +82,24 @@
     
     if(theImage){
         __weak typeof(self) weakSelf = self;
-        if (@available(iOS 15.0, *)) {
-            CFStringRef ut = CGImageGetUTType(theImage.CGImage);
-            // prepareForDisplayWithCompletionHandler support jpeg and heif only
-            if(ut != nil && (kCFCompareEqualTo == CFStringCompare(ut, (__bridge CFStringRef)UTTypeJPEG.identifier, 0) ||
-                             kCFCompareEqualTo == CFStringCompare(ut, (__bridge CFStringRef)UTTypeHEIF.identifier, 0))){
-                fallback = NO;
-                
-                [theImage prepareForDisplayWithCompletionHandler:^(UIImage * _Nullable prepared) {
-                    typeof(self) strongSelf = weakSelf;
-                    if(strongSelf){
-                        @synchronized(strongSelf){
-                            if(prepared){
-                                strongSelf->_image = prepared;
-                            }
-                            completionHandler(prepared);
+        CFStringRef ut = CGImageGetUTType(theImage.CGImage);
+        // prepareForDisplayWithCompletionHandler support jpeg and heif only
+        if(ut != nil && (kCFCompareEqualTo == CFStringCompare(ut, (__bridge CFStringRef)UTTypeJPEG.identifier, 0) ||
+                         kCFCompareEqualTo == CFStringCompare(ut, (__bridge CFStringRef)UTTypeHEIF.identifier, 0))){
+            fallback = NO;
+
+            [theImage prepareForDisplayWithCompletionHandler:^(UIImage * _Nullable prepared) {
+                typeof(self) strongSelf = weakSelf;
+                if(strongSelf){
+                    @synchronized(strongSelf){
+                        if(prepared){
+                            strongSelf->_image = prepared;
                         }
+                        completionHandler(prepared);
                     }
-                }];
-                return;
-            }
+                }
+            }];
+            return;
         }
         
         
@@ -323,15 +320,8 @@
     NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
     NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
     BOOL isPNG = NO;
-    if (@available(iOS 14.0, *)) {
-        if (imageSourceContainerType) {
-            isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)imageSourceContainerType] conformsToType:UTTypePNG];
-        }
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        isPNG = UTTypeConformsTo(imageSourceContainerType, kUTTypePNG);
-#pragma clang diagnostic pop
+    if (imageSourceContainerType) {
+        isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)imageSourceContainerType] conformsToType:UTTypePNG];
     }
     if (isPNG) {
         imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
@@ -365,15 +355,8 @@
     NSString *unclampedDelayTime = (NSString *)kCGImagePropertyGIFUnclampedDelayTime;
     
     BOOL isPNG = NO;
-    if (@available(iOS 14.0, *)) {
-        if (utType) {
-            isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)utType] conformsToType:UTTypePNG];
-        }
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        isPNG = UTTypeConformsTo(utType, kUTTypePNG);
-#pragma clang diagnostic pop
+    if (utType) {
+        isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)utType] conformsToType:UTTypePNG];
     }
     if (isPNG) {
         imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;

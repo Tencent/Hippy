@@ -190,11 +190,7 @@ static UIInterfaceOrientation getStatusBarOrientation(void) {
 #pragma mark - Uitls
 
 + (BOOL)isUIScreenInOSDarkMode {
-    if (@available(iOS 12.0, *)) {
-        return (UIUserInterfaceStyleDark == [UIScreen mainScreen].traitCollection.userInterfaceStyle);
-    } else {
-        return NO;
-    }
+    return (UIUserInterfaceStyleDark == [UIScreen mainScreen].traitCollection.userInterfaceStyle);
 }
 
 

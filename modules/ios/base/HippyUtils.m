@@ -142,34 +142,15 @@ UIWindow *__nullable HippyKeyWindow(void) {
     }
     UIWindow *keyWindow = nil;
     UIApplication *application = HippySharedApplication();
-    if (@available(iOS 13.0, *)) {
-        NSArray<UIScene *> *scenes = [[application connectedScenes] allObjects];
-        BOOL keyWindowFound = NO;
-        for (UIScene *obj in scenes) {
-            if (UISceneActivationStateForegroundActive != obj.activationState) {
-                continue;
-            }
-            if ([obj isKindOfClass:[UIWindowScene class]]) {
-                UIWindowScene *windowScene = (UIWindowScene *)obj;
-                if (@available(iOS 15.0, *)) {
-                    keyWindow = windowScene.keyWindow;
-                    break;
-                }
-                else {
-                    NSArray<UIWindow *> *windows = [windowScene windows];
-                    for (UIWindow *window in windows) {
-                        if (![window isKeyWindow]) {
-                            continue;
-                        }
-                        keyWindow = window;
-                        keyWindowFound = YES;
-                        break;
-                    }
-                }
-                if (keyWindowFound) {
-                    break;
-                }
-            }
+    NSArray<UIScene *> *scenes = [[application connectedScenes] allObjects];
+    for (UIScene *obj in scenes) {
+        if (UISceneActivationStateForegroundActive != obj.activationState) {
+            continue;
+        }
+        if ([obj isKindOfClass:[UIWindowScene class]]) {
+            UIWindowScene *windowScene = (UIWindowScene *)obj;
+            keyWindow = windowScene.keyWindow;
+            break;
         }
     }
 #pragma clang diagnostic push
@@ -207,15 +188,7 @@ UIWindowScene *__nullable HippyKeyWindowScene(void) {
 }
 
 CGFloat HippyStatusBarHeight(void) {
-    CGFloat statusBarHeight = 0.0;
-    if (@available(iOS 13.0, *)) {
-        statusBarHeight = HippyKeyWindowScene().statusBarManager.statusBarFrame.size.height;
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        statusBarHeight = HippySharedApplication().statusBarFrame.size.height;
-#pragma clang diagnostic pop
-    }
+    CGFloat statusBarHeight = HippyKeyWindowScene().statusBarManager.statusBarFrame.size.height;
     // Guard against NaN/infinite values, which are not JSON serializable
     // and would otherwise be propagated to the JS layer.
     if (!isfinite(statusBarHeight) || statusBarHeight < 0) {
@@ -225,14 +198,8 @@ CGFloat HippyStatusBarHeight(void) {
 }
 
 UIInterfaceOrientation HippyCurrentInterfaceOrientation(void) {
-    if (@available(iOS 13.0, *)) {
-        UIWindowScene *windowScene = HippyKeyWindowScene();
-        return windowScene ? windowScene.interfaceOrientation : UIInterfaceOrientationUnknown;
-    }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return HippySharedApplication().statusBarOrientation;
-#pragma clang diagnostic pop
+    UIWindowScene *windowScene = HippyKeyWindowScene();
+    return windowScene ? windowScene.interfaceOrientation : UIInterfaceOrientationUnknown;
 }
 
 UIViewController *__nullable HippyPresentedViewController(void) {
@@ -256,10 +223,7 @@ BOOL HippyForceTouchAvailable(void) {
         forceSupported = [UITraitCollection class] && [UITraitCollection instancesRespondToSelector:@selector(forceTouchCapability)];
     });
 
-    BOOL forceTouchCapability = NO;
-    if (@available(iOS 9.0, *)) {
-        forceTouchCapability = (HippyKeyWindow() ?: [UIView new]).traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable;
-    }
+    BOOL forceTouchCapability = (HippyKeyWindow() ?: [UIView new]).traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable;
     return forceSupported && forceTouchCapability;
 }
 
