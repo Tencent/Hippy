@@ -1352,20 +1352,44 @@ static const size_t HippySRFrameHeaderOverhead = 32;
         if (sslCerts) {
             SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
             if (secTrust) {
-                NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-                for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
-                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
-                    NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
+                if (@available(iOS 15.0, *)) {
+                    NSArray *certificates = CFBridgingRelease(SecTrustCopyCertificateChain(secTrust));
+                    for (id certObj in certificates) {
+                        SecCertificateRef cert = (__bridge SecCertificateRef)certObj;
+                        NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
 
-                    for (id ref in sslCerts) {
-                        SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
-                        NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
+                        for (id ref in sslCerts) {
+                            SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
+                            NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
 
-                        if ([trustedCertData isEqualToData:certData]) {
-                            _pinnedCertFound = YES;
+                            if ([trustedCertData isEqualToData:certData]) {
+                                _pinnedCertFound = YES;
+                                break;
+                            }
+                        }
+                        if (_pinnedCertFound) {
                             break;
                         }
                     }
+                } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+                    NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
+                    for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
+                        SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
+                        NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
+
+                        for (id ref in sslCerts) {
+                            SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
+                            NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
+
+                            if ([trustedCertData isEqualToData:certData]) {
+                                _pinnedCertFound = YES;
+                                break;
+                            }
+                        }
+                    }
+#pragma clang diagnostic pop
                 }
             }
 

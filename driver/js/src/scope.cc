@@ -193,7 +193,7 @@ void Scope::WillExit() {
     runner->PostTask(std::move(cb));
   }
 
-  future.get();
+  (void)future.get();
   FOOTSTONE_DLOG(INFO) << "ExitCtx end";
 }
 

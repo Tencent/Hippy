@@ -681,10 +681,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                         heightOfTallestSubview:heightOfTallestSubview
                                   isNestedText:styleInfo.isNestedText];
     if ([self isLayoutSubviewsRTL]) {
-        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
+        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@((NSInteger)NSWritingDirectionRightToLeft | (NSInteger)NSWritingDirectionEmbedding)]};
         [attributedString addAttributes:dic range:NSMakeRange(0, [attributedString length])];
     } else {
-        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionLeftToRight | NSWritingDirectionEmbedding)]};
+        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@((NSInteger)NSWritingDirectionLeftToRight | (NSInteger)NSWritingDirectionEmbedding)]};
         [attributedString addAttributes:dic range:NSMakeRange(0, [attributedString length])];
     }
 

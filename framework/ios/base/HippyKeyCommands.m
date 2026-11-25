@@ -130,7 +130,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         isKeyDown = [event _isKeyDown];
     }
     
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL interactionEnabled = !UIApplication.sharedApplication.isIgnoringInteractionEvents;
+#pragma clang diagnostic pop
     BOOL hasFirstResponder = NO;
     if (isKeyDown && modifiedInput.length > 0 && interactionEnabled) {
         UIResponder *firstResponder = nil;

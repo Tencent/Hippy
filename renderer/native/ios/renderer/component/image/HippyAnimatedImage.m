@@ -23,6 +23,7 @@
 #import "HippyAnimatedImage.h"
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import "HippyWeakProxy.h"
 
 // From vm_param.h, define for iOS 8.0 or higher to build on device.
@@ -270,9 +271,9 @@ static NSHashTable *allAnimatedImagesWeak;
             // It's only dependent on the image size & number of frames and never changes.
             CGFloat animatedImageDataSize
                 = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
-            if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryAll) {
+            if (animatedImageDataSize <= (CGFloat)HippyAnimatedImageDataSizeCategoryAll) {
                 _frameCacheSizeOptimal = self.frameCount;
-            } else if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryDefault) {
+            } else if (animatedImageDataSize <= (CGFloat)HippyAnimatedImageDataSizeCategoryDefault) {
                 // This value doesn't depend on device memory much because if we're not keeping all frames in memory we will always be decoding 1
                 // frame up ahead per 1 frame that gets played and at this point we might as well just keep a small buffer just large enough to keep
                 // from running out of frames.
@@ -453,9 +454,9 @@ static NSHashTable *allAnimatedImagesWeak;
             // It's only dependent on the image size & number of frames and never changes.
             CGFloat animatedImageDataSize
                 = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
-            if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryAll) {
+            if (animatedImageDataSize <= (CGFloat)HippyAnimatedImageDataSizeCategoryAll) {
                 _frameCacheSizeOptimal = self.frameCount;
-            } else if (animatedImageDataSize <= HippyAnimatedImageDataSizeCategoryDefault) {
+            } else if (animatedImageDataSize <= (CGFloat)HippyAnimatedImageDataSizeCategoryDefault) {
                 // This value doesn't depend on device memory much because if we're not keeping all frames in memory we will always be decoding 1
                 // frame up ahead per 1 frame that gets played and at this point we might as well just keep a small buffer just large enough to keep
                 // from running out of frames.
@@ -601,7 +602,18 @@ static NSHashTable *allAnimatedImagesWeak;
         CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
         NSString *imagePropertyKey = (NSString *)kCGImagePropertyGIFDictionary;
         NSString *loopCountKey = (NSString *)kCGImagePropertyGIFLoopCount;
-        if (UTTypeConformsTo(imageSourceContainerType, kUTTypePNG)) {
+        BOOL isPNG = NO;
+        if (@available(iOS 14.0, *)) {
+            if (imageSourceContainerType) {
+                isPNG = [[UTType typeWithIdentifier:(__bridge NSString *)imageSourceContainerType] conformsToType:UTTypePNG];
+            }
+        } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            isPNG = UTTypeConformsTo(imageSourceContainerType, kUTTypePNG);
+#pragma clang diagnostic pop
+        }
+        if (isPNG) {
             imagePropertyKey = (NSString *)kCGImagePropertyPNGDictionary;
             loopCountKey = (NSString *)kCGImagePropertyAPNGLoopCount;
         }

@@ -833,6 +833,9 @@ NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setScrollsToTop, scrollsToTop, BOOL)
 NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setShowsHorizontalScrollIndicator, showsHorizontalScrollIndicator, BOOL)
 NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setShowsVerticalScrollIndicator, showsVerticalScrollIndicator, BOOL)
 NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setZoomScale, zoomScale, CGFloat);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setScrollIndicatorInsets, scrollIndicatorInsets, UIEdgeInsets);
+#pragma clang diagnostic pop
 
 @end

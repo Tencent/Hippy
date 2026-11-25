@@ -139,7 +139,10 @@ static UIInterfaceOrientation getStatusBarOrientation(void) {
             && _bridge.delegate.shouldUseViewWillTransitionMethodToMonitorOrientation) {
             notificationName = HippyDimensionsShouldUpdateNotification;
         } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             notificationName = UIApplicationDidChangeStatusBarOrientationNotification;
+#pragma clang diagnostic pop
         }
         _statusBarOrientationNotificationObserver = [[NSNotificationCenter defaultCenter]
                                                      addObserverForName:notificationName

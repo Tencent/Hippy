@@ -39,7 +39,10 @@
             _preferredStatusBarStyle = HippyKeyWindowScene().statusBarManager.statusBarStyle;
         }
         else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+#pragma clang diagnostic pop
         }
     }
     return self;

@@ -246,13 +246,13 @@ struct std::hash<footstone::stringview::string_view> {
 
 inline namespace literals {
 inline namespace string_literals {
-[[nodiscard]] inline constexpr const footstone::stringview::string_view::char8_t_* operator "" _u8_ptr(
+[[nodiscard]] inline constexpr const footstone::stringview::string_view::char8_t_* operator""_u8_ptr(
     const u8_type* u8, size_t) {
   return (footstone::stringview::string_view::char8_t_*) u8;
 }
 
-[[nodiscard]] inline const footstone::stringview::string_view operator "" _u8s(const u8_type* u8,
-                                                                                       size_t length) {
+[[nodiscard]] inline const footstone::stringview::string_view operator""_u8s(const u8_type* u8,
+                                                                                     size_t length) {
   return footstone::stringview::string_view(u8, length);
 }
 }  // namespace string_literals
