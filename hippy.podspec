@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.platform = :ios
-  s.ios.deployment_target = '12.0'
+  s.ios.deployment_target = '15.0'
 
   s.prepare_command = <<-CMD
     ./xcodeinitscript.sh "#{layout_engine}" "#{js_engine}"
@@ -107,6 +107,7 @@ Pod::Spec.new do |s|
     header_search_paths = '$(PODS_TARGET_SRCROOT)/modules/footstone' + ' $(PODS_TARGET_SRCROOT)/modules/footstone/include'
     footstone.pod_target_xcconfig = {
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) _LIBCPP_DISABLE_DEPRECATION_WARNINGS=1',
       'GCC_PREPROCESSOR_DEFINITIONS[config=Release]' => '${inherited} NDEBUG=1',
       'GCC_ENABLE_CPP_EXCEPTIONS' => true,
       'GCC_ENABLE_CPP_RTTI' => true,
@@ -210,6 +211,7 @@ Pod::Spec.new do |s|
     if layout_engine == "Taitank"
       dom_exclude_files.append('dom/include/dom/yoga_layout_node.h')
       dom_exclude_files.append('dom/src/dom/yoga_layout_node.cc')
+      dom_pod_target_header_path += ' $(PODS_TARGET_SRCROOT)/dom/dom_project/_deps/taitank-src/src'
     elsif layout_engine == "Yoga"
       dom_exclude_files.append('dom/include/dom/taitank_layout_node.h')
       dom_exclude_files.append('dom/src/dom/taitank_layout_node.cc')
@@ -335,6 +337,7 @@ Pod::Spec.new do |s|
     devtools.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => pod_search_path,
       'GCC_PREPROCESSOR_DEFINITIONS' => 'ENABLE_INSPECTOR=1 ASIO_NO_TYPEID ASIO_NO_EXCEPTIONS ASIO_DISABLE_ALIGNOF _WEBSOCKETPP_NO_EXCEPTIONS_ JSON_NOEXCEPTION BASE64_STATIC_DEFINE',
+      'OTHER_CPLUSPLUSFLAGS' => '$(inherited) -Wno-deprecated-literal-operator',
       'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
       'GCC_ENABLE_CPP_EXCEPTIONS' => true,
       'GCC_ENABLE_CPP_RTTI' => true,

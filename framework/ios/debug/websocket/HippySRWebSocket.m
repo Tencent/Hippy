@@ -1352,9 +1352,9 @@ static const size_t HippySRFrameHeaderOverhead = 32;
         if (sslCerts) {
             SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
             if (secTrust) {
-                NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-                for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
-                    SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
+                NSArray *certificates = CFBridgingRelease(SecTrustCopyCertificateChain(secTrust));
+                for (id certObj in certificates) {
+                    SecCertificateRef cert = (__bridge SecCertificateRef)certObj;
                     NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
 
                     for (id ref in sslCerts) {
@@ -1365,6 +1365,9 @@ static const size_t HippySRFrameHeaderOverhead = 32;
                             _pinnedCertFound = YES;
                             break;
                         }
+                    }
+                    if (_pinnedCertFound) {
+                        break;
                     }
                 }
             }

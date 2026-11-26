@@ -134,7 +134,7 @@ class HippyJsiBuffer : public facebook::jsi::Buffer {
  public:
   HippyJsiBuffer(const uint8_t* data, size_t len);
   virtual ~HippyJsiBuffer();
-  uint8_t* data() const override { return data_; }
+  const uint8_t* data() const override { return data_; }
   size_t size() const override { return len_; }
 
  private:

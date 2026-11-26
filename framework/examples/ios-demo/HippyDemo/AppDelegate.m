@@ -24,15 +24,27 @@
 #import "HomePageViewController.h"
 #import "DemoNavigationViewController.h"
 
+@interface DemoSceneDelegate : UIResponder <UIWindowSceneDelegate>
+@property (nonatomic, strong) UIWindow *window;
+@end
+
+@implementation DemoSceneDelegate
+
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+    if (![scene isKindOfClass:[UIWindowScene class]]) {
+        return;
+    }
+    self.window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+    HomePageViewController *home = [[HomePageViewController alloc] initWithNibName:@"HomePageView" bundle:[NSBundle mainBundle]];
+    self.window.rootViewController = [[DemoNavigationViewController alloc] initWithRootViewController:home];
+    [self.window makeKeyAndVisible];
+}
+
+@end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
-    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    DemoNavigationViewController *navVC = [[DemoNavigationViewController alloc] initWithRootViewController:[[HomePageViewController alloc] initWithNibName:@"HomePageView" bundle:[NSBundle mainBundle]]];
-    [self.window setRootViewController: navVC];
-    [self.window makeKeyAndVisible];
     return YES;
 }
 

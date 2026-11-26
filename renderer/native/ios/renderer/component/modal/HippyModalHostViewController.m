@@ -35,12 +35,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        if (@available(iOS 13.0, *)) {
-            _preferredStatusBarStyle = HippyKeyWindowScene().statusBarManager.statusBarStyle;
-        }
-        else {
-            _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-        }
+        _preferredStatusBarStyle = HippyKeyWindowScene().statusBarManager.statusBarStyle;
     }
     return self;
 }
